@@ -1,6 +1,7 @@
 import 'package:mineral/events.dart';
 import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event.dart';
+import 'package:mineral/src/domains/services/cache/cache_invalidation.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
@@ -20,7 +21,7 @@ final class GuildDeletePacket implements ListenablePacket {
         ? await _marshaller.serializers.server.serialize(rawServer)
         : null;
 
-    _marshaller.cache?.remove(cacheKey);
+    await _marshaller.cache.invalidate(cacheKey);
 
     dispatch<ServerDeleteArgs>(event: Event.serverDelete, payload: (server: server));
   }

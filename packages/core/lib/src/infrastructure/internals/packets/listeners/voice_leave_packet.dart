@@ -2,6 +2,7 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event.dart';
+import 'package:mineral/src/domains/services/cache/cache_invalidation.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -28,7 +29,7 @@ final class VoiceLeavePacket implements ListenablePacket {
       final before = await _marshaller.serializers.voice.serialize(beforeRaw);
       dispatch<VoiceLeaveArgs>(event: Event.voiceLeave, payload: (state: before));
 
-      _marshaller.cache?.remove(cacheKey);
+      await _marshaller.cache.invalidate(cacheKey);
     }
   }
 }
