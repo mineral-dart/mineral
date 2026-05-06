@@ -3,6 +3,7 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event.dart';
+import 'package:mineral/src/domains/services/cache/cache_invalidation.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -25,7 +26,7 @@ final class GuildBanAddPacket implements ListenablePacket {
     if (user case User(:final id)) {
       final memberCacheKey =
           _marshaller.cacheKey.member(server.id.value, id.value);
-      await _marshaller.cache?.remove(memberCacheKey);
+      await _marshaller.cache.invalidate(memberCacheKey);
 
       dispatch<ServerBanAddArgs>(event: Event.serverBanAdd, payload: (user: user, server: server));
     }

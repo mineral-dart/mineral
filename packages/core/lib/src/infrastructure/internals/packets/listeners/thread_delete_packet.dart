@@ -3,6 +3,7 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event.dart';
+import 'package:mineral/src/domains/services/cache/cache_invalidation.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -27,7 +28,7 @@ final class ThreadDeletePacket implements ListenablePacket {
         ? await _marshaller.serializers.channels.serialize(threadRaw)
         : null;
 
-    await _marshaller.cache?.remove(threadCacheKey);
+    await _marshaller.cache.invalidate(threadCacheKey);
 
     dispatch<ServerThreadDeleteArgs>(event: Event.serverThreadDelete, payload: (thread: thread as ThreadChannel?, server: server));
   }
