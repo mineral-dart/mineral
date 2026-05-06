@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:mineral/api.dart';
@@ -5,9 +6,17 @@ import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 
 final class MemoryProvider implements CacheProviderContract {
-  final Map<String, dynamic> _storage = {};
+  final Map<String, _Entry> _storage = {};
+  Timer? _sweeper;
 
   LoggerContract get logger => ioc.resolve<LoggerContract>();
+
+  CacheTtlPolicy get _ttlPolicy =>
+      ioc.resolveOrNull<CacheConfig>()?.ttlPolicy ??
+      CacheTtlPolicy.disabled();
+
+  Duration get _sweeperInterval =>
+      ioc.resolveOrNull<CacheConfig>()?.sweeperInterval ?? Duration.zero;
 
   MemoryProvider(Env env);
 
@@ -18,34 +27,48 @@ final class MemoryProvider implements CacheProviderContract {
       'message': 'memory is used',
       'payload': {},
     }));
+
+    if (_sweeperInterval > Duration.zero) {
+      _sweeper = Timer.periodic(_sweeperInterval, (_) => _sweepExpired());
+    }
   }
 
   @override
   String get name => 'In memory provider';
 
   @override
-  int length() => _storage.length;
+  int length() {
+    _sweepExpired();
+    return _storage.length;
+  }
 
   @override
-  Map<String, dynamic> inspect() => _storage;
+  Map<String, dynamic> inspect() {
+    _sweepExpired();
+    return {
+      for (final entry in _storage.entries) entry.key: entry.value.value,
+    };
+  }
 
   @override
   Map<String, dynamic> whereKeyStartsWith(String prefix) {
-    final entries = _storage.entries
-        .where((element) => element.key.startsWith(prefix))
-        .fold(<String, dynamic>{},
-            (acc, element) => {...acc, element.key: element.value});
-
-    return entries;
+    final result = <String, dynamic>{};
+    for (final entry in _storage.entries) {
+      if (!entry.key.startsWith(prefix)) {
+        continue;
+      }
+      if (entry.value.isExpired) {
+        continue;
+      }
+      result[entry.key] = entry.value.value;
+    }
+    return result;
   }
 
   @override
   Map<String, dynamic> whereKeyStartsWithOrFail(String prefix,
       {Exception Function()? onFail}) {
-    final entries = _storage.entries
-        .where((element) => element.key.startsWith(prefix))
-        .fold(<String, dynamic>{},
-            (acc, element) => {...acc, element.key: element.value});
+    final entries = whereKeyStartsWith(prefix);
 
     return entries.isEmpty
         ? onFail != null
@@ -55,40 +78,63 @@ final class MemoryProvider implements CacheProviderContract {
   }
 
   @override
-  Map<String, dynamic>? get(String? key) => _storage[key];
+  Map<String, dynamic>? get(String? key) {
+    if (key == null) {
+      return null;
+    }
+    final entry = _storage[key];
+    if (entry == null) {
+      return null;
+    }
+    if (entry.isExpired) {
+      _storage.remove(key);
+      return null;
+    }
+    return entry.value as Map<String, dynamic>?;
+  }
 
   @override
   List<Map<String, dynamic>?> getMany(List<String> keys) {
-    return keys
-        .map((key) => _storage[key])
-        .cast<Map<String, dynamic>?>()
-        .toList();
+    return keys.map(get).toList();
   }
 
   @override
   Map<String, dynamic> getOrFail(String key, {Exception Function()? onFail}) {
-    if (!_storage.containsKey(key)) {
+    final value = get(key);
+    if (value == null) {
       if (onFail case Function()) {
         throw onFail!();
       }
 
       throw Exception('Key $key not found');
     }
-    return _storage[key];
+    return value;
   }
 
   @override
-  bool has(String key) => _storage.containsKey(key);
-
-  @override
-  void put<T>(String key, T object) {
-    _storage[key] = object;
+  bool has(String key) {
+    final entry = _storage[key];
+    if (entry == null) {
+      return false;
+    }
+    if (entry.isExpired) {
+      _storage.remove(key);
+      return false;
+    }
+    return true;
   }
 
   @override
-  void putMany<T>(Map<String, T> objects) {
-    for (final element in objects.entries) {
-      _storage[element.key] = element.value;
+  void put<T>(String key, T object, {Duration? ttl}) {
+    final effectiveTtl = ttl ?? _ttlPolicy.ttlFor(key);
+    _storage[key] = _Entry(object, effectiveTtl);
+  }
+
+  @override
+  void putMany<T>(Map<String, T> objects, {Duration? ttl}) {
+    for (final entry in objects.entries) {
+      final effectiveTtl = ttl ?? _ttlPolicy.ttlFor(entry.key);
+      _storage[entry.key] = _Entry(entry.value, effectiveTtl);
     }
   }
 
@@ -109,5 +155,26 @@ final class MemoryProvider implements CacheProviderContract {
   bool getHealth() => true;
 
   @override
-  void dispose() => _storage.clear();
+  void dispose() {
+    _sweeper?.cancel();
+    _sweeper = null;
+    _storage.clear();
+  }
+
+  void _sweepExpired() {
+    _storage.removeWhere((_, entry) => entry.isExpired);
+  }
+}
+
+final class _Entry {
+  _Entry(this.value, Duration? ttl)
+      : expiresAt = ttl == null ? null : DateTime.now().add(ttl);
+
+  final dynamic value;
+  final DateTime? expiresAt;
+
+  bool get isExpired {
+    final at = expiresAt;
+    return at != null && DateTime.now().isAfter(at);
+  }
 }

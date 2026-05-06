@@ -63,6 +63,7 @@ final class ClientBuilder {
     CacheConfig? config,
   }) {
     _cacheConfig = config ?? CacheConfig.defaults();
+    ioc.bind<CacheConfig>(() => _cacheConfig);
     _cache = ioc.make<CacheProviderContract>(() => cache(env));
     return this;
   }
@@ -191,7 +192,6 @@ final class ClientBuilder {
             marshaller: ioc.resolve<MarshallerContract>(),
           ))
       ..bind<CommandInteractionManagerContract>(CommandInteractionManager.new)
-      ..bind<CacheConfig>(() => _cacheConfig)
       ..validateBindings();
 
     packetListener
