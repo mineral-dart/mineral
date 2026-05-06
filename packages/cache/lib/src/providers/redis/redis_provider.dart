@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:mineral/api.dart';
 import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral_cache/src/providers/redis/redis_commands.dart';
 import 'package:mineral_cache/src/providers/redis/redis_env_keys.dart';
 import 'package:mineral_cache/src/providers/redis/redis_settings.dart';
 import 'package:redis/redis.dart';
@@ -17,6 +18,10 @@ final class RedisProvider implements CacheProviderContract {
   String? _password;
 
   LoggerContract get logger => ioc.resolve<LoggerContract>();
+
+  CacheTtlPolicy get _ttlPolicy =>
+      ioc.resolveOrNull<CacheConfig>()?.ttlPolicy ??
+      CacheTtlPolicy.disabled();
 
   RedisProvider({required String host, required int port, String? password})
       : _password = password {
@@ -171,16 +176,34 @@ final class RedisProvider implements CacheProviderContract {
 
   @override
   Future<void> put<T>(String key, T object, {Duration? ttl}) async {
-    // TTL is honored in PR 3 (SET … EX / PX). For now Redis ignores it to
-    // keep this PR scoped to the in-memory provider.
-    await Command(_connection).send_object(['SET', key, jsonEncode(object)]);
+    final effectiveTtl = ttl ?? _ttlPolicy.ttlFor(key);
+    final command = buildSetCommand(key, jsonEncode(object), effectiveTtl);
+    await Command(_connection).send_object(command);
   }
 
   @override
   Future<void> putMany<T>(Map<String, T> objects, {Duration? ttl}) async {
-    final values = objects.entries
-        .fold([], (acc, object) => [...acc, object.key, jsonEncode(object.value)]);
-    await Command(_connection).send_object(['MSET', ...values]);
+    // MSET cannot carry an expiration, so when any entry has a TTL we issue
+    // one SET … PX per key. Without TTL we keep the single MSET round-trip.
+    final keyTtls = {
+      for (final key in objects.keys) key: ttl ?? _ttlPolicy.ttlFor(key),
+    };
+    final hasAnyTtl =
+        keyTtls.values.any((d) => d != null && d > Duration.zero);
+
+    if (!hasAnyTtl) {
+      final encoded = {
+        for (final entry in objects.entries) entry.key: jsonEncode(entry.value),
+      };
+      await Command(_connection).send_object(buildMsetCommand(encoded));
+      return;
+    }
+
+    for (final entry in objects.entries) {
+      await Command(_connection).send_object(
+        buildSetCommand(entry.key, jsonEncode(entry.value), keyTtls[entry.key]),
+      );
+    }
   }
 
   @override
