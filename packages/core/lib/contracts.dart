@@ -5,7 +5,9 @@ export 'package:mineral/src/domains/components/interactives/components/interacti
 export 'package:mineral/src/domains/components/interactives/components/interactive_modal.dart';
 export 'package:mineral/src/domains/components/interactives/components/interactive_select_menu.dart';
 export 'package:mineral/src/domains/components/interactives/interactive_component_manager.dart';
+export 'package:mineral/src/domains/services/cache/cache_config.dart';
 export 'package:mineral/src/domains/services/cache/cache_provider_contract.dart';
+export 'package:mineral/src/domains/services/cache/cache_ttl_policy.dart';
 export 'package:mineral/src/domains/services/datastore/datastore.dart';
 export 'package:mineral/src/domains/services/datastore/parts.dart';
 export 'package:mineral/src/domains/services/interactions/interaction_callback_type.dart';

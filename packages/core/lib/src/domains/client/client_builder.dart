@@ -19,6 +19,7 @@ import 'package:mineral/src/infrastructure/internals/wss/websocket_orchestrator.
 final class ClientBuilder {
   late final LoggerContract _logger;
   CacheProviderContract? _cache;
+  CacheConfig _cacheConfig = CacheConfig.defaults();
   final List<EnvSchema> _schemas = [];
   final List<ConstructableWithArgs<ProviderContract, Client>> _providers = [];
 
@@ -58,7 +59,10 @@ final class ClientBuilder {
   }
 
   ClientBuilder setCache(
-      ConstructableWithArgs<CacheProviderContract, Env> cache) {
+    ConstructableWithArgs<CacheProviderContract, Env> cache, {
+    CacheConfig? config,
+  }) {
+    _cacheConfig = config ?? CacheConfig.defaults();
     _cache = ioc.make<CacheProviderContract>(() => cache(env));
     return this;
   }
@@ -187,6 +191,7 @@ final class ClientBuilder {
             marshaller: ioc.resolve<MarshallerContract>(),
           ))
       ..bind<CommandInteractionManagerContract>(CommandInteractionManager.new)
+      ..bind<CacheConfig>(() => _cacheConfig)
       ..validateBindings();
 
     packetListener
