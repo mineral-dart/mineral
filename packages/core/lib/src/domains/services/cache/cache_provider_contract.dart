@@ -23,9 +23,16 @@ abstract interface class CacheProviderContract {
 
   FutureOr<bool> has(String key);
 
-  FutureOr<void> put<T>(String key, T object);
+  /// Stores [object] under [key].
+  ///
+  /// If [ttl] is provided, the entry expires after that duration. Providers
+  /// that support expiration (e.g. memory, Redis) honor this; providers that
+  /// don't may ignore it. A `null` [ttl] means "never expire".
+  FutureOr<void> put<T>(String key, T object, {Duration? ttl});
 
-  FutureOr<void> putMany<T>(Map<String, T> object);
+  /// Stores all entries from [object]. The optional [ttl] applies uniformly
+  /// to every entry; pass `null` to skip expiration.
+  FutureOr<void> putMany<T>(Map<String, T> object, {Duration? ttl});
 
   FutureOr<void> remove(String key);
 

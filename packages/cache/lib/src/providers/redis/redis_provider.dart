@@ -170,12 +170,14 @@ final class RedisProvider implements CacheProviderContract {
   }
 
   @override
-  Future<void> put<T>(String key, T object) async {
+  Future<void> put<T>(String key, T object, {Duration? ttl}) async {
+    // TTL is honored in PR 3 (SET … EX / PX). For now Redis ignores it to
+    // keep this PR scoped to the in-memory provider.
     await Command(_connection).send_object(['SET', key, jsonEncode(object)]);
   }
 
   @override
-  Future<void> putMany<T>(Map<String, T> objects) async {
+  Future<void> putMany<T>(Map<String, T> objects, {Duration? ttl}) async {
     final values = objects.entries
         .fold([], (acc, object) => [...acc, object.key, jsonEncode(object.value)]);
     await Command(_connection).send_object(['MSET', ...values]);

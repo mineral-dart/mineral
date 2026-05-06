@@ -52,10 +52,11 @@ final class FakeCacheProvider implements CacheProviderContract {
   FutureOr<bool> has(String key) => store.containsKey(key);
 
   @override
-  FutureOr<void> put<T>(String key, T object) => store[key] = object;
+  FutureOr<void> put<T>(String key, T object, {Duration? ttl}) =>
+      store[key] = object;
 
   @override
-  FutureOr<void> putMany<T>(Map<String, T> object) {
+  FutureOr<void> putMany<T>(Map<String, T> object, {Duration? ttl}) {
     store.addAll(object);
   }
 
