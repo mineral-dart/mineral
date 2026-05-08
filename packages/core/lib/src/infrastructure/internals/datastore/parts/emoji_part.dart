@@ -9,7 +9,8 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
 
   @override
   Future<Map<Snowflake, Emoji>> fetch(Object serverId, bool force) async {
-    final req = Request.json(endpoint: '/guilds/$serverId/emojis');
+    final guildId = Snowflake.parse(serverId);
+    final req = Request.json(endpoint: '/guilds/$guildId/emojis');
     final result = await dataStore.requestBucket
         .query<List<Map<String, dynamic>>>(req)
         .run(dataStore.client.get);
@@ -24,7 +25,8 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
 
   @override
   Future<Emoji?> get(Object serverId, Object emojiId, bool force) async {
-    final String key = marshaller.cacheKey.serverEmoji(serverId, emojiId);
+    final guildId = Snowflake.parse(serverId);
+    final String key = marshaller.cacheKey.serverEmoji(guildId.value, emojiId);
 
     final cachedEmoji = await marshaller.cache?.get(key);
     if (!force && cachedEmoji != null) {
@@ -32,7 +34,7 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
       return emoji;
     }
 
-    final req = Request.json(endpoint: '/guilds/$serverId/emojis/$emojiId');
+    final req = Request.json(endpoint: '/guilds/$guildId/emojis/$emojiId');
     final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
         .run(dataStore.client.get);
@@ -47,7 +49,8 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
   Future<Emoji> create(
       Object serverId, String name, Image image, List<Object> roles,
       {String? reason}) async {
-    final req = Request.json(endpoint: '/guilds/$serverId/emojis', body: {
+    final guildId = Snowflake.parse(serverId);
+    final req = Request.json(endpoint: '/guilds/$guildId/emojis', body: {
       'name': name.replaceAll(' ', '_'),
       'image': image.base64,
       'roles': roles.isNotEmpty ? roles : null,
@@ -60,7 +63,7 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
 
     final raw = await marshaller.serializers.emojis.normalize({
       ...result,
-      'guild_id': serverId,
+      'guild_id': guildId,
     });
     final emoji = await marshaller.serializers.emojis.serialize(raw);
 
@@ -73,8 +76,10 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
       required Object serverId,
       required Map<String, dynamic> payload,
       required String? reason}) async {
+    final emojiId = Snowflake.parse(id);
+    final guildId = Snowflake.parse(serverId);
     final req = Request.json(
-        endpoint: '/guilds/$serverId/emojis/$id',
+        endpoint: '/guilds/$guildId/emojis/$emojiId',
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
 
@@ -84,7 +89,7 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
 
     final raw = await marshaller.serializers.emojis.normalize({
       ...result,
-      'guild_id': serverId,
+      'guild_id': guildId,
     });
     final emoji = await marshaller.serializers.emojis.serialize(raw);
 
@@ -93,8 +98,9 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
 
   @override
   Future<void> delete(Object serverId, Object emojiId, {String? reason}) async {
+    final guildId = Snowflake.parse(serverId);
     final req = Request.json(
-        endpoint: '/guilds/$serverId/emojis/$emojiId',
+        endpoint: '/guilds/$guildId/emojis/$emojiId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
     await dataStore.requestBucket
