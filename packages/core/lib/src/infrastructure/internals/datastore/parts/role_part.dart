@@ -158,10 +158,10 @@ final class RolePart implements RolePartContract {
   @override
   Future<void> delete(
       {required Object id,
-      required Object guildId,
+      required Object serverId,
       required String? reason}) async {
     final req = Request.json(
-        endpoint: '/guilds/$guildId/roles/$id',
+        endpoint: '/guilds/$serverId/roles/$id',
         headers: {DiscordHeader.auditLogReason(reason)});
 
     await _dataStore.requestBucket
