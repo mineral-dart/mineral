@@ -11,14 +11,15 @@ final class MemberPart extends BasePart implements MemberPartContract {
 
   @override
   Future<Map<Snowflake, Member>> fetch(Object serverId, bool force) async {
-    final req = Request.json(endpoint: '/guilds/$serverId/members');
+    final guildId = Snowflake.parse(serverId);
+    final req = Request.json(endpoint: '/guilds/$guildId/members');
     final result = await dataStore.requestBucket
         .query<List<Map<String, dynamic>>>(req)
         .run(dataStore.client.get);
 
     final members = await result.map((element) async {
       final raw = await marshaller.serializers.member
-          .normalize({...element, 'guild_id': serverId});
+          .normalize({...element, 'guild_id': guildId});
       return marshaller.serializers.member.serialize(raw);
     }).wait;
 
@@ -27,7 +28,9 @@ final class MemberPart extends BasePart implements MemberPartContract {
 
   @override
   Future<Member?> get(Object serverId, Object id, bool force) async {
-    final String key = marshaller.cacheKey.member(serverId, id);
+    final guildId = Snowflake.parse(serverId);
+    final memberId = Snowflake.parse(id);
+    final String key = marshaller.cacheKey.member(guildId.value, memberId.value);
 
     final cachedMember = await marshaller.cache?.get(key);
     if (!force && cachedMember != null) {
@@ -37,13 +40,13 @@ final class MemberPart extends BasePart implements MemberPartContract {
       return member;
     }
 
-    final req = Request.json(endpoint: '/guilds/$serverId/members/$id');
+    final req = Request.json(endpoint: '/guilds/$guildId/members/$memberId');
     final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
         .run(dataStore.client.get);
 
     final raw = await marshaller.serializers.member
-        .normalize({...result, 'guild_id': serverId});
+        .normalize({...result, 'guild_id': guildId});
     final member = await marshaller.serializers.member.serialize(raw);
 
     return member;
@@ -55,8 +58,10 @@ final class MemberPart extends BasePart implements MemberPartContract {
       required Object memberId,
       required Map<String, dynamic> payload,
       String? reason}) async {
+    final guildId = Snowflake.parse(serverId);
+    final userId = Snowflake.parse(memberId);
     final req = Request.json(
-        endpoint: '/guilds/$serverId/members/$memberId',
+        endpoint: '/guilds/$guildId/members/$userId',
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
     final result = await dataStore.requestBucket
@@ -65,7 +70,7 @@ final class MemberPart extends BasePart implements MemberPartContract {
 
     final raw = await marshaller.serializers.member.normalize({
       ...result,
-      'guild_id': serverId,
+      'guild_id': guildId,
     });
     final member = await marshaller.serializers.member.serialize(raw);
 
@@ -78,8 +83,10 @@ final class MemberPart extends BasePart implements MemberPartContract {
       required Duration? deleteSince,
       required Object memberId,
       String? reason}) async {
+    final guildId = Snowflake.parse(serverId);
+    final userId = Snowflake.parse(memberId);
     final req = Request.json(
-        endpoint: '/guilds/$serverId/bans/$memberId',
+        endpoint: '/guilds/$guildId/bans/$userId',
         body: {'delete_message_seconds': deleteSince?.inSeconds},
         headers: {DiscordHeader.auditLogReason(reason)});
 
@@ -93,8 +100,10 @@ final class MemberPart extends BasePart implements MemberPartContract {
       {required Object serverId,
       required Object memberId,
       String? reason}) async {
+    final guildId = Snowflake.parse(serverId);
+    final userId = Snowflake.parse(memberId);
     final req = Request.json(
-        endpoint: '/guilds/$serverId/members/$memberId',
+        endpoint: '/guilds/$guildId/members/$userId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
     await dataStore.requestBucket
@@ -105,7 +114,8 @@ final class MemberPart extends BasePart implements MemberPartContract {
   @override
   Future<VoiceState?> getVoiceState(
       Object serverId, Object userId, bool force) async {
-    final String key = marshaller.cacheKey.voiceState(serverId, userId);
+    final guildId = Snowflake.parse(serverId);
+    final String key = marshaller.cacheKey.voiceState(guildId.value, userId);
 
     final cachedMember = await marshaller.cache?.get(key);
     if (!force && cachedMember != null) {
@@ -116,7 +126,7 @@ final class MemberPart extends BasePart implements MemberPartContract {
     }
 
     final req =
-        Request.json(endpoint: '/guilds/$serverId/voice-states/$userId');
+        Request.json(endpoint: '/guilds/$guildId/voice-states/$userId');
     final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
         .run(dataStore.client.get);

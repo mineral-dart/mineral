@@ -68,7 +68,8 @@ final class MessagePart extends BasePart
     Object id,
     bool force,
   ) async {
-    final cacheKey = marshaller.cacheKey.message(channelId, id);
+    final messageId = Snowflake.parse(id);
+    final cacheKey = marshaller.cacheKey.message(channelId, messageId.value);
     final cachedMessage = await marshaller.cache?.get(cacheKey);
     if (!force && cachedMessage != null) {
       final message = await marshaller.serializers.message.serialize(
@@ -82,7 +83,8 @@ final class MessagePart extends BasePart
       return message as T;
     }
 
-    final req = Request.json(endpoint: '/channels/$channelId/messages/$id');
+    final req =
+        Request.json(endpoint: '/channels/$channelId/messages/$messageId');
     final response = await dataStore.client.get(req);
 
     final message = await handleResponse(
@@ -105,6 +107,7 @@ final class MessagePart extends BasePart
     required Object channelId,
     required MessageBuilder builder,
   }) async {
+    final messageId = Snowflake.parse(id);
     final (components, files) = makeAttachmentFromBuilder(builder);
 
     final payload = {
@@ -113,11 +116,11 @@ final class MessagePart extends BasePart
     };
     final req = switch (files.isEmpty) {
       true => Request.json(
-          endpoint: '/channels/$channelId/messages/$id',
+          endpoint: '/channels/$channelId/messages/$messageId',
           body: payload,
         ),
       false => Request.formData(
-          endpoint: '/channels/$channelId/messages/$id',
+          endpoint: '/channels/$channelId/messages/$messageId',
           body: payload,
           files: files,
         ),

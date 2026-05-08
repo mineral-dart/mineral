@@ -11,7 +11,8 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
   @override
   Future<Map<Snowflake, T>> fetch<T extends Channel>(
       Object serverId, bool force) async {
-    final req = Request.json(endpoint: '/guilds/$serverId/channels');
+    final guildId = Snowflake.parse(serverId);
+    final req = Request.json(endpoint: '/guilds/$guildId/channels');
     final result = await dataStore.requestBucket
         .query<List<Map<String, dynamic>>>(req)
         .run(dataStore.client.get);
@@ -31,7 +32,8 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
 
   @override
   Future<T?> get<T extends Channel>(Object id, bool force) async {
-    final String key = marshaller.cacheKey.channel(id);
+    final channelId = Snowflake.parse(id);
+    final String key = marshaller.cacheKey.channel(channelId.value);
     final cachedChannel = await marshaller.cache?.get(key);
     if (!force && cachedChannel != null) {
       final serialized =
@@ -43,7 +45,7 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
       return serialized;
     }
 
-    final req = Request.json(endpoint: '/channels/$id');
+    final req = Request.json(endpoint: '/channels/$channelId');
     final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
         .run(dataStore.client.get);
@@ -61,8 +63,9 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
   Future<T> create<T extends Channel>(
       Object? serverId, ChannelBuilderContract builder,
       {String? reason}) async {
+    final guildId = serverId != null ? Snowflake.parse(serverId) : null;
     final req = Request.json(
-        endpoint: '/guilds/$serverId/channels',
+        endpoint: '/guilds/$guildId/channels',
         body: builder.build(),
         headers: {DiscordHeader.auditLogReason(reason)});
 
@@ -73,7 +76,7 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
       ...raw,
-      'guild_id': serverId,
+      'guild_id': guildId,
     });
     if (serialized is! T)
       throw SerializationException(
@@ -85,8 +88,9 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
   @override
   Future<PrivateChannel> createPrivateChannel(
       Object id, Object recipientId) async {
+    final userId = Snowflake.parse(recipientId);
     final req = Request.json(
-        endpoint: '/users/@me/channels', body: {'recipient_id': recipientId});
+        endpoint: '/users/@me/channels', body: {'recipient_id': userId});
 
     final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
@@ -102,8 +106,10 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
   Future<T?> update<T extends Channel>(
       Object id, ChannelBuilderContract builder,
       {Object? serverId, String? reason}) async {
+    final channelId = Snowflake.parse(id);
+    final guildId = serverId != null ? Snowflake.parse(serverId) : null;
     final req = Request.json(
-        endpoint: '/channels/$id',
+        endpoint: '/channels/$channelId',
         body: builder.build(),
         headers: {DiscordHeader.auditLogReason(reason)});
 
@@ -114,7 +120,7 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
       ...raw,
-      'guild_id': serverId,
+      'guild_id': guildId,
     });
     if (serialized is! T)
       throw SerializationException(
@@ -125,8 +131,9 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
 
   @override
   Future<void> delete(Object id, String? reason) async {
+    final channelId = Snowflake.parse(id);
     final req = Request.json(
-        endpoint: '/channels/$id',
+        endpoint: '/channels/$channelId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
     await dataStore.requestBucket

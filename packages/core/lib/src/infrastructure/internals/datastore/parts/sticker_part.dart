@@ -9,7 +9,8 @@ final class StickerPart extends BasePart implements StickerPartContract {
 
   @override
   Future<Map<Snowflake, Sticker>> fetch(Object serverId, bool force) async {
-    final req = Request.json(endpoint: '/guilds/$serverId/stickers');
+    final guildId = Snowflake.parse(serverId);
+    final req = Request.json(endpoint: '/guilds/$guildId/stickers');
     final result = await dataStore.requestBucket
         .query<List<Map<String, dynamic>>>(req)
         .run(dataStore.client.get);
@@ -24,7 +25,8 @@ final class StickerPart extends BasePart implements StickerPartContract {
 
   @override
   Future<Sticker?> get(Object serverId, Object stickerId, bool force) async {
-    final String key = marshaller.cacheKey.sticker(serverId, stickerId);
+    final guildId = Snowflake.parse(serverId);
+    final String key = marshaller.cacheKey.sticker(guildId.value, stickerId);
 
     final cachedSticker = await marshaller.cache?.get(key);
     if (!force && cachedSticker != null) {
@@ -34,7 +36,7 @@ final class StickerPart extends BasePart implements StickerPartContract {
       return sticker;
     }
 
-    final req = Request.json(endpoint: '/guilds/$serverId/stickers/$stickerId');
+    final req = Request.json(endpoint: '/guilds/$guildId/stickers/$stickerId');
     final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
         .run(dataStore.client.get);
@@ -47,7 +49,8 @@ final class StickerPart extends BasePart implements StickerPartContract {
 
   @override
   Future<void> delete(Object serverId, Object stickerId) async {
-    final req = Request.json(endpoint: '/guilds/$serverId/stickers/$stickerId');
+    final guildId = Snowflake.parse(serverId);
+    final req = Request.json(endpoint: '/guilds/$guildId/stickers/$stickerId');
     await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
         .run(dataStore.client.delete);

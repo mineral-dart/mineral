@@ -10,7 +10,8 @@ final class RolePart extends BasePart implements RolePartContract {
 
   @override
   Future<Map<Snowflake, Role>> fetch(Object serverId, bool force) async {
-    final req = Request.json(endpoint: '/guilds/$serverId/roles');
+    final guildId = Snowflake.parse(serverId);
+    final req = Request.json(endpoint: '/guilds/$guildId/roles');
     final result = await dataStore.requestBucket
         .query<List<Map<String, dynamic>>>(req)
         .run(dataStore.client.get);
@@ -18,7 +19,7 @@ final class RolePart extends BasePart implements RolePartContract {
     final roles = await result.map((element) async {
       final raw = await marshaller.serializers.role.normalize({
         ...element,
-        'guild_id': serverId,
+        'guild_id': guildId,
       });
 
       return marshaller.serializers.role.serialize(raw);
@@ -29,7 +30,9 @@ final class RolePart extends BasePart implements RolePartContract {
 
   @override
   Future<Role?> get(Object serverId, Object id, bool force) async {
-    final String key = marshaller.cacheKey.serverRole(serverId, id);
+    final guildId = Snowflake.parse(serverId);
+    final roleId = Snowflake.parse(id);
+    final String key = marshaller.cacheKey.serverRole(guildId.value, roleId.value);
 
     final cachedRole = await marshaller.cache?.get(key);
     if (!force && cachedRole != null) {
@@ -38,7 +41,7 @@ final class RolePart extends BasePart implements RolePartContract {
       return role;
     }
 
-    final req = Request.json(endpoint: '/guilds/$serverId/roles/$id');
+    final req = Request.json(endpoint: '/guilds/$guildId/roles/$roleId');
     final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
         .run(dataStore.client.get);
@@ -58,7 +61,8 @@ final class RolePart extends BasePart implements RolePartContract {
       bool hoist,
       bool mentionable,
       String? reason) async {
-    final req = Request.json(endpoint: '/guilds/$serverId/roles', body: {
+    final guildId = Snowflake.parse(serverId);
+    final req = Request.json(endpoint: '/guilds/$guildId/roles', body: {
       'name': name,
       'permissions': listToBitfield(permissions),
       'color': color.toInt(),
@@ -75,7 +79,7 @@ final class RolePart extends BasePart implements RolePartContract {
     final raw = await marshaller.serializers.role.normalize(result);
     final role = await marshaller.serializers.role.serialize({
       ...raw,
-      'guild_id': serverId,
+      'guild_id': guildId,
     });
 
     return role;
@@ -87,8 +91,10 @@ final class RolePart extends BasePart implements RolePartContract {
       required Object serverId,
       required Object roleId,
       required String? reason}) async {
+    final userId = Snowflake.parse(memberId);
+    final guildId = Snowflake.parse(serverId);
     final req = Request.json(
-        endpoint: '/guilds/$serverId/members/$memberId/roles/$roleId',
+        endpoint: '/guilds/$guildId/members/$userId/roles/$roleId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
     await dataStore.requestBucket
@@ -102,8 +108,10 @@ final class RolePart extends BasePart implements RolePartContract {
       required Object serverId,
       required Object roleId,
       required String? reason}) async {
+    final userId = Snowflake.parse(memberId);
+    final guildId = Snowflake.parse(serverId);
     final req = Request.json(
-        endpoint: '/guilds/$serverId/members/$memberId/roles/$roleId',
+        endpoint: '/guilds/$guildId/members/$userId/roles/$roleId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
     await dataStore.requestBucket
@@ -117,8 +125,10 @@ final class RolePart extends BasePart implements RolePartContract {
       required Object serverId,
       required List<Object> roleIds,
       required String? reason}) async {
+    final userId = Snowflake.parse(memberId);
+    final guildId = Snowflake.parse(serverId);
     final req = Request.json(
-        endpoint: '/guilds/$serverId/members/$memberId',
+        endpoint: '/guilds/$guildId/members/$userId',
         body: {'roles': roleIds},
         headers: {DiscordHeader.auditLogReason(reason)});
 
@@ -133,8 +143,10 @@ final class RolePart extends BasePart implements RolePartContract {
       required Object serverId,
       required Map<String, dynamic> payload,
       required String? reason}) async {
+    final roleId = Snowflake.parse(id);
+    final guildId = Snowflake.parse(serverId);
     final req = Request.json(
-        endpoint: '/guilds/$serverId/roles/$id',
+        endpoint: '/guilds/$guildId/roles/$roleId',
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
 
@@ -145,7 +157,7 @@ final class RolePart extends BasePart implements RolePartContract {
     final raw = await marshaller.serializers.role.normalize(result);
     final role = await marshaller.serializers.role.serialize({
       ...raw,
-      'guild_id': serverId,
+      'guild_id': guildId,
     });
 
     return role;
@@ -156,8 +168,10 @@ final class RolePart extends BasePart implements RolePartContract {
       {required Object id,
       required Object serverId,
       required String? reason}) async {
+    final roleId = Snowflake.parse(id);
+    final guildId = Snowflake.parse(serverId);
     final req = Request.json(
-        endpoint: '/guilds/$serverId/roles/$id',
+        endpoint: '/guilds/$guildId/roles/$roleId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
     await dataStore.requestBucket

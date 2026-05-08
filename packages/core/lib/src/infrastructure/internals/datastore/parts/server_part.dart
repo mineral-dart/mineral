@@ -9,7 +9,8 @@ final class ServerPart extends BasePart implements ServerPartContract {
 
   @override
   Future<Server> get(Object id, bool force) async {
-    final String key = marshaller.cacheKey.server(id);
+    final guildId = Snowflake.parse(id);
+    final String key = marshaller.cacheKey.server(guildId.value);
 
     final cachedServer = await marshaller.cache?.get(key);
     if (!force && cachedServer != null) {
@@ -19,7 +20,7 @@ final class ServerPart extends BasePart implements ServerPartContract {
       return server;
     }
 
-    final req = Request.json(endpoint: '/guilds/$id');
+    final req = Request.json(endpoint: '/guilds/$guildId');
     final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
         .run(dataStore.client.get);
@@ -33,8 +34,9 @@ final class ServerPart extends BasePart implements ServerPartContract {
   @override
   Future<Server> update(
       Object id, Map<String, dynamic> payload, String? reason) async {
+    final guildId = Snowflake.parse(id);
     final req = Request.json(
-        endpoint: '/guilds/$id',
+        endpoint: '/guilds/$guildId',
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
 
@@ -47,8 +49,9 @@ final class ServerPart extends BasePart implements ServerPartContract {
 
   @override
   Future<void> delete(Object id, String? reason) async {
+    final guildId = Snowflake.parse(id);
     final req = Request.json(
-        endpoint: '/guilds/$id',
+        endpoint: '/guilds/$guildId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
     await dataStore.client.delete(req);

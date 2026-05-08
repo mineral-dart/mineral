@@ -12,7 +12,8 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
 
   @override
   Future<ThreadResult> fetchActives(Object serverId) async {
-    final request = Request.json(endpoint: '/guilds/$serverId/threads/active');
+    final guildId = Snowflake.parse(serverId);
+    final request = Request.json(endpoint: '/guilds/$guildId/threads/active');
     final result = await dataStore.requestBucket
         .query<List<Map<String, dynamic>>>(request)
         .run(dataStore.client.get);
@@ -67,6 +68,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
   Future<T> createWithoutMessage<T extends ThreadChannel>(
       Object? serverId, Object? channelId, ThreadChannelBuilder builder,
       {String? reason}) async {
+    final guildId = serverId != null ? Snowflake.parse(serverId) : null;
     final req = Request.json(
         endpoint: '/channels/$channelId/threads',
         body: builder.build(),
@@ -79,7 +81,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
       ...raw,
-      'guild_id': serverId,
+      'guild_id': guildId,
     });
     if (serialized is! T)
       throw SerializationException(
@@ -92,6 +94,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
   Future<T> createFromMessage<T extends ThreadChannel>(Object? serverId,
       Object? channelId, Object? messageId, ThreadChannelBuilder builder,
       {String? reason}) async {
+    final guildId = serverId != null ? Snowflake.parse(serverId) : null;
     final req = Request.json(
         endpoint: '/channels/$channelId/messages/$messageId/threads',
         body: builder.build(),
@@ -104,7 +107,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
       ...raw,
-      'guild_id': serverId,
+      'guild_id': guildId,
     });
     if (serialized is! T)
       throw SerializationException(
