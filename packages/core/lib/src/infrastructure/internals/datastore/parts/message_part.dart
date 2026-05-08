@@ -144,13 +144,17 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
   @override
   Future<void> pin(Snowflake channelId, Snowflake id) async {
     final req = Request.json(endpoint: '/channels/$channelId/pins/$id');
-    await _dataStore.client.put(req);
+    await _dataStore.requestBucket
+        .query<Map<String, dynamic>>(req)
+        .run(_dataStore.client.put);
   }
 
   @override
   Future<void> unpin(Snowflake channelId, Snowflake id) async {
     final req = Request.json(endpoint: '/channels/$channelId/pins/$id');
-    await _dataStore.client.delete(req);
+    await _dataStore.requestBucket
+        .query<Map<String, dynamic>>(req)
+        .run(_dataStore.client.delete);
   }
 
   @override
@@ -158,13 +162,17 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
     final req = Request.json(
       endpoint: '/channels/$channelId/messages/$id/crosspost',
     );
-    await _dataStore.client.post(req);
+    await _dataStore.requestBucket
+        .query<Map<String, dynamic>>(req)
+        .run(_dataStore.client.post);
   }
 
   @override
   Future<void> delete(Snowflake channelId, Snowflake id) async {
     final req = Request.json(endpoint: '/channels/$channelId/messages/$id');
-    await _dataStore.client.delete(req);
+    await _dataStore.requestBucket
+        .query<Map<String, dynamic>>(req)
+        .run(_dataStore.client.delete);
   }
 
   @override
@@ -274,17 +282,17 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
       endpoint:
           '/channels/${channelId.value}/polls/${messageId.value}/answers/$answerId',
     );
-    final response = await _dataStore.client.get(req);
+    final body = await _dataStore.requestBucket
+        .query<Map<String, dynamic>>(req)
+        .run(_dataStore.client.get);
 
-    response.body['id'] = answerId;
-    response.body['message_id'] = messageId.value;
-    response.body['channel_id'] = channelId.value;
-    response.body['server_id'] = serverId?.value;
+    body['id'] = answerId;
+    body['message_id'] = messageId.value;
+    body['channel_id'] = channelId.value;
+    body['server_id'] = serverId?.value;
 
-    final answerPayload = await handleResponse(
-        response,
-        (body) => _marshaller.serializers.pollAnswerVote
-            .normalize(body as Map<String, dynamic>));
+    final answerPayload =
+        await _marshaller.serializers.pollAnswerVote.normalize(body);
 
     final answer = await _marshaller.serializers.pollAnswerVote.serialize(
       answerPayload,

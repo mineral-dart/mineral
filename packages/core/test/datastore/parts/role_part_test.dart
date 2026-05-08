@@ -62,10 +62,10 @@ void main() {
     });
 
     group('delete', () {
-      test('sends DELETE to /guilds/:guildId/roles/:id', () async {
+      test('sends DELETE to /guilds/:serverId/roles/:id', () async {
         await role.delete(
           id: '333',
-          guildId: '222',
+          serverId: '222',
           reason: null,
         );
 

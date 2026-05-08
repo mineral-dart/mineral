@@ -165,7 +165,7 @@ abstract interface class RolePartContract implements DataStorePart {
       required String? reason});
 
   Future<void> delete(
-      {required Object id, required String guildId, required String? reason});
+      {required Object id, required String serverId, required String? reason});
 }
 
 abstract interface class ServerMessagePartContract implements DataStorePart {
