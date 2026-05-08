@@ -4,29 +4,25 @@ import 'package:mineral/services.dart';
 import 'package:mineral/src/api/server/moderation/enums/auto_moderation_event_type.dart';
 import 'package:mineral/src/api/server/moderation/enums/trigger_type.dart';
 import 'package:mineral/src/api/server/moderation/trigger_metadata.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 import 'package:mineral/src/infrastructure/internals/http/discord_header.dart';
 
-final class RulesPart implements RulesPartContract {
-  final MarshallerContract _marshaller;
-  final DataStoreContract _dataStore;
-
-  RulesPart(this._marshaller, this._dataStore);
-
-  HttpClientStatus get status => _dataStore.client.status;
+final class RulesPart extends BasePart implements RulesPartContract {
+  RulesPart(super.marshaller, super.dataStore);
 
   @override
   Future<Map<Snowflake, AutoModerationRule>> fetch(
       Object serverId, bool force) async {
     final req =
         Request.json(endpoint: '/guilds/$serverId/auto-moderation/rules');
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<List<dynamic>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
     final rules = await result.map((element) async {
-      final raw = await _marshaller.serializers.rules
+      final raw = await marshaller.serializers.rules
           .normalize(element as Map<String, dynamic>);
-      return _marshaller.serializers.rules.serialize(raw);
+      return marshaller.serializers.rules.serialize(raw);
     }).wait;
 
     return rules.asMap().map((_, value) => MapEntry(value.id!, value));
@@ -35,22 +31,22 @@ final class RulesPart implements RulesPartContract {
   @override
   Future<AutoModerationRule?> get(
       Object serverId, Object rulesId, bool force) async {
-    final String key = _marshaller.cacheKey.serverRules(serverId, rulesId);
+    final String key = marshaller.cacheKey.serverRules(serverId, rulesId);
 
-    final cachedEmoji = await _marshaller.cache?.get(key);
+    final cachedEmoji = await marshaller.cache?.get(key);
     if (!force && cachedEmoji != null) {
-      final rule = await _marshaller.serializers.rules.serialize(cachedEmoji);
+      final rule = await marshaller.serializers.rules.serialize(cachedEmoji);
       return rule;
     }
 
     final req = Request.json(
         endpoint: '/guilds/$serverId/auto-moderation/rules/$rulesId');
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
-    final raw = await _marshaller.serializers.rules.normalize(result);
-    final rule = await _marshaller.serializers.rules.serialize(raw);
+    final raw = await marshaller.serializers.rules.normalize(result);
+    final rule = await marshaller.serializers.rules.serialize(raw);
 
     return rule;
   }
@@ -99,15 +95,15 @@ final class RulesPart implements RulesPartContract {
         headers: {
           DiscordHeader.auditLogReason(reason)
         });
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.post);
+        .run(dataStore.client.post);
 
-    final raw = await _marshaller.serializers.rules.normalize({
+    final raw = await marshaller.serializers.rules.normalize({
       ...result,
       'guild_id': serverId,
     });
-    final rule = await _marshaller.serializers.rules.serialize(raw);
+    final rule = await marshaller.serializers.rules.serialize(raw);
 
     return rule;
   }
@@ -123,15 +119,15 @@ final class RulesPart implements RulesPartContract {
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.patch);
+        .run(dataStore.client.patch);
 
-    final raw = await _marshaller.serializers.rules.normalize({
+    final raw = await marshaller.serializers.rules.normalize({
       ...result,
       'guild_id': serverId,
     });
-    final rule = await _marshaller.serializers.rules.serialize(raw);
+    final rule = await marshaller.serializers.rules.serialize(raw);
 
     return rule;
   }
@@ -142,8 +138,8 @@ final class RulesPart implements RulesPartContract {
         endpoint: '/guilds/$serverId/auto-moderation/rules/$ruleId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.delete);
+        .run(dataStore.client.delete);
   }
 }

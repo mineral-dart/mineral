@@ -2,30 +2,26 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 import 'package:mineral/src/infrastructure/internals/http/discord_header.dart';
 
-final class RolePart implements RolePartContract {
-  final MarshallerContract _marshaller;
-  final DataStoreContract _dataStore;
-
-  RolePart(this._marshaller, this._dataStore);
-
-  HttpClientStatus get status => _dataStore.client.status;
+final class RolePart extends BasePart implements RolePartContract {
+  RolePart(super.marshaller, super.dataStore);
 
   @override
   Future<Map<Snowflake, Role>> fetch(Object serverId, bool force) async {
     final req = Request.json(endpoint: '/guilds/$serverId/roles');
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<List<Map<String, dynamic>>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
     final roles = await result.map((element) async {
-      final raw = await _marshaller.serializers.role.normalize({
+      final raw = await marshaller.serializers.role.normalize({
         ...element,
         'guild_id': serverId,
       });
 
-      return _marshaller.serializers.role.serialize(raw);
+      return marshaller.serializers.role.serialize(raw);
     }).wait;
 
     return roles.asMap().map((_, value) => MapEntry(value.id, value));
@@ -33,22 +29,22 @@ final class RolePart implements RolePartContract {
 
   @override
   Future<Role?> get(Object serverId, Object id, bool force) async {
-    final String key = _marshaller.cacheKey.serverRole(serverId, id);
+    final String key = marshaller.cacheKey.serverRole(serverId, id);
 
-    final cachedRole = await _marshaller.cache?.get(key);
+    final cachedRole = await marshaller.cache?.get(key);
     if (!force && cachedRole != null) {
-      final role = await _marshaller.serializers.role.serialize(cachedRole);
+      final role = await marshaller.serializers.role.serialize(cachedRole);
 
       return role;
     }
 
     final req = Request.json(endpoint: '/guilds/$serverId/roles/$id');
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
-    final raw = await _marshaller.serializers.role.normalize(result);
-    final channel = await _marshaller.serializers.role.serialize(raw);
+    final raw = await marshaller.serializers.role.normalize(result);
+    final channel = await marshaller.serializers.role.serialize(raw);
 
     return channel;
   }
@@ -72,12 +68,12 @@ final class RolePart implements RolePartContract {
       DiscordHeader.auditLogReason(reason)
     });
 
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.post);
+        .run(dataStore.client.post);
 
-    final raw = await _marshaller.serializers.role.normalize(result);
-    final role = await _marshaller.serializers.role.serialize({
+    final raw = await marshaller.serializers.role.normalize(result);
+    final role = await marshaller.serializers.role.serialize({
       ...raw,
       'guild_id': serverId,
     });
@@ -95,9 +91,9 @@ final class RolePart implements RolePartContract {
         endpoint: '/guilds/$serverId/members/$memberId/roles/$roleId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.put);
+        .run(dataStore.client.put);
   }
 
   @override
@@ -110,9 +106,9 @@ final class RolePart implements RolePartContract {
         endpoint: '/guilds/$serverId/members/$memberId/roles/$roleId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.delete);
+        .run(dataStore.client.delete);
   }
 
   @override
@@ -126,9 +122,9 @@ final class RolePart implements RolePartContract {
         body: {'roles': roleIds},
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.patch);
+        .run(dataStore.client.patch);
   }
 
   @override
@@ -142,12 +138,12 @@ final class RolePart implements RolePartContract {
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.patch);
+        .run(dataStore.client.patch);
 
-    final raw = await _marshaller.serializers.role.normalize(result);
-    final role = await _marshaller.serializers.role.serialize({
+    final raw = await marshaller.serializers.role.normalize(result);
+    final role = await marshaller.serializers.role.serialize({
       ...raw,
       'guild_id': serverId,
     });
@@ -164,8 +160,8 @@ final class RolePart implements RolePartContract {
         endpoint: '/guilds/$serverId/roles/$id',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.delete);
+        .run(dataStore.client.delete);
   }
 }
