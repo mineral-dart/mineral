@@ -168,33 +168,6 @@ abstract interface class RolePartContract implements DataStorePart {
       {required Object id, required String serverId, required String? reason});
 }
 
-abstract interface class ServerMessagePartContract implements DataStorePart {
-  Future<ServerMessage> update({
-    required Snowflake id,
-    required Snowflake channelId,
-    required Snowflake serverId,
-    String? content,
-    List<MessageEmbed>? embeds,
-    List<Component>? components,
-  });
-
-  Future<ServerMessage> reply(
-      {required Snowflake id,
-      required Snowflake channelId,
-      required Snowflake serverId,
-      String? content,
-      List<MessageEmbed>? embeds,
-      List<Component>? components});
-
-  Future<void> pin({required Snowflake id, required Snowflake channelId});
-
-  Future<void> unpin({required Snowflake id, required Snowflake channelId});
-
-  Future<void> crosspost({required Snowflake id, required Snowflake channelId});
-
-  Future<void> delete({required Snowflake id, required Snowflake channelId});
-}
-
 abstract interface class ServerPartContract implements DataStorePart {
   Future<Server> get(Object id, bool force);
 

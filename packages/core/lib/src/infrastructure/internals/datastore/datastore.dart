@@ -69,7 +69,7 @@ final class DataStore implements DataStoreContract {
     user = UserPart(marshaller, this);
     role = RolePart(marshaller, this);
     message = MessagePart(marshaller, this);
-    interaction = InteractionPart(this);
+    interaction = InteractionPart(marshaller, this);
     sticker = StickerPart(marshaller, this);
     emoji = EmojiPart(marshaller, this);
     reaction = ReactionPart(marshaller, this);

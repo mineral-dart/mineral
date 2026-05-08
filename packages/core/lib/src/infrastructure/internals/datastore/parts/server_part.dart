@@ -1,35 +1,31 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 import 'package:mineral/src/infrastructure/internals/http/discord_header.dart';
 
-final class ServerPart implements ServerPartContract {
-  final MarshallerContract _marshaller;
-  final DataStoreContract _dataStore;
-
-  ServerPart(this._marshaller, this._dataStore);
-
-  HttpClientStatus get status => _dataStore.client.status;
+final class ServerPart extends BasePart implements ServerPartContract {
+  ServerPart(super.marshaller, super.dataStore);
 
   @override
   Future<Server> get(Object id, bool force) async {
-    final String key = _marshaller.cacheKey.server(id);
+    final String key = marshaller.cacheKey.server(id);
 
-    final cachedServer = await _marshaller.cache?.get(key);
+    final cachedServer = await marshaller.cache?.get(key);
     if (!force && cachedServer != null) {
       final server =
-          await _marshaller.serializers.server.serialize(cachedServer);
+          await marshaller.serializers.server.serialize(cachedServer);
 
       return server;
     }
 
     final req = Request.json(endpoint: '/guilds/$id');
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
-    final raw = await _marshaller.serializers.server.normalize(result);
-    final server = await _marshaller.serializers.server.serialize(raw);
+    final raw = await marshaller.serializers.server.normalize(result);
+    final server = await marshaller.serializers.server.serialize(raw);
 
     return server;
   }
@@ -42,11 +38,11 @@ final class ServerPart implements ServerPartContract {
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    final response = await _dataStore.client.patch(req);
+    final response = await dataStore.client.patch(req);
 
-    final rawServer = await _marshaller.serializers.server
+    final rawServer = await marshaller.serializers.server
         .normalize(response.body as Map<String, dynamic>);
-    return _marshaller.serializers.server.serialize(rawServer);
+    return marshaller.serializers.server.serialize(rawServer);
   }
 
   @override
@@ -55,6 +51,6 @@ final class ServerPart implements ServerPartContract {
         endpoint: '/guilds/$id',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await _dataStore.client.delete(req);
+    await dataStore.client.delete(req);
   }
 }

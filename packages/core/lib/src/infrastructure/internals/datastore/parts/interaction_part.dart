@@ -2,13 +2,11 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/common/utils/attachment.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 
-final class InteractionPart implements InteractionPartContract {
-  final DataStoreContract _dataStore;
-
-  InteractionPart(this._dataStore);
-
-  HttpClientStatus get status => _dataStore.client.status;
+final class InteractionPart extends BasePart
+    implements InteractionPartContract {
+  InteractionPart(super.marshaller, super.dataStore);
 
   @override
   Future<void> replyInteraction(Snowflake id, String token,
@@ -29,7 +27,7 @@ final class InteractionPart implements InteractionPartContract {
       files: files,
     );
 
-    await _dataStore.requestBucket.query<Map>(req).run(_dataStore.client.post);
+    await dataStore.requestBucket.query<Map>(req).run(dataStore.client.post);
   }
 
   @override
@@ -48,18 +46,18 @@ final class InteractionPart implements InteractionPartContract {
       files: files,
     );
 
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.patch);
+        .run(dataStore.client.patch);
   }
 
   @override
   Future<void> deleteInteraction(Snowflake id, String token) async {
     final req =
         Request.json(endpoint: '/webhooks/$id/$token/messages/@original');
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.delete);
+        .run(dataStore.client.delete);
   }
 
   @override
@@ -73,9 +71,9 @@ final class InteractionPart implements InteractionPartContract {
       },
     );
 
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.post);
+        .run(dataStore.client.post);
   }
 
   @override
@@ -97,7 +95,7 @@ final class InteractionPart implements InteractionPartContract {
       files: files,
     );
 
-    await _dataStore.requestBucket.query<Map>(req).run(_dataStore.client.post);
+    await dataStore.requestBucket.query<Map>(req).run(dataStore.client.post);
   }
 
   @override
@@ -116,7 +114,7 @@ final class InteractionPart implements InteractionPartContract {
       files: files,
     );
 
-    await _dataStore.requestBucket.query<Map>(req).run(_dataStore.client.patch);
+    await dataStore.requestBucket.query<Map>(req).run(dataStore.client.patch);
   }
 
   @override
@@ -129,7 +127,7 @@ final class InteractionPart implements InteractionPartContract {
       },
     );
 
-    await _dataStore.requestBucket.query<Map>(req).run(_dataStore.client.post);
+    await dataStore.requestBucket.query<Map>(req).run(dataStore.client.post);
   }
 
   @override
@@ -137,9 +135,9 @@ final class InteractionPart implements InteractionPartContract {
       Snowflake botId, String token, Snowflake messageId) async {
     final req =
         Request.json(endpoint: '/webhooks/$botId/$token/messages/$messageId');
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.delete);
+        .run(dataStore.client.delete);
   }
 
   @override
@@ -154,8 +152,8 @@ final class InteractionPart implements InteractionPartContract {
       'data': modal.build(),
     });
 
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.post);
+        .run(dataStore.client.post);
   }
 }

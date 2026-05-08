@@ -2,25 +2,21 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/common/sticker.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 
-final class StickerPart implements StickerPartContract {
-  final MarshallerContract _marshaller;
-  final DataStoreContract _dataStore;
-
-  StickerPart(this._marshaller, this._dataStore);
-
-  HttpClientStatus get status => _dataStore.client.status;
+final class StickerPart extends BasePart implements StickerPartContract {
+  StickerPart(super.marshaller, super.dataStore);
 
   @override
   Future<Map<Snowflake, Sticker>> fetch(Object serverId, bool force) async {
     final req = Request.json(endpoint: '/guilds/$serverId/stickers');
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<List<Map<String, dynamic>>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
     final stickers = await result.map((element) async {
-      final raw = await _marshaller.serializers.sticker.normalize(element);
-      return _marshaller.serializers.sticker.serialize(raw);
+      final raw = await marshaller.serializers.sticker.normalize(element);
+      return marshaller.serializers.sticker.serialize(raw);
     }).wait;
 
     return stickers.asMap().map((_, value) => MapEntry(value.id, value));
@@ -28,23 +24,23 @@ final class StickerPart implements StickerPartContract {
 
   @override
   Future<Sticker?> get(Object serverId, Object stickerId, bool force) async {
-    final String key = _marshaller.cacheKey.sticker(serverId, stickerId);
+    final String key = marshaller.cacheKey.sticker(serverId, stickerId);
 
-    final cachedSticker = await _marshaller.cache?.get(key);
+    final cachedSticker = await marshaller.cache?.get(key);
     if (!force && cachedSticker != null) {
       final sticker =
-          await _marshaller.serializers.sticker.serialize(cachedSticker);
+          await marshaller.serializers.sticker.serialize(cachedSticker);
 
       return sticker;
     }
 
     final req = Request.json(endpoint: '/guilds/$serverId/stickers/$stickerId');
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
-    final raw = await _marshaller.serializers.sticker.normalize(result);
-    final sticker = await _marshaller.serializers.sticker.serialize(raw);
+    final raw = await marshaller.serializers.sticker.normalize(result);
+    final sticker = await marshaller.serializers.sticker.serialize(raw);
 
     return sticker;
   }
@@ -52,8 +48,8 @@ final class StickerPart implements StickerPartContract {
   @override
   Future<void> delete(Object serverId, Object stickerId) async {
     final req = Request.json(endpoint: '/guilds/$serverId/stickers/$stickerId');
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.delete);
+        .run(dataStore.client.delete);
   }
 }

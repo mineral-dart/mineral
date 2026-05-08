@@ -3,17 +3,14 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/api/common/polls/poll_answer_vote.dart';
 import 'package:mineral/src/domains/common/utils/attachment.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/response_handler.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/serialization_exception.dart';
 
-final class MessagePart with ResponseHandler implements MessagePartContract {
-  final MarshallerContract _marshaller;
-  final DataStoreContract _dataStore;
-
-  MessagePart(this._marshaller, this._dataStore);
-
-  @override
-  HttpClientStatus get status => _dataStore.client.status;
+final class MessagePart extends BasePart
+    with ResponseHandler
+    implements MessagePartContract {
+  MessagePart(super.marshaller, super.dataStore);
 
   @override
   Future<Map<Snowflake, T>> fetch<T extends BaseMessage>(
@@ -35,19 +32,19 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
           ? '/channels/$channelId/messages'
           : '/channels/$channelId/messages?${query.entries.map((e) => '${e.key}=${e.value}').join('&')}',
     );
-    final response = await _dataStore.client.get(req);
+    final response = await dataStore.client.get(req);
 
     final messages = await handleResponse(
         response,
         (body) => Future.wait(
-              List.from(body as Iterable<dynamic>).map((e) async => _marshaller
+              List.from(body as Iterable<dynamic>).map((e) async => marshaller
                   .serializers.message
                   .normalize(e as Map<String, dynamic>)),
             ));
 
     final serializedMessages = await Future.wait(
       messages.map((e) async {
-        final msg = await _marshaller.serializers.message.serialize(e);
+        final msg = await marshaller.serializers.message.serialize(e);
         if (msg is! T) {
           throw SerializationException(
             'Expected $T but got ${msg.runtimeType}',
@@ -71,10 +68,10 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
     Object id,
     bool force,
   ) async {
-    final cacheKey = _marshaller.cacheKey.message(channelId, id);
-    final cachedMessage = await _marshaller.cache?.get(cacheKey);
+    final cacheKey = marshaller.cacheKey.message(channelId, id);
+    final cachedMessage = await marshaller.cache?.get(cacheKey);
     if (!force && cachedMessage != null) {
-      final message = await _marshaller.serializers.message.serialize(
+      final message = await marshaller.serializers.message.serialize(
         cachedMessage,
       );
       if (message is! T) {
@@ -86,14 +83,14 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
     }
 
     final req = Request.json(endpoint: '/channels/$channelId/messages/$id');
-    final response = await _dataStore.client.get(req);
+    final response = await dataStore.client.get(req);
 
     final message = await handleResponse(
         response,
-        (body) => _marshaller.serializers.message
+        (body) => marshaller.serializers.message
             .normalize(body as Map<String, dynamic>));
 
-    final serialized = await _marshaller.serializers.message.serialize(message);
+    final serialized = await marshaller.serializers.message.serialize(message);
     if (serialized is! T) {
       throw SerializationException(
         'Expected $T but got ${serialized.runtimeType}',
@@ -126,14 +123,14 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
         ),
     };
 
-    final response = await _dataStore.client.patch(req);
+    final response = await dataStore.client.patch(req);
 
     final rawMessage = await handleResponse(
         response,
-        (body) => _marshaller.serializers.message
+        (body) => marshaller.serializers.message
             .normalize(body as Map<String, dynamic>));
 
-    final message = await _marshaller.serializers.message.serialize(rawMessage);
+    final message = await marshaller.serializers.message.serialize(rawMessage);
     if (message is! T)
       throw SerializationException(
         'Expected $T but got ${message.runtimeType}',
@@ -144,17 +141,17 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
   @override
   Future<void> pin(Snowflake channelId, Snowflake id) async {
     final req = Request.json(endpoint: '/channels/$channelId/pins/$id');
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.put);
+        .run(dataStore.client.put);
   }
 
   @override
   Future<void> unpin(Snowflake channelId, Snowflake id) async {
     final req = Request.json(endpoint: '/channels/$channelId/pins/$id');
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.delete);
+        .run(dataStore.client.delete);
   }
 
   @override
@@ -162,17 +159,17 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
     final req = Request.json(
       endpoint: '/channels/$channelId/messages/$id/crosspost',
     );
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.post);
+        .run(dataStore.client.post);
   }
 
   @override
   Future<void> delete(Snowflake channelId, Snowflake id) async {
     final req = Request.json(endpoint: '/channels/$channelId/messages/$id');
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.delete);
+        .run(dataStore.client.delete);
   }
 
   @override
@@ -199,14 +196,14 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
         ),
     };
 
-    final response = await _dataStore.client.post(req);
+    final response = await dataStore.client.post(req);
 
     final message = await handleResponse(
         response,
-        (body) => _marshaller.serializers.message
+        (body) => marshaller.serializers.message
             .normalize(body as Map<String, dynamic>));
 
-    final serialized = await _marshaller.serializers.message.serialize(message);
+    final serialized = await marshaller.serializers.message.serialize(message);
     if (serialized is! T)
       throw SerializationException(
         'Expected $T but got ${serialized.runtimeType}',
@@ -234,12 +231,12 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
       files: files,
     );
 
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.post);
+        .run(dataStore.client.post);
 
-    final raw = await _marshaller.serializers.message.normalize(result);
-    final serialized = await _marshaller.serializers.message.serialize(raw);
+    final raw = await marshaller.serializers.message.normalize(result);
+    final serialized = await marshaller.serializers.message.serialize(raw);
     if (serialized is! R)
       throw SerializationException(
         'Expected $R but got ${serialized.runtimeType}',
@@ -251,16 +248,16 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
   Future<T> sendPoll<T extends Message>(String channelId, Poll poll) async {
     final req = Request.json(
       endpoint: '/channels/$channelId/messages',
-      body: {'poll': _marshaller.serializers.poll.deserialize(poll)},
+      body: {'poll': marshaller.serializers.poll.deserialize(poll)},
     );
-    final response = await _dataStore.client.post(req);
+    final response = await dataStore.client.post(req);
 
     final message = await handleResponse(
         response,
-        (body) => _marshaller.serializers.message
+        (body) => marshaller.serializers.message
             .normalize(body as Map<String, dynamic>));
 
-    final serializedMessage = await _marshaller.serializers.message.serialize(
+    final serializedMessage = await marshaller.serializers.message.serialize(
       message,
     );
 
@@ -282,9 +279,9 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
       endpoint:
           '/channels/${channelId.value}/polls/${messageId.value}/answers/$answerId',
     );
-    final body = await _dataStore.requestBucket
+    final body = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
     body['id'] = answerId;
     body['message_id'] = messageId.value;
@@ -292,9 +289,9 @@ final class MessagePart with ResponseHandler implements MessagePartContract {
     body['server_id'] = serverId?.value;
 
     final answerPayload =
-        await _marshaller.serializers.pollAnswerVote.normalize(body);
+        await marshaller.serializers.pollAnswerVote.normalize(body);
 
-    final answer = await _marshaller.serializers.pollAnswerVote.serialize(
+    final answer = await marshaller.serializers.pollAnswerVote.serialize(
       answerPayload,
     );
 

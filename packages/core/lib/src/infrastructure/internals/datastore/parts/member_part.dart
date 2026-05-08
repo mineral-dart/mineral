@@ -3,27 +3,23 @@ import 'package:mineral/services.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/server/member.dart';
 import 'package:mineral/src/api/server/voice_state.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 import 'package:mineral/src/infrastructure/internals/http/discord_header.dart';
 
-final class MemberPart implements MemberPartContract {
-  final MarshallerContract _marshaller;
-  final DataStoreContract _dataStore;
-
-  MemberPart(this._marshaller, this._dataStore);
-
-  HttpClientStatus get status => _dataStore.client.status;
+final class MemberPart extends BasePart implements MemberPartContract {
+  MemberPart(super.marshaller, super.dataStore);
 
   @override
   Future<Map<Snowflake, Member>> fetch(Object serverId, bool force) async {
     final req = Request.json(endpoint: '/guilds/$serverId/members');
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<List<Map<String, dynamic>>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
     final members = await result.map((element) async {
-      final raw = await _marshaller.serializers.member
+      final raw = await marshaller.serializers.member
           .normalize({...element, 'guild_id': serverId});
-      return _marshaller.serializers.member.serialize(raw);
+      return marshaller.serializers.member.serialize(raw);
     }).wait;
 
     return members.asMap().map((_, value) => MapEntry(value.id, value));
@@ -31,24 +27,24 @@ final class MemberPart implements MemberPartContract {
 
   @override
   Future<Member?> get(Object serverId, Object id, bool force) async {
-    final String key = _marshaller.cacheKey.member(serverId, id);
+    final String key = marshaller.cacheKey.member(serverId, id);
 
-    final cachedMember = await _marshaller.cache?.get(key);
+    final cachedMember = await marshaller.cache?.get(key);
     if (!force && cachedMember != null) {
       final member =
-          await _marshaller.serializers.member.serialize(cachedMember);
+          await marshaller.serializers.member.serialize(cachedMember);
 
       return member;
     }
 
     final req = Request.json(endpoint: '/guilds/$serverId/members/$id');
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
-    final raw = await _marshaller.serializers.member
+    final raw = await marshaller.serializers.member
         .normalize({...result, 'guild_id': serverId});
-    final member = await _marshaller.serializers.member.serialize(raw);
+    final member = await marshaller.serializers.member.serialize(raw);
 
     return member;
   }
@@ -63,15 +59,15 @@ final class MemberPart implements MemberPartContract {
         endpoint: '/guilds/$serverId/members/$memberId',
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.patch);
+        .run(dataStore.client.patch);
 
-    final raw = await _marshaller.serializers.member.normalize({
+    final raw = await marshaller.serializers.member.normalize({
       ...result,
       'guild_id': serverId,
     });
-    final member = await _marshaller.serializers.member.serialize(raw);
+    final member = await marshaller.serializers.member.serialize(raw);
 
     return member;
   }
@@ -87,9 +83,9 @@ final class MemberPart implements MemberPartContract {
         body: {'delete_message_seconds': deleteSince?.inSeconds},
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.put);
+        .run(dataStore.client.put);
   }
 
   @override
@@ -101,32 +97,32 @@ final class MemberPart implements MemberPartContract {
         endpoint: '/guilds/$serverId/members/$memberId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await _dataStore.requestBucket
+    await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.delete);
+        .run(dataStore.client.delete);
   }
 
   @override
   Future<VoiceState?> getVoiceState(
       Object serverId, Object userId, bool force) async {
-    final String key = _marshaller.cacheKey.voiceState(serverId, userId);
+    final String key = marshaller.cacheKey.voiceState(serverId, userId);
 
-    final cachedMember = await _marshaller.cache?.get(key);
+    final cachedMember = await marshaller.cache?.get(key);
     if (!force && cachedMember != null) {
       final voiceState =
-          await _marshaller.serializers.voice.serialize(cachedMember);
+          await marshaller.serializers.voice.serialize(cachedMember);
 
       return voiceState;
     }
 
     final req =
         Request.json(endpoint: '/guilds/$serverId/voice-states/$userId');
-    final result = await _dataStore.requestBucket
+    final result = await dataStore.requestBucket
         .query<Map<String, dynamic>>(req)
-        .run(_dataStore.client.get);
+        .run(dataStore.client.get);
 
-    final raw = await _marshaller.serializers.voice.normalize(result);
-    final voice = await _marshaller.serializers.voice.serialize(raw);
+    final raw = await marshaller.serializers.voice.normalize(result);
+    final voice = await marshaller.serializers.voice.serialize(raw);
 
     return voice;
   }
