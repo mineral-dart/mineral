@@ -57,7 +57,6 @@ final class DataStore implements DataStoreContract {
   late final ThreadPart thread;
 
   @override
-  // TODO: implement rules
   late final RulesPart rules;
 
   @override

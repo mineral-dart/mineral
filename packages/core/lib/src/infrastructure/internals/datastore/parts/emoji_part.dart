@@ -62,11 +62,11 @@ final class EmojiPart implements EmojiPartContract {
         .query<Map<String, dynamic>>(req)
         .run(_dataStore.client.post);
 
-    final raw = await _marshaller.serializers.channels.normalize(result);
-    final emoji = await _marshaller.serializers.emojis.serialize({
-      ...raw,
+    final raw = await _marshaller.serializers.emojis.normalize({
+      ...result,
       'guild_id': serverId,
     });
+    final emoji = await _marshaller.serializers.emojis.serialize(raw);
 
     return emoji;
   }
