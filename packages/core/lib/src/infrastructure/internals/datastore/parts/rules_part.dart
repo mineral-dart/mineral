@@ -103,11 +103,11 @@ final class RulesPart implements RulesPartContract {
         .query<Map<String, dynamic>>(req)
         .run(_dataStore.client.post);
 
-    final raw = await _marshaller.serializers.channels.normalize(result);
-    final rule = await _marshaller.serializers.rules.serialize({
-      ...raw,
+    final raw = await _marshaller.serializers.rules.normalize({
+      ...result,
       'guild_id': serverId,
     });
+    final rule = await _marshaller.serializers.rules.serialize(raw);
 
     return rule;
   }

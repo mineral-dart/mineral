@@ -10,10 +10,15 @@ final class ReactionPart implements ReactionPartContract {
 
   HttpClientStatus get status => _dataStore.client.status;
 
+  String _encodeEmoji(PartialEmoji emoji) {
+    final name = Uri.encodeComponent(emoji.name);
+    return emoji.id != null ? '$name:${emoji.id}' : name;
+  }
+
   @override
   Future<Map<Snowflake, User>> getUsersForEmoji(
       Object channelId, Object messageId, PartialEmoji emoji) async {
-    final value = emoji.id != null ? '${emoji.name}:${emoji.id}' : emoji.name;
+    final value = _encodeEmoji(emoji);
 
     final req = Request.json(
         endpoint: '/channels/$channelId/messages/$messageId/reactions/$value');
@@ -32,7 +37,7 @@ final class ReactionPart implements ReactionPartContract {
   @override
   Future<void> add(
       Object channelId, Object messageId, PartialEmoji emoji) async {
-    final value = emoji.id != null ? '${emoji.name}:${emoji.id}' : emoji.name;
+    final value = _encodeEmoji(emoji);
     final req = Request.json(
         endpoint:
             '/channels/$channelId/messages/$messageId/reactions/$value/@me');
@@ -44,7 +49,7 @@ final class ReactionPart implements ReactionPartContract {
   @override
   Future<void> remove(
       Object channelId, Object messageId, PartialEmoji emoji) async {
-    final value = emoji.id != null ? '${emoji.name}:${emoji.id}' : emoji.name;
+    final value = _encodeEmoji(emoji);
     final req = Request.json(
         endpoint:
             '/channels/$channelId/messages/$messageId/reactions/$value/@me');
@@ -65,7 +70,7 @@ final class ReactionPart implements ReactionPartContract {
   @override
   Future<void> removeForEmoji(
       Object channelId, Object messageId, PartialEmoji emoji) {
-    final value = emoji.id != null ? '${emoji.name}:${emoji.id}' : emoji.name;
+    final value = _encodeEmoji(emoji);
     final req = Request.json(
         endpoint: '/channels/$channelId/messages/$messageId/reactions/$value');
     return _dataStore.requestBucket
@@ -76,7 +81,7 @@ final class ReactionPart implements ReactionPartContract {
   @override
   Future<void> removeForUser(Object userId, Object channelId, Object messageId,
       PartialEmoji emoji) async {
-    final value = emoji.id != null ? '${emoji.name}:${emoji.id}' : emoji.name;
+    final value = _encodeEmoji(emoji);
     final req = Request.json(
         endpoint:
             '/channels/$channelId/messages/$messageId/reactions/$value/$userId');
