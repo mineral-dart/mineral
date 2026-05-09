@@ -109,6 +109,7 @@ export 'package:mineral/src/api/server/enums/sort_order_forum.dart';
 export 'package:mineral/src/api/server/enums/system_channel_flag.dart';
 export 'package:mineral/src/api/server/enums/verification_level.dart';
 export 'package:mineral/src/api/server/invite.dart';
+export 'package:mineral/src/api/server/webhook.dart';
 export 'package:mineral/src/api/server/managers/channel_manager.dart';
 export 'package:mineral/src/api/server/managers/emoji_manager.dart';
 export 'package:mineral/src/api/server/managers/member_manager.dart';

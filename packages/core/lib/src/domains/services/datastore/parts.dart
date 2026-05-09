@@ -250,6 +250,86 @@ abstract interface class ReactionPartContract implements DataStorePart {
       String userId, Object channelId, Object messageId, PartialEmoji emoji);
 }
 
+abstract interface class WebhookPartContract implements DataStorePart {
+  Future<Map<Snowflake, Webhook>> fetchForChannel(Object channelId);
+
+  Future<Map<Snowflake, Webhook>> fetchForServer(Object serverId);
+
+  Future<Webhook?> get(Object id, bool force);
+
+  Future<Webhook?> getWithToken(Object id, String token);
+
+  Future<Webhook> create({
+    required Object channelId,
+    required String name,
+    String? avatar,
+    String? reason,
+  });
+
+  Future<Webhook?> update({
+    required Object id,
+    String? name,
+    String? avatar,
+    Object? channelId,
+    String? reason,
+  });
+
+  Future<Webhook?> updateWithToken({
+    required Object id,
+    required String token,
+    String? name,
+    String? avatar,
+  });
+
+  Future<void> delete({required Object id, String? reason});
+
+  Future<void> deleteWithToken({required Object id, required String token});
+
+  Future<Message?> execute({
+    required Object id,
+    required String token,
+    required MessageBuilder builder,
+    Object? threadId,
+    bool wait,
+  });
+
+  Future<Message?> getMessage({
+    required Object id,
+    required String token,
+    required Object messageId,
+    Object? threadId,
+  });
+
+  Future<Message?> editMessage({
+    required Object id,
+    required String token,
+    required Object messageId,
+    required MessageBuilder builder,
+    Object? threadId,
+  });
+
+  Future<void> deleteMessage({
+    required Object id,
+    required String token,
+    required Object messageId,
+    Object? threadId,
+  });
+
+  Future<void> executeGithub({
+    required Object id,
+    required String token,
+    required Map<String, dynamic> payload,
+    Object? threadId,
+  });
+
+  Future<void> executeSlack({
+    required Object id,
+    required String token,
+    required Map<String, dynamic> payload,
+    Object? threadId,
+  });
+}
+
 abstract interface class InvitePartContract implements DataStorePart {
   Future<Invite?> get(String code, bool force);
 

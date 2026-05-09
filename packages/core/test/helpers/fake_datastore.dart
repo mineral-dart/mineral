@@ -58,4 +58,7 @@ final class FakeDataStore implements DataStoreContract {
 
   @override
   InvitePartContract get invite => throw UnimplementedError('invite');
+
+  @override
+  WebhookPartContract get webhook => throw UnimplementedError('webhook');
 }

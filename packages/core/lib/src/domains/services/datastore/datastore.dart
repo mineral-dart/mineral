@@ -33,4 +33,6 @@ abstract class DataStoreContract {
   ThreadPart get thread;
 
   InvitePartContract get invite;
+
+  WebhookPartContract get webhook;
 }

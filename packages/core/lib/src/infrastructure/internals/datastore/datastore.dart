@@ -14,6 +14,7 @@ import 'package:mineral/src/infrastructure/internals/datastore/parts/server_part
 import 'package:mineral/src/infrastructure/internals/datastore/parts/sticker_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/thread_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/user_part.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/webhook_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.dart';
 
 final class DataStore implements DataStoreContract {
@@ -62,6 +63,9 @@ final class DataStore implements DataStoreContract {
   @override
   late final InvitePart invite;
 
+  @override
+  late final WebhookPart webhook;
+
   DataStore({required this.client, required MarshallerContract marshaller}) {
     requestBucket = RequestBucket(client);
     channel = ChannelPart(marshaller, this);
@@ -77,5 +81,6 @@ final class DataStore implements DataStoreContract {
     thread = ThreadPart(marshaller, this);
     rules = RulesPart(marshaller, this);
     invite = InvitePart(marshaller, this);
+    webhook = WebhookPart(marshaller, this);
   }
 }
