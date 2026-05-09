@@ -255,13 +255,17 @@ abstract interface class InvitePartContract implements DataStorePart {
 
   Future<InviteMetadata?> getExtrasMetadata(String code, bool force);
 
-  // Future<Invite> create(
-  //     String code,
-  //     String serverId,
-  //     String channelId,
-  //     String inviterId,
-  //     bool isTemporary,
-  //     int maxAge, int maxUses);
+  Future<Invite> create({
+    required Object channelId,
+    Duration? maxAge,
+    int? maxUses,
+    bool? temporary,
+    bool? unique,
+    InviteTargetType? targetType,
+    Object? targetUserId,
+    Object? targetApplicationId,
+    String? reason,
+  });
 
   Future<void> delete(String code, String? reason);
 }
