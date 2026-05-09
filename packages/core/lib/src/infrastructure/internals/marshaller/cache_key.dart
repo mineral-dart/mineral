@@ -72,4 +72,6 @@ final class CacheKey {
       '${server(serverId)}/stickers/$stickerId';
 
   String thread(Object threadId) => 'threads/$threadId';
+
+  String webhook(Object webhookId) => 'webhooks/$webhookId';
 }

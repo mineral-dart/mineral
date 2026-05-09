@@ -14,6 +14,7 @@ import 'package:mineral/src/api/server/moderation/auto_moderation_rule.dart';
 import 'package:mineral/src/api/server/role.dart';
 import 'package:mineral/src/api/server/server.dart';
 import 'package:mineral/src/api/server/voice_state.dart';
+import 'package:mineral/src/api/server/webhook.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/channel_permission_overwrite_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/channel_serializer.dart';
@@ -31,6 +32,7 @@ import 'package:mineral/src/infrastructure/internals/marshaller/serializers/serv
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/sticker_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/user_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/voice_state_serializer.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/serializers/webhook_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class SerializerBucket {
@@ -67,6 +69,8 @@ final class SerializerBucket {
 
   final SerializerContract<AutoModerationRule> rules;
 
+  final SerializerContract<Webhook> webhook;
+
   SerializerBucket(MarshallerContract marshaller)
       : channels = ChannelSerializer(),
         server = ServerSerializer(),
@@ -83,5 +87,6 @@ final class SerializerBucket {
         reaction = MessageReactionSerializer(),
         pollAnswerVote = PollAnswerVoteSerializer(),
         rules = RuleSerializer(),
-        invite = InviteSerializer();
+        invite = InviteSerializer(),
+        webhook = WebhookSerializer();
 }
