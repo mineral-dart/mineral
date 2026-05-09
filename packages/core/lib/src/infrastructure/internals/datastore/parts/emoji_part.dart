@@ -11,9 +11,7 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
   Future<Map<Snowflake, Emoji>> fetch(Object serverId, bool force) async {
     final guildId = Snowflake.parse(serverId);
     final req = Request.json(endpoint: '/guilds/$guildId/emojis');
-    final result = await dataStore.requestBucket
-        .query<List<Map<String, dynamic>>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
 
     final emojis = await result.map((element) async {
       final raw = await marshaller.serializers.emojis.normalize(element);
@@ -35,9 +33,7 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
     }
 
     final req = Request.json(endpoint: '/guilds/$guildId/emojis/$emojiId');
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.emojis.normalize(result);
     final emoji = await marshaller.serializers.emojis.serialize(raw);
@@ -57,9 +53,7 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
     }, headers: {
       DiscordHeader.auditLogReason(reason)
     });
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.emojis.normalize({
       ...result,
@@ -83,9 +77,7 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.patch);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.emojis.normalize({
       ...result,
@@ -103,8 +95,6 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
         endpoint: '/guilds/$guildId/emojis/$emojiId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.delete);
+    await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 }

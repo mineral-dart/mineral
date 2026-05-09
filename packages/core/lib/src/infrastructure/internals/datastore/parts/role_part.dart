@@ -12,9 +12,7 @@ final class RolePart extends BasePart implements RolePartContract {
   Future<Map<Snowflake, Role>> fetch(Object serverId, bool force) async {
     final guildId = Snowflake.parse(serverId);
     final req = Request.json(endpoint: '/guilds/$guildId/roles');
-    final result = await dataStore.requestBucket
-        .query<List<Map<String, dynamic>>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
 
     final roles = await result.map((element) async {
       final raw = await marshaller.serializers.role.normalize({
@@ -42,9 +40,7 @@ final class RolePart extends BasePart implements RolePartContract {
     }
 
     final req = Request.json(endpoint: '/guilds/$guildId/roles/$roleId');
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.role.normalize(result);
     final channel = await marshaller.serializers.role.serialize(raw);
@@ -72,9 +68,7 @@ final class RolePart extends BasePart implements RolePartContract {
       DiscordHeader.auditLogReason(reason)
     });
 
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.role.normalize(result);
     final role = await marshaller.serializers.role.serialize({
@@ -97,9 +91,7 @@ final class RolePart extends BasePart implements RolePartContract {
         endpoint: '/guilds/$guildId/members/$userId/roles/$roleId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.put);
+    await dataStore.requestBucket.put<Map<String, dynamic>>(req);
   }
 
   @override
@@ -114,9 +106,7 @@ final class RolePart extends BasePart implements RolePartContract {
         endpoint: '/guilds/$guildId/members/$userId/roles/$roleId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.delete);
+    await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
@@ -132,9 +122,7 @@ final class RolePart extends BasePart implements RolePartContract {
         body: {'roles': roleIds},
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.patch);
+    await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
   }
 
   @override
@@ -150,9 +138,7 @@ final class RolePart extends BasePart implements RolePartContract {
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.patch);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.role.normalize(result);
     final role = await marshaller.serializers.role.serialize({
@@ -174,8 +160,6 @@ final class RolePart extends BasePart implements RolePartContract {
         endpoint: '/guilds/$guildId/roles/$roleId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.delete);
+    await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 }

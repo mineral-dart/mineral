@@ -10,12 +10,14 @@ import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.da
 /// or use a real Part instance passed directly to the system under test.
 final class FakeDataStore implements DataStoreContract {
   @override
-  final RequestBucket requestBucket = RequestBucket();
+  late final RequestBucket requestBucket;
 
   @override
   final HttpClientContract client;
 
-  FakeDataStore(this.client);
+  FakeDataStore(this.client) {
+    requestBucket = RequestBucket(client);
+  }
 
   @override
   ChannelPartContract get channel => throw UnimplementedError('channel');

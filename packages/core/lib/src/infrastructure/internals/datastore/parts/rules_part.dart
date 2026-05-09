@@ -16,9 +16,7 @@ final class RulesPart extends BasePart implements RulesPartContract {
     final guildId = Snowflake.parse(serverId);
     final req =
         Request.json(endpoint: '/guilds/$guildId/auto-moderation/rules');
-    final result = await dataStore.requestBucket
-        .query<List<dynamic>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<List<dynamic>>(req);
 
     final rules = await result.map((element) async {
       final raw = await marshaller.serializers.rules
@@ -43,9 +41,7 @@ final class RulesPart extends BasePart implements RulesPartContract {
 
     final req = Request.json(
         endpoint: '/guilds/$guildId/auto-moderation/rules/$rulesId');
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.rules.normalize(result);
     final rule = await marshaller.serializers.rules.serialize(raw);
@@ -98,9 +94,7 @@ final class RulesPart extends BasePart implements RulesPartContract {
         headers: {
           DiscordHeader.auditLogReason(reason)
         });
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.rules.normalize({
       ...result,
@@ -124,9 +118,7 @@ final class RulesPart extends BasePart implements RulesPartContract {
         body: payload,
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.patch);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.rules.normalize({
       ...result,
@@ -144,8 +136,6 @@ final class RulesPart extends BasePart implements RulesPartContract {
         endpoint: '/guilds/$guildId/auto-moderation/rules/$ruleId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.delete);
+    await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 }

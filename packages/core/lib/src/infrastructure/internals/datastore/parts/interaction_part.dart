@@ -27,7 +27,7 @@ final class InteractionPart extends BasePart
       files: files,
     );
 
-    await dataStore.requestBucket.query<Map>(req).run(dataStore.client.post);
+    await dataStore.requestBucket.post<Map>(req);
   }
 
   @override
@@ -46,18 +46,14 @@ final class InteractionPart extends BasePart
       files: files,
     );
 
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.patch);
+    await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
   }
 
   @override
   Future<void> deleteInteraction(Snowflake id, String token) async {
     final req =
         Request.json(endpoint: '/webhooks/$id/$token/messages/@original');
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.delete);
+    await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
@@ -71,9 +67,7 @@ final class InteractionPart extends BasePart
       },
     );
 
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    await dataStore.requestBucket.post<Map<String, dynamic>>(req);
   }
 
   @override
@@ -95,7 +89,7 @@ final class InteractionPart extends BasePart
       files: files,
     );
 
-    await dataStore.requestBucket.query<Map>(req).run(dataStore.client.post);
+    await dataStore.requestBucket.post<Map>(req);
   }
 
   @override
@@ -114,7 +108,7 @@ final class InteractionPart extends BasePart
       files: files,
     );
 
-    await dataStore.requestBucket.query<Map>(req).run(dataStore.client.patch);
+    await dataStore.requestBucket.patch<Map>(req);
   }
 
   @override
@@ -127,7 +121,7 @@ final class InteractionPart extends BasePart
       },
     );
 
-    await dataStore.requestBucket.query<Map>(req).run(dataStore.client.post);
+    await dataStore.requestBucket.post<Map>(req);
   }
 
   @override
@@ -135,9 +129,7 @@ final class InteractionPart extends BasePart
       Snowflake botId, String token, Snowflake messageId) async {
     final req =
         Request.json(endpoint: '/webhooks/$botId/$token/messages/$messageId');
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.delete);
+    await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
@@ -152,8 +144,6 @@ final class InteractionPart extends BasePart
       'data': modal.build(),
     });
 
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    await dataStore.requestBucket.post<Map<String, dynamic>>(req);
   }
 }

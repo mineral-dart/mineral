@@ -11,9 +11,7 @@ final class StickerPart extends BasePart implements StickerPartContract {
   Future<Map<Snowflake, Sticker>> fetch(Object serverId, bool force) async {
     final guildId = Snowflake.parse(serverId);
     final req = Request.json(endpoint: '/guilds/$guildId/stickers');
-    final result = await dataStore.requestBucket
-        .query<List<Map<String, dynamic>>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
 
     final stickers = await result.map((element) async {
       final raw = await marshaller.serializers.sticker.normalize(element);
@@ -37,9 +35,7 @@ final class StickerPart extends BasePart implements StickerPartContract {
     }
 
     final req = Request.json(endpoint: '/guilds/$guildId/stickers/$stickerId');
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.sticker.normalize(result);
     final sticker = await marshaller.serializers.sticker.serialize(raw);
@@ -51,8 +47,6 @@ final class StickerPart extends BasePart implements StickerPartContract {
   Future<void> delete(Object serverId, Object stickerId) async {
     final guildId = Snowflake.parse(serverId);
     final req = Request.json(endpoint: '/guilds/$guildId/stickers/$stickerId');
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.delete);
+    await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 }

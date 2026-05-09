@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/rate_limit_registry.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/route_key.dart';
 
 typedef RequestAction<T> = Future<Response<T>> Function(
     RequestContract request);
@@ -15,14 +17,11 @@ final class QueueableRequest<T> {
 
   LoggerContract get _logger => ioc.resolve<LoggerContract>();
 
-  DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
-
-  HttpClientStatus get _httpStatus => _dataStore.client.status;
-
   final RequestBucket bucket;
   final Completer<T> completer;
   final RequestContract query;
-  final RequestAction request;
+  final String method;
+  final RequestAction<T> request;
 
   DateTime? retryAt;
   QueueableRequestStatus status = QueueableRequestStatus.init;
@@ -31,20 +30,38 @@ final class QueueableRequest<T> {
   final void Function(T)? _onSuccess;
   final void Function(Duration)? _onRateLimit;
 
-  QueueableRequest(this.bucket, this.query, this.request, this.completer,
-      this._onError, this._onSuccess, this._onRateLimit);
+  QueueableRequest(
+    this.bucket,
+    this.method,
+    this.query,
+    this.request,
+    this.completer,
+    this._onError,
+    this._onSuccess,
+    this._onRateLimit,
+  );
 
   Future<void> execute() async {
+    final route = RouteKey(method, query.url.path);
+    final httpStatus = bucket.client.status;
+
     for (var attempt = 0; attempt < _maxRateLimitRetries; attempt++) {
+      final delay = bucket.registry.delayFor(route);
+      if (delay > Duration.zero) {
+        await Future<void>.delayed(delay);
+      }
+
       status = QueueableRequestStatus.pending;
       final response = await request(query);
 
-      if (_httpStatus.isSuccess(response.statusCode)) {
+      bucket.registry.updateFromHeaders(route, response.headers);
+
+      if (httpStatus.isSuccess(response.statusCode)) {
         status = QueueableRequestStatus.success;
         bucket.queue.remove(this);
         try {
-          _onSuccess?.call(response.body as T);
-          completer.complete(response.body as T);
+          _onSuccess?.call(response.body);
+          completer.complete(response.body);
         } on TypeError catch (e) {
           completer.completeError(HttpException(
             'Response body type mismatch: expected $T, '
@@ -54,27 +71,38 @@ final class QueueableRequest<T> {
         return;
       }
 
-      if (_httpStatus.isRateLimit(response.statusCode)) {
-        bucket.hasGlobalLocked = response.body['global'] as bool? ?? false;
+      if (httpStatus.isRateLimit(response.statusCode)) {
+        final body = response.body;
+        final isGlobal = body is Map && body['global'] == true;
+        final retryAfter = body is Map ? body['retry_after'] : null;
+        final seconds = retryAfter is num
+            ? retryAfter.toDouble()
+            : double.tryParse(retryAfter?.toString() ?? '') ?? 1.0;
+        final retryDelay =
+            Duration(milliseconds: (seconds * 1000).round() + 50);
 
-        final retryAfter = response.body['retry_after'];
-        final seconds = double.tryParse(retryAfter.toString()) ?? 1.0;
-        final delay = Duration(seconds: seconds.toInt() + 1);
+        if (isGlobal) {
+          bucket.registry.lockGlobal(retryDelay);
+        } else {
+          bucket.registry.lockRoute(route, retryDelay);
+        }
 
         _logger.warn(
-          'Rate limit reached (attempt ${attempt + 1}/$_maxRateLimitRetries). '
-          'Retrying in ${delay.inSeconds}s',
+          'Rate limit reached on $route '
+          '(attempt ${attempt + 1}/$_maxRateLimitRetries, '
+          '${isGlobal ? 'global' : 'bucket'}). '
+          'Retrying in ${retryDelay.inMilliseconds}ms',
         );
 
         status = QueueableRequestStatus.rateLimit;
-        retryAt = DateTime.now().add(delay);
+        retryAt = DateTime.now().add(retryDelay);
 
-        _onRateLimit?.call(delay);
-        await Future<void>.delayed(delay);
+        _onRateLimit?.call(retryDelay);
+        await Future<void>.delayed(retryDelay);
         continue;
       }
 
-      if (_httpStatus.isError(response.statusCode)) {
+      if (httpStatus.isError(response.statusCode)) {
         status = QueueableRequestStatus.error;
         bucket.queue.remove(this);
         final exception =
@@ -84,7 +112,6 @@ final class QueueableRequest<T> {
       }
     }
 
-    // Rate limit retry cap reached
     status = QueueableRequestStatus.error;
     bucket.queue.remove(this);
     completer.completeError(
@@ -94,29 +121,66 @@ final class QueueableRequest<T> {
 }
 
 final class RequestBucket {
-  bool hasGlobalLocked = false;
-  List<QueueableRequest> queue = [];
+  final HttpClientContract client;
+  final RateLimitRegistry registry;
+  final List<QueueableRequest> queue = [];
 
-  RequestHandler<T> query<T>(RequestContract request) =>
-      RequestHandler<T>(this, request);
-}
+  RequestBucket(this.client, {RateLimitRegistry? registry})
+      : registry = registry ?? RateLimitRegistry();
 
-final class RequestHandler<T> {
-  final RequestBucket _bucket;
-  final RequestContract _request;
+  Future<T> get<T>(RequestContract request,
+          {void Function(T)? onSuccess,
+          Exception Function(Response)? onError,
+          void Function(Duration)? onRateLimit}) =>
+      _send<T>('GET', request, client.get,
+          onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
 
-  RequestHandler(this._bucket, this._request);
+  Future<T> post<T>(RequestContract request,
+          {void Function(T)? onSuccess,
+          Exception Function(Response)? onError,
+          void Function(Duration)? onRateLimit}) =>
+      _send<T>('POST', request, client.post,
+          onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
 
-  Future<T> run(Future<Response<T>> Function(RequestContract request) action,
+  Future<T> put<T>(RequestContract request,
+          {void Function(T)? onSuccess,
+          Exception Function(Response)? onError,
+          void Function(Duration)? onRateLimit}) =>
+      _send<T>('PUT', request, client.put,
+          onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
+
+  Future<T> patch<T>(RequestContract request,
+          {void Function(T)? onSuccess,
+          Exception Function(Response)? onError,
+          void Function(Duration)? onRateLimit}) =>
+      _send<T>('PATCH', request, client.patch,
+          onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
+
+  Future<T> delete<T>(RequestContract request,
+          {void Function(T)? onSuccess,
+          Exception Function(Response)? onError,
+          void Function(Duration)? onRateLimit}) =>
+      _send<T>('DELETE', request, client.delete,
+          onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
+
+  Future<T> _send<T>(String method, RequestContract request,
+      RequestAction<T> action,
       {void Function(T)? onSuccess,
       Exception Function(Response)? onError,
       void Function(Duration)? onRateLimit}) async {
     final completer = Completer<T>();
-    final request = QueueableRequest<T>(
-        _bucket, _request, action, completer, onError, onSuccess, onRateLimit);
-    _bucket.queue.add(request);
-
-    await request.execute();
+    final queueable = QueueableRequest<T>(
+      this,
+      method,
+      request,
+      action,
+      completer,
+      onError,
+      onSuccess,
+      onRateLimit,
+    );
+    queue.add(queueable);
+    await queueable.execute();
     return completer.future;
   }
 }
