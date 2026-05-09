@@ -21,9 +21,7 @@ final class ServerPart extends BasePart implements ServerPartContract {
     }
 
     final req = Request.json(endpoint: '/guilds/$guildId');
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.server.normalize(result);
     final server = await marshaller.serializers.server.serialize(raw);

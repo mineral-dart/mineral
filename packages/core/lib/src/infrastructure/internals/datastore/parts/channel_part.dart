@@ -13,9 +13,7 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
       Object serverId, bool force) async {
     final guildId = Snowflake.parse(serverId);
     final req = Request.json(endpoint: '/guilds/$guildId/channels');
-    final result = await dataStore.requestBucket
-        .query<List<Map<String, dynamic>>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
 
     final channels = await result.map((element) async {
       final raw = await marshaller.serializers.channels.normalize(element);
@@ -46,9 +44,7 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     }
 
     final req = Request.json(endpoint: '/channels/$channelId');
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize(raw);
@@ -69,9 +65,7 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
         body: builder.build(),
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
@@ -92,9 +86,7 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     final req = Request.json(
         endpoint: '/users/@me/channels', body: {'recipient_id': userId});
 
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.channels.normalize(result);
     final channel = await marshaller.serializers.channels.serialize(raw);
@@ -113,9 +105,7 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
         body: builder.build(),
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.patch);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
@@ -136,8 +126,6 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
         endpoint: '/channels/$channelId',
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.delete);
+    await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 }

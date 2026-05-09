@@ -14,9 +14,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
   Future<ThreadResult> fetchActives(Object serverId) async {
     final guildId = Snowflake.parse(serverId);
     final request = Request.json(endpoint: '/guilds/$guildId/threads/active');
-    final result = await dataStore.requestBucket
-        .query<List<Map<String, dynamic>>>(request)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(request);
 
     final channels = await result.map((element) async {
       final raw = await marshaller.serializers.channels.normalize(element);
@@ -32,9 +30,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
   Future<Map<Snowflake, PublicThreadChannel>> fetchPublicArchived(
       Object channelId) async {
     final req = Request.json(endpoint: '/channels/$channelId/archived/public');
-    final result = await dataStore.requestBucket
-        .query<List<Map<String, dynamic>>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
 
     final channels = await result.map((element) async {
       final raw = await marshaller.serializers.channels.normalize(element);
@@ -50,9 +46,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
   Future<Map<Snowflake, PrivateThreadChannel>> fetchPrivateArchived(
       Object channelId) async {
     final req = Request.json(endpoint: '/channels/$channelId/archived/private');
-    final result = await dataStore.requestBucket
-        .query<List<Map<String, dynamic>>>(req)
-        .run(dataStore.client.get);
+    final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
 
     final channels = await result.map((element) async {
       final raw = await marshaller.serializers.channels.normalize(element);
@@ -74,9 +68,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
         body: builder.build(),
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
@@ -100,9 +92,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
         body: builder.build(),
         headers: {DiscordHeader.auditLogReason(reason)});
 
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({

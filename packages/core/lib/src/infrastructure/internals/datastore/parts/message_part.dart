@@ -29,9 +29,7 @@ final class MessagePart extends BasePart implements MessagePartContract {
           ? '/channels/$channelId/messages'
           : '/channels/$channelId/messages?${query.entries.map((e) => '${e.key}=${e.value}').join('&')}',
     );
-    final body = await dataStore.requestBucket
-        .query<List<dynamic>>(req)
-        .run(dataStore.client.get);
+    final body = await dataStore.requestBucket.get<List<dynamic>>(req);
 
     final messages = await Future.wait(
       body.map((e) async => marshaller.serializers.message
@@ -81,9 +79,7 @@ final class MessagePart extends BasePart implements MessagePartContract {
 
     final req =
         Request.json(endpoint: '/channels/$channelId/messages/$messageId');
-    final body = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.get);
+    final body = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     final message = await marshaller.serializers.message.normalize(body);
     final serialized = await marshaller.serializers.message.serialize(message);
@@ -120,9 +116,7 @@ final class MessagePart extends BasePart implements MessagePartContract {
         ),
     };
 
-    final body = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.patch);
+    final body = await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
 
     final rawMessage = await marshaller.serializers.message.normalize(body);
     final message = await marshaller.serializers.message.serialize(rawMessage);
@@ -136,17 +130,13 @@ final class MessagePart extends BasePart implements MessagePartContract {
   @override
   Future<void> pin(Snowflake channelId, Snowflake id) async {
     final req = Request.json(endpoint: '/channels/$channelId/pins/$id');
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.put);
+    await dataStore.requestBucket.put<Map<String, dynamic>>(req);
   }
 
   @override
   Future<void> unpin(Snowflake channelId, Snowflake id) async {
     final req = Request.json(endpoint: '/channels/$channelId/pins/$id');
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.delete);
+    await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
@@ -154,17 +144,13 @@ final class MessagePart extends BasePart implements MessagePartContract {
     final req = Request.json(
       endpoint: '/channels/$channelId/messages/$id/crosspost',
     );
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    await dataStore.requestBucket.post<Map<String, dynamic>>(req);
   }
 
   @override
   Future<void> delete(Snowflake channelId, Snowflake id) async {
     final req = Request.json(endpoint: '/channels/$channelId/messages/$id');
-    await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.delete);
+    await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
@@ -191,9 +177,7 @@ final class MessagePart extends BasePart implements MessagePartContract {
         ),
     };
 
-    final body = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    final body = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
 
     final message = await marshaller.serializers.message.normalize(body);
     final serialized = await marshaller.serializers.message.serialize(message);
@@ -224,9 +208,7 @@ final class MessagePart extends BasePart implements MessagePartContract {
       files: files,
     );
 
-    final result = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.message.normalize(result);
     final serialized = await marshaller.serializers.message.serialize(raw);
@@ -243,9 +225,7 @@ final class MessagePart extends BasePart implements MessagePartContract {
       endpoint: '/channels/$channelId/messages',
       body: {'poll': marshaller.serializers.poll.deserialize(poll)},
     );
-    final body = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.post);
+    final body = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
 
     final message = await marshaller.serializers.message.normalize(body);
     final serializedMessage = await marshaller.serializers.message.serialize(
@@ -270,9 +250,7 @@ final class MessagePart extends BasePart implements MessagePartContract {
       endpoint:
           '/channels/${channelId.value}/polls/${messageId.value}/answers/$answerId',
     );
-    final body = await dataStore.requestBucket
-        .query<Map<String, dynamic>>(req)
-        .run(dataStore.client.get);
+    final body = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     body['id'] = answerId;
     body['message_id'] = messageId.value;

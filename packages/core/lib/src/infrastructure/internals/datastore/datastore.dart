@@ -18,7 +18,7 @@ import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.da
 
 final class DataStore implements DataStoreContract {
   @override
-  final RequestBucket requestBucket = RequestBucket();
+  late final RequestBucket requestBucket;
 
   @override
   final HttpClientContract client;
@@ -63,6 +63,7 @@ final class DataStore implements DataStoreContract {
   late final InvitePart invite;
 
   DataStore({required this.client, required MarshallerContract marshaller}) {
+    requestBucket = RequestBucket(client);
     channel = ChannelPart(marshaller, this);
     server = ServerPart(marshaller, this);
     member = MemberPart(marshaller, this);

@@ -7,7 +7,7 @@ final class FakeResponse<T> implements Response<T> {
   final int statusCode;
 
   @override
-  final Set<Header> headers = const {};
+  final Set<Header> headers;
 
   @override
   final String bodyString;
@@ -16,7 +16,7 @@ final class FakeResponse<T> implements Response<T> {
   final T body;
 
   @override
-  final Uri uri = Uri.parse('https://discord.com/api/v10/test');
+  final Uri uri;
 
   @override
   final String? reasonPhrase = null;
@@ -29,7 +29,9 @@ final class FakeResponse<T> implements Response<T> {
     this.body, {
     this.bodyString = '',
     this.method = 'GET',
-  });
+    this.headers = const {},
+    Uri? uri,
+  }) : uri = uri ?? Uri.parse('https://discord.com/api/v10/test');
 
   /// Convenience: a successful 200 response with an empty JSON body.
   static FakeResponse<Map<String, dynamic>> ok([

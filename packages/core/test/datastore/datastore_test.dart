@@ -31,8 +31,8 @@ void main() {
       expect(dataStore.requestBucket.queue, isEmpty);
     });
 
-    test('requestBucket hasGlobalLocked is false', () {
-      expect(dataStore.requestBucket.hasGlobalLocked, isFalse);
+    test('requestBucket has no global lock', () {
+      expect(dataStore.requestBucket.registry.globalLockedUntil, isNull);
     });
 
     test('all parts are initialized', () {

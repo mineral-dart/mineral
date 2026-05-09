@@ -33,6 +33,7 @@ final class FakeHttpClient implements HttpClientContract {
 
     if (outcome is Exception) throw outcome;
     if (outcome is Error) throw outcome;
+    if (outcome is Response<T>) return outcome;
 
     final statusCode = outcome as int;
     return FakeResponse<T>(statusCode, <String, dynamic>{} as T);
