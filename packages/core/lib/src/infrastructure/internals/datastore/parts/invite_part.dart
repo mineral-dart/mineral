@@ -46,6 +46,41 @@ final class InvitePart extends BasePart implements InvitePartContract {
   }
 
   @override
+  Future<Invite> create({
+    required Object channelId,
+    Duration? maxAge,
+    int? maxUses,
+    bool? temporary,
+    bool? unique,
+    InviteTargetType? targetType,
+    Object? targetUserId,
+    Object? targetApplicationId,
+    String? reason,
+  }) async {
+    final body = <String, dynamic>{
+      if (maxAge != null) 'max_age': maxAge.inSeconds,
+      if (maxUses != null) 'max_uses': maxUses,
+      if (temporary != null) 'temporary': temporary,
+      if (unique != null) 'unique': unique,
+      if (targetType != null) 'target_type': targetType.value,
+      if (targetUserId != null) 'target_user_id': targetUserId.toString(),
+      if (targetApplicationId != null)
+        'target_application_id': targetApplicationId.toString(),
+    };
+
+    final req = Request.json(
+      endpoint: '/channels/$channelId/invites',
+      body: body,
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
+
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+
+    final raw = await marshaller.serializers.invite.normalize(result);
+    return marshaller.serializers.invite.serialize(raw);
+  }
+
+  @override
   Future<void> delete(String code, String? reason) async {
     final req = Request.json(
         endpoint: '/invites/$code',
