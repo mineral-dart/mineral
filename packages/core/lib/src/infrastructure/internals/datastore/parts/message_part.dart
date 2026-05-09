@@ -4,12 +4,9 @@ import 'package:mineral/services.dart';
 import 'package:mineral/src/api/common/polls/poll_answer_vote.dart';
 import 'package:mineral/src/domains/common/utils/attachment.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
-import 'package:mineral/src/infrastructure/internals/datastore/parts/response_handler.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/serialization_exception.dart';
 
-final class MessagePart extends BasePart
-    with ResponseHandler
-    implements MessagePartContract {
+final class MessagePart extends BasePart implements MessagePartContract {
   MessagePart(super.marshaller, super.dataStore);
 
   @override
@@ -32,15 +29,14 @@ final class MessagePart extends BasePart
           ? '/channels/$channelId/messages'
           : '/channels/$channelId/messages?${query.entries.map((e) => '${e.key}=${e.value}').join('&')}',
     );
-    final response = await dataStore.client.get(req);
+    final body = await dataStore.requestBucket
+        .query<List<dynamic>>(req)
+        .run(dataStore.client.get);
 
-    final messages = await handleResponse(
-        response,
-        (body) => Future.wait(
-              List.from(body as Iterable<dynamic>).map((e) async => marshaller
-                  .serializers.message
-                  .normalize(e as Map<String, dynamic>)),
-            ));
+    final messages = await Future.wait(
+      body.map((e) async => marshaller.serializers.message
+          .normalize(e as Map<String, dynamic>)),
+    );
 
     final serializedMessages = await Future.wait(
       messages.map((e) async {
@@ -85,13 +81,11 @@ final class MessagePart extends BasePart
 
     final req =
         Request.json(endpoint: '/channels/$channelId/messages/$messageId');
-    final response = await dataStore.client.get(req);
+    final body = await dataStore.requestBucket
+        .query<Map<String, dynamic>>(req)
+        .run(dataStore.client.get);
 
-    final message = await handleResponse(
-        response,
-        (body) => marshaller.serializers.message
-            .normalize(body as Map<String, dynamic>));
-
+    final message = await marshaller.serializers.message.normalize(body);
     final serialized = await marshaller.serializers.message.serialize(message);
     if (serialized is! T) {
       throw SerializationException(
@@ -126,13 +120,11 @@ final class MessagePart extends BasePart
         ),
     };
 
-    final response = await dataStore.client.patch(req);
+    final body = await dataStore.requestBucket
+        .query<Map<String, dynamic>>(req)
+        .run(dataStore.client.patch);
 
-    final rawMessage = await handleResponse(
-        response,
-        (body) => marshaller.serializers.message
-            .normalize(body as Map<String, dynamic>));
-
+    final rawMessage = await marshaller.serializers.message.normalize(body);
     final message = await marshaller.serializers.message.serialize(rawMessage);
     if (message is! T)
       throw SerializationException(
@@ -199,13 +191,11 @@ final class MessagePart extends BasePart
         ),
     };
 
-    final response = await dataStore.client.post(req);
+    final body = await dataStore.requestBucket
+        .query<Map<String, dynamic>>(req)
+        .run(dataStore.client.post);
 
-    final message = await handleResponse(
-        response,
-        (body) => marshaller.serializers.message
-            .normalize(body as Map<String, dynamic>));
-
+    final message = await marshaller.serializers.message.normalize(body);
     final serialized = await marshaller.serializers.message.serialize(message);
     if (serialized is! T)
       throw SerializationException(
@@ -253,13 +243,11 @@ final class MessagePart extends BasePart
       endpoint: '/channels/$channelId/messages',
       body: {'poll': marshaller.serializers.poll.deserialize(poll)},
     );
-    final response = await dataStore.client.post(req);
+    final body = await dataStore.requestBucket
+        .query<Map<String, dynamic>>(req)
+        .run(dataStore.client.post);
 
-    final message = await handleResponse(
-        response,
-        (body) => marshaller.serializers.message
-            .normalize(body as Map<String, dynamic>));
-
+    final message = await marshaller.serializers.message.normalize(body);
     final serializedMessage = await marshaller.serializers.message.serialize(
       message,
     );
