@@ -232,6 +232,44 @@ abstract class ServerMessageCreateEvent extends BaseListenableEvent {
   FutureOr<void> handle(ServerMessage message);
 }
 
+typedef ServerMessageDeleteArgs = ({
+  Server server,
+  ServerChannel channel,
+  Snowflake messageId,
+  Message? message,
+});
+
+abstract class ServerMessageDeleteEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverMessageDelete;
+
+  @override
+  Function get handler => (ServerMessageDeleteArgs p) =>
+      handle(p.server, p.channel, p.messageId, p.message);
+
+  FutureOr<void> handle(Server server, ServerChannel channel,
+      Snowflake messageId, Message? message);
+}
+
+typedef ServerMessageDeleteBulkArgs = ({
+  Server server,
+  ServerChannel channel,
+  List<Snowflake> messageIds,
+  Map<Snowflake, Message> messages,
+});
+
+abstract class ServerMessageDeleteBulkEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverMessageDeleteBulk;
+
+  @override
+  Function get handler => (ServerMessageDeleteBulkArgs p) =>
+      handle(p.server, p.channel, p.messageIds, p.messages);
+
+  FutureOr<void> handle(Server server, ServerChannel channel,
+      List<Snowflake> messageIds, Map<Snowflake, Message> messages);
+}
+
 typedef ServerMessageReactionAddArgs = ({MessageReaction reaction});
 
 abstract class ServerMessageReactionAddEvent extends BaseListenableEvent {

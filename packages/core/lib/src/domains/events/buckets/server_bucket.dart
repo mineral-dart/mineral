@@ -27,6 +27,27 @@ final class ServerBucket {
       _events.make(Event.serverMessageCreate,
           (ServerMessageCreateArgs p) => handle(p.message));
 
+  void messageDelete(
+          FutureOr<void> Function(Server server, ServerChannel channel,
+                  Snowflake messageId, Message? message)
+              handle) =>
+      _events.make(
+          Event.serverMessageDelete,
+          (ServerMessageDeleteArgs p) =>
+              handle(p.server, p.channel, p.messageId, p.message));
+
+  void messageDeleteBulk(
+          FutureOr<void> Function(
+                  Server server,
+                  ServerChannel channel,
+                  List<Snowflake> messageIds,
+                  Map<Snowflake, Message> messages)
+              handle) =>
+      _events.make(
+          Event.serverMessageDeleteBulk,
+          (ServerMessageDeleteBulkArgs p) =>
+              handle(p.server, p.channel, p.messageIds, p.messages));
+
   void channelCreate(FutureOr<void> Function(ServerChannel channel) handle) =>
       _events.make(Event.serverChannelCreate,
           (ServerChannelCreateArgs p) => handle(p.channel));

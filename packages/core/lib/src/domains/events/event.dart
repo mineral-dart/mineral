@@ -35,6 +35,18 @@ enum Event implements EnhancedEnum<Type>, EventType {
   serverMessageCreate(ServerMessageCreateEvent, [
     ['ServerMessage', 'message']
   ]),
+  serverMessageDelete(ServerMessageDeleteEvent, [
+    ['Server', 'server'],
+    ['ServerChannel', 'channel'],
+    ['Snowflake', 'messageId'],
+    ['Message?', 'message']
+  ]),
+  serverMessageDeleteBulk(ServerMessageDeleteBulkEvent, [
+    ['Server', 'server'],
+    ['ServerChannel', 'channel'],
+    ['List<Snowflake>', 'messageIds'],
+    ['Map<Snowflake, Message>', 'messages']
+  ]),
   serverChannelCreate(ServerChannelCreateEvent, [
     ['ServerChannel', 'channel']
   ]),
@@ -196,6 +208,11 @@ enum Event implements EnhancedEnum<Type>, EventType {
   // private
   privateMessageCreate(PrivateMessageCreateEvent, [
     ['PrivateMessage', 'message']
+  ]),
+  privateMessageDelete(PrivateMessageDeleteEvent, [
+    ['PrivateChannel', 'channel'],
+    ['Snowflake', 'messageId'],
+    ['Message?', 'message']
   ]),
   privateChannelCreate(PrivateChannelCreateEvent, [
     ['PrivateChannel', 'channel']

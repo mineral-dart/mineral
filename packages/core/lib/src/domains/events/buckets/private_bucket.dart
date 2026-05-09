@@ -15,6 +15,15 @@ final class PrivateBucket {
       _events.make(Event.privateMessageCreate,
           (PrivateMessageCreateArgs p) => handle(p.message));
 
+  void messageDelete(
+          FutureOr<void> Function(PrivateChannel channel, Snowflake messageId,
+                  Message? message)
+              handle) =>
+      _events.make(
+          Event.privateMessageDelete,
+          (PrivateMessageDeleteArgs p) =>
+              handle(p.channel, p.messageId, p.message));
+
   void channelCreate(FutureOr<void> Function(PrivateChannel channel) handle) =>
       _events.make(Event.privateChannelCreate,
           (PrivateChannelCreateArgs p) => handle(p.channel));
