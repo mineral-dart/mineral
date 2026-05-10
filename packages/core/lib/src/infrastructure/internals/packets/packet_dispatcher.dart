@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/common/kernel.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/packets/packet_dispatcher.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/ready_packet.dart';
@@ -13,8 +13,9 @@ final class PacketDispatcher implements PacketDispatcherContract {
   final Map<String, StreamController<ShardMessage>> _controllers = {};
   final List<StreamSubscription> _subscriptions = [];
   final Kernel _kernel;
+  final RuntimeState _runtimeState;
 
-  PacketDispatcher(this._kernel);
+  PacketDispatcher(this._kernel, this._runtimeState);
 
   StreamController<ShardMessage> _controllerFor(String packetName) {
     return _controllers.putIfAbsent(
@@ -29,7 +30,7 @@ final class PacketDispatcher implements PacketDispatcherContract {
     final subscription = controller.stream.listen((ShardMessage message) async {
       try {
         if (message.type == PacketType.ready.name) {
-          ioc.bind(() => ReadyPacketMessage(message));
+          _runtimeState.readyPacketMessage = ReadyPacketMessage(message);
         }
         await Function.apply(
             listener, [message, _kernel.eventListener.dispatcher.dispatch]);

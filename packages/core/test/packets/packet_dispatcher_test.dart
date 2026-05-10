@@ -5,6 +5,7 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 
 import 'package:mineral/src/domains/common/kernel.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/domains/events/event_dispatcher.dart';
 import 'package:mineral/src/domains/events/event_listener.dart';
@@ -133,8 +134,8 @@ final class _FakeInteractiveComponentManager
       throw UnimplementedError();
 }
 
-Kernel _buildFakeKernel(
-    _FakeEventListener eventListener, LoggerContract logger) {
+Kernel _buildFakeKernel(_FakeEventListener eventListener, LoggerContract logger,
+    RuntimeState runtimeState) {
   return Kernel(
     false,
     null,
@@ -147,6 +148,7 @@ Kernel _buildFakeKernel(
     globalState: GlobalStateManager(),
     interactiveComponent: _FakeInteractiveComponentManager(),
     wss: FakeWebsocketOrchestrator(),
+    runtimeState: runtimeState,
   );
 }
 
@@ -170,10 +172,11 @@ void main() {
       final testIoc = createTestIoc();
       restoreIoc = testIoc.restore;
 
+      final runtimeState = RuntimeState();
       eventListener = _FakeEventListener();
-      kernel = _buildFakeKernel(eventListener, testIoc.logger);
+      kernel = _buildFakeKernel(eventListener, testIoc.logger, runtimeState);
       eventListener.kernel = kernel;
-      dispatcher = PacketDispatcher(kernel);
+      dispatcher = PacketDispatcher(kernel, runtimeState);
     });
 
     tearDown(() {

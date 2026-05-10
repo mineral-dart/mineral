@@ -68,6 +68,12 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
   @override
   final Map<int, Shard> shards = {};
 
+  /// Callback invoked by [Shard] when the gateway closes with a fatal code.
+  /// Set by [Kernel] after construction to break the otherwise-circular
+  /// dependency between the orchestrator (built first) and the kernel
+  /// (built later, owns dispose).
+  Future<void> Function()? onFatalDisconnect;
+
   WebsocketOrchestrator(
     this.config, {
     required LoggerContract logger,

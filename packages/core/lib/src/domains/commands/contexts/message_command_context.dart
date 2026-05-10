@@ -1,6 +1,7 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/commands/command_context.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class MessageCommandContext extends CommandContext {
   final Message target;
@@ -11,13 +12,17 @@ final class MessageCommandContext extends CommandContext {
     required super.applicationId,
     required super.token,
     required super.version,
+    required super.ctx,
     required this.target,
     this.server,
     super.channel,
   });
 
-  static Future<MessageCommandContext> fromMap(MarshallerContract marshaller,
-      DataStoreContract datastore, Map<String, dynamic> payload) async {
+  static Future<MessageCommandContext> fromMap(
+      MarshallerContract marshaller,
+      DataStoreContract datastore,
+      EntityContext ctx,
+      Map<String, dynamic> payload) async {
     final data = payload['data'] as Map<String, dynamic>;
     final targetId = data['target_id'] as String;
     final resolved = data['resolved'] as Map<String, dynamic>?;
@@ -53,6 +58,7 @@ final class MessageCommandContext extends CommandContext {
     final channelId = payload['channel_id'] as String?;
 
     return MessageCommandContext(
+      ctx: ctx,
       id: Snowflake.parse(payload['id']),
       applicationId: Snowflake.parse(payload['application_id']),
       token: payload['token'] as String,

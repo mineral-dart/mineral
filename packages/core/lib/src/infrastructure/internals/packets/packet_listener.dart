@@ -1,6 +1,7 @@
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/kernel.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/packets/packet_dispatcher.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/automoderation_action_execution_packet.dart';
@@ -64,6 +65,7 @@ final class PacketListener implements PacketListenerContract {
   late final InteractiveComponentManagerContract interactiveComponent;
   late final CommandInteractionManagerContract commandManager;
   late final EntityContext entityContext;
+  late final RuntimeState runtimeState;
   CacheConfig? cacheConfig;
 
   void subscribe(ListenablePacket packet) {
@@ -76,7 +78,7 @@ final class PacketListener implements PacketListenerContract {
   }
 
   void init() {
-    dispatcher = PacketDispatcher(kernel);
+    dispatcher = PacketDispatcher(kernel, runtimeState);
     final logger = kernel.logger;
     final wss = kernel.wss;
     final m = marshaller;
@@ -88,9 +90,11 @@ final class PacketListener implements PacketListenerContract {
         marshaller: m,
         commandManager: cm,
         wss: wss,
+        runtimeState: runtimeState,
         cacheConfig: cacheConfig));
     subscribe(MessageCreatePacket(marshaller: m));
-    subscribe(GuildCreatePacket(marshaller: m, commandManager: cm));
+    subscribe(GuildCreatePacket(
+        marshaller: m, commandManager: cm, runtimeState: runtimeState));
     subscribe(GuildUpdatePacket(marshaller: m));
     subscribe(GuildDeletePacket(marshaller: m));
     subscribe(ChannelCreatePacket(logger: logger, marshaller: m));
@@ -131,7 +135,8 @@ final class PacketListener implements PacketListenerContract {
         logger: logger,
         marshaller: m,
         dataStore: ds,
-        interactiveComponent: ic));
+        interactiveComponent: ic,
+        entityContext: entityContext));
 
     subscribe(ThreadCreatePacket(marshaller: m, dataStore: ds));
     subscribe(ThreadUpdatePacket(marshaller: m, dataStore: ds));

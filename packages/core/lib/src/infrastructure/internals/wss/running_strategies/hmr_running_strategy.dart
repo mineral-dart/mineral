@@ -5,8 +5,8 @@ import 'dart:isolate';
 import 'package:glob/glob.dart';
 import 'package:hmr/hmr.dart';
 import 'package:mansion/mansion.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/packets/packet_dispatcher.dart';
 import 'package:mineral/src/domains/services/wss/running_strategy.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/ready_packet.dart';
@@ -18,6 +18,7 @@ import 'package:path/path.dart' as path;
 
 final class HmrRunningStrategy implements RunningStrategy {
   final WebsocketOrchestratorContract _wss;
+  final RuntimeState _runtimeState;
 
   final SendPort? _devPort;
   final PacketDispatcherContract _packetDispatcher;
@@ -31,7 +32,9 @@ final class HmrRunningStrategy implements RunningStrategy {
     this._packetDispatcher,
     this._watchedFiles, {
     required WebsocketOrchestratorContract wss,
-  }) : _wss = wss;
+    required RuntimeState runtimeState,
+  })  : _wss = wss,
+        _runtimeState = runtimeState;
 
   @override
   Future<void> init(RunningStrategyFactory createShards) async {
@@ -82,7 +85,8 @@ final class HmrRunningStrategy implements RunningStrategy {
 
     if (messageContent case final Map<String, dynamic> json
         when json['t'] == PacketType.ready.name) {
-      ioc.bind(() => ReadyPacketMessage(decoded.content as ShardMessage<dynamic>));
+      _runtimeState.readyPacketMessage =
+          ReadyPacketMessage(decoded.content as ShardMessage<dynamic>);
     }
 
     await _runner.send(decoded.content.serialize());
@@ -141,8 +145,7 @@ final class HmrRunningStrategy implements RunningStrategy {
 
     await _runner.reload();
 
-    if (ioc.resolveOrNull<ReadyPacketMessage>()
-        case final ReadyPacketMessage packet) {
+    if (_runtimeState.readyPacketMessage case final ReadyPacketMessage packet) {
       await _runner.send(packet.message.serialize());
     }
   }

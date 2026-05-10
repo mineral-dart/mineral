@@ -1,15 +1,26 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 
 final class Interaction implements InteractionContract {
   final String _token;
   final Snowflake _id;
-  final Snowflake _botId = ioc.resolve<Bot>().id;
 
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final DataStoreContract _datastore;
+  final RuntimeState _runtimeState;
 
-  Interaction(this._token, this._id);
+  Snowflake get _botId =>
+      _runtimeState.bot?.id ??
+      (throw StateError(
+          'Interaction created before bot identity was set by READY.'));
+
+  Interaction(
+    this._token,
+    this._id, {
+    required DataStoreContract datastore,
+    required RuntimeState runtimeState,
+  })  : _datastore = datastore,
+        _runtimeState = runtimeState;
 
   @override
   DateTime get createdAt => _id.createdAt;

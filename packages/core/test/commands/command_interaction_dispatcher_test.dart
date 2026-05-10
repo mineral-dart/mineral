@@ -128,6 +128,7 @@ void main() {
         manager,
         marshaller: fakeMarshaller,
         dataStore: fakeDataStore,
+        ctx: fakeEntityContext(),
       );
 
       final fakeBot = Bot.fromJson({
