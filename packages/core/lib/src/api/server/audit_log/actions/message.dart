@@ -1,7 +1,7 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class MessageDeleteAuditLog extends AuditLog {
   final Snowflake messageId;
@@ -10,9 +10,10 @@ final class MessageDeleteAuditLog extends AuditLog {
   MessageDeleteAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.messageId,
     this.channelId,
-  }) : super(AuditLogType.messageDelete, serverId, userId);
+  }) : super(AuditLogType.messageDelete, serverId, userId, ctx: ctx);
 }
 
 final class MessageBulkDeleteAuditLog extends AuditLog {
@@ -22,13 +23,14 @@ final class MessageBulkDeleteAuditLog extends AuditLog {
   MessageBulkDeleteAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.count,
     this.channelId,
-  }) : super(AuditLogType.messageBulkDelete, serverId, userId);
+  }) : super(AuditLogType.messageBulkDelete, serverId, userId, ctx: ctx);
 }
 
 final class MessagePinAuditLog extends AuditLog {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _datastore => ctx.datastore;
 
   final Snowflake messageId;
   final Snowflake? channelId;
@@ -36,9 +38,10 @@ final class MessagePinAuditLog extends AuditLog {
   MessagePinAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.messageId,
     this.channelId,
-  }) : super(AuditLogType.messagePin, serverId, userId);
+  }) : super(AuditLogType.messagePin, serverId, userId, ctx: ctx);
 
   Future<ServerMessage> resolveMessage({bool force = false}) async {
     final message = await _datastore.message
@@ -48,7 +51,7 @@ final class MessagePinAuditLog extends AuditLog {
 }
 
 final class MessageUnpinAuditLog extends AuditLog {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _datastore => ctx.datastore;
 
   final Snowflake messageId;
   final Snowflake? channelId;
@@ -56,9 +59,10 @@ final class MessageUnpinAuditLog extends AuditLog {
   MessageUnpinAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.messageId,
     this.channelId,
-  }) : super(AuditLogType.messageUnpin, serverId, userId);
+  }) : super(AuditLogType.messageUnpin, serverId, userId, ctx: ctx);
 
   Future<ServerMessage> resolveMessage({bool force = false}) async {
     final message = await _datastore.message

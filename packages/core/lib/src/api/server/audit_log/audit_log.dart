@@ -1,19 +1,16 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 abstract class AuditLog {
-  // TODO(phase1.3-polish): migrate audit log entities + their action subclasses
-  // to take EntityContext via constructor. Pending because each handler in
-  // packets/listeners/audit_logs/* would need to thread ctx through, and many
-  // subclasses have non-trivial constructor surfaces. Tracked separately.
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext ctx;
+  DataStoreContract get _datastore => ctx.datastore;
 
   AuditLogType type;
   Snowflake serverId;
   Snowflake? userId;
 
-  AuditLog(this.type, this.serverId, this.userId);
+  AuditLog(this.type, this.serverId, this.userId, {required this.ctx});
 
   Future<Server> resolveServer({bool force = false}) {
     return _datastore.server.get(serverId.value, force);
