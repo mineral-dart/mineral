@@ -1,5 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class CreatorMonetizationRequestCreatedAuditLog extends AuditLog {
   final String requestId;
@@ -7,8 +8,10 @@ final class CreatorMonetizationRequestCreatedAuditLog extends AuditLog {
   CreatorMonetizationRequestCreatedAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.requestId,
-  }) : super(AuditLogType.creatorMonetizationRequestCreated, serverId, userId);
+  }) : super(AuditLogType.creatorMonetizationRequestCreated, serverId, userId,
+            ctx: ctx);
 }
 
 final class CreatorMonetizationTermsAcceptedAuditLog extends AuditLog {
@@ -17,8 +20,10 @@ final class CreatorMonetizationTermsAcceptedAuditLog extends AuditLog {
   CreatorMonetizationTermsAcceptedAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.termsId,
-  }) : super(AuditLogType.creatorMonetizationTermsAccepted, serverId, userId);
+  }) : super(AuditLogType.creatorMonetizationTermsAccepted, serverId, userId,
+            ctx: ctx);
 }
 
 final class OnboardingPromptCreateAuditLog extends AuditLog {
@@ -28,9 +33,10 @@ final class OnboardingPromptCreateAuditLog extends AuditLog {
   OnboardingPromptCreateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.promptId,
     required this.promptTitle,
-  }) : super(AuditLogType.onboardingPromptCreate, serverId, userId);
+  }) : super(AuditLogType.onboardingPromptCreate, serverId, userId, ctx: ctx);
 }
 
 final class OnboardingPromptUpdateAuditLog extends AuditLog {
@@ -40,9 +46,10 @@ final class OnboardingPromptUpdateAuditLog extends AuditLog {
   OnboardingPromptUpdateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.promptId,
     required this.changes,
-  }) : super(AuditLogType.onboardingPromptUpdate, serverId, userId);
+  }) : super(AuditLogType.onboardingPromptUpdate, serverId, userId, ctx: ctx);
 }
 
 final class OnboardingPromptDeleteAuditLog extends AuditLog {
@@ -52,9 +59,10 @@ final class OnboardingPromptDeleteAuditLog extends AuditLog {
   OnboardingPromptDeleteAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.promptId,
     required this.promptTitle,
-  }) : super(AuditLogType.onboardingPromptDelete, serverId, userId);
+  }) : super(AuditLogType.onboardingPromptDelete, serverId, userId, ctx: ctx);
 }
 
 final class OnboardingCreateAuditLog extends AuditLog {
@@ -63,8 +71,9 @@ final class OnboardingCreateAuditLog extends AuditLog {
   OnboardingCreateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.changes,
-  }) : super(AuditLogType.onboardingCreate, serverId, userId);
+  }) : super(AuditLogType.onboardingCreate, serverId, userId, ctx: ctx);
 }
 
 final class OnboardingUpdateAuditLog extends AuditLog {
@@ -73,8 +82,9 @@ final class OnboardingUpdateAuditLog extends AuditLog {
   OnboardingUpdateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.changes,
-  }) : super(AuditLogType.onboardingUpdate, serverId, userId);
+  }) : super(AuditLogType.onboardingUpdate, serverId, userId, ctx: ctx);
 }
 
 final class HomeSettingsCreateAuditLog extends AuditLog {
@@ -83,8 +93,9 @@ final class HomeSettingsCreateAuditLog extends AuditLog {
   HomeSettingsCreateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.changes,
-  }) : super(AuditLogType.homeSettingsCreate, serverId, userId);
+  }) : super(AuditLogType.homeSettingsCreate, serverId, userId, ctx: ctx);
 }
 
 final class HomeSettingsUpdateAuditLog extends AuditLog {
@@ -93,6 +104,7 @@ final class HomeSettingsUpdateAuditLog extends AuditLog {
   HomeSettingsUpdateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.changes,
-  }) : super(AuditLogType.homeSettingsUpdate, serverId, userId);
+  }) : super(AuditLogType.homeSettingsUpdate, serverId, userId, ctx: ctx);
 }

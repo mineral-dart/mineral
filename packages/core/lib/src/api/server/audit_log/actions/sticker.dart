@@ -1,5 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class StickerCreateAuditLog extends AuditLog {
   final Snowflake stickerId;
@@ -8,9 +9,10 @@ final class StickerCreateAuditLog extends AuditLog {
   StickerCreateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.stickerId,
     required this.sticker,
-  }) : super(AuditLogType.stickerCreate, serverId, userId);
+  }) : super(AuditLogType.stickerCreate, serverId, userId, ctx: ctx);
 }
 
 final class StickerUpdateAuditLog extends AuditLog {
@@ -21,10 +23,11 @@ final class StickerUpdateAuditLog extends AuditLog {
   StickerUpdateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.stickerId,
     required this.changes,
     required this.sticker,
-  }) : super(AuditLogType.stickerUpdate, serverId, userId);
+  }) : super(AuditLogType.stickerUpdate, serverId, userId, ctx: ctx);
 }
 
 final class StickerDeleteAuditLog extends AuditLog {
@@ -33,6 +36,7 @@ final class StickerDeleteAuditLog extends AuditLog {
   StickerDeleteAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.stickerId,
-  }) : super(AuditLogType.stickerDelete, serverId, userId);
+  }) : super(AuditLogType.stickerDelete, serverId, userId, ctx: ctx);
 }

@@ -1,12 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/permissions.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class RoleCreateAuditLog extends AuditLog {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _datastore => ctx.datastore;
 
   final Snowflake roleId;
   final List<Change> changes;
@@ -29,9 +29,10 @@ final class RoleCreateAuditLog extends AuditLog {
   RoleCreateAuditLog(
       {required Snowflake serverId,
       required Snowflake userId,
+      required EntityContext ctx,
       required this.roleId,
       required this.changes})
-      : super(AuditLogType.roleCreate, serverId, userId);
+      : super(AuditLogType.roleCreate, serverId, userId, ctx: ctx);
 
   Future<Role> resolveRole({bool force = false}) async {
     final role = await _datastore.role.get(serverId.value, roleId.value, force);
@@ -40,7 +41,7 @@ final class RoleCreateAuditLog extends AuditLog {
 }
 
 final class RoleUpdateAuditLog extends AuditLog {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _datastore => ctx.datastore;
 
   final Snowflake roleId;
   final List<Change> changes;
@@ -90,9 +91,10 @@ final class RoleUpdateAuditLog extends AuditLog {
   RoleUpdateAuditLog(
       {required Snowflake serverId,
       required Snowflake userId,
+      required EntityContext ctx,
       required this.roleId,
       required this.changes})
-      : super(AuditLogType.roleCreate, serverId, userId);
+      : super(AuditLogType.roleCreate, serverId, userId, ctx: ctx);
 }
 
 final class RoleDeleteAuditLog extends AuditLog {
@@ -102,7 +104,8 @@ final class RoleDeleteAuditLog extends AuditLog {
   RoleDeleteAuditLog(
       {required Snowflake serverId,
       required Snowflake userId,
+      required EntityContext ctx,
       required this.roleId,
       required this.roleName})
-      : super(AuditLogType.emojiDelete, serverId, userId);
+      : super(AuditLogType.emojiDelete, serverId, userId, ctx: ctx);
 }

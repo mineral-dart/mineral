@@ -2,6 +2,7 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log_action.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/_default.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/application_command_permission.dart';
@@ -26,12 +27,12 @@ import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
 
 final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
   final LoggerContract logger;
-  final DataStoreContract _dataStore;
+  final EntityContext _ctx;
 
   GuildAuditLogEntryCreatePacket({
     required this.logger,
-    required DataStoreContract dataStore,
-  }) : _dataStore = dataStore;
+    required EntityContext ctx,
+  }) : _ctx = ctx;
 
   @override
   PacketType get packetType => PacketType.guildAuditLogEntryCreate;
@@ -39,154 +40,145 @@ final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
+    final ctx = _ctx;
     final auditLogType = AuditLogType.values.firstWhere(
         (element) => element.value == payload['action_type'],
         orElse: () => AuditLogType.unknown);
 
     final auditLog = await switch (auditLogType) {
       // Emoji
-      AuditLogType.emojiCreate => emojiCreateAuditLogHandler(payload),
-      AuditLogType.emojiUpdate => emojiUpdateAuditLogHandler(payload),
-      AuditLogType.emojiDelete => emojiDeleteAuditLogHandler(payload),
+      AuditLogType.emojiCreate => emojiCreateAuditLogHandler(payload, ctx),
+      AuditLogType.emojiUpdate => emojiUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.emojiDelete => emojiDeleteAuditLogHandler(payload, ctx),
 
       // Role
-      AuditLogType.roleCreate => roleCreateAuditLogHandler(payload),
-      AuditLogType.roleUpdate => roleUpdateAuditLogHandler(payload),
-      AuditLogType.roleDelete => roleDeleteAuditLogHandler(payload),
+      AuditLogType.roleCreate => roleCreateAuditLogHandler(payload, ctx),
+      AuditLogType.roleUpdate => roleUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.roleDelete => roleDeleteAuditLogHandler(payload, ctx),
 
       // Server
-      AuditLogType.guildUpdate => serverUpdateAuditLogHandler(payload, _dataStore),
+      AuditLogType.guildUpdate => serverUpdateAuditLogHandler(payload, ctx),
 
       // Channel
-      AuditLogType.channelCreate =>
-        channelCreateAuditLogHandler(payload, _dataStore),
-      AuditLogType.channelUpdate =>
-        channelUpdateAuditLogHandler(payload, _dataStore),
-      AuditLogType.channelDelete =>
-        channelDeleteAuditLogHandler(payload),
+      AuditLogType.channelCreate => channelCreateAuditLogHandler(payload, ctx),
+      AuditLogType.channelUpdate => channelUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.channelDelete => channelDeleteAuditLogHandler(payload, ctx),
 
       // Channel Overwrite
       AuditLogType.channelOverwriteCreate =>
-        channelOverwriteCreateAuditLogHandler(payload),
+        channelOverwriteCreateAuditLogHandler(payload, ctx),
       AuditLogType.channelOverwriteUpdate =>
-        channelOverwriteUpdateAuditLogHandler(payload),
+        channelOverwriteUpdateAuditLogHandler(payload, ctx),
       AuditLogType.channelOverwriteDelete =>
-        channelOverwriteDeleteAuditLogHandler(payload),
+        channelOverwriteDeleteAuditLogHandler(payload, ctx),
 
       // Member
-      AuditLogType.memberKick => memberKickAuditLogHandler(payload),
-      AuditLogType.memberPrune => memberPruneAuditLogHandler(payload),
-      AuditLogType.memberBanAdd => memberBanAddAuditLogHandler(payload),
+      AuditLogType.memberKick => memberKickAuditLogHandler(payload, ctx),
+      AuditLogType.memberPrune => memberPruneAuditLogHandler(payload, ctx),
+      AuditLogType.memberBanAdd => memberBanAddAuditLogHandler(payload, ctx),
       AuditLogType.memberBanRemove =>
-        memberBanRemoveAuditLogHandler(payload),
-      AuditLogType.memberUpdate => memberUpdateAuditLogHandler(payload),
+        memberBanRemoveAuditLogHandler(payload, ctx),
+      AuditLogType.memberUpdate => memberUpdateAuditLogHandler(payload, ctx),
       AuditLogType.memberRoleUpdate =>
-        memberRoleUpdateAuditLogHandler(payload),
-      AuditLogType.memberMove => memberMoveAuditLogHandler(payload),
+        memberRoleUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.memberMove => memberMoveAuditLogHandler(payload, ctx),
       AuditLogType.memberDisconnect =>
-        memberDisconnectAuditLogHandler(payload),
-      AuditLogType.botAdd => botAddAuditLogHandler(payload),
+        memberDisconnectAuditLogHandler(payload, ctx),
+      AuditLogType.botAdd => botAddAuditLogHandler(payload, ctx),
 
       // Invite
-      AuditLogType.inviteCreate => inviteCreateAuditLogHandler(payload),
-      AuditLogType.inviteUpdate => inviteUpdateAuditLogHandler(payload),
-      AuditLogType.inviteDelete => inviteDeleteAuditLogHandler(payload),
+      AuditLogType.inviteCreate => inviteCreateAuditLogHandler(payload, ctx),
+      AuditLogType.inviteUpdate => inviteUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.inviteDelete => inviteDeleteAuditLogHandler(payload, ctx),
 
       // Webhook
-      AuditLogType.webhookCreate =>
-        webhookCreateAuditLogHandler(payload),
-      AuditLogType.webhookUpdate =>
-        webhookUpdateAuditLogHandler(payload),
-      AuditLogType.webhookDelete =>
-        webhookDeleteAuditLogHandler(payload),
+      AuditLogType.webhookCreate => webhookCreateAuditLogHandler(payload, ctx),
+      AuditLogType.webhookUpdate => webhookUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.webhookDelete => webhookDeleteAuditLogHandler(payload, ctx),
 
       // Message
-      AuditLogType.messageDelete =>
-        messageDeleteAuditLogHandler(payload),
+      AuditLogType.messageDelete => messageDeleteAuditLogHandler(payload, ctx),
       AuditLogType.messageBulkDelete =>
-        messageBulkDeleteAuditLogHandler(payload),
-      AuditLogType.messagePin => messagePinAuditLogHandler(payload),
-      AuditLogType.messageUnpin => messageUnpinAuditLogHandler(payload),
+        messageBulkDeleteAuditLogHandler(payload, ctx),
+      AuditLogType.messagePin => messagePinAuditLogHandler(payload, ctx),
+      AuditLogType.messageUnpin => messageUnpinAuditLogHandler(payload, ctx),
 
       // Integration
       AuditLogType.integrationCreate =>
-        integrationCreateAuditLogHandler(payload),
+        integrationCreateAuditLogHandler(payload, ctx),
       AuditLogType.integrationUpdate =>
-        integrationUpdateAuditLogHandler(payload),
+        integrationUpdateAuditLogHandler(payload, ctx),
       AuditLogType.integrationDelete =>
-        integrationDeleteAuditLogHandler(payload),
+        integrationDeleteAuditLogHandler(payload, ctx),
 
       // Stage Instance
       AuditLogType.stageInstanceCreate =>
-        stageInstanceCreateAuditLogHandler(payload),
+        stageInstanceCreateAuditLogHandler(payload, ctx),
       AuditLogType.stageInstanceUpdate =>
-        stageInstanceUpdateAuditLogHandler(payload),
+        stageInstanceUpdateAuditLogHandler(payload, ctx),
       AuditLogType.stageInstanceDelete =>
-        stageInstanceDeleteAuditLogHandler(payload),
+        stageInstanceDeleteAuditLogHandler(payload, ctx),
 
       // Sticker
-      AuditLogType.stickerCreate =>
-        stickerCreateAuditLogHandler(payload, _dataStore),
-      AuditLogType.stickerUpdate =>
-        stickerUpdateAuditLogHandler(payload, _dataStore),
-      AuditLogType.stickerDelete =>
-        stickerDeleteAuditLogHandler(payload),
+      AuditLogType.stickerCreate => stickerCreateAuditLogHandler(payload, ctx),
+      AuditLogType.stickerUpdate => stickerUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.stickerDelete => stickerDeleteAuditLogHandler(payload, ctx),
 
       // Guild Scheduled Event
       AuditLogType.guildScheduledEventCreate =>
-        guildScheduledEventCreateAuditLogHandler(payload),
+        guildScheduledEventCreateAuditLogHandler(payload, ctx),
       AuditLogType.guildScheduledEventUpdate =>
-        guildScheduledEventUpdateAuditLogHandler(payload),
+        guildScheduledEventUpdateAuditLogHandler(payload, ctx),
       AuditLogType.guildScheduledEventDelete =>
-        guildScheduledEventDeleteAuditLogHandler(payload),
+        guildScheduledEventDeleteAuditLogHandler(payload, ctx),
 
       // Thread
-      AuditLogType.threadCreate => threadCreateAuditLogHandler(payload),
-      AuditLogType.threadUpdate => threadUpdateAuditLogHandler(payload),
-      AuditLogType.threadDelete => threadDeleteAuditLogHandler(payload),
+      AuditLogType.threadCreate => threadCreateAuditLogHandler(payload, ctx),
+      AuditLogType.threadUpdate => threadUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.threadDelete => threadDeleteAuditLogHandler(payload, ctx),
 
       // Application Command Permission
       AuditLogType.applicationCommandPermissionUpdate =>
-        applicationCommandPermissionUpdateAuditLogHandler(payload),
+        applicationCommandPermissionUpdateAuditLogHandler(payload, ctx),
 
       // Auto Moderation
       AuditLogType.autoModerationRuleCreate =>
-        autoModerationRuleCreateAuditLogHandler(payload),
+        autoModerationRuleCreateAuditLogHandler(payload, ctx),
       AuditLogType.autoModerationRuleUpdate =>
-        autoModerationRuleUpdateAuditLogHandler(payload),
+        autoModerationRuleUpdateAuditLogHandler(payload, ctx),
       AuditLogType.autoModerationRuleDelete =>
-        autoModerationRuleDeleteAuditLogHandler(payload),
+        autoModerationRuleDeleteAuditLogHandler(payload, ctx),
       AuditLogType.autoModerationBlockMessage =>
-        autoModerationBlockMessageAuditLogHandler(payload),
+        autoModerationBlockMessageAuditLogHandler(payload, ctx),
       AuditLogType.autoModerationFlagToChannel =>
-        autoModerationFlagToChannelAuditLogHandler(payload),
+        autoModerationFlagToChannelAuditLogHandler(payload, ctx),
       AuditLogType.autoModerationUserCommunicationDisabled =>
-        autoModerationUserCommunicationDisabledAuditLogHandler(payload),
+        autoModerationUserCommunicationDisabledAuditLogHandler(payload, ctx),
 
       // Creator Monetization
       AuditLogType.creatorMonetizationRequestCreated =>
-        creatorMonetizationRequestCreatedAuditLogHandler(payload),
+        creatorMonetizationRequestCreatedAuditLogHandler(payload, ctx),
       AuditLogType.creatorMonetizationTermsAccepted =>
-        creatorMonetizationTermsAcceptedAuditLogHandler(payload),
+        creatorMonetizationTermsAcceptedAuditLogHandler(payload, ctx),
 
       // Onboarding
       AuditLogType.onboardingPromptCreate =>
-        onboardingPromptCreateAuditLogHandler(payload),
+        onboardingPromptCreateAuditLogHandler(payload, ctx),
       AuditLogType.onboardingPromptUpdate =>
-        onboardingPromptUpdateAuditLogHandler(payload),
+        onboardingPromptUpdateAuditLogHandler(payload, ctx),
       AuditLogType.onboardingPromptDelete =>
-        onboardingPromptDeleteAuditLogHandler(payload),
+        onboardingPromptDeleteAuditLogHandler(payload, ctx),
       AuditLogType.onboardingCreate =>
-        onboardingCreateAuditLogHandler(payload),
+        onboardingCreateAuditLogHandler(payload, ctx),
       AuditLogType.onboardingUpdate =>
-        onboardingUpdateAuditLogHandler(payload),
+        onboardingUpdateAuditLogHandler(payload, ctx),
 
       // Home Settings
       AuditLogType.homeSettingsCreate =>
-        homeSettingsCreateAuditLogHandler(payload),
+        homeSettingsCreateAuditLogHandler(payload, ctx),
       AuditLogType.homeSettingsUpdate =>
-        homeSettingsUpdateAuditLogHandler(payload),
-      _ => unknownAuditLogHandler(payload),
+        homeSettingsUpdateAuditLogHandler(payload, ctx),
+      _ => unknownAuditLogHandler(payload, ctx),
     };
 
     if (auditLog case final UnknownAuditLogAction action) {

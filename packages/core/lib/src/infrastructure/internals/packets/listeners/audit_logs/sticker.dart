@@ -1,25 +1,26 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/server/audit_log/actions/sticker.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 Future<AuditLog> stickerCreateAuditLogHandler(
-    Map<String, dynamic> json, DataStoreContract datastore) async {
-  final sticker =
-      await datastore.sticker.get(json['guild_id'] as String, json['target_id'] as String, false);
+    Map<String, dynamic> json, EntityContext ctx) async {
+  final sticker = await ctx.datastore.sticker
+      .get(json['guild_id'] as String, json['target_id'] as String, false);
 
   return StickerCreateAuditLog(
     serverId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     stickerId: Snowflake.parse(json['target_id']),
     sticker: sticker!,
+    ctx: ctx,
   );
 }
 
 Future<AuditLog> stickerUpdateAuditLogHandler(
-    Map<String, dynamic> json, DataStoreContract datastore) async {
-  final sticker =
-      await datastore.sticker.get(json['guild_id'] as String, json['target_id'] as String, false);
+    Map<String, dynamic> json, EntityContext ctx) async {
+  final sticker = await ctx.datastore.sticker
+      .get(json['guild_id'] as String, json['target_id'] as String, false);
 
   return StickerUpdateAuditLog(
     serverId: Snowflake.parse(json['guild_id']),
@@ -29,13 +30,16 @@ Future<AuditLog> stickerUpdateAuditLogHandler(
         .map(Change.fromJson)
         .toList(),
     sticker: sticker!,
+    ctx: ctx,
   );
 }
 
-Future<AuditLog> stickerDeleteAuditLogHandler(Map<String, dynamic> json) async {
+Future<AuditLog> stickerDeleteAuditLogHandler(
+    Map<String, dynamic> json, EntityContext ctx) async {
   return StickerDeleteAuditLog(
     serverId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     stickerId: Snowflake.parse(json['target_id']),
+    ctx: ctx,
   );
 }

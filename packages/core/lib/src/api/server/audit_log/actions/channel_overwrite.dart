@@ -1,5 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class ChannelOverwriteCreateAuditLog extends AuditLog {
   final Snowflake channelId;
@@ -10,11 +11,12 @@ final class ChannelOverwriteCreateAuditLog extends AuditLog {
   ChannelOverwriteCreateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.channelId,
     required this.overwriteId,
     required this.overwriteType,
     required this.changes,
-  }) : super(AuditLogType.channelOverwriteCreate, serverId, userId);
+  }) : super(AuditLogType.channelOverwriteCreate, serverId, userId, ctx: ctx);
 }
 
 final class ChannelOverwriteUpdateAuditLog extends AuditLog {
@@ -26,11 +28,12 @@ final class ChannelOverwriteUpdateAuditLog extends AuditLog {
   ChannelOverwriteUpdateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.channelId,
     required this.overwriteId,
     required this.overwriteType,
     required this.changes,
-  }) : super(AuditLogType.channelOverwriteUpdate, serverId, userId);
+  }) : super(AuditLogType.channelOverwriteUpdate, serverId, userId, ctx: ctx);
 }
 
 final class ChannelOverwriteDeleteAuditLog extends AuditLog {
@@ -41,8 +44,9 @@ final class ChannelOverwriteDeleteAuditLog extends AuditLog {
   ChannelOverwriteDeleteAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.channelId,
     required this.overwriteId,
     required this.overwriteType,
-  }) : super(AuditLogType.channelOverwriteDelete, serverId, userId);
+  }) : super(AuditLogType.channelOverwriteDelete, serverId, userId, ctx: ctx);
 }

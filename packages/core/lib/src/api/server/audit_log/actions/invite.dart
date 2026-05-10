@@ -1,5 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class InviteCreateAuditLog extends AuditLog {
   final String inviteCode;
@@ -11,12 +12,13 @@ final class InviteCreateAuditLog extends AuditLog {
   InviteCreateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.inviteCode,
     required this.maxAge,
     required this.maxUses,
     required this.temporary,
     this.channelId,
-  }) : super(AuditLogType.inviteCreate, serverId, userId);
+  }) : super(AuditLogType.inviteCreate, serverId, userId, ctx: ctx);
 }
 
 final class InviteUpdateAuditLog extends AuditLog {
@@ -26,9 +28,10 @@ final class InviteUpdateAuditLog extends AuditLog {
   InviteUpdateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.inviteCode,
     required this.changes,
-  }) : super(AuditLogType.inviteUpdate, serverId, userId);
+  }) : super(AuditLogType.inviteUpdate, serverId, userId, ctx: ctx);
 }
 
 final class InviteDeleteAuditLog extends AuditLog {
@@ -38,7 +41,8 @@ final class InviteDeleteAuditLog extends AuditLog {
   InviteDeleteAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.inviteCode,
     this.channelId,
-  }) : super(AuditLogType.inviteDelete, serverId, userId);
+  }) : super(AuditLogType.inviteDelete, serverId, userId, ctx: ctx);
 }

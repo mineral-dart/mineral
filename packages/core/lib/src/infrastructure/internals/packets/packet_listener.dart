@@ -113,7 +113,7 @@ final class PacketListener implements PacketListenerContract {
     subscribe(GuildBanRemovePacket(marshaller: m, dataStore: ds));
     subscribe(GuildEmojisUpdatePacket(marshaller: m, dataStore: ds));
     subscribe(GuildStickersUpdatePacket(marshaller: m, dataStore: ds));
-    subscribe(GuildAuditLogEntryCreatePacket(logger: logger, dataStore: ds));
+    subscribe(GuildAuditLogEntryCreatePacket(logger: logger, ctx: entityContext));
 
     subscribe(MessageDeletePacket(marshaller: m, dataStore: ds));
     subscribe(MessageDeleteBulkPacket(marshaller: m, dataStore: ds));

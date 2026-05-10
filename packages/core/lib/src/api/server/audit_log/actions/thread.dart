@@ -1,5 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class ThreadCreateAuditLog extends AuditLog {
   final Snowflake threadId;
@@ -9,10 +10,11 @@ final class ThreadCreateAuditLog extends AuditLog {
   ThreadCreateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.threadId,
     required this.threadName,
     this.channelId,
-  }) : super(AuditLogType.threadCreate, serverId, userId);
+  }) : super(AuditLogType.threadCreate, serverId, userId, ctx: ctx);
 }
 
 final class ThreadUpdateAuditLog extends AuditLog {
@@ -22,9 +24,10 @@ final class ThreadUpdateAuditLog extends AuditLog {
   ThreadUpdateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.threadId,
     required this.changes,
-  }) : super(AuditLogType.threadUpdate, serverId, userId);
+  }) : super(AuditLogType.threadUpdate, serverId, userId, ctx: ctx);
 }
 
 final class ThreadDeleteAuditLog extends AuditLog {
@@ -35,8 +38,9 @@ final class ThreadDeleteAuditLog extends AuditLog {
   ThreadDeleteAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.threadId,
     required this.threadName,
     this.channelId,
-  }) : super(AuditLogType.threadDelete, serverId, userId);
+  }) : super(AuditLogType.threadDelete, serverId, userId, ctx: ctx);
 }

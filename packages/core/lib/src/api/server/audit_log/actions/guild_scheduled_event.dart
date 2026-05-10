@@ -1,5 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class GuildScheduledEventCreateAuditLog extends AuditLog {
   final Snowflake eventId;
@@ -7,8 +8,10 @@ final class GuildScheduledEventCreateAuditLog extends AuditLog {
   GuildScheduledEventCreateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.eventId,
-  }) : super(AuditLogType.guildScheduledEventCreate, serverId, userId);
+  }) : super(AuditLogType.guildScheduledEventCreate, serverId, userId,
+            ctx: ctx);
 }
 
 final class GuildScheduledEventUpdateAuditLog extends AuditLog {
@@ -18,9 +21,11 @@ final class GuildScheduledEventUpdateAuditLog extends AuditLog {
   GuildScheduledEventUpdateAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.eventId,
     required this.changes,
-  }) : super(AuditLogType.guildScheduledEventUpdate, serverId, userId);
+  }) : super(AuditLogType.guildScheduledEventUpdate, serverId, userId,
+            ctx: ctx);
 }
 
 final class GuildScheduledEventDeleteAuditLog extends AuditLog {
@@ -29,6 +34,8 @@ final class GuildScheduledEventDeleteAuditLog extends AuditLog {
   GuildScheduledEventDeleteAuditLog({
     required Snowflake serverId,
     required Snowflake userId,
+    required EntityContext ctx,
     required this.eventId,
-  }) : super(AuditLogType.guildScheduledEventDelete, serverId, userId);
+  }) : super(AuditLogType.guildScheduledEventDelete, serverId, userId,
+            ctx: ctx);
 }
