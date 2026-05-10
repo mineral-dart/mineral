@@ -4,6 +4,7 @@ import 'package:glob/glob.dart';
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event_listener.dart';
 import 'package:mineral/src/domains/global_states/global_state_manager.dart';
@@ -39,6 +40,8 @@ final class Kernel {
 
   InteractiveComponentManagerContract interactiveComponent;
 
+  final RuntimeState runtimeState;
+
   Kernel(
     this._hasDefinedDevPort,
     this._devPort,
@@ -51,6 +54,7 @@ final class Kernel {
     required this.globalState,
     required this.interactiveComponent,
     required this.wss,
+    required this.runtimeState,
   }) {
     _watch.start();
     httpClient.config.headers
@@ -74,7 +78,7 @@ final class Kernel {
     runningStrategy = useHmr
         ? HmrRunningStrategy(
             _devPort, packetListener.dispatcher, _watchedFiles,
-            wss: wss)
+            wss: wss, runtimeState: runtimeState)
         : DefaultRunningStrategy(packetListener.dispatcher, logger: logger);
 
     try {

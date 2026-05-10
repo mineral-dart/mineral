@@ -7,6 +7,7 @@ import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/commands/command_interaction_manager.dart';
 import 'package:mineral/src/domains/common/app_state.dart';
 import 'package:mineral/src/domains/common/kernel.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event_listener.dart';
@@ -166,11 +167,14 @@ final class ClientBuilder {
       devPort: _devPort,
     );
 
+    final runtimeState = RuntimeState();
+
     final dataLayer = composeDataLayer(
       logger: logger,
       cache: _cache,
       httpClient: http,
       wss: wssOrchestrator,
+      runtimeState: runtimeState,
     );
     final marshaller = dataLayer.marshaller;
     final dataStore = dataLayer.dataStore;
@@ -178,6 +182,7 @@ final class ClientBuilder {
     final commandManager = CommandInteractionManager(
       dataStore: dataStore,
       marshaller: marshaller,
+      ctx: entityContext,
     );
 
     final kernel = Kernel(
@@ -192,7 +197,12 @@ final class ClientBuilder {
       globalState: globalStateManager,
       interactiveComponent: interactiveComponent,
       wss: wssOrchestrator,
+      runtimeState: runtimeState,
     );
+
+    // Close the cycle: the orchestrator was built before the kernel, so its
+    // fatal-disconnect hook is wired here once the kernel exists.
+    wssOrchestrator.onFatalDisconnect = kernel.dispose;
 
     final appState = AppState(
       logger: logger,
@@ -239,6 +249,7 @@ final class ClientBuilder {
       ..interactiveComponent = appState.interactiveComponent
       ..commandManager = appState.commandManager
       ..entityContext = entityContext
+      ..runtimeState = runtimeState
       ..cacheConfig = appState.cacheConfig
       ..init();
 

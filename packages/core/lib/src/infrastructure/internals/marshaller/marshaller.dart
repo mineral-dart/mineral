@@ -1,6 +1,7 @@
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/cache/cache_provider_contract.dart';
 import 'package:mineral/src/domains/services/logger/logger_contract.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
@@ -45,6 +46,7 @@ DataLayerComposition composeDataLayer({
   required CacheProviderContract? cache,
   required HttpClientContract httpClient,
   required WebsocketOrchestratorContract wss,
+  required RuntimeState runtimeState,
 }) {
   final marshaller = Marshaller._(logger: logger, cache: cache);
   final dataStore = DataStore(
@@ -56,6 +58,7 @@ DataLayerComposition composeDataLayer({
     datastore: dataStore,
     wss: wss,
     logger: logger,
+    runtimeState: runtimeState,
   );
   marshaller._serializers = SerializerBucket(marshaller, entityContext);
   return (

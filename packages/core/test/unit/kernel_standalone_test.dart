@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/common/kernel.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/domains/events/event_dispatcher.dart';
 import 'package:mineral/src/domains/events/event_listener.dart';
@@ -149,6 +150,7 @@ void main() {
         globalState: GlobalStateManager(),
         interactiveComponent: _FakeInteractiveComponentManager(),
         wss: wss,
+        runtimeState: RuntimeState(),
       );
 
       expect(kernel.logger, same(logger));

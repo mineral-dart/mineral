@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:mineral/api.dart';
-import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/components/component_context_base.dart';
 import 'package:mineral/src/domains/components/selects/select_context.dart';
 
@@ -19,7 +18,6 @@ import 'package:mineral/src/domains/components/selects/select_context.dart';
 /// signature that cannot share a non-generic abstract declaration.
 abstract class SelectContextBase extends ComponentContextBase
     implements SelectContext {
-  final EntityContext ctx;
   final Snowflake? messageId;
   final Snowflake? channelId;
 
@@ -31,7 +29,7 @@ abstract class SelectContextBase extends ComponentContextBase
     required super.customId,
     required this.messageId,
     required this.channelId,
-    required this.ctx,
+    required super.ctx,
   });
 
   /// Resolves the message that triggered this select interaction, if available.

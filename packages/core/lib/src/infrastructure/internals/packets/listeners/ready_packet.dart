@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/api/common/bot/bot.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -22,25 +22,28 @@ final class ReadyPacket implements ListenablePacket {
   final MarshallerContract _marshaller;
   final CommandInteractionManagerContract _commandManager;
   final WebsocketOrchestratorContract _wss;
+  final RuntimeState _runtimeState;
   final CacheConfig? _cacheConfig;
 
   ReadyPacket({
     required MarshallerContract marshaller,
     required CommandInteractionManagerContract commandManager,
     required WebsocketOrchestratorContract wss,
+    required RuntimeState runtimeState,
     CacheConfig? cacheConfig,
   })  : _marshaller = marshaller,
         _commandManager = commandManager,
         _wss = wss,
+        _runtimeState = runtimeState,
         _cacheConfig = cacheConfig;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    // Bot is created at runtime from the gateway's READY payload. It is
-    // published to the IoC for downstream listeners (notably GuildCreatePacket)
-    // until the AppState refactor moves it to a shared mutable holder.
-    final bot = ioc.make<Bot>(
-        () => Bot.fromJson(message.payload as Map<String, dynamic>, wss: _wss));
+    // Bot is created at runtime from the gateway's READY payload and stored
+    // in the shared [RuntimeState] for downstream consumers (GuildCreatePacket,
+    // Interaction).
+    final bot = _runtimeState.bot ??=
+        Bot.fromJson(message.payload as Map<String, dynamic>, wss: _wss);
 
     if (!isAlreadyUsed) {
       await _commandManager.registerGlobal(bot);

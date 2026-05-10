@@ -6,6 +6,7 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/commands/command_interaction_manager.dart';
 import 'package:mineral/src/domains/commands/contexts/message_command_context.dart';
 import 'package:mineral/src/domains/commands/contexts/user_command_context.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class CommandInteractionDispatcher
     implements InteractionDispatcherContract {
@@ -14,14 +15,17 @@ final class CommandInteractionDispatcher
 
   final MarshallerContract _marshaller;
   final DataStoreContract _dataStore;
+  final EntityContext _ctx;
   final CommandInteractionManagerContract _interactionManager;
 
   CommandInteractionDispatcher(
     this._interactionManager, {
     required MarshallerContract marshaller,
     required DataStoreContract dataStore,
+    required EntityContext ctx,
   })  : _marshaller = marshaller,
-        _dataStore = dataStore;
+        _dataStore = dataStore,
+        _ctx = ctx;
 
   @override
   Future<void> dispatch(Map<String, dynamic> data) async {
@@ -90,8 +94,9 @@ final class CommandInteractionDispatcher
 
     final serverId = Snowflake.nullable(dataData['guild_id'] as String?);
     final commandContext = await switch (serverId) {
-      String() => ServerCommandContext.fromMap(_marshaller, _dataStore, data),
-      _ => GlobalCommandContext.fromMap(_marshaller, _dataStore, data),
+      String() =>
+        ServerCommandContext.fromMap(_marshaller, _dataStore, _ctx, data),
+      _ => GlobalCommandContext.fromMap(_marshaller, _dataStore, _ctx, data),
     };
 
     final Map<String, dynamic> optionValues = {};
@@ -157,9 +162,9 @@ final class CommandInteractionDispatcher
 
     final commandContext = await switch (kind) {
       CommandKind.user =>
-        UserCommandContext.fromMap(_marshaller, _dataStore, data),
+        UserCommandContext.fromMap(_marshaller, _dataStore, _ctx, data),
       CommandKind.message =>
-        MessageCommandContext.fromMap(_marshaller, _dataStore, data),
+        MessageCommandContext.fromMap(_marshaller, _dataStore, _ctx, data),
       _ => throw StateError('unreachable'),
     };
 

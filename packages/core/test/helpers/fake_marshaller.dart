@@ -1,5 +1,6 @@
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializer_bucket.dart';
 
@@ -35,6 +36,7 @@ final class FakeMarshaller implements MarshallerContract {
           datastore: dataStore ?? _UnimplementedDataStore(),
           wss: FakeWebsocketOrchestrator(),
           logger: this.logger,
+          runtimeState: RuntimeState(),
         );
     serializers = SerializerBucket(this, ctx);
   }

@@ -12,6 +12,7 @@ import 'package:mineral/src/domains/commands/command_builder.dart';
 import 'package:mineral/src/domains/commands/command_interaction_dispatcher.dart';
 import 'package:mineral/src/domains/commands/command_registration.dart';
 import 'package:mineral/src/domains/commands/command_result.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/invalid_command_exception.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/missing_property_exception.dart';
 import 'package:mineral/src/infrastructure/services/http/request.dart';
@@ -51,6 +52,7 @@ final class CommandInteractionManager
   factory CommandInteractionManager({
     required DataStoreContract dataStore,
     required MarshallerContract marshaller,
+    required EntityContext ctx,
   }) {
     final manager = CommandInteractionManager._();
     manager._dataStoreRef = dataStore;
@@ -58,6 +60,7 @@ final class CommandInteractionManager
       manager,
       marshaller: marshaller,
       dataStore: dataStore,
+      ctx: ctx,
     );
     return manager;
   }

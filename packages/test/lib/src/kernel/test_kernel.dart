@@ -5,6 +5,8 @@ import 'package:mineral/services.dart' show HttpClientContract;
 // ignore: implementation_imports
 import 'package:mineral/src/domains/common/entity_context.dart';
 // ignore: implementation_imports
+import 'package:mineral/src/domains/common/runtime_state.dart';
+// ignore: implementation_imports
 import 'package:mineral/src/infrastructure/internals/datastore/datastore.dart';
 
 import '../fakes/test_marshaller.dart';
@@ -55,12 +57,14 @@ final class TestKernel {
       datastore: dataStore,
       wss: _UnimplementedWss(),
       logger: logger,
+      runtimeState: RuntimeState(),
     );
     marshaller.bindSerializers(entityContext);
 
     final commandManager = CommandInteractionManager(
       dataStore: dataStore,
       marshaller: marshaller,
+      ctx: entityContext,
     );
 
     final container = IocContainer()

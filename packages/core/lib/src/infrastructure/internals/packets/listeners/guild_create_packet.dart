@@ -1,7 +1,6 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/src/api/common/bot/bot.dart';
 import 'package:mineral/src/domains/commands/command_interaction_manager.dart';
+import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
@@ -14,12 +13,15 @@ final class GuildCreatePacket implements ListenablePacket {
 
   final MarshallerContract _marshaller;
   final CommandInteractionManagerContract _commandManager;
+  final RuntimeState _runtimeState;
 
   GuildCreatePacket({
     required MarshallerContract marshaller,
     required CommandInteractionManagerContract commandManager,
+    required RuntimeState runtimeState,
   })  : _marshaller = marshaller,
-        _commandManager = commandManager;
+        _commandManager = commandManager,
+        _runtimeState = runtimeState;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -63,10 +65,12 @@ final class GuildCreatePacket implements ListenablePacket {
         await _marshaller.serializers.server.normalize(payload);
     final server = await _marshaller.serializers.server.serialize(rawServer);
 
-    // Bot is created at runtime by ReadyPacket and published to the IoC.
-    // Stays IoC-resolved here until the AppState refactor moves it to a
-    // shared mutable holder.
-    final bot = ioc.resolve<Bot>();
+    // Bot is created at runtime by ReadyPacket and published to the shared
+    // [RuntimeState]. If GUILD_CREATE arrives before READY (shouldn't happen
+    // per Discord ordering), this throws — we'd be in a broken gateway state.
+    final bot = _runtimeState.bot ??
+        (throw StateError(
+            'GUILD_CREATE received before READY; bot identity not set.'));
 
     await _commandManager.registerServer(bot, server);
 

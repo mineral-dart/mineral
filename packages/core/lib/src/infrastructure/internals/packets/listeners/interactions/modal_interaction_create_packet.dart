@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/api/common/types/interaction_type.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/components/modal/contexts/private_modal_context.dart';
 import 'package:mineral/src/domains/components/modal/contexts/server_modal_context.dart';
 import 'package:mineral/src/domains/events/event.dart';
@@ -17,16 +18,19 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
   final DataStoreContract _dataStore;
   final InteractiveComponentManagerContract _interactiveComponentManager;
+  final EntityContext _entityContext;
 
   ModalInteractionCreatePacket({
     required LoggerContract logger,
     required MarshallerContract marshaller,
     required DataStoreContract dataStore,
     required InteractiveComponentManagerContract interactiveComponent,
+    required EntityContext entityContext,
   })  : _logger = logger,
         _marshaller = marshaller,
         _dataStore = dataStore,
-        _interactiveComponentManager = interactiveComponent;
+        _interactiveComponentManager = interactiveComponent,
+        _entityContext = entityContext;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -124,9 +128,9 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
 
       final ctx = await switch (interactionContext) {
         InteractionContextType.server =>
-          ServerModalContext.fromMap(_dataStore, payload),
+          ServerModalContext.fromMap(_dataStore, _entityContext, payload),
         InteractionContextType.privateChannel =>
-          PrivateModalContext.fromMap(_marshaller, payload),
+          PrivateModalContext.fromMap(_marshaller, _entityContext, payload),
         _ => null
       };
 

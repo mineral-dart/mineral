@@ -3,6 +3,7 @@ import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/server/member.dart';
 import 'package:mineral/src/api/server/server.dart';
 import 'package:mineral/src/domains/commands/command_context.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class ServerCommandContext extends CommandContext {
   final Member member;
@@ -13,13 +14,17 @@ final class ServerCommandContext extends CommandContext {
     required super.applicationId,
     required super.token,
     required super.version,
+    required super.ctx,
     required this.member,
     required this.server,
     super.channel,
   });
 
-  static Future<ServerCommandContext> fromMap(MarshallerContract marshaller,
-      DataStoreContract datastore, Map<String, dynamic> payload) async {
+  static Future<ServerCommandContext> fromMap(
+      MarshallerContract marshaller,
+      DataStoreContract datastore,
+      EntityContext ctx,
+      Map<String, dynamic> payload) async {
     final memberMap = payload['member'] as Map<String, dynamic>;
     final memberUser = memberMap['user'] as Map<String, dynamic>;
     final member = await datastore.member.get(
@@ -36,6 +41,7 @@ final class ServerCommandContext extends CommandContext {
     }
 
     return ServerCommandContext(
+      ctx: ctx,
       id: Snowflake.parse(payload['id']),
       applicationId: Snowflake.parse(payload['application_id']),
       token: payload['token'] as String,

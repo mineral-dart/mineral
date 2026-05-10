@@ -1,6 +1,5 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
-import 'package:mineral/src/domains/common/entity_context.dart';
 
 /// Shared base for button interaction contexts.
 ///
@@ -10,7 +9,6 @@ import 'package:mineral/src/domains/common/entity_context.dart';
 /// in concrete subclasses via covariant return types.
 abstract class ButtonContextBase extends ComponentContextBase
     implements ButtonContext {
-  final EntityContext ctx;
   DataStoreContract get _dataStore => ctx.datastore;
 
   final Snowflake channelId;
@@ -24,7 +22,7 @@ abstract class ButtonContextBase extends ComponentContextBase
     required super.customId,
     required this.channelId,
     required this.messageId,
-    required this.ctx,
+    required super.ctx,
   });
 
   Future<ServerChannel> resolveChannel({bool force = false}) async {
