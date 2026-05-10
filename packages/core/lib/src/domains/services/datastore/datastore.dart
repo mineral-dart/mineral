@@ -35,4 +35,6 @@ abstract class DataStoreContract {
   InvitePartContract get invite;
 
   WebhookPartContract get webhook;
+
+  GuildScheduledEventPartContract get scheduledEvent;
 }

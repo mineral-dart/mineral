@@ -330,6 +330,60 @@ abstract interface class WebhookPartContract implements DataStorePart {
   });
 }
 
+abstract interface class GuildScheduledEventPartContract
+    implements DataStorePart {
+  Future<Map<Snowflake, GuildScheduledEvent>> fetchForServer(
+      Object serverId, {bool? withUserCount});
+
+  Future<GuildScheduledEvent?> get(
+      Object serverId, Object id, bool force, {bool? withUserCount});
+
+  Future<GuildScheduledEvent> create({
+    required Object serverId,
+    required String name,
+    required GuildScheduledEventPrivacyLevel privacyLevel,
+    required DateTime scheduledStartTime,
+    required GuildScheduledEventEntityType entityType,
+    Object? channelId,
+    GuildScheduledEventEntityMetadata? entityMetadata,
+    DateTime? scheduledEndTime,
+    String? description,
+    String? image,
+    String? reason,
+  });
+
+  Future<GuildScheduledEvent?> update({
+    required Object serverId,
+    required Object id,
+    Object? channelId,
+    GuildScheduledEventEntityMetadata? entityMetadata,
+    String? name,
+    GuildScheduledEventPrivacyLevel? privacyLevel,
+    DateTime? scheduledStartTime,
+    DateTime? scheduledEndTime,
+    String? description,
+    GuildScheduledEventEntityType? entityType,
+    GuildScheduledEventStatus? status,
+    String? image,
+    String? reason,
+  });
+
+  Future<void> delete({
+    required Object serverId,
+    required Object id,
+    String? reason,
+  });
+
+  Future<List<GuildScheduledEventUser>> fetchUsers({
+    required Object serverId,
+    required Object id,
+    int? limit,
+    bool? withMember,
+    Object? before,
+    Object? after,
+  });
+}
+
 abstract interface class InvitePartContract implements DataStorePart {
   Future<Invite?> get(String code, bool force);
 

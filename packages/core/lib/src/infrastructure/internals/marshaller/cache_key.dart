@@ -74,4 +74,7 @@ final class CacheKey {
   String thread(Object threadId) => 'threads/$threadId';
 
   String webhook(Object webhookId) => 'webhooks/$webhookId';
+
+  String scheduledEvent(Object serverId, Object eventId) =>
+      '${server(serverId)}/scheduled-events/$eventId';
 }

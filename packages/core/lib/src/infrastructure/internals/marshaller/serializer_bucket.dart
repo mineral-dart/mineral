@@ -8,6 +8,7 @@ import 'package:mineral/src/api/common/polls/poll.dart';
 import 'package:mineral/src/api/common/polls/poll_answer_vote.dart';
 import 'package:mineral/src/api/common/sticker.dart';
 import 'package:mineral/src/api/private/user.dart';
+import 'package:mineral/src/api/server/guild_scheduled_event.dart';
 import 'package:mineral/src/api/server/invite.dart';
 import 'package:mineral/src/api/server/member.dart';
 import 'package:mineral/src/api/server/moderation/auto_moderation_rule.dart';
@@ -20,6 +21,7 @@ import 'package:mineral/src/infrastructure/internals/marshaller/serializers/chan
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/channel_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/embed_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/emoji_serializer.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/serializers/guild_scheduled_event_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/invite_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/member_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/message_reaction_serializer.dart';
@@ -71,6 +73,8 @@ final class SerializerBucket {
 
   final SerializerContract<Webhook> webhook;
 
+  final SerializerContract<GuildScheduledEvent> scheduledEvent;
+
   SerializerBucket(MarshallerContract marshaller)
       : channels = ChannelSerializer(),
         server = ServerSerializer(),
@@ -88,5 +92,6 @@ final class SerializerBucket {
         pollAnswerVote = PollAnswerVoteSerializer(),
         rules = RuleSerializer(),
         invite = InviteSerializer(),
-        webhook = WebhookSerializer();
+        webhook = WebhookSerializer(),
+        scheduledEvent = GuildScheduledEventSerializer();
 }
