@@ -2,6 +2,7 @@ import 'package:mineral/src/infrastructure/internals/datastore/datastore.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.dart';
 import 'package:mineral/src/infrastructure/services/http/http_client.dart';
 import 'package:mineral/src/infrastructure/services/http/http_client_config.dart';
+import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_marshaller.dart';
@@ -16,7 +17,8 @@ void main() {
       final config =
           HttpClientConfigImpl(uri: Uri.parse('https://discord.com/api/v10'));
       final client = HttpClient(config: config);
-      dataStore = DataStore(client: client, marshaller: FakeMarshaller());
+      dataStore = DataStore(
+          client: client, marshaller: FakeMarshaller(), logger: FakeLogger());
     });
 
     test('stores the HttpClient', () {

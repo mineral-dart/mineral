@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/common/utils/redact.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
@@ -33,6 +32,8 @@ final class Shard implements ShardContract {
   final int shardIndex;
   final int shardCount;
 
+  final LoggerContract logger;
+
   String url;
 
   late final ShardData dispatchEvent;
@@ -45,6 +46,7 @@ final class Shard implements ShardContract {
       required this.shardCount,
       required this.url,
       required this.wss,
+      required this.logger,
       required RunningStrategy strategy}) {
     authentication = ShardAuthentication(this);
     networkError = ShardNetworkError(this);
@@ -57,10 +59,10 @@ final class Shard implements ShardContract {
       this.url = url;
     }
 
-    final logger = ioc.resolve<LoggerContract>();
     client = WebsocketClientImpl(
         name: shardName,
         url: this.url,
+        logger: logger,
         onError: (error) {
           logger.error('WebSocket error: $error');
           if (error is Map && error['code'] is int) {

@@ -1,4 +1,3 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
@@ -26,7 +25,9 @@ import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
 
 final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
-  LoggerContract get logger => ioc.resolve<LoggerContract>();
+  final LoggerContract logger;
+
+  GuildAuditLogEntryCreatePacket({required this.logger});
 
   @override
   PacketType get packetType => PacketType.guildAuditLogEntryCreate;

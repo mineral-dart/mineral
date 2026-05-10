@@ -67,7 +67,7 @@ void main() {
   setUp(() {
     final env = createTestIoc();
     restore = env.restore;
-    manager = ProviderManager();
+    manager = ProviderManager(logger: env.logger);
     log = [];
   });
 
@@ -132,7 +132,7 @@ void main() {
       final env = createTestIoc();
       addTearDown(env.restore);
 
-      final localManager = ProviderManager()
+      final localManager = ProviderManager(logger: env.logger)
         ..register(_FailingReadyProvider('X', log));
 
       try {
@@ -161,7 +161,7 @@ void main() {
       final env = createTestIoc();
       addTearDown(env.restore);
 
-      final localManager = ProviderManager()
+      final localManager = ProviderManager(logger: env.logger)
         ..register(_FailingDisposeProvider('X', log));
 
       await localManager.dispose();

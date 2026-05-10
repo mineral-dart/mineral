@@ -12,7 +12,9 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.interactionCreate;
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  final LoggerContract _logger;
+
+  ButtonInteractionCreatePacket({required LoggerContract logger}) : _logger = logger;
 
   InteractiveComponentManagerContract get _interactiveComponentManager =>
       ioc.resolve<InteractiveComponentManagerContract>();

@@ -13,7 +13,9 @@ final class ChannelCreatePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.channelCreate;
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  final LoggerContract _logger;
+
+  ChannelCreatePacket({required LoggerContract logger}) : _logger = logger;
 
   MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
 

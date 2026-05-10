@@ -17,7 +17,7 @@ import 'package:mineral/src/infrastructure/internals/wss/sharding_config.dart';
 import 'package:mineral/src/infrastructure/internals/wss/websocket_orchestrator.dart';
 
 final class ClientBuilder {
-  late final LoggerContract _logger;
+  LoggerContract? _logger;
   CacheProviderContract? _cache;
   CacheConfig _cacheConfig = CacheConfig.defaults();
   final List<EnvSchema> _schemas = [];
@@ -121,7 +121,8 @@ final class ClientBuilder {
     final logLevel = env.get(AppEnv.logLevel);
     final dartEnv = env.get<DartEnv>(AppEnv.dartEnv);
 
-    _logger = ioc.make<LoggerContract>(() => Logger(logLevel as LogLevel, dartEnv.value));
+    final logger = _logger ?? Logger(logLevel as LogLevel, dartEnv.value);
+    ioc.bind<LoggerContract>(() => logger);
 
     _createCache();
 
@@ -150,22 +151,22 @@ final class ClientBuilder {
         token: token,
         intent: intent,
         version: shardVersion,
-        encoding: wsEncodingStrategy.strategy());
+        encoding: wsEncodingStrategy.strategy(logger: logger));
 
     final packetListener = PacketListener();
     final eventListener = EventListener();
-    final providerManager = ProviderManager();
+    final providerManager = ProviderManager(logger: logger);
     final globalStateManager = ioc.make(GlobalStateManager.new);
     final interactiveComponent = ioc.make<InteractiveComponentManagerContract>(
         InteractiveComponentManager.new);
     final wssOrchestrator = ioc.make<WebsocketOrchestratorContract>(
-        () => WebsocketOrchestrator(shardConfig));
+        () => WebsocketOrchestrator(shardConfig, logger: logger));
 
     final kernel = Kernel(
       _hasDefinedDevPort,
       _devPort,
       _watchedFiles,
-      logger: _logger,
+      logger: logger,
       httpClient: http,
       packetListener: packetListener,
       providerManager: providerManager,
@@ -186,10 +187,11 @@ final class ClientBuilder {
       ..require<InteractiveComponentManagerContract>()
       ..bind<HttpClientContract>(() => http)
       ..bind<Kernel>(() => kernel)
-      ..bind<MarshallerContract>(Marshaller.new)
+      ..bind<MarshallerContract>(() => Marshaller(logger: logger, cache: _cache))
       ..bind<DataStoreContract>(() => DataStore(
             client: http,
             marshaller: ioc.resolve<MarshallerContract>(),
+            logger: logger,
           ))
       ..bind<CommandInteractionManagerContract>(CommandInteractionManager.new)
       ..validateBindings();

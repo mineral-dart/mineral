@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'dart:math';
 
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
 import 'package:mineral/src/infrastructure/internals/wss/builders/discord_message_builder.dart';
@@ -85,7 +84,7 @@ final class ShardAuthentication implements ShardAuthenticationContract {
   @override
   Future<void> heartbeat() async {
     if (attempts >= 3) {
-      ioc.resolve<LoggerContract>().error('Heartbeat failed 3 times');
+      shard.logger.error('Heartbeat failed 3 times');
       return resetConnection();
     }
 
@@ -99,7 +98,7 @@ final class ShardAuthentication implements ShardAuthenticationContract {
 
   @override
   void ack() {
-    ioc.resolve<LoggerContract>().trace('Received heartbeat ack');
+    shard.logger.trace('Received heartbeat ack');
     attempts = 0;
   }
 
@@ -123,7 +122,7 @@ final class ShardAuthentication implements ShardAuthenticationContract {
     bool resume = false,
     String? url,
   }) async {
-    final logger = ioc.resolve<LoggerContract>();
+    final logger = shard.logger;
     final maxAttempts = shard.wss.config.maxReconnectAttempts;
 
     cancelHeartbeat();

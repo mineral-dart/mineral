@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/common/utils/safe_cast.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/serialization_exception.dart';
 import 'package:mineral/src/infrastructure/services/wss/websocket_message.dart';
@@ -12,7 +11,9 @@ final class JsonEncoderStrategy implements EncodingStrategy {
   @override
   WsEncoder get encoder => WsEncoder.json;
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  final LoggerContract _logger;
+
+  JsonEncoderStrategy({required LoggerContract logger}) : _logger = logger;
 
   @override
   WebsocketMessage decode(WebsocketMessage message) {

@@ -14,7 +14,9 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.interactionCreate;
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  final LoggerContract _logger;
+
+  ModalInteractionCreatePacket({required LoggerContract logger}) : _logger = logger;
 
   MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
 

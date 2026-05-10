@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:mineral/src/domains/services/wss/websocket_orchestrator.dart';
 import 'package:mineral/src/infrastructure/internals/wss/websocket_orchestrator.dart';
+import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_sharding_config.dart';
@@ -18,7 +19,7 @@ void main() {
     late WebsocketOrchestrator orchestrator;
 
     setUp(() {
-      orchestrator = WebsocketOrchestrator(FakeShardingConfig());
+      orchestrator = WebsocketOrchestrator(FakeShardingConfig(), logger: FakeLogger());
     });
 
     group('addToRequestQueue', () {

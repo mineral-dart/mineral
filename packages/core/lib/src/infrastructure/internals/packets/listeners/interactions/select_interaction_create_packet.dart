@@ -11,7 +11,9 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.interactionCreate;
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  final LoggerContract _logger;
+
+  SelectInteractionCreatePacket({required LoggerContract logger}) : _logger = logger;
 
   MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
 

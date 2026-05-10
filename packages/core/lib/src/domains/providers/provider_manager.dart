@@ -1,5 +1,4 @@
 import 'package:mineral/contracts.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/providers/provider.dart';
 
 abstract interface class ProviderManagerContract {
@@ -11,7 +10,9 @@ abstract interface class ProviderManagerContract {
 final class ProviderManager implements ProviderManagerContract {
   final List<ProviderContract> _providers = [];
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  final LoggerContract _logger;
+
+  ProviderManager({required LoggerContract logger}) : _logger = logger;
 
   @override
   void register(ProviderContract provider) {

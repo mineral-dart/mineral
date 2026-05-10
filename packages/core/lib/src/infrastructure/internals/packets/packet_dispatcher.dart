@@ -34,15 +34,15 @@ final class PacketDispatcher implements PacketDispatcherContract {
         await Function.apply(
             listener, [message, _kernel.eventListener.dispatcher.dispatch]);
       } on Exception catch (e, stackTrace) {
-        ioc.resolve<LoggerContract>().error(
+        _kernel.logger.error(
           'PacketDispatcher: error in listener for ${message.type}: $e',
         );
-        ioc.resolve<LoggerContract>().trace('$stackTrace');
+        _kernel.logger.trace('$stackTrace');
       } on Error catch (e, stackTrace) {
-        ioc.resolve<LoggerContract>().error(
+        _kernel.logger.error(
           'PacketDispatcher: fatal error in listener for ${message.type}: $e',
         );
-        ioc.resolve<LoggerContract>().trace('$stackTrace');
+        _kernel.logger.trace('$stackTrace');
       }
     });
 

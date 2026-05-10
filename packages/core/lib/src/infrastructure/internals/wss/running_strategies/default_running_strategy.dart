@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/common/utils/file.dart';
 import 'package:mineral/src/domains/services/packets/packet_dispatcher.dart';
@@ -12,8 +11,10 @@ import 'package:yaml/yaml.dart';
 
 final class DefaultRunningStrategy implements RunningStrategy {
   final PacketDispatcherContract packetDispatcher;
+  final LoggerContract _logger;
 
-  DefaultRunningStrategy(this.packetDispatcher);
+  DefaultRunningStrategy(this.packetDispatcher, {required LoggerContract logger})
+      : _logger = logger;
 
   @override
   Future<void> init(RunningStrategyFactory createShards) async {
@@ -32,7 +33,7 @@ final class DefaultRunningStrategy implements RunningStrategy {
       version = package['dependencies']['mineral'] as String;
     }
 
-    ioc.resolve<LoggerContract>().info('Core version: $version');
+    _logger.info('Core version: $version');
 
     await createShards(this);
   }

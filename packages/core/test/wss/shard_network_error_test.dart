@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:mineral/src/domains/services/wss/constants/shard_disconnect_error.dart';
 import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_network_error.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard.dart';
+import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_logger.dart';
@@ -15,13 +16,14 @@ import '../helpers/mocks.dart';
 
 /// Creates a shard with configurable maxReconnectAttempts so that
 /// resume/reconnect throw FatalGatewayException when set to 0.
-Shard _createShard({int maxReconnect = 0}) {
+Shard _createShard({int maxReconnect = 0, required FakeLogger logger}) {
   return Shard(
     shardName: 'test-shard-0',
     shardIndex: 0,
     shardCount: 1,
     url: 'wss://fake',
     wss: FakeWebsocketOrchestrator(maxReconnectAttempts: maxReconnect),
+    logger: logger,
     strategy: FakeRunningStrategy(),
   );
 }
@@ -60,7 +62,7 @@ void main() {
     });
 
     test('does nothing when payload is null', () {
-      final shard = _createShard();
+      final shard = _createShard(logger: logger);
       shard.client = FakeWebsocketClient();
       final networkError = ShardNetworkError(shard);
 
@@ -72,7 +74,7 @@ void main() {
     });
 
     test('does nothing when intentionalDisconnect is true', () {
-      final shard = _createShard();
+      final shard = _createShard(logger: logger);
       shard.client = FakeWebsocketClient();
       shard.authentication.intentionalDisconnect = true;
       final networkError = ShardNetworkError(shard);
@@ -86,7 +88,7 @@ void main() {
 
     group('resume codes', () {
       test('logs warning for code 4000 (unknownError)', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         shard.client = FakeWebsocketClient();
         final networkError = ShardNetworkError(shard);
 
@@ -96,7 +98,7 @@ void main() {
       });
 
       test('logs warning for code 4009 (sessionTimeout)', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         shard.client = FakeWebsocketClient();
         final networkError = ShardNetworkError(shard);
 
@@ -106,7 +108,7 @@ void main() {
       });
 
       test('disconnects client when resuming', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         final fakeClient = FakeWebsocketClient();
         shard.client = fakeClient;
         final networkError = ShardNetworkError(shard);
@@ -119,7 +121,7 @@ void main() {
 
     group('reconnect codes', () {
       test('logs warning for code 1000 (normal)', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         shard.client = FakeWebsocketClient();
         final networkError = ShardNetworkError(shard);
 
@@ -129,7 +131,7 @@ void main() {
       });
 
       test('logs warning for code 1001 (goingAway)', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         shard.client = FakeWebsocketClient();
         final networkError = ShardNetworkError(shard);
 
@@ -139,7 +141,7 @@ void main() {
       });
 
       test('logs warning for code 1006 (abnormalClosure)', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         shard.client = FakeWebsocketClient();
         final networkError = ShardNetworkError(shard);
 
@@ -149,7 +151,7 @@ void main() {
       });
 
       test('disconnects client when reconnecting', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         final fakeClient = FakeWebsocketClient();
         shard.client = fakeClient;
         final networkError = ShardNetworkError(shard);
@@ -160,7 +162,7 @@ void main() {
       });
 
       test('invalidates session before reconnect on code 1000', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         shard.client = FakeWebsocketClient();
         shard.authentication.setupRequirements({
           'session_id': 'dead-session',
@@ -177,7 +179,7 @@ void main() {
 
     group('fatal codes', () {
       test('logs fatal error and disconnects for code 4004', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         final fakeClient = FakeWebsocketClient();
         shard.client = fakeClient;
         final networkError = ShardNetworkError(shard);
@@ -191,7 +193,7 @@ void main() {
       });
 
       test('logs fatal error and disconnects for code 4014', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         final fakeClient = FakeWebsocketClient();
         shard.client = fakeClient;
         final networkError = ShardNetworkError(shard);
@@ -204,7 +206,7 @@ void main() {
       });
 
       test('logs fatal error and disconnects for code 4010 (invalidShard)', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         final fakeClient = FakeWebsocketClient();
         shard.client = fakeClient;
         final networkError = ShardNetworkError(shard);
@@ -219,7 +221,7 @@ void main() {
 
     group('unknown codes', () {
       test('logs warning about unknown code', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         shard.client = FakeWebsocketClient();
         final networkError = ShardNetworkError(shard);
 
@@ -229,7 +231,7 @@ void main() {
       });
 
       test('disconnects client for unknown code', () {
-        final shard = _createShard();
+        final shard = _createShard(logger: logger);
         final fakeClient = FakeWebsocketClient();
         shard.client = fakeClient;
         final networkError = ShardNetworkError(shard);
