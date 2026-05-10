@@ -11,6 +11,7 @@ final class IocContainer {
   final IocContainer? _parent;
   final Map<Type, dynamic> _services = {};
   final Map<Type, dynamic> _defaults = {};
+  final Map<Type, dynamic> _factories = {};
   final Set<Type> _requiredBindings = {};
 
   IocContainer([this._parent]);
@@ -26,6 +27,15 @@ final class IocContainer {
     _defaults[T] = service;
   }
 
+  /// Registers a factory that is invoked on every [resolve] call.
+  ///
+  /// Use this when the bound value is populated after [build] (e.g. `Bot`,
+  /// which only exists once the gateway emits READY). The factory should
+  /// throw a clear error if it is invoked before the value is available.
+  void bindLazy<T>(T Function() factory) {
+    _factories[T] = factory;
+  }
+
   T make<T>(T Function() clazz) {
     final instance = clazz();
     _services[T] = instance;
@@ -34,19 +44,29 @@ final class IocContainer {
 
   T resolve<T>() {
     final service = _services[T];
+    if (service is T) {
+      return service;
+    }
 
-    return switch (service) {
-      final T typed => typed,
-      null when _parent != null => _parent.resolve<T>(),
-      null => throw ServiceNotFoundException(T),
-      _ => throw ServiceNotFoundException(T),
-    };
+    final factory = _factories[T];
+    if (factory is T Function()) {
+      return factory();
+    }
+
+    if (_parent != null) {
+      return _parent.resolve<T>();
+    }
+    throw ServiceNotFoundException(T);
   }
 
   T? resolveOrNull<T>() {
     final service = _services[T];
     if (service is T) {
       return service;
+    }
+    final factory = _factories[T];
+    if (factory is T Function()) {
+      return factory();
     }
     return _parent?.resolveOrNull<T>();
   }
@@ -72,8 +92,8 @@ final class IocContainer {
   }
 
   void validateBindings() {
-    final missing =
-        _requiredBindings.where((type) => !_services.containsKey(type));
+    final missing = _requiredBindings.where((type) =>
+        !_services.containsKey(type) && !_factories.containsKey(type));
     if (missing.isNotEmpty) {
       throw ServiceNotFoundException(missing.first);
     }
@@ -87,6 +107,7 @@ final class IocContainer {
     }
     _services.clear();
     _defaults.clear();
+    _factories.clear();
     _requiredBindings.clear();
   }
 }

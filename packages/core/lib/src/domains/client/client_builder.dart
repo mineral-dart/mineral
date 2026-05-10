@@ -232,6 +232,10 @@ final class ClientBuilder {
       ..bind<CommandInteractionManagerContract>(() => appState.commandManager)
       ..bind<WebsocketOrchestratorContract>(() => appState.wss)
       ..bind<InteractiveComponentManagerContract>(() => appState.interactiveComponent)
+      ..bindLazy<Bot>(() =>
+          runtimeState.bot ??
+          (throw StateError(
+              'Bot is not yet available — wait for the gateway READY event before resolving Bot from the container.')))
       ..require<LoggerContract>()
       ..require<HttpClientContract>()
       ..require<Kernel>()
@@ -252,6 +256,8 @@ final class ClientBuilder {
       ..runtimeState = runtimeState
       ..cacheConfig = appState.cacheConfig
       ..init();
+
+    eventListener.kernel = appState.kernel;
 
     final client = Client(
       appState.kernel,
