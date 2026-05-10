@@ -6,20 +6,22 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/commands/command_interaction_manager.dart';
 import 'package:mineral/src/domains/commands/contexts/message_command_context.dart';
 import 'package:mineral/src/domains/commands/contexts/user_command_context.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 
 final class CommandInteractionDispatcher
     implements InteractionDispatcherContract {
   @override
   InteractionType get type => InteractionType.applicationCommand;
 
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
-
-  DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
-
+  final MarshallerContract _marshaller;
+  final DataStoreContract _dataStore;
   final CommandInteractionManagerContract _interactionManager;
 
-  CommandInteractionDispatcher(this._interactionManager);
+  CommandInteractionDispatcher(
+    this._interactionManager, {
+    required MarshallerContract marshaller,
+    required DataStoreContract dataStore,
+  })  : _marshaller = marshaller,
+        _dataStore = dataStore;
 
   @override
   Future<void> dispatch(Map<String, dynamic> data) async {

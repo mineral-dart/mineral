@@ -12,7 +12,14 @@ final class GuildCreatePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.guildCreate;
 
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+  final CommandInteractionManagerContract _commandManager;
+
+  GuildCreatePacket({
+    required MarshallerContract marshaller,
+    required CommandInteractionManagerContract commandManager,
+  })  : _marshaller = marshaller,
+        _commandManager = commandManager;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -56,10 +63,12 @@ final class GuildCreatePacket implements ListenablePacket {
         await _marshaller.serializers.server.normalize(payload);
     final server = await _marshaller.serializers.server.serialize(rawServer);
 
+    // Bot is created at runtime by ReadyPacket and published to the IoC.
+    // Stays IoC-resolved here until the AppState refactor moves it to a
+    // shared mutable holder.
     final bot = ioc.resolve<Bot>();
 
-    final interactionManager = ioc.resolve<CommandInteractionManagerContract>();
-    await interactionManager.registerServer(bot, server);
+    await _commandManager.registerServer(bot, server);
 
     dispatch<ServerCreateArgs>(event: Event.serverCreate, payload: (server: server));
   }

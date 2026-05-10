@@ -1,7 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/domains/services/cache/cache_invalidation.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
@@ -12,8 +11,14 @@ final class GuildBanRemovePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.guildBanRemove;
 
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
-  DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
+  final MarshallerContract _marshaller;
+  final DataStoreContract _dataStore;
+
+  GuildBanRemovePacket({
+    required MarshallerContract marshaller,
+    required DataStoreContract dataStore,
+  })  : _marshaller = marshaller,
+        _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
@@ -57,9 +56,11 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
     });
   }
 
-  HttpClientContract get _httpClient => ioc.resolve<HttpClientContract>();
+  final HttpClientContract _httpClient;
 
   final LoggerContract _logger;
+
+  final SendPort? _devPort;
 
   @override
   final ShardingConfigContract config;
@@ -67,8 +68,14 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
   @override
   final Map<int, Shard> shards = {};
 
-  WebsocketOrchestrator(this.config, {required LoggerContract logger})
-      : _logger = logger;
+  WebsocketOrchestrator(
+    this.config, {
+    required LoggerContract logger,
+    required HttpClientContract httpClient,
+    SendPort? devPort,
+  })  : _logger = logger,
+        _httpClient = httpClient,
+        _devPort = devPort;
 
   /// Whether this orchestrator is running inside the HMR child isolate.
   bool get _isHmrIsolate => Isolate.current.debugName == 'development';
@@ -79,8 +86,6 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
   @override
   void send(WebsocketIsolateMessageTransfert message) {
     if (_isHmrIsolate) {
-      final sendPort = ioc.resolve<SendPort?>();
-
       if (message case WebsocketIsolateMessageTransfert(:final type)
           when type == MessageTransfertType.request) {
         _logger.trace('Sending message to all shards ${redactSensitiveFields(message.toJson())}');
@@ -91,7 +96,7 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
         ));
       }
 
-      sendPort?.send(message.toJson());
+      _devPort?.send(message.toJson());
     } else {
       _logger.trace('Sending message to all shards ${message.toJson()}');
 

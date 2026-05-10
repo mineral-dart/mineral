@@ -58,6 +58,11 @@ final class PacketListener implements PacketListenerContract {
   late final PacketDispatcherContract dispatcher;
 
   late final Kernel kernel;
+  late final MarshallerContract marshaller;
+  late final DataStoreContract dataStore;
+  late final InteractiveComponentManagerContract interactiveComponent;
+  late final CommandInteractionManagerContract commandManager;
+  CacheConfig? cacheConfig;
 
   void subscribe(ListenablePacket packet) {
     dispatcher.listen(packet.packetType, packet.listen);
@@ -71,63 +76,81 @@ final class PacketListener implements PacketListenerContract {
   void init() {
     dispatcher = PacketDispatcher(kernel);
     final logger = kernel.logger;
+    final wss = kernel.wss;
+    final m = marshaller;
+    final ds = dataStore;
+    final ic = interactiveComponent;
+    final cm = commandManager;
 
-    subscribe(ReadyPacket());
-    subscribe(MessageCreatePacket());
-    subscribe(GuildCreatePacket());
-    subscribe(GuildUpdatePacket());
-    subscribe(GuildDeletePacket());
-    subscribe(ChannelCreatePacket(logger: logger));
-    subscribe(ChannelUpdatePacket(logger: logger));
-    subscribe(ChannelDeletePacket());
-    subscribe(ChannelPinsUpdatePacket(logger: logger));
-    subscribe(GuildMemberAddPacket());
-    subscribe(GuildMemberRemovePacket());
-    subscribe(GuildMemberUpdatePacket());
-    subscribe(GuildRoleCreatePacket());
-    subscribe(GuildRoleUpdatePacket());
-    subscribe(GuildRoleDeletePacket());
-    subscribe(GuildMemberChunkPacket());
-    subscribe(PresenceUpdatePacket());
-    subscribe(GuildBanAddPacket());
-    subscribe(GuildBanRemovePacket());
-    subscribe(GuildEmojisUpdatePacket());
-    subscribe(GuildStickersUpdatePacket());
-    subscribe(GuildAuditLogEntryCreatePacket(logger: logger));
+    subscribe(ReadyPacket(
+        marshaller: m,
+        commandManager: cm,
+        wss: wss,
+        cacheConfig: cacheConfig));
+    subscribe(MessageCreatePacket(marshaller: m));
+    subscribe(GuildCreatePacket(marshaller: m, commandManager: cm));
+    subscribe(GuildUpdatePacket(marshaller: m));
+    subscribe(GuildDeletePacket(marshaller: m));
+    subscribe(ChannelCreatePacket(logger: logger, marshaller: m));
+    subscribe(ChannelUpdatePacket(logger: logger, marshaller: m));
+    subscribe(ChannelDeletePacket(marshaller: m));
+    subscribe(ChannelPinsUpdatePacket(logger: logger, dataStore: ds));
+    subscribe(GuildMemberAddPacket(marshaller: m, dataStore: ds));
+    subscribe(GuildMemberRemovePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildMemberUpdatePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildRoleCreatePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildRoleUpdatePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildRoleDeletePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildMemberChunkPacket(marshaller: m, dataStore: ds, wss: wss));
+    subscribe(PresenceUpdatePacket(dataStore: ds));
+    subscribe(GuildBanAddPacket(marshaller: m, dataStore: ds));
+    subscribe(GuildBanRemovePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildEmojisUpdatePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildStickersUpdatePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildAuditLogEntryCreatePacket(logger: logger, dataStore: ds));
 
-    subscribe(MessageDeletePacket());
-    subscribe(MessageDeleteBulkPacket());
+    subscribe(MessageDeletePacket(marshaller: m, dataStore: ds));
+    subscribe(MessageDeleteBulkPacket(marshaller: m, dataStore: ds));
 
-    subscribe(MessageReactionAddPacket());
-    subscribe(MessageReactionRemovePacket());
-    subscribe(MessageReactionRemoveAllPacket());
+    subscribe(MessageReactionAddPacket(marshaller: m));
+    subscribe(MessageReactionRemovePacket(marshaller: m));
+    subscribe(MessageReactionRemoveAllPacket(dataStore: ds));
 
-    subscribe(ButtonInteractionCreatePacket(logger: logger));
-    subscribe(CommandInteractionCreatePacket());
-    subscribe(SelectInteractionCreatePacket(logger: logger));
-    subscribe(ModalInteractionCreatePacket(logger: logger));
+    subscribe(ButtonInteractionCreatePacket(
+        logger: logger, interactiveComponent: ic));
+    subscribe(CommandInteractionCreatePacket(commandManager: cm));
+    subscribe(SelectInteractionCreatePacket(
+        logger: logger,
+        marshaller: m,
+        dataStore: ds,
+        interactiveComponent: ic));
+    subscribe(ModalInteractionCreatePacket(
+        logger: logger,
+        marshaller: m,
+        dataStore: ds,
+        interactiveComponent: ic));
 
-    subscribe(ThreadCreatePacket());
-    subscribe(ThreadUpdatePacket());
-    subscribe(ThreadDeletePacket());
-    subscribe(ThreadMembersUpdatePacket());
+    subscribe(ThreadCreatePacket(marshaller: m, dataStore: ds));
+    subscribe(ThreadUpdatePacket(marshaller: m, dataStore: ds));
+    subscribe(ThreadDeletePacket(marshaller: m, dataStore: ds));
+    subscribe(ThreadMembersUpdatePacket(marshaller: m, dataStore: ds));
 
-    subscribe(VoiceConnectPacket());
-    subscribe(VoiceDisconnectPacket());
-    subscribe(VoiceJoinPacket());
-    subscribe(VoiceMovePacket());
-    subscribe(VoiceLeavePacket());
+    subscribe(VoiceConnectPacket(marshaller: m));
+    subscribe(VoiceDisconnectPacket(marshaller: m));
+    subscribe(VoiceJoinPacket(marshaller: m));
+    subscribe(VoiceMovePacket(marshaller: m));
+    subscribe(VoiceLeavePacket(marshaller: m));
 
-    subscribe(InviteCreatePacket());
-    subscribe(InviteDeletePacket());
+    subscribe(InviteCreatePacket(marshaller: m));
+    subscribe(InviteDeletePacket(dataStore: ds));
     subscribe(TypingPacket());
 
-    subscribe(MessagePollVoteAddPacket());
-    subscribe(MessagePollVoteRemovePacket());
+    subscribe(MessagePollVoteAddPacket(dataStore: ds));
+    subscribe(MessagePollVoteRemovePacket(dataStore: ds));
 
-    subscribe(AutomoderationRuleCreatePacket());
-    subscribe(AutoModerationRuleUpdatePacket());
-    subscribe(AutomoderationRuleDeletePacket());
-    subscribe(AutomoderationActionExecutionPacket());
+    subscribe(AutomoderationRuleCreatePacket(marshaller: m));
+    subscribe(AutoModerationRuleUpdatePacket(marshaller: m));
+    subscribe(AutomoderationRuleDeletePacket(marshaller: m));
+    subscribe(AutomoderationActionExecutionPacket(dataStore: ds));
   }
 }

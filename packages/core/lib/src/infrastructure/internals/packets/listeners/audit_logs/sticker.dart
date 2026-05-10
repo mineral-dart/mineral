@@ -1,11 +1,10 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/server/audit_log/actions/sticker.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
 
-Future<AuditLog> stickerCreateAuditLogHandler(Map<String, dynamic> json) async {
-  final datastore = ioc.resolve<DataStoreContract>();
+Future<AuditLog> stickerCreateAuditLogHandler(
+    Map<String, dynamic> json, DataStoreContract datastore) async {
   final sticker =
       await datastore.sticker.get(json['guild_id'] as String, json['target_id'] as String, false);
 
@@ -17,8 +16,8 @@ Future<AuditLog> stickerCreateAuditLogHandler(Map<String, dynamic> json) async {
   );
 }
 
-Future<AuditLog> stickerUpdateAuditLogHandler(Map<String, dynamic> json) async {
-  final datastore = ioc.resolve<DataStoreContract>();
+Future<AuditLog> stickerUpdateAuditLogHandler(
+    Map<String, dynamic> json, DataStoreContract datastore) async {
   final sticker =
       await datastore.sticker.get(json['guild_id'] as String, json['target_id'] as String, false);
 

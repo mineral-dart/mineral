@@ -4,7 +4,6 @@ import 'package:mineral/events.dart';
 import 'package:mineral/src/api/common/types/interaction_type.dart';
 import 'package:mineral/src/domains/components/modal/contexts/private_modal_context.dart';
 import 'package:mineral/src/domains/components/modal/contexts/server_modal_context.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
@@ -15,15 +14,19 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
   PacketType get packetType => PacketType.interactionCreate;
 
   final LoggerContract _logger;
+  final MarshallerContract _marshaller;
+  final DataStoreContract _dataStore;
+  final InteractiveComponentManagerContract _interactiveComponentManager;
 
-  ModalInteractionCreatePacket({required LoggerContract logger}) : _logger = logger;
-
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
-
-  DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
-
-  InteractiveComponentManagerContract get _interactiveComponentManager =>
-      ioc.resolve<InteractiveComponentManagerContract>();
+  ModalInteractionCreatePacket({
+    required LoggerContract logger,
+    required MarshallerContract marshaller,
+    required DataStoreContract dataStore,
+    required InteractiveComponentManagerContract interactiveComponent,
+  })  : _logger = logger,
+        _marshaller = marshaller,
+        _dataStore = dataStore,
+        _interactiveComponentManager = interactiveComponent;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {

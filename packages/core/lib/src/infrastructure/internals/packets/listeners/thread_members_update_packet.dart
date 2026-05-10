@@ -1,7 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -10,9 +9,14 @@ final class ThreadMembersUpdatePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.threadMembersUpdate;
 
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+  final DataStoreContract _dataStore;
 
-  DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
+  ThreadMembersUpdatePacket({
+    required MarshallerContract marshaller,
+    required DataStoreContract dataStore,
+  })  : _marshaller = marshaller,
+        _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {

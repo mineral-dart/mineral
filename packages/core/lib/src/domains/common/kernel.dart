@@ -72,7 +72,9 @@ final class Kernel {
     }
 
     runningStrategy = useHmr
-        ? HmrRunningStrategy(_devPort, packetListener.dispatcher, _watchedFiles)
+        ? HmrRunningStrategy(
+            _devPort, packetListener.dispatcher, _watchedFiles,
+            wss: wss)
         : DefaultRunningStrategy(packetListener.dispatcher, logger: logger);
 
     try {

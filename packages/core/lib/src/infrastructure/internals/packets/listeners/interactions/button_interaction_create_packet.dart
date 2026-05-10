@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/domains/events/event.dart';
@@ -13,11 +12,13 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
   PacketType get packetType => PacketType.interactionCreate;
 
   final LoggerContract _logger;
+  final InteractiveComponentManagerContract _interactiveComponentManager;
 
-  ButtonInteractionCreatePacket({required LoggerContract logger}) : _logger = logger;
-
-  InteractiveComponentManagerContract get _interactiveComponentManager =>
-      ioc.resolve<InteractiveComponentManagerContract>();
+  ButtonInteractionCreatePacket({
+    required LoggerContract logger,
+    required InteractiveComponentManagerContract interactiveComponent,
+  })  : _logger = logger,
+        _interactiveComponentManager = interactiveComponent;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {

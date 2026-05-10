@@ -1,10 +1,9 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
 
-Future<AuditLog> channelCreateAuditLogHandler(Map<String, dynamic> json) async {
-  final datastore = ioc.resolve<DataStoreContract>();
+Future<AuditLog> channelCreateAuditLogHandler(
+    Map<String, dynamic> json, DataStoreContract datastore) async {
   final channel = await datastore.channel.get(json['target_id'] as String, false);
 
   return ChannelCreateAuditLogAction(
@@ -13,8 +12,8 @@ Future<AuditLog> channelCreateAuditLogHandler(Map<String, dynamic> json) async {
       channel: channel!);
 }
 
-Future<AuditLog> channelUpdateAuditLogHandler(Map<String, dynamic> json) async {
-  final datastore = ioc.resolve<DataStoreContract>();
+Future<AuditLog> channelUpdateAuditLogHandler(
+    Map<String, dynamic> json, DataStoreContract datastore) async {
   final channel = await datastore.channel.get(json['target_id'] as String, false);
 
   return ChannelUpdateAuditLogAction(

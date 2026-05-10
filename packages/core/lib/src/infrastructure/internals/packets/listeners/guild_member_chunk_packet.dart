@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/api/common/presence.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -12,12 +11,17 @@ final class GuildMemberChunkPacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.guildMemberChunk;
 
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+  final DataStoreContract _dataStore;
+  final WebsocketOrchestratorContract _wss;
 
-  DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
-
-  WebsocketOrchestratorContract get _wss =>
-      ioc.resolve<WebsocketOrchestratorContract>();
+  GuildMemberChunkPacket({
+    required MarshallerContract marshaller,
+    required DataStoreContract dataStore,
+    required WebsocketOrchestratorContract wss,
+  })  : _marshaller = marshaller,
+        _dataStore = dataStore,
+        _wss = wss;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
