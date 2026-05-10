@@ -1,4 +1,3 @@
-import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/invite_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/message_reaction_serializer.dart';
@@ -6,26 +5,20 @@ import 'package:mineral/src/infrastructure/internals/marshaller/serializers/mess
 import 'package:test/test.dart';
 
 import '../../helpers/fake_cache_provider.dart';
+import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
-import '../../helpers/ioc_test_helper.dart';
 
 void main() {
   group('MessageSerializer edge cases', () {
     late MessageSerializer serializer;
     late FakeCacheProvider cache;
-    late void Function() restoreIoc;
 
     setUp(() {
-      final testIoc = createTestIoc();
       cache = FakeCacheProvider();
-      testIoc.container
-          .bind<MarshallerContract>(() => FakeMarshaller(cache: cache));
-      restoreIoc = testIoc.restore;
-      serializer = MessageSerializer();
-    });
-
-    tearDown(() {
-      restoreIoc();
+      serializer = MessageSerializer(
+        FakeMarshaller(cache: cache),
+        fakeEntityContext(),
+      );
     });
 
     group('normalize() with null author (webhook messages)', () {
@@ -153,19 +146,13 @@ void main() {
   group('InviteSerializer edge cases', () {
     late InviteSerializer serializer;
     late FakeCacheProvider cache;
-    late void Function() restoreIoc;
 
     setUp(() {
-      final testIoc = createTestIoc();
       cache = FakeCacheProvider();
-      testIoc.container
-          .bind<MarshallerContract>(() => FakeMarshaller(cache: cache));
-      restoreIoc = testIoc.restore;
-      serializer = InviteSerializer();
-    });
-
-    tearDown(() {
-      restoreIoc();
+      serializer = InviteSerializer(
+        FakeMarshaller(cache: cache),
+        fakeEntityContext(),
+      );
     });
 
     group('normalize() with null inviter (vanity invites)', () {
@@ -238,7 +225,10 @@ void main() {
     late MessageReactionSerializer serializer;
 
     setUp(() {
-      serializer = MessageReactionSerializer();
+      serializer = MessageReactionSerializer(
+        FakeMarshaller(),
+        fakeEntityContext(),
+      );
     });
 
     group('serialize() with null emoji field', () {

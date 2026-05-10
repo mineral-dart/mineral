@@ -1,6 +1,6 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 enum GuildScheduledEventStatus {
   scheduled(1),
@@ -48,7 +48,8 @@ final class GuildScheduledEventEntityMetadata {
 }
 
 final class GuildScheduledEvent {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake id;
   final Snowflake serverId;
@@ -67,6 +68,7 @@ final class GuildScheduledEvent {
   final String? image;
 
   GuildScheduledEvent({
+    required EntityContext ctx,
     required this.id,
     required this.serverId,
     required this.name,
@@ -82,7 +84,7 @@ final class GuildScheduledEvent {
     this.entityMetadata,
     this.userCount,
     this.image,
-  });
+  }) : _ctx = ctx;
 
   Future<Server> resolveServer() async {
     return _datastore.server.get(serverId.value, false);

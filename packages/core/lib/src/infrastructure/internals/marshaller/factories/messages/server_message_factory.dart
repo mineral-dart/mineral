@@ -1,14 +1,18 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/message_factory.dart';
 
 final class ServerMessageFactory implements MessageFactory<ServerMessage> {
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+
+  ServerMessageFactory(this._marshaller);
 
   @override
   Future<ServerMessage> serialize(Map<String, dynamic> json) async {
-    final messageProperties = MessageProperties<ServerChannel>.fromJson(json);
+    final messageProperties = MessageProperties<ServerChannel>.fromJson(
+      json,
+      embedSerializer: _marshaller.serializers.embed,
+    );
     return Message(messageProperties);
   }
 

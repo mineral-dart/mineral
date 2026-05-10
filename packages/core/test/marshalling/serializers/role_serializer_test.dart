@@ -1,31 +1,25 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/src/api/common/permission.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/server/role.dart';
-import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/role_serializer.dart';
 import 'package:test/test.dart';
 
 import '../../helpers/fake_cache_provider.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
+import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
 
 void main() {
   group('RoleSerializer', () {
     late RoleSerializer serializer;
     late FakeCacheProvider cache;
-    late void Function() restoreIoc;
 
     setUp(() {
       cache = FakeCacheProvider();
-      final scope = IocContainer()
-        ..bind<MarshallerContract>(() => FakeMarshaller(cache: cache));
-      restoreIoc = scopedIoc(scope);
-      serializer = RoleSerializer();
-    });
-
-    tearDown(() {
-      restoreIoc();
+      serializer = RoleSerializer(
+        FakeMarshaller(cache: cache),
+        fakeEntityContext(),
+      );
     });
 
     Map<String, dynamic> normalizedPayload() => {

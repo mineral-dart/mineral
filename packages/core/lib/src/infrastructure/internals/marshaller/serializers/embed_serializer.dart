@@ -8,12 +8,13 @@ import 'package:mineral/src/api/common/embed/message_embed_provider.dart';
 import 'package:mineral/src/api/common/embed/message_embed_type.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class EmbedSerializer implements SerializerContract<MessageEmbed> {
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+
+  EmbedSerializer(this._marshaller);
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {

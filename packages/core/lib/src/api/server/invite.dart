@@ -1,9 +1,10 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class Invite {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final InviteType type;
   final String code;
@@ -19,7 +20,8 @@ final class Invite {
   final bool isTemporary;
 
   Invite(
-      {required this.type,
+      {required EntityContext ctx,
+      required this.type,
       required this.code,
       required this.maxAge,
       required this.maxUses,
@@ -28,7 +30,8 @@ final class Invite {
       required this.createdAt,
       this.serverId,
       this.channelId,
-      this.expiresAt});
+      this.expiresAt})
+      : _ctx = ctx;
 
   Future<User?> resolveInviter() {
     return _datastore.user.get(inviterId.value, false);

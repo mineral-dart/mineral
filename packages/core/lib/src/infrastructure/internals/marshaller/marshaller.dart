@@ -1,8 +1,23 @@
+import 'package:mineral/contracts.dart';
+import 'package:mineral/services.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/cache/cache_provider_contract.dart';
 import 'package:mineral/src/domains/services/logger/logger_contract.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/datastore.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializer_bucket.dart';
+
+/// Composition output for the marshaller / datastore / entity-context
+/// cluster: three objects whose dependencies are mutually circular by nature
+/// (entities call DataStore, DataStore is built using Marshaller, Marshaller's
+/// serializers construct entities). Returned by [composeDataLayer], which is
+/// the only sanctioned entry point for building these three together.
+typedef DataLayerComposition = ({
+  MarshallerContract marshaller,
+  DataStoreContract dataStore,
+  EntityContext entityContext,
+});
 
 final class Marshaller implements MarshallerContract {
   @override
@@ -12,12 +27,36 @@ final class Marshaller implements MarshallerContract {
   final CacheProviderContract? cache;
 
   @override
-  late final SerializerBucket serializers;
-
-  @override
   final CacheKey cacheKey = CacheKey();
 
-  Marshaller({required this.logger, required this.cache}) {
-    serializers = SerializerBucket(this);
-  }
+  late final SerializerBucket _serializers;
+
+  Marshaller._({required this.logger, required this.cache});
+
+  @override
+  SerializerBucket get serializers => _serializers;
+}
+
+/// Constructs the cyclic Marshaller / DataStore / EntityContext cluster in
+/// one step. The cycle is closed in this single function: outside this file
+/// the three components appear fully formed and immutable.
+DataLayerComposition composeDataLayer({
+  required LoggerContract logger,
+  required CacheProviderContract? cache,
+  required HttpClientContract httpClient,
+  required WebsocketOrchestratorContract wss,
+}) {
+  final marshaller = Marshaller._(logger: logger, cache: cache);
+  final dataStore = DataStore(
+    client: httpClient,
+    marshaller: marshaller,
+    logger: logger,
+  );
+  final entityContext = EntityContext(datastore: dataStore, wss: wss);
+  marshaller._serializers = SerializerBucket(marshaller, entityContext);
+  return (
+    marshaller: marshaller,
+    dataStore: dataStore,
+    entityContext: entityContext,
+  );
 }

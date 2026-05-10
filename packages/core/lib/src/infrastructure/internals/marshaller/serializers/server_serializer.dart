@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:mineral/api.dart';
 import 'package:mineral/src/api/server/managers/rules_manager.dart';
 import 'package:mineral/src/api/server/managers/threads_manager.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class ServerSerializer implements SerializerContract<Server> {
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+  final EntityContext _ctx;
+
+  ServerSerializer(this._marshaller, this._ctx);
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {

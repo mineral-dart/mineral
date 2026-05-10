@@ -1,14 +1,17 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/polls/poll_answer_vote.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class PollAnswerVoteSerializer
     implements SerializerContract<PollAnswerVote> {
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+  final EntityContext _ctx;
 
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _datastore => _ctx.datastore;
+
+  PollAnswerVoteSerializer(this._marshaller, this._ctx);
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {

@@ -1,10 +1,11 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/server/managers/member_voice_manager.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class VoiceState {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake serverId;
   final Snowflake? channelId;
@@ -20,6 +21,7 @@ final class VoiceState {
   final bool isDiscoverable;
 
   VoiceState({
+    required EntityContext ctx,
     required this.serverId,
     required this.channelId,
     required this.userId,
@@ -32,7 +34,7 @@ final class VoiceState {
     required this.isSuppress,
     required this.requestToSpeakTimestamp,
     required this.isDiscoverable,
-  });
+  }) : _ctx = ctx;
 
   /// Get related [User]
   /// ```dart

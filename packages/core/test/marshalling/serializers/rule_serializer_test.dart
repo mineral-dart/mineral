@@ -1,33 +1,27 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/server/moderation/auto_moderation_rule.dart';
 import 'package:mineral/src/api/server/moderation/enums/action_type.dart';
 import 'package:mineral/src/api/server/moderation/enums/auto_moderation_event_type.dart';
 import 'package:mineral/src/api/server/moderation/enums/trigger_type.dart';
-import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/rule_serializer.dart';
 import 'package:test/test.dart';
 
 import '../../helpers/fake_cache_provider.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
+import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
 
 void main() {
   group('RuleSerializer', () {
     late RuleSerializer serializer;
     late FakeCacheProvider cache;
-    late void Function() restoreIoc;
 
     setUp(() {
       cache = FakeCacheProvider();
-      final scope = IocContainer()
-        ..bind<MarshallerContract>(() => FakeMarshaller(cache: cache));
-      restoreIoc = scopedIoc(scope);
-      serializer = RuleSerializer();
-    });
-
-    tearDown(() {
-      restoreIoc();
+      serializer = RuleSerializer(
+        FakeMarshaller(cache: cache),
+        fakeEntityContext(),
+      );
     });
 
     Map<String, dynamic> normalizedPayload() => {

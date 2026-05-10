@@ -1,9 +1,8 @@
-import 'package:mineral/container.dart';
-import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/channel.dart';
 import 'package:mineral/src/api/common/embed/message_embed.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class MessageProperties<T extends Channel> {
   final Snowflake id;
@@ -28,8 +27,10 @@ final class MessageProperties<T extends Channel> {
     required this.updatedAt,
   });
 
-  factory MessageProperties.fromJson(Map<String, dynamic> json) {
-    final embedSerializer = ioc.resolve<MarshallerContract>().serializers.embed;
+  factory MessageProperties.fromJson(
+    Map<String, dynamic> json, {
+    required SerializerContract<MessageEmbed> embedSerializer,
+  }) {
     final embeds = List<MessageEmbed>.unmodifiable(
         (json['embeds'] as Iterable<dynamic>)
             .map((element) => embedSerializer.serialize(element as Map<String, dynamic>) as MessageEmbed));

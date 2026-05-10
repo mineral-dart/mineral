@@ -1,12 +1,13 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/color.dart';
 import 'package:mineral/src/api/common/permissions.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/server/server.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class Role {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake id;
   final String name;
@@ -22,6 +23,7 @@ final class Role {
   final Snowflake serverId;
 
   Role({
+    required EntityContext ctx,
     required this.id,
     required this.name,
     required this.color,
@@ -34,7 +36,7 @@ final class Role {
     required this.icon,
     required this.unicodeEmoji,
     required this.serverId,
-  });
+  }) : _ctx = ctx;
 
   /// Set the role's name.
   ///

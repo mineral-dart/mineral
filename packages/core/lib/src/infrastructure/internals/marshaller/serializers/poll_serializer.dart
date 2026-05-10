@@ -4,14 +4,17 @@ import 'package:mineral/src/api/common/polls/poll_answer.dart';
 import 'package:mineral/src/api/common/polls/poll_layout.dart';
 import 'package:mineral/src/api/common/polls/poll_question.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class PollSerializer implements SerializerContract<Poll> {
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+  final EntityContext _ctx;
+
+  PollSerializer(this._marshaller, this._ctx);
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {

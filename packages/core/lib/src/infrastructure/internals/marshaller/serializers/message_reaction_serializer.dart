@@ -1,8 +1,17 @@
 import 'package:mineral/api.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
+import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class MessageReactionSerializer<T extends Message>
     implements SerializerContract<MessageReaction> {
+  // ignore: unused_field
+  final MarshallerContract _marshaller;
+  // ignore: unused_field
+  final EntityContext _ctx;
+
+  MessageReactionSerializer(this._marshaller, this._ctx);
+
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {
     return {
