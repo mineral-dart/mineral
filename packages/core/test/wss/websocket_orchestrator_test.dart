@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/services/wss/websocket_orchestrator.dart';
 import 'package:mineral/src/infrastructure/internals/wss/websocket_orchestrator.dart';
 import 'package:mineral/src/testing/fake_logger.dart';
@@ -12,6 +13,27 @@ import '../helpers/fake_sharding_config.dart';
 RequestQueueEntry _entry(String uid) =>
     (uid: uid, targetKeys: ['data'], completer: Completer<dynamic>());
 
+final class _NoopHttpClient implements HttpClientContract {
+  @override
+  HttpClientConfig get config => throw UnimplementedError();
+  @override
+  HttpClientStatus get status => throw UnimplementedError();
+  @override
+  HttpInterceptor get interceptor => throw UnimplementedError();
+  @override
+  Future<Response<T>> get<T>(RequestContract r) => throw UnimplementedError();
+  @override
+  Future<Response<T>> post<T>(RequestContract r) => throw UnimplementedError();
+  @override
+  Future<Response<T>> put<T>(RequestContract r) => throw UnimplementedError();
+  @override
+  Future<Response<T>> patch<T>(RequestContract r) => throw UnimplementedError();
+  @override
+  Future<Response<T>> delete<T>(RequestContract r) => throw UnimplementedError();
+  @override
+  Future<Response<T>> send<T>(RequestContract r) => throw UnimplementedError();
+}
+
 // ── Tests ──────────────────────────────────────────────────────────────────
 
 void main() {
@@ -19,7 +41,11 @@ void main() {
     late WebsocketOrchestrator orchestrator;
 
     setUp(() {
-      orchestrator = WebsocketOrchestrator(FakeShardingConfig(), logger: FakeLogger());
+      orchestrator = WebsocketOrchestrator(
+        FakeShardingConfig(),
+        logger: FakeLogger(),
+        httpClient: _NoopHttpClient(),
+      );
     });
 
     group('addToRequestQueue', () {

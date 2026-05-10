@@ -1,13 +1,27 @@
+import 'package:mineral/contracts.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/interactions/button_interaction_create_packet.dart';
 import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
+
+final class _NoopInteractiveComponent implements InteractiveComponentManagerContract {
+  @override
+  void register(InteractiveComponent component) {}
+  @override
+  void dispatch(String customId, List params) {}
+  @override
+  T get<T extends InteractiveComponent>(String customId) =>
+      throw UnimplementedError();
+}
 
 void main() {
   group('ButtonInteractionCreatePacket.findButtonByCustomId', () {
     late ButtonInteractionCreatePacket packet;
 
     setUp(() {
-      packet = ButtonInteractionCreatePacket(logger: FakeLogger());
+      packet = ButtonInteractionCreatePacket(
+        logger: FakeLogger(),
+        interactiveComponent: _NoopInteractiveComponent(),
+      );
     });
 
     test('returns null when customId is not found in components', () {

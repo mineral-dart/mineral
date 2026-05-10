@@ -1,10 +1,9 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/server/audit_log/audit_log.dart';
 
-Future<AuditLog> serverUpdateAuditLogHandler(Map<String, dynamic> json) async {
-  final datastore = ioc.resolve<DataStoreContract>();
+Future<AuditLog> serverUpdateAuditLogHandler(
+    Map<String, dynamic> json, DataStoreContract datastore) async {
   final server = await datastore.server.get(json['guild_id'] as Object, true);
 
   return ServerUpdateAuditLogAction(

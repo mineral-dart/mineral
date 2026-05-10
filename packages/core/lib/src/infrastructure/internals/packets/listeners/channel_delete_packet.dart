@@ -1,7 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/domains/services/cache/cache_invalidation.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
@@ -12,7 +11,10 @@ final class ChannelDeletePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.channelDelete;
 
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+
+  ChannelDeletePacket({required MarshallerContract marshaller})
+      : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {

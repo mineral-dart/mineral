@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 
 import '../helpers/fake_logger.dart';
 import '../helpers/fake_marshaller.dart';
+import '../helpers/fake_websocket_orchestrator.dart';
 import '../helpers/ioc_test_helper.dart';
 import '../helpers/mocks.dart';
 
@@ -113,7 +114,15 @@ void main() {
       restoreIoc = testIoc.restore;
 
       manager = FakeCommandInteractionManager();
-      dispatcher = CommandInteractionDispatcher(manager);
+
+      final fakeMarshaller = FakeMarshaller(logger: logger);
+      final fakeDataStore = _FakeDataStore();
+
+      dispatcher = CommandInteractionDispatcher(
+        manager,
+        marshaller: fakeMarshaller,
+        dataStore: fakeDataStore,
+      );
 
       final fakeBot = Bot.fromJson({
         'user': {
@@ -131,11 +140,11 @@ void main() {
         'presences': [],
         'guilds': [],
         'application': {'id': '999999999999999999', 'flags': 0},
-      });
+      }, wss: FakeWebsocketOrchestrator());
 
       testIoc.container
-        ..bind<MarshallerContract>(() => FakeMarshaller(logger: logger))
-        ..bind<DataStoreContract>(_FakeDataStore.new)
+        ..bind<MarshallerContract>(() => fakeMarshaller)
+        ..bind<DataStoreContract>(() => fakeDataStore)
         ..bind<Bot>(() => fakeBot);
     });
 

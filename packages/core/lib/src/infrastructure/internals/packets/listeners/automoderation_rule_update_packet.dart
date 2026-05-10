@@ -2,7 +2,6 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
@@ -12,7 +11,10 @@ final class AutoModerationRuleUpdatePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.autoModerationRuleUpdate;
 
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+
+  AutoModerationRuleUpdatePacket({required MarshallerContract marshaller})
+      : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {

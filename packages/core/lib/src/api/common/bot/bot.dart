@@ -1,10 +1,8 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 
 final class Bot {
-  WebsocketOrchestratorContract get _wss =>
-      ioc.resolve<WebsocketOrchestratorContract>();
+  final WebsocketOrchestratorContract _wss;
 
   final Snowflake id;
   final String? discriminator;
@@ -21,6 +19,7 @@ final class Bot {
   final PartialApplication application;
 
   Bot._({
+    required WebsocketOrchestratorContract wss,
     required this.id,
     required this.discriminator,
     required this.version,
@@ -34,9 +33,7 @@ final class Bot {
     required this.presences,
     required this.guildIds,
     required this.application,
-  }) {
-    ioc.bind<Bot>(() => this);
-  }
+  }) : _wss = wss;
 
   /// Updates presence of this
   void setPresence(
@@ -46,10 +43,14 @@ final class Bot {
   @override
   String toString() => '<@$id>';
 
-  factory Bot.fromJson(Map<String, dynamic> json) {
+  factory Bot.fromJson(
+    Map<String, dynamic> json, {
+    required WebsocketOrchestratorContract wss,
+  }) {
     final user = json['user'] as Map<String, dynamic>;
     final application = json['application'] as Map<String, dynamic>;
     return Bot._(
+        wss: wss,
         id: Snowflake.parse(user['id']),
         discriminator: user['discriminator'] as String?,
         version: json['v'] as int,

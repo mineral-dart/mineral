@@ -12,7 +12,6 @@ import 'package:mineral/src/domains/commands/command_builder.dart';
 import 'package:mineral/src/domains/commands/command_interaction_dispatcher.dart';
 import 'package:mineral/src/domains/commands/command_registration.dart';
 import 'package:mineral/src/domains/commands/command_result.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/invalid_command_exception.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/missing_property_exception.dart';
 import 'package:mineral/src/infrastructure/services/http/request.dart';
@@ -44,10 +43,23 @@ final class CommandInteractionManager
   @override
   late InteractionDispatcherContract dispatcher;
 
-  DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _dataStore => _dataStoreRef;
+  late final DataStoreContract _dataStoreRef;
 
-  CommandInteractionManager() {
-    dispatcher = CommandInteractionDispatcher(this);
+  CommandInteractionManager._();
+
+  factory CommandInteractionManager({
+    required DataStoreContract dataStore,
+    required MarshallerContract marshaller,
+  }) {
+    final manager = CommandInteractionManager._();
+    manager._dataStoreRef = dataStore;
+    manager.dispatcher = CommandInteractionDispatcher(
+      manager,
+      marshaller: marshaller,
+      dataStore: dataStore,
+    );
+    return manager;
   }
 
   @override

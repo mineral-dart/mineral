@@ -17,8 +17,7 @@ import 'package:mineral/src/infrastructure/services/wss/websocket_message.dart';
 import 'package:path/path.dart' as path;
 
 final class HmrRunningStrategy implements RunningStrategy {
-  WebsocketOrchestratorContract get _wss =>
-      ioc.resolve<WebsocketOrchestratorContract>();
+  final WebsocketOrchestratorContract _wss;
 
   final SendPort? _devPort;
   final PacketDispatcherContract _packetDispatcher;
@@ -27,7 +26,12 @@ final class HmrRunningStrategy implements RunningStrategy {
   late final Runner _runner;
   (File, int)? lastFileChanged;
 
-  HmrRunningStrategy(this._devPort, this._packetDispatcher, this._watchedFiles);
+  HmrRunningStrategy(
+    this._devPort,
+    this._packetDispatcher,
+    this._watchedFiles, {
+    required WebsocketOrchestratorContract wss,
+  }) : _wss = wss;
 
   @override
   Future<void> init(RunningStrategyFactory createShards) async {

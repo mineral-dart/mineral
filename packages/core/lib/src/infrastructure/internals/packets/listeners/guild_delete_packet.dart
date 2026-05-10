@@ -1,5 +1,4 @@
 import 'package:mineral/events.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/domains/services/cache/cache_invalidation.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
@@ -11,7 +10,10 @@ final class GuildDeletePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.guildDelete;
 
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+
+  GuildDeletePacket({required MarshallerContract marshaller})
+      : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {

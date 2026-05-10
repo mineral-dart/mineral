@@ -5,6 +5,7 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/commands/command_interaction_manager.dart';
+import 'package:mineral/src/domains/common/app_state.dart';
 import 'package:mineral/src/domains/common/kernel.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/container/ioc_container.dart';
@@ -156,11 +157,25 @@ final class ClientBuilder {
     final packetListener = PacketListener();
     final eventListener = EventListener();
     final providerManager = ProviderManager(logger: logger);
-    final globalStateManager = ioc.make(GlobalStateManager.new);
-    final interactiveComponent = ioc.make<InteractiveComponentManagerContract>(
-        InteractiveComponentManager.new);
-    final wssOrchestrator = ioc.make<WebsocketOrchestratorContract>(
-        () => WebsocketOrchestrator(shardConfig, logger: logger));
+    final globalStateManager = GlobalStateManager();
+    final interactiveComponent = InteractiveComponentManager();
+    final wssOrchestrator = WebsocketOrchestrator(
+      shardConfig,
+      logger: logger,
+      httpClient: http,
+      devPort: _devPort,
+    );
+
+    final marshaller = Marshaller(logger: logger, cache: _cache);
+    final dataStore = DataStore(
+      client: http,
+      marshaller: marshaller,
+      logger: logger,
+    );
+    final commandManager = CommandInteractionManager(
+      dataStore: dataStore,
+      marshaller: marshaller,
+    );
 
     final kernel = Kernel(
       _hasDefinedDevPort,
@@ -176,7 +191,34 @@ final class ClientBuilder {
       wss: wssOrchestrator,
     );
 
+    final appState = AppState(
+      logger: logger,
+      httpClient: http,
+      cache: _cache,
+      cacheConfig: _cacheConfig,
+      marshaller: marshaller,
+      dataStore: dataStore,
+      wss: wssOrchestrator,
+      packetListener: packetListener,
+      eventListener: eventListener,
+      providerManager: providerManager,
+      globalState: globalStateManager,
+      interactiveComponent: interactiveComponent,
+      commandManager: commandManager,
+      kernel: kernel,
+    );
+
+    // Mirror AppState into the IoC for end-user DX. The core itself never
+    // reads from these bindings; they exist so user handlers/commands/
+    // providers can keep using `container.resolve<T>()`.
     ioc
+      ..bind<HttpClientContract>(() => appState.httpClient)
+      ..bind<Kernel>(() => appState.kernel)
+      ..bind<MarshallerContract>(() => appState.marshaller)
+      ..bind<DataStoreContract>(() => appState.dataStore)
+      ..bind<CommandInteractionManagerContract>(() => appState.commandManager)
+      ..bind<WebsocketOrchestratorContract>(() => appState.wss)
+      ..bind<InteractiveComponentManagerContract>(() => appState.interactiveComponent)
       ..require<LoggerContract>()
       ..require<HttpClientContract>()
       ..require<Kernel>()
@@ -185,22 +227,22 @@ final class ClientBuilder {
       ..require<CommandInteractionManagerContract>()
       ..require<WebsocketOrchestratorContract>()
       ..require<InteractiveComponentManagerContract>()
-      ..bind<HttpClientContract>(() => http)
-      ..bind<Kernel>(() => kernel)
-      ..bind<MarshallerContract>(() => Marshaller(logger: logger, cache: _cache))
-      ..bind<DataStoreContract>(() => DataStore(
-            client: http,
-            marshaller: ioc.resolve<MarshallerContract>(),
-            logger: logger,
-          ))
-      ..bind<CommandInteractionManagerContract>(CommandInteractionManager.new)
       ..validateBindings();
 
     packetListener
-      ..kernel = kernel
+      ..kernel = appState.kernel
+      ..marshaller = appState.marshaller
+      ..dataStore = appState.dataStore
+      ..interactiveComponent = appState.interactiveComponent
+      ..commandManager = appState.commandManager
+      ..cacheConfig = appState.cacheConfig
       ..init();
 
-    final client = Client(kernel);
+    final client = Client(
+      appState.kernel,
+      rest: appState.dataStore,
+      commandManager: appState.commandManager,
+    );
 
     for (final provider in _providers) {
       providerManager.register(provider(client));

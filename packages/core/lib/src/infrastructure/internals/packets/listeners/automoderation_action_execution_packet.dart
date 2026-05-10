@@ -7,7 +7,6 @@ import 'package:mineral/src/api/server/moderation/enums/action_type.dart';
 import 'package:mineral/src/api/server/moderation/enums/trigger_type.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
@@ -17,7 +16,10 @@ final class AutomoderationActionExecutionPacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.autoModerationActionExecution;
 
-  DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
+  final DataStoreContract _dataStore;
+
+  AutomoderationActionExecutionPacket({required DataStoreContract dataStore})
+      : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {

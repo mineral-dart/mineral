@@ -15,22 +15,25 @@ final class Client {
 
   final CommandBucket commands;
 
+  final DataStoreContract rest;
+
+  final CommandInteractionManagerContract _commands;
+
   IocContainer get container => ioc;
 
   LoggerContract get logger => _kernel.logger;
 
-  DataStoreContract get rest => ioc.resolve<DataStoreContract>();
-
   WebsocketOrchestratorContract get wss => _kernel.wss;
-
-  CommandInteractionManagerContract get _commands =>
-      ioc.resolve<CommandInteractionManagerContract>();
 
   InteractiveComponentService get components => _kernel.interactiveComponent;
 
-  Client(Kernel kernel)
-      : events = EventBucket(kernel),
-        commands = CommandBucket(),
+  Client(
+    Kernel kernel, {
+    required this.rest,
+    required CommandInteractionManagerContract commandManager,
+  })  : events = EventBucket(kernel),
+        commands = CommandBucket(commandManager),
+        _commands = commandManager,
         _kernel = kernel;
 
   void register<T>(Listenable Function() constructor) {

@@ -26,8 +26,12 @@ import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
 
 final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
   final LoggerContract logger;
+  final DataStoreContract _dataStore;
 
-  GuildAuditLogEntryCreatePacket({required this.logger});
+  GuildAuditLogEntryCreatePacket({
+    required this.logger,
+    required DataStoreContract dataStore,
+  }) : _dataStore = dataStore;
 
   @override
   PacketType get packetType => PacketType.guildAuditLogEntryCreate;
@@ -51,13 +55,13 @@ final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
       AuditLogType.roleDelete => roleDeleteAuditLogHandler(payload),
 
       // Server
-      AuditLogType.guildUpdate => serverUpdateAuditLogHandler(payload),
+      AuditLogType.guildUpdate => serverUpdateAuditLogHandler(payload, _dataStore),
 
       // Channel
       AuditLogType.channelCreate =>
-        channelCreateAuditLogHandler(payload),
+        channelCreateAuditLogHandler(payload, _dataStore),
       AuditLogType.channelUpdate =>
-        channelUpdateAuditLogHandler(payload),
+        channelUpdateAuditLogHandler(payload, _dataStore),
       AuditLogType.channelDelete =>
         channelDeleteAuditLogHandler(payload),
 
@@ -122,9 +126,9 @@ final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
 
       // Sticker
       AuditLogType.stickerCreate =>
-        stickerCreateAuditLogHandler(payload),
+        stickerCreateAuditLogHandler(payload, _dataStore),
       AuditLogType.stickerUpdate =>
-        stickerUpdateAuditLogHandler(payload),
+        stickerUpdateAuditLogHandler(payload, _dataStore),
       AuditLogType.stickerDelete =>
         stickerDeleteAuditLogHandler(payload),
 
