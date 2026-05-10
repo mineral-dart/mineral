@@ -384,6 +384,68 @@ void main() {
       });
     });
 
+    group('context menu routing', () {
+      test('routes type=2 (USER) and logs unknown when no handler matches',
+          () async {
+        await dispatcher.dispatch({
+          'data': {
+            'name': 'Get user info',
+            'type': 2,
+            'target_id': '444444444444444444',
+            'resolved': {
+              'users': {
+                '444444444444444444': {'id': '444444444444444444'},
+              },
+            },
+          },
+        });
+
+        expect(
+            logger.warnings,
+            contains(contains(
+                'Unknown user context command received: "Get user info"')));
+      });
+
+      test('routes type=3 (MESSAGE) and logs unknown when no handler matches',
+          () async {
+        await dispatcher.dispatch({
+          'data': {
+            'name': 'Report message',
+            'type': 3,
+            'target_id': '555555555555555555',
+            'resolved': {
+              'messages': {
+                '555555555555555555': {'id': '555555555555555555'},
+              },
+            },
+          },
+        });
+
+        expect(
+            logger.warnings,
+            contains(contains(
+                'Unknown message context command received: "Report message"')));
+      });
+
+      test('does not treat type=2 as chat_input sub-command path', () async {
+        await dispatcher.dispatch({
+          'data': {
+            'name': 'Get user info',
+            'type': 2,
+            'target_id': '444444444444444444',
+            'resolved': {
+              'users': {
+                '444444444444444444': {'id': '444444444444444444'},
+              },
+            },
+          },
+        });
+
+        expect(logger.warnings.where((w) => w.contains('Unknown command received')),
+            isEmpty);
+      });
+    });
+
     group('required options validation', () {
       test('logs error when required option is missing', () async {
         manager.commandsHandler.add(CommandRegistration(
