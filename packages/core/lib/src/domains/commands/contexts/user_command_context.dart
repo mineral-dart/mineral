@@ -1,0 +1,65 @@
+import 'package:mineral/contracts.dart';
+import 'package:mineral/src/api/common/snowflake.dart';
+import 'package:mineral/src/api/private/user.dart';
+import 'package:mineral/src/api/server/member.dart';
+import 'package:mineral/src/api/server/server.dart';
+import 'package:mineral/src/domains/commands/command_context.dart';
+
+final class UserCommandContext extends CommandContext {
+  final User target;
+  final Member? targetMember;
+  final Server? server;
+
+  UserCommandContext({
+    required super.id,
+    required super.applicationId,
+    required super.token,
+    required super.version,
+    required this.target,
+    this.targetMember,
+    this.server,
+    super.channel,
+  });
+
+  static Future<UserCommandContext> fromMap(MarshallerContract marshaller,
+      DataStoreContract datastore, Map<String, dynamic> payload) async {
+    final data = payload['data'] as Map<String, dynamic>;
+    final targetId = data['target_id'] as String;
+    final resolved = data['resolved'] as Map<String, dynamic>?;
+
+    final usersMap =
+        resolved?['users'] as Map<String, dynamic>? ?? <String, dynamic>{};
+    final userJson = usersMap[targetId] as Map<String, dynamic>?;
+
+    if (userJson == null) {
+      throw StateError(
+          'Cannot build UserCommandContext: target user $targetId not '
+          'present in interaction.data.resolved.users');
+    }
+
+    final raw = await marshaller.serializers.user.normalize(userJson);
+    final target = await marshaller.serializers.user.serialize(raw);
+
+    final guildId = payload['guild_id'] as String?;
+    Server? server;
+    Member? targetMember;
+    if (guildId != null) {
+      server = await datastore.server.get(guildId, false);
+      targetMember = await datastore.member.get(guildId, targetId, false);
+    }
+
+    final channelId = payload['channel_id'] as String?;
+
+    return UserCommandContext(
+      id: Snowflake.parse(payload['id']),
+      applicationId: Snowflake.parse(payload['application_id']),
+      token: payload['token'] as String,
+      version: payload['version'] as int,
+      target: target,
+      targetMember: targetMember,
+      server: server,
+      channel:
+          channelId != null ? await datastore.channel.get(channelId, false) : null,
+    );
+  }
+}

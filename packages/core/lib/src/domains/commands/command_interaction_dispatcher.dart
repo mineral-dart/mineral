@@ -4,6 +4,8 @@ import 'package:collection/collection.dart';
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/commands/command_interaction_manager.dart';
+import 'package:mineral/src/domains/commands/contexts/message_command_context.dart';
+import 'package:mineral/src/domains/commands/contexts/user_command_context.dart';
 import 'package:mineral/src/domains/container/ioc_container.dart';
 
 final class CommandInteractionDispatcher
@@ -46,6 +48,11 @@ final class CommandInteractionDispatcher
       return;
     }
     final dataData = rawData;
+
+    final kind = CommandKind.of(dataData['type'] as int? ?? 1);
+    if (kind == CommandKind.user || kind == CommandKind.message) {
+      return _handleContextMenu(data, kind);
+    }
 
     if (dataData['options'] != null) {
       for (final option in dataData['options'] as Iterable<dynamic>) {
@@ -130,6 +137,35 @@ final class CommandInteractionDispatcher
       }
     }
 
+    await _invokeHandler(registration, commandContext, optionValues);
+  }
+
+  Future<void> _handleContextMenu(
+      Map<String, dynamic> data, CommandKind kind) async {
+    final dataData = data['data'] as Map<String, dynamic>;
+
+    final registration = _interactionManager.commandsHandler
+        .firstWhereOrNull((reg) => reg.name == dataData['name']);
+
+    if (registration == null) {
+      _marshaller.logger.warn(
+          'Unknown ${kind.name} context command received: "${dataData['name']}"');
+      return;
+    }
+
+    final commandContext = await switch (kind) {
+      CommandKind.user =>
+        UserCommandContext.fromMap(_marshaller, _dataStore, data),
+      CommandKind.message =>
+        MessageCommandContext.fromMap(_marshaller, _dataStore, data),
+      _ => throw StateError('unreachable'),
+    };
+
+    await _invokeHandler(registration, commandContext, const {});
+  }
+
+  Future<void> _invokeHandler(CommandRegistration registration,
+      CommandContext commandContext, Map<String, dynamic> optionValues) async {
     try {
       await registration.handler(commandContext, CommandOptions(optionValues));
     } on Exception catch (e, stackTrace) {
