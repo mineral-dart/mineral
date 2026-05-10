@@ -3,6 +3,7 @@ import 'package:mineral/src/domains/services/datastore/datastore.dart';
 import 'package:mineral/src/domains/services/http/http.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/channel_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/emoji_part.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/guild_scheduled_event_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/interaction_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/invite_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/member_part.dart';
@@ -66,6 +67,9 @@ final class DataStore implements DataStoreContract {
   @override
   late final WebhookPart webhook;
 
+  @override
+  late final GuildScheduledEventPart scheduledEvent;
+
   DataStore({required this.client, required MarshallerContract marshaller}) {
     requestBucket = RequestBucket(client);
     channel = ChannelPart(marshaller, this);
@@ -82,5 +86,6 @@ final class DataStore implements DataStoreContract {
     rules = RulesPart(marshaller, this);
     invite = InvitePart(marshaller, this);
     webhook = WebhookPart(marshaller, this);
+    scheduledEvent = GuildScheduledEventPart(marshaller, this);
   }
 }
