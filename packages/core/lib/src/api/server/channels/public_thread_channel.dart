@@ -1,11 +1,10 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/managers/message_manager.dart';
 import 'package:mineral/src/api/server/threads/thread_metadata.dart';
 
 class PublicThreadChannel extends ServerChannel implements ThreadChannel {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _datastore => properties.ctx.datastore;
 
   @override
   final ChannelProperties properties;
@@ -44,8 +43,9 @@ class PublicThreadChannel extends ServerChannel implements ThreadChannel {
   Snowflake? get parentId => properties.categoryId;
 
   PublicThreadChannel(this.properties, this.metadata) {
-    methods = ChannelMethods(properties.serverId!, properties.id);
-    messages = MessageManager(properties.id);
+    methods = ChannelMethods(properties.serverId!, properties.id,
+        ctx: properties.ctx);
+    messages = MessageManager(properties.id, ctx: properties.ctx);
   }
 
   Future<void> setDescription(String description, {String? reason}) =>

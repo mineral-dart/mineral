@@ -7,7 +7,6 @@ final class MessageReactionSerializer<T extends Message>
     implements SerializerContract<MessageReaction> {
   // ignore: unused_field
   final MarshallerContract _marshaller;
-  // ignore: unused_field
   final EntityContext _ctx;
 
   MessageReactionSerializer(this._marshaller, this._ctx);
@@ -33,6 +32,7 @@ final class MessageReactionSerializer<T extends Message>
   @override
   Future<MessageReaction> serialize(Map<String, dynamic> json) async {
     return MessageReaction(
+        ctx: _ctx,
         serverId: Snowflake.nullable(json['server_id']),
         channelId: Snowflake.parse(json['channel_id']),
         userId: Snowflake.parse(json['author_id']),

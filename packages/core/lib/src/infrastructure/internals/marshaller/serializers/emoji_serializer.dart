@@ -45,6 +45,7 @@ final class EmojiSerializer implements SerializerContract<Emoji> {
 
     return Emoji(
       Snowflake.parse(json['server_id']),
+      ctx: _ctx,
       id: Snowflake.parse(json['id']),
       name: json['name'] as String,
       roles: roles?.fold(

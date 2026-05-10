@@ -3,6 +3,8 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/mineral_testing.dart';
 import 'package:mineral/services.dart' show HttpClientContract;
 // ignore: implementation_imports
+import 'package:mineral/src/domains/common/entity_context.dart';
+// ignore: implementation_imports
 import 'package:mineral/src/infrastructure/internals/datastore/datastore.dart';
 
 import '../fakes/test_marshaller.dart';
@@ -38,15 +40,35 @@ final class TestKernel {
     final logger = FakeLogger();
     final actions = BotActions();
     final httpClient = RecordingHttpClient(actions);
-    final marshaller = TestMarshaller(logger: logger);
-    final dataStore = DataStore(client: httpClient, marshaller: marshaller);
+
+    // Compose the data layer manually here. We can't use composeDataLayer
+    // because TestKernel skips the websocket orchestrator; we still need a
+    // valid EntityContext for serializers and entities.
+    late final TestMarshaller marshaller;
+    late final DataStore dataStore;
+    late final EntityContext entityContext;
+
+    marshaller = TestMarshaller.unbound(logger: logger);
+    dataStore =
+        DataStore(client: httpClient, marshaller: marshaller, logger: logger);
+    entityContext = EntityContext(
+      datastore: dataStore,
+      wss: _UnimplementedWss(),
+      logger: logger,
+    );
+    marshaller.bindSerializers(entityContext);
+
+    final commandManager = CommandInteractionManager(
+      dataStore: dataStore,
+      marshaller: marshaller,
+    );
 
     final container = IocContainer()
       ..bind<LoggerContract>(() => logger)
       ..bind<HttpClientContract>(() => httpClient)
       ..bind<MarshallerContract>(() => marshaller)
       ..bind<DataStoreContract>(() => dataStore)
-      ..bind<CommandInteractionManagerContract>(CommandInteractionManager.new)
+      ..bind<CommandInteractionManagerContract>(() => commandManager)
       ..bind<InteractiveComponentManagerContract>(
           InteractiveComponentManager.new);
 
@@ -59,4 +81,12 @@ final class TestKernel {
     _restore();
     await container.dispose();
   }
+}
+
+final class _UnimplementedWss implements WebsocketOrchestratorContract {
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError(
+          'TestKernel does not bind a real WebsocketOrchestratorContract; '
+          'tests that touch wss should be migrated to a richer fixture.');
 }

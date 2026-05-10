@@ -10,6 +10,7 @@ abstract interface class AuditLogChange<B, A> {
 }
 
 abstract class AuditLogActionContract {
+  // TODO(phase1.3-polish): see [AuditLog] note.
   DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
 
   AuditLogType type;

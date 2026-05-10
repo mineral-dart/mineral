@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -14,16 +15,19 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
   final DataStoreContract _dataStore;
   final InteractiveComponentManagerContract _interactiveComponentManager;
+  final EntityContext _entityContext;
 
   SelectInteractionCreatePacket({
     required LoggerContract logger,
     required MarshallerContract marshaller,
     required DataStoreContract dataStore,
     required InteractiveComponentManagerContract interactiveComponent,
+    required EntityContext entityContext,
   })  : _logger = logger,
         _marshaller = marshaller,
         _dataStore = dataStore,
-        _interactiveComponentManager = interactiveComponent;
+        _interactiveComponentManager = interactiveComponent,
+        _entityContext = entityContext;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -42,9 +46,11 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
 
       final serverId = Snowflake.nullable(payload['guild_id'] as String?);
       final SelectContext ctx = await switch (serverId) {
-        String() => ServerSelectContext.fromMap(_dataStore, payload)
+        String() => ServerSelectContext.fromMap(
+                _dataStore, _entityContext, payload)
             as Future<SelectContext>,
-        _ => PrivateSelectContext.fromMap(_marshaller, _dataStore, payload)
+        _ => PrivateSelectContext.fromMap(
+                _marshaller, _dataStore, _entityContext, payload)
             as Future<SelectContext>,
       };
 

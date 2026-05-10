@@ -1,16 +1,17 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/server/moderation/enums/auto_moderation_event_type.dart';
 import 'package:mineral/src/api/server/moderation/enums/trigger_type.dart';
 import 'package:mineral/src/api/server/moderation/trigger_metadata.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class RulesManager {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake _serverId;
 
-  RulesManager(this._serverId);
+  RulesManager(this._serverId, {required EntityContext ctx}) : _ctx = ctx;
 
   /// Fetch the server's channels.
   /// ```dart

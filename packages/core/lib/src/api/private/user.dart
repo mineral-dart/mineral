@@ -1,10 +1,11 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/user_client.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class User implements UserClient {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake id;
   final String username;
@@ -24,6 +25,7 @@ final class User implements UserClient {
   Presence? presence;
 
   User({
+    required EntityContext ctx,
     required this.id,
     required this.username,
     required this.discriminator,
@@ -40,7 +42,7 @@ final class User implements UserClient {
     required this.assets,
     required this.createdAt,
     required this.presence,
-  });
+  }) : _ctx = ctx;
 
   /// Resolve the user as [Member] from [Server] id.
   /// ```dart

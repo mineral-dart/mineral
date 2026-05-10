@@ -3,6 +3,7 @@ import 'package:mineral/src/api/common/types/channel_type.dart';
 import 'package:mineral/src/api/server/channels/server_forum_channel.dart';
 import 'package:mineral/src/api/server/enums/forum_layout_types.dart';
 import 'package:mineral/src/api/server/enums/sort_order_forum.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
@@ -34,9 +35,10 @@ final class ServerForumChannelFactory
   }
 
   @override
-  Future<ServerForumChannel> serialize(
-      MarshallerContract marshaller, Map<String, dynamic> json) async {
-    final properties = await ChannelProperties.serializeCache(marshaller, json);
+  Future<ServerForumChannel> serialize(MarshallerContract marshaller,
+      EntityContext ctx, Map<String, dynamic> json) async {
+    final properties =
+        await ChannelProperties.serializeCache(marshaller, ctx, json);
     return ServerForumChannel(
       properties,
       sortOrder: Helper.createOrNull(

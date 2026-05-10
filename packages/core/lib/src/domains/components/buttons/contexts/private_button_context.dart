@@ -1,10 +1,9 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/components/buttons/button_context_base.dart';
 
 final class PrivateButtonContext extends ButtonContextBase {
-  DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _dataStore => ctx.datastore;
 
   final Snowflake? authorId;
 
@@ -17,6 +16,7 @@ final class PrivateButtonContext extends ButtonContextBase {
     required this.authorId,
     required super.channelId,
     required super.messageId,
+    required super.ctx,
   });
 
   Future<User> resolveAuthor({bool force = false}) async {

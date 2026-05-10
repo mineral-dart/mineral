@@ -1,15 +1,15 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/server/member.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class MemberVoice {
-  MemberPartContract get _memberMethods =>
-      ioc.resolve<DataStoreContract>().member;
+  final EntityContext _ctx;
+  MemberPartContract get _memberMethods => _ctx.datastore.member;
 
   final Member _member;
 
-  MemberVoice(this._member);
+  MemberVoice(this._member, {required EntityContext ctx}) : _ctx = ctx;
 
   /// Move the member to a different voice channel.
   ///

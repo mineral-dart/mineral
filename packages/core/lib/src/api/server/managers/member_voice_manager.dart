@@ -1,11 +1,12 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class MemberVoiceManager {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  DataStoreContract get _datastore => _ctx.datastore;
+  LoggerContract get _logger => _ctx.logger;
 
   final Snowflake _serverId;
   final Snowflake _memberId;
@@ -35,7 +36,12 @@ final class MemberVoiceManager {
   /// Get the [ServerVoiceChannel] ID where the [Member] is.
   DateTime? get requestToSpeakTimestamp => _voiceState?.requestToSpeakTimestamp;
 
-  MemberVoiceManager(this._serverId, this._memberId, this._voiceState);
+  MemberVoiceManager(
+    this._serverId,
+    this._memberId,
+    this._voiceState, {
+    required EntityContext ctx,
+  }) : _ctx = ctx;
 
   /// Mute the [Member].
   /// ```dart

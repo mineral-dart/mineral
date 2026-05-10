@@ -24,6 +24,6 @@ final class PrivateChannel extends Channel {
   List<User> get recipients => _properties.recipients;
 
   PrivateChannel(this._properties) {
-    messages = MessageManager(_properties.id);
+    messages = MessageManager(_properties.id, ctx: _properties.ctx);
   }
 }

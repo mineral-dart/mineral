@@ -3,6 +3,8 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/interacti
 import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
+import '../helpers/fake_entity_context.dart';
+
 final class _NoopInteractiveComponent implements InteractiveComponentManagerContract {
   @override
   void register(InteractiveComponent component) {}
@@ -21,6 +23,7 @@ void main() {
       packet = ButtonInteractionCreatePacket(
         logger: FakeLogger(),
         interactiveComponent: _NoopInteractiveComponent(),
+        ctx: fakeEntityContext(),
       );
     });
 

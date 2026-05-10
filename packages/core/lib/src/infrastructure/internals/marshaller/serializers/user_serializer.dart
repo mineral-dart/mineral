@@ -57,6 +57,7 @@ final class UserSerializer implements SerializerContract<User> {
     );
 
     return User(
+      ctx: _ctx,
       id: json['id'] as Snowflake,
       username: json['username'] as String,
       discriminator: json['discriminator'] as String,

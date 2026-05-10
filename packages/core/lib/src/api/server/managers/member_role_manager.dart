@@ -1,15 +1,18 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class MemberRoleManager {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final List<Snowflake> currentIds;
   final Snowflake _serverId;
   final Snowflake _memberId;
 
-  MemberRoleManager(this.currentIds, this._serverId, this._memberId);
+  MemberRoleManager(this.currentIds, this._serverId, this._memberId,
+      {required EntityContext ctx})
+      : _ctx = ctx;
 
   Future<Map<Snowflake, Role>> fetch({bool force = false}) async {
     final roles = await _datastore.role.fetch(_serverId.value, force);

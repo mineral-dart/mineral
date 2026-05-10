@@ -238,6 +238,7 @@ final class ClientBuilder {
       ..dataStore = appState.dataStore
       ..interactiveComponent = appState.interactiveComponent
       ..commandManager = appState.commandManager
+      ..entityContext = entityContext
       ..cacheConfig = appState.cacheConfig
       ..init();
 

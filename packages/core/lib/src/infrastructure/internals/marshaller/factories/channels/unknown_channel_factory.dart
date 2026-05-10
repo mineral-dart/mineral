@@ -1,4 +1,5 @@
 import 'package:mineral/api.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/channel_factory.dart';
 
@@ -23,8 +24,8 @@ final class UnknownChannelFactory
   }
 
   @override
-  Future<UnknownChannel> serialize(
-      MarshallerContract marshaller, Map<String, dynamic> json) async {
+  Future<UnknownChannel> serialize(MarshallerContract marshaller,
+      EntityContext ctx, Map<String, dynamic> json) async {
     return UnknownChannel(
       id: Snowflake.parse(json['id']),
       name: json['name'] as String,

@@ -1,6 +1,6 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 enum MessageReactionType {
   normal(0),
@@ -41,7 +41,8 @@ abstract interface class PrivateMessageReaction extends BaseMessageReaction {
 
 final class MessageReaction
     implements ServerMessageReaction, PrivateMessageReaction {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   @override
   final Snowflake? serverId;
@@ -65,6 +66,7 @@ final class MessageReaction
   final MessageReactionType type;
 
   MessageReaction({
+    required EntityContext ctx,
     required this.serverId,
     required this.channelId,
     required this.userId,
@@ -72,7 +74,7 @@ final class MessageReaction
     required this.emoji,
     required this.isBurst,
     required this.type,
-  });
+  }) : _ctx = ctx;
 
   /// Get related [User]
   /// ```dart

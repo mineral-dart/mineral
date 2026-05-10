@@ -9,5 +9,6 @@ final class ServerButtonContext extends ButtonContextBase {
     required super.customId,
     required super.channelId,
     required super.messageId,
+    required super.ctx,
   });
 }

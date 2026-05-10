@@ -1,13 +1,14 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class EmojiManager {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake _serverId;
 
-  EmojiManager(this._serverId);
+  EmojiManager(this._serverId, {required EntityContext ctx}) : _ctx = ctx;
 
   /// Fetch the server's channels.
   /// ```dart

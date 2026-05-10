@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/components/selects/select_context_base.dart';
 
 final class PrivateSelectContext extends SelectContextBase {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _datastore => ctx.datastore;
 
   final Snowflake userId;
 
@@ -19,6 +19,7 @@ final class PrivateSelectContext extends SelectContextBase {
     required super.messageId,
     required this.userId,
     required super.channelId,
+    required super.ctx,
   });
 
   Future<User?> resolveUser({bool force = false}) =>
@@ -41,9 +42,13 @@ final class PrivateSelectContext extends SelectContextBase {
     return _datastore.channel.get<PrivateChannel>(channelId!.value, force);
   }
 
-  static Future<PrivateSelectContext> fromMap(MarshallerContract marshaller,
-      DataStoreContract datastore, Map<String, dynamic> payload) async {
+  static Future<PrivateSelectContext> fromMap(
+      MarshallerContract marshaller,
+      DataStoreContract datastore,
+      EntityContext ctx,
+      Map<String, dynamic> payload) async {
     return PrivateSelectContext(
+      ctx: ctx,
       customId: (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
       id: Snowflake.parse(payload['id']),
       applicationId: Snowflake.parse(payload['application_id']),

@@ -18,8 +18,9 @@ final class ServerVoiceChannel extends ServerChannel {
   late final List<VoiceState> members;
 
   ServerVoiceChannel(this.properties) {
-    methods = ChannelMethods(properties.serverId!, properties.id);
-    messages = MessageManager(properties.id);
+    methods = ChannelMethods(properties.serverId!, properties.id,
+        ctx: properties.ctx);
+    messages = MessageManager(properties.id, ctx: properties.ctx);
   }
 
   Future<void> setCategory(String categoryId, {String? reason}) =>

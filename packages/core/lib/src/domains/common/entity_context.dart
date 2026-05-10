@@ -11,9 +11,11 @@ import 'package:mineral/contracts.dart';
 final class EntityContext {
   final DataStoreContract datastore;
   final WebsocketOrchestratorContract wss;
+  final LoggerContract logger;
 
   const EntityContext({
     required this.datastore,
     required this.wss,
+    required this.logger,
   });
 }

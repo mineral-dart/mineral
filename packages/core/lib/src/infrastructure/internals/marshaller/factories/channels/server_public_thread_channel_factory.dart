@@ -2,6 +2,7 @@ import 'package:mineral/src/api/common/channel_properties.dart';
 import 'package:mineral/src/api/common/types/channel_type.dart';
 import 'package:mineral/src/api/server/channels/public_thread_channel.dart';
 import 'package:mineral/src/api/server/threads/thread_metadata.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/channel_factory.dart';
 
@@ -45,9 +46,10 @@ final class ServerPublicThreadChannelFactory
   }
 
   @override
-  Future<PublicThreadChannel> serialize(
-      MarshallerContract marshaller, Map<String, dynamic> json) async {
-    final properties = await ChannelProperties.serializeCache(marshaller, json);
+  Future<PublicThreadChannel> serialize(MarshallerContract marshaller,
+      EntityContext ctx, Map<String, dynamic> json) async {
+    final properties =
+        await ChannelProperties.serializeCache(marshaller, ctx, json);
     final metadata = ThreadMetadata.fromMap(json);
 
     return PublicThreadChannel(properties, metadata);

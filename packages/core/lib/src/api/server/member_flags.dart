@@ -1,21 +1,21 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/server/enums/member_flag.dart';
 import 'package:mineral/src/api/server/member.dart';
 import 'package:mineral/src/api/server/server.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class MemberFlagsManager {
+  final EntityContext _ctx;
   final List<MemberFlag> _flags;
 
   late final Server server;
   late final Member member;
 
-  MemberPartContract get _memberMethods =>
-      ioc.resolve<DataStoreContract>().member;
+  MemberPartContract get _memberMethods => _ctx.datastore.member;
 
   List<MemberFlag> get list => _flags;
 
-  MemberFlagsManager(this._flags);
+  MemberFlagsManager(this._flags, {required EntityContext ctx}) : _ctx = ctx;
 
   /// Allow the member to bypass verification.
   ///

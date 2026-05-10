@@ -1,7 +1,7 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/managers/reaction_manager.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 abstract interface class BaseMessage {
   ReactionManger get reactions;
@@ -65,7 +65,8 @@ abstract interface class PrivateMessage implements BaseMessage {
 }
 
 final class Message implements ServerMessage, PrivateMessage, BaseMessage {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
   final MessageProperties _properties;
 
   @override
@@ -98,9 +99,11 @@ final class Message implements ServerMessage, PrivateMessage, BaseMessage {
   @override
   DateTime? get updatedAt => _properties.updatedAt;
 
-  Message(this._properties)
-      : reactions =
-            ReactionManger(_properties.id.value, _properties.channelId.value);
+  Message(this._properties, {required EntityContext ctx})
+      : _ctx = ctx,
+        reactions = ReactionManger(_properties.id.value,
+            _properties.channelId.value,
+            ctx: ctx);
 
   @override
   Future<void> edit(MessageBuilder builder) async {

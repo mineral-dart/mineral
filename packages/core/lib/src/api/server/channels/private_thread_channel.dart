@@ -1,6 +1,7 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/src/api/common/managers/message_manager.dart';
 import 'package:mineral/src/api/server/threads/thread_metadata.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 class PrivateThreadChannel extends ServerChannel implements ThreadChannel {
   @override
@@ -52,6 +53,7 @@ class PrivateThreadChannel extends ServerChannel implements ThreadChannel {
   final List<ChannelPermissionOverwrite> _permissions;
 
   PrivateThreadChannel({
+    required EntityContext ctx,
     required Snowflake id,
     required String name,
     required Snowflake serverId,
@@ -68,8 +70,8 @@ class PrivateThreadChannel extends ServerChannel implements ThreadChannel {
         _name = name,
         _serverId = serverId,
         _permissions = permissions {
-    methods = ChannelMethods(null, id);
-    messages = MessageManager(id);
+    methods = ChannelMethods(null, id, ctx: ctx);
+    messages = MessageManager(id, ctx: ctx);
   }
 
   Future<void> setDescription(String description, {String? reason}) =>

@@ -1,14 +1,15 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/common/sticker.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class StickerManager {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake _serverId;
 
-  StickerManager(this._serverId);
+  StickerManager(this._serverId, {required EntityContext ctx}) : _ctx = ctx;
 
   /// Fetch the server's stickers.
   /// ```dart

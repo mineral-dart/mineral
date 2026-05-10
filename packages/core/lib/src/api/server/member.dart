@@ -1,15 +1,15 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/permissions.dart';
 import 'package:mineral/src/api/common/user_client.dart';
 import 'package:mineral/src/api/server/managers/member_voice_manager.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class Member implements UserClient {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
 
-  WebsocketOrchestratorContract get _wss =>
-      ioc.resolve<WebsocketOrchestratorContract>();
+  DataStoreContract get _datastore => _ctx.datastore;
+  WebsocketOrchestratorContract get _wss => _ctx.wss;
 
   final Snowflake id;
   final String username;
@@ -54,7 +54,7 @@ final class Member implements UserClient {
   Future<MemberVoiceManager> resolveVoiceContext({bool force = false}) async {
     final voiceState =
         await _datastore.member.getVoiceState(serverId.value, id.value, force);
-    return MemberVoiceManager(serverId, id, voiceState);
+    return MemberVoiceManager(serverId, id, voiceState, ctx: _ctx);
   }
 
   /// Get the [Presence] of the member.
@@ -227,6 +227,7 @@ final class Member implements UserClient {
           });
 
   Member({
+    required EntityContext ctx,
     required this.id,
     required this.username,
     required this.nickname,
@@ -247,7 +248,7 @@ final class Member implements UserClient {
     required this.permissions,
     required this.accentColor,
     required this.serverId,
-  });
+  }) : _ctx = ctx;
 
   @override
   String toString() => '<@$id>';

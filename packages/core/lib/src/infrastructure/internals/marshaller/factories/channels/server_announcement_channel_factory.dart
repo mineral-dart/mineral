@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:mineral/src/api/common/channel_properties.dart';
 import 'package:mineral/src/api/common/types/channel_type.dart';
 import 'package:mineral/src/api/server/channels/server_announcement_channel.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/channel_factory.dart';
 
@@ -33,9 +34,10 @@ final class ServerAnnouncementChannelFactory
   }
 
   @override
-  Future<ServerAnnouncementChannel> serialize(
-      MarshallerContract marshaller, Map<String, dynamic> json) async {
-    final properties = await ChannelProperties.serializeCache(marshaller, json);
+  Future<ServerAnnouncementChannel> serialize(MarshallerContract marshaller,
+      EntityContext ctx, Map<String, dynamic> json) async {
+    final properties =
+        await ChannelProperties.serializeCache(marshaller, ctx, json);
     return ServerAnnouncementChannel(properties);
   }
 
