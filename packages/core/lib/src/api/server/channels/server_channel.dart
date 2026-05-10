@@ -1,9 +1,8 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 
 abstract class ServerChannel implements Channel {
-  DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _dataStore => properties.ctx.datastore;
 
   ChannelProperties get properties;
 

@@ -1,11 +1,13 @@
 import 'package:mineral/api.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/message_factory.dart';
 
 final class PrivateMessageFactory implements MessageFactory<PrivateMessage> {
   final MarshallerContract _marshaller;
+  final EntityContext _ctx;
 
-  PrivateMessageFactory(this._marshaller);
+  PrivateMessageFactory(this._marshaller, this._ctx);
 
   @override
   Future<PrivateMessage> serialize(Map<String, dynamic> json) async {
@@ -13,7 +15,7 @@ final class PrivateMessageFactory implements MessageFactory<PrivateMessage> {
       json,
       embedSerializer: _marshaller.serializers.embed,
     );
-    return Message(messageProperties);
+    return Message(messageProperties, ctx: _ctx);
   }
 
   @override

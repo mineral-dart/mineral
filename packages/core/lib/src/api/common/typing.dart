@@ -1,6 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 enum TypingType {
   server,
@@ -9,7 +9,8 @@ enum TypingType {
 
 /// Represents a typing indicator in a channel.
 final class Typing {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   /// The ID of the server where the typing occurred.
   final Snowflake? serverId;
@@ -24,11 +25,12 @@ final class Typing {
   final DateTime timestamp;
 
   Typing({
+    required EntityContext ctx,
     required this.serverId,
     required this.channelId,
     required this.userId,
     required this.timestamp,
-  });
+  }) : _ctx = ctx;
 
   TypingType get type =>
       serverId == null ? TypingType.private : TypingType.server;

@@ -3,6 +3,10 @@ import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 
 abstract class AuditLog {
+  // TODO(phase1.3-polish): migrate audit log entities + their action subclasses
+  // to take EntityContext via constructor. Pending because each handler in
+  // packets/listeners/audit_logs/* would need to thread ctx through, and many
+  // subclasses have non-trivial constructor surfaces. Tracked separately.
   DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
 
   AuditLogType type;

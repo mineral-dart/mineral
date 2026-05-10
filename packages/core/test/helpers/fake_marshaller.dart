@@ -34,6 +34,7 @@ final class FakeMarshaller implements MarshallerContract {
         EntityContext(
           datastore: dataStore ?? _UnimplementedDataStore(),
           wss: FakeWebsocketOrchestrator(),
+          logger: this.logger,
         );
     serializers = SerializerBucket(this, ctx);
   }

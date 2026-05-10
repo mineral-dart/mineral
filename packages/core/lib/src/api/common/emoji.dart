@@ -1,9 +1,10 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class Emoji extends PartialEmoji {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake serverId;
   final Map<Snowflake, Role> roles;
@@ -12,13 +13,15 @@ final class Emoji extends PartialEmoji {
 
   Emoji(
     this.serverId, {
+    required EntityContext ctx,
     required Snowflake id,
     required String name,
     required this.roles,
     required this.managed,
     required this.available,
     required bool animated,
-  }) : super(id, name, animated);
+  })  : _ctx = ctx,
+        super(id, name, animated);
 
   /// Update image
   /// ```dart

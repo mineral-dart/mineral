@@ -1,4 +1,5 @@
 import 'package:mineral/api.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/channel_factory.dart';
 
@@ -27,9 +28,10 @@ final class ServerVoiceChannelFactory
   }
 
   @override
-  Future<ServerVoiceChannel> serialize(
-      MarshallerContract marshaller, Map<String, dynamic> json) async {
-    final properties = await ChannelProperties.serializeCache(marshaller, json);
+  Future<ServerVoiceChannel> serialize(MarshallerContract marshaller,
+      EntityContext ctx, Map<String, dynamic> json) async {
+    final properties =
+        await ChannelProperties.serializeCache(marshaller, ctx, json);
     final voices = await marshaller.cache!
             .whereKeyStartsWith('voice_states/server/${properties.serverId}') ??
         {};

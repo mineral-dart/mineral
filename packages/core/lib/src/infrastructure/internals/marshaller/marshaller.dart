@@ -52,7 +52,11 @@ DataLayerComposition composeDataLayer({
     marshaller: marshaller,
     logger: logger,
   );
-  final entityContext = EntityContext(datastore: dataStore, wss: wss);
+  final entityContext = EntityContext(
+    datastore: dataStore,
+    wss: wss,
+    logger: logger,
+  );
   marshaller._serializers = SerializerBucket(marshaller, entityContext);
   return (
     marshaller: marshaller,

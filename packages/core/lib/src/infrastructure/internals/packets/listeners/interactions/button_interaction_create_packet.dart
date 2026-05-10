@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
@@ -13,12 +14,15 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
 
   final LoggerContract _logger;
   final InteractiveComponentManagerContract _interactiveComponentManager;
+  final EntityContext _ctx;
 
   ButtonInteractionCreatePacket({
     required LoggerContract logger,
     required InteractiveComponentManagerContract interactiveComponent,
+    required EntityContext ctx,
   })  : _logger = logger,
-        _interactiveComponentManager = interactiveComponent;
+        _interactiveComponentManager = interactiveComponent,
+        _ctx = ctx;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -63,6 +67,7 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
     }
 
     final ctx = ServerButtonContext(
+      ctx: _ctx,
       id: Snowflake.parse(payload['id']),
       applicationId: Snowflake.parse(payload['application_id']),
       version: payload['version'] as int,
@@ -94,6 +99,7 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
     }
 
     final ctx = PrivateButtonContext(
+      ctx: _ctx,
       id: Snowflake.parse(payload['id']),
       applicationId: Snowflake.parse(payload['application_id']),
       version: payload['version'] as int,

@@ -2,10 +2,12 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/commands/command_interaction_dispatcher.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/thread_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.dart';
 import 'package:test/test.dart';
 
+import '../helpers/fake_entity_context.dart';
 import '../helpers/fake_logger.dart';
 import '../helpers/fake_marshaller.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
@@ -13,9 +15,13 @@ import '../helpers/ioc_test_helper.dart';
 import '../helpers/mocks.dart';
 
 final class _FakeUserPart implements UserPartContract {
+  final EntityContext _ctx;
+  _FakeUserPart(this._ctx);
+
   @override
   Future<User?> get(Object id, bool force) async {
     return User(
+      ctx: _ctx,
       id: Snowflake.parse(id.toString()),
       username: 'TestUser',
       discriminator: '0001',
@@ -73,7 +79,7 @@ final class _FakeDataStore implements DataStoreContract {
   @override
   MemberPartContract get member => throw UnimplementedError();
   @override
-  UserPartContract get user => _FakeUserPart();
+  UserPartContract get user => _FakeUserPart(fakeEntityContext());
   @override
   RolePartContract get role => throw UnimplementedError();
   @override

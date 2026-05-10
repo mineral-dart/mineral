@@ -86,9 +86,11 @@ final class MemberSerializer implements SerializerContract<Member> {
     final memberRoleManager = MemberRoleManager(
         List.from(json['roles'] as Iterable<dynamic>).map((e) => Snowflake.parse(e as String)).toList(),
         Snowflake.parse(json['server_id']),
-        Snowflake.parse(json['id'] as String));
+        Snowflake.parse(json['id'] as String),
+        ctx: _ctx);
 
     return Member(
+      ctx: _ctx,
       id: Snowflake.parse(json['id'] as String),
       serverId: Snowflake.parse(json['server_id'] as String),
       username: (json['nick'] ?? json['username']) as String,
@@ -96,8 +98,9 @@ final class MemberSerializer implements SerializerContract<Member> {
       globalName: json['global_name'] as String?,
       discriminator: json['discriminator'] as String?,
       assets: memberAsset,
-      flags:
-          MemberFlagsManager(bitfieldToList(MemberFlag.values, json['flags'] as int)),
+      flags: MemberFlagsManager(
+          bitfieldToList(MemberFlag.values, json['flags'] as int),
+          ctx: _ctx),
       premiumSince: Helper.createOrNull(
           field: json['premium_since'],
           fn: () => DateTime.parse(json['premium_since'] as String)),

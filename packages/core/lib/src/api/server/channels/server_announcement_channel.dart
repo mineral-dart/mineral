@@ -20,8 +20,9 @@ final class ServerAnnouncementChannel extends ServerChannel {
   late final ServerCategoryChannel? category;
 
   ServerAnnouncementChannel(this.properties) {
-    methods = ChannelMethods(properties.serverId!, properties.id);
-    messages = MessageManager(properties.id);
+    methods = ChannelMethods(properties.serverId!, properties.id,
+        ctx: properties.ctx);
+    messages = MessageManager(properties.id, ctx: properties.ctx);
   }
 
   Future<void> setDescription(String description, {String? reason}) =>

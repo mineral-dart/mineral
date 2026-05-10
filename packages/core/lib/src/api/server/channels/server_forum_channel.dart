@@ -25,6 +25,7 @@ final class ServerForumChannel extends ServerChannel {
 
   ServerForumChannel(this.properties,
       {required this.sortOrder, required this.layoutType}) {
-    methods = ChannelMethods(properties.serverId!, properties.id);
+    methods = ChannelMethods(properties.serverId!, properties.id,
+        ctx: properties.ctx);
   }
 }

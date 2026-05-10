@@ -39,7 +39,7 @@ final class MessageSerializer<T extends Message>
       json,
       embedSerializer: _marshaller.serializers.embed,
     );
-    return Message(messageProperties) as T;
+    return Message(messageProperties, ctx: _ctx) as T;
   }
 
   @override

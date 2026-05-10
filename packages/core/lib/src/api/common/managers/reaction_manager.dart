@@ -1,14 +1,16 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class ReactionManger {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final String _messageId;
   final String _channelId;
 
-  ReactionManger(this._messageId, this._channelId);
+  ReactionManger(this._messageId, this._channelId, {required EntityContext ctx})
+      : _ctx = ctx;
 
   Future<void> add(PartialEmoji emoji) =>
       _datastore.reaction.add(_channelId, _messageId, emoji);

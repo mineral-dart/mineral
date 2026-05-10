@@ -1,4 +1,5 @@
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/kernel.dart';
 import 'package:mineral/src/domains/services/packets/packet_dispatcher.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
@@ -62,6 +63,7 @@ final class PacketListener implements PacketListenerContract {
   late final DataStoreContract dataStore;
   late final InteractiveComponentManagerContract interactiveComponent;
   late final CommandInteractionManagerContract commandManager;
+  late final EntityContext entityContext;
   CacheConfig? cacheConfig;
 
   void subscribe(ListenablePacket packet) {
@@ -117,13 +119,14 @@ final class PacketListener implements PacketListenerContract {
     subscribe(MessageReactionRemoveAllPacket(dataStore: ds));
 
     subscribe(ButtonInteractionCreatePacket(
-        logger: logger, interactiveComponent: ic));
+        logger: logger, interactiveComponent: ic, ctx: entityContext));
     subscribe(CommandInteractionCreatePacket(commandManager: cm));
     subscribe(SelectInteractionCreatePacket(
         logger: logger,
         marshaller: m,
         dataStore: ds,
-        interactiveComponent: ic));
+        interactiveComponent: ic,
+        entityContext: entityContext));
     subscribe(ModalInteractionCreatePacket(
         logger: logger,
         marshaller: m,
@@ -143,7 +146,7 @@ final class PacketListener implements PacketListenerContract {
 
     subscribe(InviteCreatePacket(marshaller: m));
     subscribe(InviteDeletePacket(dataStore: ds));
-    subscribe(TypingPacket());
+    subscribe(TypingPacket(ctx: entityContext));
 
     subscribe(MessagePollVoteAddPacket(dataStore: ds));
     subscribe(MessagePollVoteRemovePacket(dataStore: ds));

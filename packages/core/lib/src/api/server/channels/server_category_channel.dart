@@ -13,6 +13,7 @@ final class ServerCategoryChannel extends ServerChannel {
   ThreadsManager get threads => properties.threads;
 
   ServerCategoryChannel(this.properties) {
-    methods = ChannelMethods(properties.serverId!, properties.id);
+    methods = ChannelMethods(properties.serverId!, properties.id,
+        ctx: properties.ctx);
   }
 }

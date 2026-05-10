@@ -1,10 +1,11 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/server/managers/threads_manager.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class Server {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake id;
   final String? applicationId;
@@ -19,6 +20,7 @@ final class Server {
   final ServerAsset assets;
 
   Server({
+    required EntityContext ctx,
     required this.id,
     required this.name,
     required this.ownerId,
@@ -30,7 +32,7 @@ final class Server {
     required this.applicationId,
     required this.assets,
     required this.threads,
-  });
+  }) : _ctx = ctx;
 
   DateTime get createdAt => id.createdAt;
 

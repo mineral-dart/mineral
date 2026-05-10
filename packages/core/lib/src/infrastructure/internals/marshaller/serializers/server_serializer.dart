@@ -70,16 +70,21 @@ final class ServerSerializer implements SerializerContract<Server> {
 
   @override
   Future<Server> serialize(Map<String, dynamic> payload) async {
-    final channelManager =
-        ChannelManager.fromMap(payload['id'] as String, payload['channel_settings'] as Map<String, dynamic>);
-    final threadManager = ThreadsManager(Snowflake.parse(payload['id']), null);
-    final roleManager = RoleManager(Snowflake.parse(payload['id']));
-    final memberManager = MemberManager(Snowflake.parse(payload['id']));
+    final channelManager = ChannelManager.fromMap(
+        payload['id'] as String,
+        payload['channel_settings'] as Map<String, dynamic>,
+        ctx: _ctx);
+    final threadManager =
+        ThreadsManager(Snowflake.parse(payload['id']), null, ctx: _ctx);
+    final roleManager = RoleManager(Snowflake.parse(payload['id']), ctx: _ctx);
+    final memberManager =
+        MemberManager(Snowflake.parse(payload['id']), ctx: _ctx);
 
     final serverAssets = ServerAsset(
       Snowflake.parse(payload['id']),
-      emojis: EmojiManager(Snowflake.parse(payload['id'])),
-      stickers: StickerManager(Snowflake.parse(payload['id'])),
+      ctx: _ctx,
+      emojis: EmojiManager(Snowflake.parse(payload['id']), ctx: _ctx),
+      stickers: StickerManager(Snowflake.parse(payload['id']), ctx: _ctx),
       icon: Helper.createOrNull(
           field: payload['icon'],
           fn: () =>
@@ -130,9 +135,11 @@ final class ServerSerializer implements SerializerContract<Server> {
         maxVideoChannelUsers: payload['max_video_channel_users'] as int?,
         nsfwLevel: findInEnum(NsfwLevel.values, settings['nsfw_level'],
             orElse: NsfwLevel.unknown),
-        rulesManager: RulesManager(Snowflake.parse(payload['id'] as String)));
+        rulesManager:
+            RulesManager(Snowflake.parse(payload['id'] as String), ctx: _ctx));
 
     return Server(
+      ctx: _ctx,
       id: Snowflake.parse(payload['id'] as String),
       name: payload['name'] as String,
       description: payload['description'] as String?,

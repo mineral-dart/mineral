@@ -1,10 +1,10 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/components/selects/select_context_base.dart';
 
 final class ServerSelectContext extends SelectContextBase {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  DataStoreContract get _datastore => ctx.datastore;
 
   final Snowflake? memberId;
 
@@ -20,6 +20,7 @@ final class ServerSelectContext extends SelectContextBase {
     required super.messageId,
     required this.memberId,
     required super.channelId,
+    required super.ctx,
   });
 
   Future<Member?> resolveMember({bool force = false}) async {
@@ -52,8 +53,11 @@ final class ServerSelectContext extends SelectContextBase {
       _datastore.server.get(serverId.value, force);
 
   static Future<ServerSelectContext> fromMap(
-      DataStoreContract datastore, Map<String, dynamic> payload) async {
+      DataStoreContract datastore,
+      EntityContext ctx,
+      Map<String, dynamic> payload) async {
     return ServerSelectContext(
+      ctx: ctx,
       customId: (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
       id: Snowflake.parse(payload['id']),
       applicationId: Snowflake.parse(payload['application_id']),

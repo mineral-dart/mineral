@@ -1,8 +1,8 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/server/channels/private_thread_channel.dart';
 import 'package:mineral/src/api/server/channels/public_thread_channel.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 abstract interface class ServerThreadManager {
   Future<ThreadResult> fetchActives();
@@ -19,12 +19,14 @@ abstract interface class ChannelThreadManager {
 
 final class ThreadsManager
     implements ServerThreadManager, ChannelThreadManager {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake? _serverId;
   final Snowflake? _channelId;
 
-  ThreadsManager(this._serverId, this._channelId);
+  ThreadsManager(this._serverId, this._channelId, {required EntityContext ctx})
+      : _ctx = ctx;
 
   @override
   Future<ThreadResult> fetchActives() =>

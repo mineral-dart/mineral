@@ -1,9 +1,10 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class ChannelManager<C extends Channel> {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake _serverId;
   final Snowflake? afkChannelId;
@@ -14,12 +15,13 @@ final class ChannelManager<C extends Channel> {
 
   ChannelManager(
     this._serverId, {
+    required EntityContext ctx,
     required this.afkChannelId,
     required this.systemChannelId,
     required this.rulesChannelId,
     required this.publicUpdatesChannelId,
     required this.safetyAlertsChannelId,
-  });
+  }) : _ctx = ctx;
 
   /// Fetch the server's channels.
   /// ```dart
@@ -146,9 +148,10 @@ final class ChannelManager<C extends Channel> {
         _serverId.value, {'public_updates_channel_id': channelId}, reason);
   }
 
-  factory ChannelManager.empty(String serverId) {
+  factory ChannelManager.empty(String serverId, {required EntityContext ctx}) {
     return ChannelManager(
       Snowflake.parse(serverId),
+      ctx: ctx,
       afkChannelId: null,
       systemChannelId: null,
       rulesChannelId: null,
@@ -158,9 +161,11 @@ final class ChannelManager<C extends Channel> {
   }
 
   factory ChannelManager.fromMap(
-      Object serverId, Map<String, dynamic> payload) {
+      Object serverId, Map<String, dynamic> payload,
+      {required EntityContext ctx}) {
     return ChannelManager(
       Snowflake.parse(serverId),
+      ctx: ctx,
       afkChannelId: Snowflake.nullable(payload['afk_channel_id']),
       systemChannelId: Snowflake.nullable(payload['system_channel_id']),
       rulesChannelId: Snowflake.nullable(payload['rules_channel_id']),

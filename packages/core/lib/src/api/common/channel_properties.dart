@@ -1,16 +1,21 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/channel_permission_overwrite.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/common/types/channel_type.dart';
 import 'package:mineral/src/api/private/user.dart';
 import 'package:mineral/src/api/server/managers/threads_manager.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
 
 final class ChannelProperties {
-  ChannelPartContract get dataStoreChannel =>
-      ioc.resolve<DataStoreContract>().channel;
+  final EntityContext _ctx;
+
+  /// Exposed so channel subclasses can construct sub-managers
+  /// ([ChannelMethods], [MessageManager]) without re-injecting the context.
+  EntityContext get ctx => _ctx;
+
+  ChannelPartContract get dataStoreChannel => _ctx.datastore.channel;
 
   final Snowflake id;
   final ChannelType type;
@@ -45,6 +50,7 @@ final class ChannelProperties {
   final ThreadsManager threads;
 
   ChannelProperties({
+    required EntityContext ctx,
     required this.id,
     required this.type,
     required this.name,
@@ -76,10 +82,12 @@ final class ChannelProperties {
     required this.defaultSortOrder,
     required this.defaultForumLayout,
     required this.threads,
-  });
+  }) : _ctx = ctx;
 
   static Future<ChannelProperties> serializeCache(
-      MarshallerContract marshaller, Map<String, dynamic> element) async {
+      MarshallerContract marshaller,
+      EntityContext ctx,
+      Map<String, dynamic> element) async {
     final permissionOverwrites = await Helper.createOrNullAsync(
         field: element['permission_overwrites'],
         fn: () async => Future.wait(
@@ -100,6 +108,7 @@ final class ChannelProperties {
             ));
 
     return ChannelProperties(
+        ctx: ctx,
         id: Snowflake.parse(element['id'] as String),
         type: findInEnum(ChannelType.values, element['type'],
             orElse: ChannelType.unknown),
@@ -131,7 +140,9 @@ final class ChannelProperties {
         defaultReactions: element['default_reactions'],
         defaultSortOrder: element['default_sort_order'] as int?,
         defaultForumLayout: element['default_forum_layout'] as int?,
-        threads: ThreadsManager(Snowflake.nullable(element['server_id'] as String?),
-            Snowflake.nullable(element['id'] as String?)));
+        threads: ThreadsManager(
+            Snowflake.nullable(element['server_id'] as String?),
+            Snowflake.nullable(element['id'] as String?),
+            ctx: ctx));
   }
 }

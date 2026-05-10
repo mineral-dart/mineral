@@ -59,7 +59,7 @@ final class ChannelSerializer<T extends Channel?>
       _marshaller.logger.warn('Channel type not found ${json['type']}');
     }
 
-    return channelFactory.serialize(_marshaller, json) as Future<T>;
+    return channelFactory.serialize(_marshaller, _ctx, json) as Future<T>;
   }
 
   @override

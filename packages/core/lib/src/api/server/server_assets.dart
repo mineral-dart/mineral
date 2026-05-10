@@ -5,10 +5,11 @@ import 'package:mineral/src/api/common/image_asset.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/server/managers/emoji_manager.dart';
 import 'package:mineral/src/api/server/managers/sticker_manager.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class ServerAsset {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake serverId;
   final ImageAsset? icon;
@@ -20,13 +21,14 @@ final class ServerAsset {
 
   ServerAsset(
     this.serverId, {
+    required EntityContext ctx,
     required this.emojis,
     required this.stickers,
     required this.icon,
     required this.splash,
     required this.banner,
     required this.discoverySplash,
-  });
+  }) : _ctx = ctx;
 
   /// Set the server's icon.
   ///
