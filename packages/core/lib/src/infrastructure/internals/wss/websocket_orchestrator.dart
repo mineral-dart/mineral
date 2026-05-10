@@ -59,7 +59,7 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
 
   HttpClientContract get _httpClient => ioc.resolve<HttpClientContract>();
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  final LoggerContract _logger;
 
   @override
   final ShardingConfigContract config;
@@ -67,7 +67,8 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
   @override
   final Map<int, Shard> shards = {};
 
-  WebsocketOrchestrator(this.config);
+  WebsocketOrchestrator(this.config, {required LoggerContract logger})
+      : _logger = logger;
 
   /// Whether this orchestrator is running inside the HMR child isolate.
   bool get _isHmrIsolate => Isolate.current.debugName == 'development';
@@ -245,6 +246,7 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
             shardCount: totalShards,
             url: url,
             wss: this,
+            logger: _logger,
             strategy: strategy);
 
         shards.putIfAbsent(i, () => shard);

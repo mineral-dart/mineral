@@ -2,6 +2,7 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/thread_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.dart';
+import 'package:mineral/src/testing/fake_logger.dart';
 
 /// A minimal [DataStoreContract] for use in tests.
 ///
@@ -15,8 +16,8 @@ final class FakeDataStore implements DataStoreContract {
   @override
   final HttpClientContract client;
 
-  FakeDataStore(this.client) {
-    requestBucket = RequestBucket(client);
+  FakeDataStore(this.client, {LoggerContract? logger}) {
+    requestBucket = RequestBucket(client, logger: logger ?? FakeLogger());
   }
 
   @override

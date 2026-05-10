@@ -22,7 +22,7 @@ final class ShardNetworkError implements ShardNetworkErrorContract {
       return;
     }
 
-    final logger = ioc.resolve<LoggerContract>();
+    final logger = shard.logger;
 
     final ShardDisconnectError? error = ShardDisconnectError.values
         .where((element) => element.code == payload)

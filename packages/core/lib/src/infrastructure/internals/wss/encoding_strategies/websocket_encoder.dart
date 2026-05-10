@@ -1,4 +1,5 @@
 import 'package:env_guard/env_guard.dart';
+import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/services/wss/encoding_strategy.dart';
 
@@ -9,7 +10,7 @@ enum WebsocketEncoder implements Enumerable {
   @override
   final String value;
 
-  final EncodingStrategy Function() strategy;
+  final EncodingStrategy Function({required LoggerContract logger}) strategy;
 
   const WebsocketEncoder(this.value, this.strategy);
 }

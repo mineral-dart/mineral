@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_authentication.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard.dart';
+import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_logger.dart';
@@ -13,13 +14,14 @@ import '../helpers/mocks.dart';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-Shard _createShard() {
+Shard _createShard({required FakeLogger logger}) {
   return Shard(
     shardName: 'test-shard-0',
     shardIndex: 0,
     shardCount: 1,
     url: 'wss://fake',
     wss: FakeWebsocketOrchestrator(),
+    logger: logger,
     strategy: FakeRunningStrategy(),
   );
 }
@@ -43,7 +45,7 @@ void main() {
       logger = testIoc.logger;
       restoreIoc = testIoc.restore;
 
-      shard = _createShard();
+      shard = _createShard(logger: logger);
       fakeClient = FakeWebsocketClient();
       shard.client = fakeClient;
       auth = shard.authentication;

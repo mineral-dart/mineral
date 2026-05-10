@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:eterl/eterl.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/src/domains/services/logger/logger_contract.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
 import 'package:mineral/src/infrastructure/internals/wss/encoding_strategies/etf_encoder.dart';
@@ -29,11 +28,8 @@ void main() {
     late EtfEncoderStrategy strategy;
 
     setUp(() {
-      ioc.bind<LoggerContract>(_TestLogger.new);
-      strategy = EtfEncoderStrategy();
+      strategy = EtfEncoderStrategy(logger: _TestLogger());
     });
-
-    tearDown(ioc.dispose);
 
     test('encoder returns WsEncoder.etf', () {
       expect(strategy.encoder.value, 'etf');

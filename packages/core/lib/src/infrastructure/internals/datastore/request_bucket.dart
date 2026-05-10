@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/rate_limit_registry.dart';
@@ -15,7 +14,7 @@ enum QueueableRequestStatus { init, success, error, rateLimit, pending }
 final class QueueableRequest<T> {
   static const int _maxRateLimitRetries = 5;
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  LoggerContract get _logger => bucket.logger;
 
   final RequestBucket bucket;
   final Completer<T> completer;
@@ -123,9 +122,10 @@ final class QueueableRequest<T> {
 final class RequestBucket {
   final HttpClientContract client;
   final RateLimitRegistry registry;
+  final LoggerContract logger;
   final List<QueueableRequest> queue = [];
 
-  RequestBucket(this.client, {RateLimitRegistry? registry})
+  RequestBucket(this.client, {required this.logger, RateLimitRegistry? registry})
       : registry = registry ?? RateLimitRegistry();
 
   Future<T> get<T>(RequestContract request,

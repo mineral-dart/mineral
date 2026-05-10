@@ -70,8 +70,12 @@ final class DataStore implements DataStoreContract {
   @override
   late final GuildScheduledEventPart scheduledEvent;
 
-  DataStore({required this.client, required MarshallerContract marshaller}) {
-    requestBucket = RequestBucket(client);
+  DataStore({
+    required this.client,
+    required MarshallerContract marshaller,
+    required LoggerContract logger,
+  }) {
+    requestBucket = RequestBucket(client, logger: logger);
     channel = ChannelPart(marshaller, this);
     server = ServerPart(marshaller, this);
     member = MemberPart(marshaller, this);

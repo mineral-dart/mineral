@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:mineral/container.dart';
 import 'package:mineral/src/domains/services/logger/logger_contract.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
 import 'package:mineral/src/infrastructure/internals/wss/encoding_strategies/json_encoder.dart';
@@ -28,11 +27,8 @@ void main() {
     late JsonEncoderStrategy strategy;
 
     setUp(() {
-      ioc.bind<LoggerContract>(_TestLogger.new);
-      strategy = JsonEncoderStrategy();
+      strategy = JsonEncoderStrategy(logger: _TestLogger());
     });
-
-    tearDown(ioc.dispose);
 
     test('encoder returns WsEncoder.json', () {
       expect(strategy.encoder.value, 'json');

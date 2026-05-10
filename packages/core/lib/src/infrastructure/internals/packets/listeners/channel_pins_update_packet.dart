@@ -12,7 +12,9 @@ final class ChannelPinsUpdatePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.channelPinsUpdate;
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  final LoggerContract _logger;
+
+  ChannelPinsUpdatePacket({required LoggerContract logger}) : _logger = logger;
 
   DataStoreContract get _dataStore => ioc.resolve<DataStoreContract>();
 

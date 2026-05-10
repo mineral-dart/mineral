@@ -1,4 +1,5 @@
 import 'package:mineral/src/infrastructure/internals/packets/listeners/interactions/button_interaction_create_packet.dart';
+import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -6,7 +7,7 @@ void main() {
     late ButtonInteractionCreatePacket packet;
 
     setUp(() {
-      packet = ButtonInteractionCreatePacket();
+      packet = ButtonInteractionCreatePacket(logger: FakeLogger());
     });
 
     test('returns null when customId is not found in components', () {

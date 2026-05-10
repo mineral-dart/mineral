@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_authentication.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/fatal_gateway_exception.dart';
+import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_logger.dart';
@@ -13,13 +14,14 @@ import '../helpers/ioc_test_helper.dart';
 import '../helpers/mocks.dart';
 
 
-Shard _createShard({int maxReconnectAttempts = 3}) {
+Shard _createShard({int maxReconnectAttempts = 3, required FakeLogger logger}) {
   return Shard(
     shardName: 'test-shard-0',
     shardIndex: 0,
     shardCount: 1,
     url: 'wss://fake',
     wss: FakeWebsocketOrchestrator(maxReconnectAttempts: maxReconnectAttempts),
+    logger: logger,
     strategy: FakeRunningStrategy(),
   );
 }
@@ -37,7 +39,7 @@ void main() {
       logger = testIoc.logger;
       restoreIoc = testIoc.restore;
 
-      shard = _createShard();
+      shard = _createShard(logger: logger);
       fakeClient = FakeWebsocketClient();
       shard.client = fakeClient;
       auth = shard.authentication;
@@ -154,7 +156,7 @@ void main() {
       test('throws FatalGatewayException after exceeding maxReconnectAttempts',
           () async {
         // Create a shard with maxReconnectAttempts = 1
-        shard = _createShard(maxReconnectAttempts: 1);
+        shard = _createShard(maxReconnectAttempts: 1, logger: logger);
         fakeClient = FakeWebsocketClient();
         shard.client = fakeClient;
         auth = shard.authentication;
@@ -183,7 +185,7 @@ void main() {
       });
 
       test('throws FatalGatewayException with correct message', () async {
-        shard = _createShard(maxReconnectAttempts: 0);
+        shard = _createShard(maxReconnectAttempts: 0, logger: logger);
         fakeClient = FakeWebsocketClient();
         shard.client = fakeClient;
         auth = shard.authentication;
@@ -279,7 +281,7 @@ void main() {
 
       test('allows reconnection after previously hitting max attempts',
           () async {
-        shard = _createShard(maxReconnectAttempts: 1);
+        shard = _createShard(maxReconnectAttempts: 1, logger: logger);
         fakeClient = FakeWebsocketClient();
         shard.client = fakeClient;
         auth = shard.authentication;

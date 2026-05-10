@@ -2,36 +2,33 @@ import 'package:mineral/src/infrastructure/internals/datastore/rate_limit_regist
 import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.dart';
 import 'package:mineral/src/infrastructure/services/http/header.dart';
 import 'package:mineral/src/infrastructure/services/http/request.dart';
+import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_http_client.dart';
 import '../helpers/fake_response.dart';
-import '../helpers/ioc_test_helper.dart';
 
 void main() {
   group('RequestBucket', () {
-    late void Function() restoreIoc;
+    late FakeLogger logger;
 
     setUp(() {
-      final iocResult = createTestIoc();
-      restoreIoc = iocResult.restore;
+      logger = FakeLogger();
     });
 
-    tearDown(() => restoreIoc());
-
     test('queue defaults to empty', () {
-      final bucket = RequestBucket(FakeHttpClient());
+      final bucket = RequestBucket(FakeHttpClient(), logger: logger);
       expect(bucket.queue, isEmpty);
     });
 
     test('exposes a registry', () {
-      final bucket = RequestBucket(FakeHttpClient());
+      final bucket = RequestBucket(FakeHttpClient(), logger: logger);
       expect(bucket.registry, isA<RateLimitRegistry>());
     });
 
     test('get sends GET via the underlying client', () async {
       final http = FakeHttpClient();
-      final bucket = RequestBucket(http);
+      final bucket = RequestBucket(http, logger: logger);
       await bucket.get<Map<String, dynamic>>(Request.json(endpoint: '/users/@me'));
       expect(http.calls.single.method, equals('GET'));
       expect(http.calls.single.path, equals('/users/@me'));
@@ -39,7 +36,7 @@ void main() {
 
     test('post sends POST via the underlying client', () async {
       final http = FakeHttpClient();
-      final bucket = RequestBucket(http);
+      final bucket = RequestBucket(http, logger: logger);
       await bucket.post<Map<String, dynamic>>(Request.json(endpoint: '/x'));
       expect(http.calls.single.method, equals('POST'));
     });
@@ -53,7 +50,7 @@ void main() {
         ),
         FakeResponse.ok(),
       ]);
-      final bucket = RequestBucket(http);
+      final bucket = RequestBucket(http, logger: logger);
       await bucket.get<Map<String, dynamic>>(Request.json(endpoint: '/foo'));
       expect(http.calls, hasLength(2));
     });
@@ -67,7 +64,7 @@ void main() {
         ),
         FakeResponse.ok(),
       ]);
-      final bucket = RequestBucket(http);
+      final bucket = RequestBucket(http, logger: logger);
       await bucket.get<Map<String, dynamic>>(Request.json(endpoint: '/foo'));
       expect(bucket.registry.globalLockedUntil, isNotNull);
     });
@@ -87,7 +84,7 @@ void main() {
           headers: headers,
         ),
       ]);
-      final bucket = RequestBucket(http);
+      final bucket = RequestBucket(http, logger: logger);
       await bucket.get<Map<String, dynamic>>(Request.json(endpoint: '/users/@me'));
       // Bucket state recorded; remaining=4 means not exhausted.
       expect(bucket.registry.globalLockedUntil, isNull);

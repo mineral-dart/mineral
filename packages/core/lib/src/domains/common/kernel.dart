@@ -73,7 +73,7 @@ final class Kernel {
 
     runningStrategy = useHmr
         ? HmrRunningStrategy(_devPort, packetListener.dispatcher, _watchedFiles)
-        : DefaultRunningStrategy(packetListener.dispatcher);
+        : DefaultRunningStrategy(packetListener.dispatcher, logger: logger);
 
     try {
       await runningStrategy.init(wss.createShards);

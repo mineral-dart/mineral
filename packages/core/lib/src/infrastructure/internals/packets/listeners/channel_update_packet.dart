@@ -12,7 +12,9 @@ final class ChannelUpdatePacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.channelUpdate;
 
-  LoggerContract get _logger => ioc.resolve<LoggerContract>();
+  final LoggerContract _logger;
+
+  ChannelUpdatePacket({required LoggerContract logger}) : _logger = logger;
 
   MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
 

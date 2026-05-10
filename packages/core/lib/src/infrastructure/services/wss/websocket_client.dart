@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io' as io;
 
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/infrastructure/services/wss/interceptor.dart';
 import 'package:mineral/src/infrastructure/services/wss/websocket_message.dart';
@@ -34,6 +33,8 @@ final class WebsocketClientImpl implements WebsocketClient {
   final void Function(WebsocketMessage)? _onOpen;
   void Function(WebsocketMessage)? _onMessage;
 
+  final LoggerContract _logger;
+
   // Rate limiter: Discord allows 120 gateway commands per 60 seconds.
   static const int _rateLimitMax = 120;
   int _tokens = _rateLimitMax;
@@ -54,11 +55,13 @@ final class WebsocketClientImpl implements WebsocketClient {
 
   WebsocketClientImpl(
       {required this.url,
+      required LoggerContract logger,
       this.name = 'default',
       void Function(Object payload)? onError,
       void Function(int? exitCode)? onClose,
       void Function(WebsocketMessage)? onOpen})
-      : _onError = onError,
+      : _logger = logger,
+        _onError = onError,
         _onClose = onClose,
         _onOpen = onOpen;
 
@@ -99,12 +102,7 @@ final class WebsocketClientImpl implements WebsocketClient {
         _handleMessage(_onOpen, firstMessage);
       }
     } on io.WebSocketException catch (err) {
-      final logger = ioc.resolveOrNull<LoggerContract>();
-      if (logger != null) {
-        logger.error('WebSocket connection failed: $err');
-      } else {
-        io.stderr.writeln('WebSocket connection failed: $err');
-      }
+      _logger.error('WebSocket connection failed: $err');
       _onError?.call({
         'error': err,
         'code': _channel?.closeCode,

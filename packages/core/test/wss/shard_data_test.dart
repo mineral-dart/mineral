@@ -7,6 +7,7 @@ import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_data.
 import 'package:mineral/src/infrastructure/internals/wss/shard.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
 import 'package:mineral/src/infrastructure/services/wss/websocket_message.dart';
+import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_websocket_client.dart';
@@ -49,6 +50,7 @@ void main() {
         shardCount: 1,
         url: 'wss://fake',
         wss: FakeWebsocketOrchestrator(),
+        logger: FakeLogger(),
         strategy: strategy,
       );
       shard.client = FakeWebsocketClient();

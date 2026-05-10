@@ -59,8 +59,7 @@ final class PacketListener implements PacketListenerContract {
 
   late final Kernel kernel;
 
-  void subscribe(ListenablePacket Function() factory) {
-    final packet = factory();
+  void subscribe(ListenablePacket packet) {
     dispatcher.listen(packet.packetType, packet.listen);
   }
 
@@ -71,63 +70,64 @@ final class PacketListener implements PacketListenerContract {
 
   void init() {
     dispatcher = PacketDispatcher(kernel);
+    final logger = kernel.logger;
 
-    subscribe(ReadyPacket.new);
-    subscribe(MessageCreatePacket.new);
-    subscribe(GuildCreatePacket.new);
-    subscribe(GuildUpdatePacket.new);
-    subscribe(GuildDeletePacket.new);
-    subscribe(ChannelCreatePacket.new);
-    subscribe(ChannelUpdatePacket.new);
-    subscribe(ChannelDeletePacket.new);
-    subscribe(ChannelPinsUpdatePacket.new);
-    subscribe(GuildMemberAddPacket.new);
-    subscribe(GuildMemberRemovePacket.new);
-    subscribe(GuildMemberUpdatePacket.new);
-    subscribe(GuildRoleCreatePacket.new);
-    subscribe(GuildRoleUpdatePacket.new);
-    subscribe(GuildRoleDeletePacket.new);
-    subscribe(GuildMemberChunkPacket.new);
-    subscribe(PresenceUpdatePacket.new);
-    subscribe(GuildBanAddPacket.new);
-    subscribe(GuildBanRemovePacket.new);
-    subscribe(GuildEmojisUpdatePacket.new);
-    subscribe(GuildStickersUpdatePacket.new);
-    subscribe(GuildAuditLogEntryCreatePacket.new);
+    subscribe(ReadyPacket());
+    subscribe(MessageCreatePacket());
+    subscribe(GuildCreatePacket());
+    subscribe(GuildUpdatePacket());
+    subscribe(GuildDeletePacket());
+    subscribe(ChannelCreatePacket(logger: logger));
+    subscribe(ChannelUpdatePacket(logger: logger));
+    subscribe(ChannelDeletePacket());
+    subscribe(ChannelPinsUpdatePacket(logger: logger));
+    subscribe(GuildMemberAddPacket());
+    subscribe(GuildMemberRemovePacket());
+    subscribe(GuildMemberUpdatePacket());
+    subscribe(GuildRoleCreatePacket());
+    subscribe(GuildRoleUpdatePacket());
+    subscribe(GuildRoleDeletePacket());
+    subscribe(GuildMemberChunkPacket());
+    subscribe(PresenceUpdatePacket());
+    subscribe(GuildBanAddPacket());
+    subscribe(GuildBanRemovePacket());
+    subscribe(GuildEmojisUpdatePacket());
+    subscribe(GuildStickersUpdatePacket());
+    subscribe(GuildAuditLogEntryCreatePacket(logger: logger));
 
-    subscribe(MessageDeletePacket.new);
-    subscribe(MessageDeleteBulkPacket.new);
+    subscribe(MessageDeletePacket());
+    subscribe(MessageDeleteBulkPacket());
 
-    subscribe(MessageReactionAddPacket.new);
-    subscribe(MessageReactionRemovePacket.new);
-    subscribe(MessageReactionRemoveAllPacket.new);
+    subscribe(MessageReactionAddPacket());
+    subscribe(MessageReactionRemovePacket());
+    subscribe(MessageReactionRemoveAllPacket());
 
-    subscribe(ButtonInteractionCreatePacket.new);
-    subscribe(CommandInteractionCreatePacket.new);
-    subscribe(SelectInteractionCreatePacket.new);
-    subscribe(ModalInteractionCreatePacket.new);
+    subscribe(ButtonInteractionCreatePacket(logger: logger));
+    subscribe(CommandInteractionCreatePacket());
+    subscribe(SelectInteractionCreatePacket(logger: logger));
+    subscribe(ModalInteractionCreatePacket(logger: logger));
 
-    subscribe(ThreadCreatePacket.new);
-    subscribe(ThreadUpdatePacket.new);
-    subscribe(ThreadDeletePacket.new);
-    subscribe(ThreadMembersUpdatePacket.new);
+    subscribe(ThreadCreatePacket());
+    subscribe(ThreadUpdatePacket());
+    subscribe(ThreadDeletePacket());
+    subscribe(ThreadMembersUpdatePacket());
 
-    subscribe(VoiceConnectPacket.new);
-    subscribe(VoiceDisconnectPacket.new);
-    subscribe(VoiceJoinPacket.new);
-    subscribe(VoiceMovePacket.new);
-    subscribe(VoiceLeavePacket.new);
+    subscribe(VoiceConnectPacket());
+    subscribe(VoiceDisconnectPacket());
+    subscribe(VoiceJoinPacket());
+    subscribe(VoiceMovePacket());
+    subscribe(VoiceLeavePacket());
 
-    subscribe(InviteCreatePacket.new);
-    subscribe(InviteDeletePacket.new);
-    subscribe(TypingPacket.new);
+    subscribe(InviteCreatePacket());
+    subscribe(InviteDeletePacket());
+    subscribe(TypingPacket());
 
-    subscribe(MessagePollVoteAddPacket.new);
-    subscribe(MessagePollVoteRemovePacket.new);
+    subscribe(MessagePollVoteAddPacket());
+    subscribe(MessagePollVoteRemovePacket());
 
-    subscribe(AutomoderationRuleCreatePacket.new);
-    subscribe(AutoModerationRuleUpdatePacket.new);
-    subscribe(AutomoderationRuleDeletePacket.new);
-    subscribe(AutomoderationActionExecutionPacket.new);
+    subscribe(AutomoderationRuleCreatePacket());
+    subscribe(AutoModerationRuleUpdatePacket());
+    subscribe(AutomoderationRuleDeletePacket());
+    subscribe(AutomoderationActionExecutionPacket());
   }
 }
