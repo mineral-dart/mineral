@@ -1,30 +1,24 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/src/api/common/polls/poll.dart';
 import 'package:mineral/src/api/common/polls/poll_layout.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/poll_serializer.dart';
 import 'package:test/test.dart';
 
 import '../../helpers/fake_cache_provider.dart';
+import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
 
 void main() {
   group('PollSerializer', () {
     late PollSerializer serializer;
     late FakeCacheProvider cache;
-    late void Function() restoreIoc;
 
     setUp(() {
       cache = FakeCacheProvider();
-      final scope = IocContainer()
-        ..bind<MarshallerContract>(() => FakeMarshaller(cache: cache));
-      restoreIoc = scopedIoc(scope);
-      serializer = PollSerializer();
-    });
-
-    tearDown(() {
-      restoreIoc();
+      serializer = PollSerializer(
+        FakeMarshaller(cache: cache),
+        fakeEntityContext(),
+      );
     });
 
     Map<String, dynamic> serializePayload() => {

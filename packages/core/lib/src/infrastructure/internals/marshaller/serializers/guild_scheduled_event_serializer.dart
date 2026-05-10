@@ -1,12 +1,15 @@
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/server/guild_scheduled_event.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class GuildScheduledEventSerializer
     implements SerializerContract<GuildScheduledEvent> {
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+  final EntityContext _ctx;
+
+  GuildScheduledEventSerializer(this._marshaller, this._ctx);
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {
@@ -45,6 +48,7 @@ final class GuildScheduledEventSerializer
     final entityMetadata = json['entity_metadata'] as Map<String, dynamic>?;
 
     return GuildScheduledEvent(
+      ctx: _ctx,
       id: Snowflake.parse(json['id']),
       serverId: Snowflake.parse(json['guild_id']),
       channelId: json['channel_id'] != null

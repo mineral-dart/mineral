@@ -1,12 +1,13 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class ChannelPermissionOverwriteSerializer
     implements SerializerContract<ChannelPermissionOverwrite> {
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+
+  ChannelPermissionOverwriteSerializer(this._marshaller);
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {

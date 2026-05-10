@@ -1,30 +1,22 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/src/api/common/channel_permission_overwrite.dart';
 import 'package:mineral/src/api/common/permission.dart';
-import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/channel_permission_overwrite_serializer.dart';
 import 'package:test/test.dart';
 
 import '../../helpers/fake_cache_provider.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import '../../helpers/fake_marshaller.dart';
 
 void main() {
   group('ChannelPermissionOverwriteSerializer', () {
     late ChannelPermissionOverwriteSerializer serializer;
     late FakeCacheProvider cache;
-    late void Function() restoreIoc;
 
     setUp(() {
       cache = FakeCacheProvider();
-      final scope = IocContainer()
-        ..bind<MarshallerContract>(() => FakeMarshaller(cache: cache));
-      restoreIoc = scopedIoc(scope);
-      serializer = ChannelPermissionOverwriteSerializer();
-    });
-
-    tearDown(() {
-      restoreIoc();
+      serializer = ChannelPermissionOverwriteSerializer(
+        FakeMarshaller(cache: cache),
+      );
     });
 
     Map<String, dynamic> normalizedPayload() => {

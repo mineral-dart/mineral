@@ -1,30 +1,24 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/src/api/common/message.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/message_serializer.dart';
 import 'package:test/test.dart';
 
 import '../../helpers/fake_cache_provider.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
+import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
 
 void main() {
   group('MessageSerializer', () {
     late MessageSerializer serializer;
     late FakeCacheProvider cache;
-    late void Function() restoreIoc;
 
     setUp(() {
       cache = FakeCacheProvider();
-      final scope = IocContainer()
-        ..bind<MarshallerContract>(() => FakeMarshaller(cache: cache));
-      restoreIoc = scopedIoc(scope);
-      serializer = MessageSerializer();
-    });
-
-    tearDown(() {
-      restoreIoc();
+      serializer = MessageSerializer(
+        FakeMarshaller(cache: cache),
+        fakeEntityContext(),
+      );
     });
 
     Map<String, dynamic> normalizedPayload() => {

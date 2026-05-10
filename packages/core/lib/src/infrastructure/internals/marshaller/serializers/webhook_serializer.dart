@@ -1,11 +1,14 @@
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/server/webhook.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class WebhookSerializer implements SerializerContract<Webhook> {
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+  final EntityContext _ctx;
+
+  WebhookSerializer(this._marshaller, this._ctx);
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {
@@ -33,6 +36,7 @@ final class WebhookSerializer implements SerializerContract<Webhook> {
   @override
   Future<Webhook> serialize(Map<String, dynamic> json) async {
     return Webhook(
+      ctx: _ctx,
       id: Snowflake.parse(json['id']),
       type: WebhookType.of(json['type'] as int),
       serverId: json['guild_id'] != null

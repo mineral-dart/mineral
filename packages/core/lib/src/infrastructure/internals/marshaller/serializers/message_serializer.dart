@@ -1,11 +1,14 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class MessageSerializer<T extends Message>
     implements SerializerContract<T> {
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+  final EntityContext _ctx;
+
+  MessageSerializer(this._marshaller, this._ctx);
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {
@@ -32,7 +35,10 @@ final class MessageSerializer<T extends Message>
 
   @override
   Future<T> serialize(Map<String, dynamic> json) async {
-    final messageProperties = MessageProperties.fromJson(json);
+    final messageProperties = MessageProperties.fromJson(
+      json,
+      embedSerializer: _marshaller.serializers.embed,
+    );
     return Message(messageProperties) as T;
   }
 

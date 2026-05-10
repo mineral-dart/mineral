@@ -1,6 +1,6 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 enum WebhookType {
   incoming(1),
@@ -15,7 +15,8 @@ enum WebhookType {
 }
 
 final class Webhook {
-  DataStoreContract get _datastore => ioc.resolve<DataStoreContract>();
+  final EntityContext _ctx;
+  DataStoreContract get _datastore => _ctx.datastore;
 
   final Snowflake id;
   final WebhookType type;
@@ -29,6 +30,7 @@ final class Webhook {
   final String? url;
 
   Webhook({
+    required EntityContext ctx,
     required this.id,
     required this.type,
     this.serverId,
@@ -39,7 +41,7 @@ final class Webhook {
     this.token,
     this.applicationId,
     this.url,
-  });
+  }) : _ctx = ctx;
 
   Future<T?> resolveChannel<T extends Channel>() async {
     if (channelId == null) {

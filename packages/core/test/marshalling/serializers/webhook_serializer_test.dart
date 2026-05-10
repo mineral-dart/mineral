@@ -1,27 +1,23 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/container.dart';
-import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/webhook_serializer.dart';
 import 'package:test/test.dart';
 
 import '../../helpers/fake_cache_provider.dart';
+import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
 
 void main() {
   group('WebhookSerializer', () {
     late WebhookSerializer serializer;
     late FakeCacheProvider cache;
-    late void Function() restoreIoc;
 
     setUp(() {
       cache = FakeCacheProvider();
-      final scope = IocContainer()
-        ..bind<MarshallerContract>(() => FakeMarshaller(cache: cache));
-      restoreIoc = scopedIoc(scope);
-      serializer = WebhookSerializer();
+      serializer = WebhookSerializer(
+        FakeMarshaller(cache: cache),
+        fakeEntityContext(),
+      );
     });
-
-    tearDown(() => restoreIoc());
 
     Map<String, dynamic> discordPayload() => {
           'id': '111111111111111111',

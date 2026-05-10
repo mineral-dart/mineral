@@ -3,12 +3,18 @@ import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/message_reaction_serializer.dart';
 import 'package:test/test.dart';
 
+import '../../helpers/fake_entity_context.dart';
+import '../../helpers/fake_marshaller.dart';
+
 void main() {
   group('MessageReactionSerializer', () {
     late MessageReactionSerializer serializer;
 
     setUp(() {
-      serializer = MessageReactionSerializer();
+      serializer = MessageReactionSerializer(
+        FakeMarshaller(),
+        fakeEntityContext(),
+      );
     });
 
     Map<String, dynamic> normalizedPayload() => {

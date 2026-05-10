@@ -1,10 +1,13 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/src/domains/container/ioc_container.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class VoiceStateSerializer implements SerializerContract<VoiceState> {
-  MarshallerContract get _marshaller => ioc.resolve<MarshallerContract>();
+  final MarshallerContract _marshaller;
+  final EntityContext _ctx;
+
+  VoiceStateSerializer(this._marshaller, this._ctx);
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {
@@ -33,6 +36,7 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
   @override
   Future<VoiceState> serialize(Map<String, dynamic> json) async {
     return VoiceState(
+        ctx: _ctx,
         serverId: Snowflake.parse(json['server_id']),
         channelId: Snowflake.nullable(json['channel_id'] as String?),
         userId: Snowflake.parse(json['user_id']),

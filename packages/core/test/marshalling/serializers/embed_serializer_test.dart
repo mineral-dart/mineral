@@ -1,7 +1,5 @@
-import 'package:mineral/container.dart';
 import 'package:mineral/src/api/common/embed/message_embed.dart';
 import 'package:mineral/src/api/common/embed/message_embed_type.dart';
-import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/embed_serializer.dart';
 import 'package:test/test.dart';
 
@@ -12,18 +10,10 @@ void main() {
   group('EmbedSerializer', () {
     late EmbedSerializer serializer;
     late FakeCacheProvider cache;
-    late void Function() restoreIoc;
 
     setUp(() {
       cache = FakeCacheProvider();
-      final scope = IocContainer()
-        ..bind<MarshallerContract>(() => FakeMarshaller(cache: cache));
-      restoreIoc = scopedIoc(scope);
-      serializer = EmbedSerializer();
-    });
-
-    tearDown(() {
-      restoreIoc();
+      serializer = EmbedSerializer(FakeMarshaller(cache: cache));
     });
 
     Map<String, dynamic> fullPayload() => {
