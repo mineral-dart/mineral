@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:isolate';
 
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
@@ -10,7 +9,6 @@ import 'package:mineral/src/domains/services/wss/running_strategy.dart';
 import 'package:mineral/src/infrastructure/internals/wss/builders/discord_message_builder.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard.dart';
 import 'package:mineral/src/infrastructure/internals/wss/websocket_isolate_message_transfert.dart';
-import 'package:mineral/src/domains/common/utils/redact.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/token_exception.dart';
 import 'package:uuid/uuid.dart';
 
@@ -60,8 +58,6 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
 
   final LoggerContract _logger;
 
-  final SendPort? _devPort;
-
   @override
   final ShardingConfigContract config;
 
@@ -78,40 +74,18 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
     this.config, {
     required LoggerContract logger,
     required HttpClientContract httpClient,
-    SendPort? devPort,
   })  : _logger = logger,
-        _httpClient = httpClient,
-        _devPort = devPort;
-
-  /// Whether this orchestrator is running inside the HMR child isolate.
-  bool get _isHmrIsolate => Isolate.current.debugName == 'development';
-
-  /// Whether this orchestrator is running inside the main application isolate.
-  bool get _isMainIsolate => Isolate.current.debugName == 'main';
+        _httpClient = httpClient;
 
   @override
   void send(WebsocketIsolateMessageTransfert message) {
-    if (_isHmrIsolate) {
-      if (message case WebsocketIsolateMessageTransfert(:final type)
-          when type == MessageTransfertType.request) {
-        _logger.trace('Sending message to all shards ${redactSensitiveFields(message.toJson())}');
-        _addToRequestQueueWithTtl((
-          uid: message.uid!,
-          targetKeys: message.targetKeys,
-          completer: message.completer!
-        ));
-      }
+    _logger.trace('Sending message to all shards ${message.toJson()}');
 
-      _devPort?.send(message.toJson());
-    } else {
-      _logger.trace('Sending message to all shards ${message.toJson()}');
-
-      return switch (message.type) {
-        MessageTransfertType.send => _sendToShards(message),
-        MessageTransfertType.request => _requestMessage(message),
-        _ => _logger.warn('Unknown message transfert type ${message.type}'),
-      };
-    }
+    return switch (message.type) {
+      MessageTransfertType.send => _sendToShards(message),
+      MessageTransfertType.request => _requestMessage(message),
+      _ => _logger.warn('Unknown message transfert type ${message.type}'),
+    };
   }
 
   void _sendToShards(WebsocketIsolateMessageTransfert message) {
@@ -120,13 +94,11 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
   }
 
   void _requestMessage(WebsocketIsolateMessageTransfert message) {
-    if (_isMainIsolate && env.get(AppEnv.dartEnv) == 'production') {
-      _addToRequestQueueWithTtl((
-        uid: message.uid!,
-        targetKeys: message.targetKeys,
-        completer: message.completer!
-      ));
-    }
+    _addToRequestQueueWithTtl((
+      uid: message.uid!,
+      targetKeys: message.targetKeys,
+      completer: message.completer!
+    ));
 
     _sendToShards(message);
   }

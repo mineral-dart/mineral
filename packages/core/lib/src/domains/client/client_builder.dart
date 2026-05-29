@@ -1,6 +1,3 @@
-import 'dart:isolate';
-
-import 'package:glob/glob.dart';
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
@@ -25,15 +22,12 @@ final class ClientBuilder {
   final List<EnvSchema> _schemas = [];
   final List<ConstructableWithArgs<ProviderContract, Client>> _providers = [];
 
-  SendPort? _devPort;
-  bool _hasDefinedDevPort = false;
   WebsocketEncoder _wssEncoder = WebsocketEncoder.json;
 
   String? _token;
   int? _intent;
   int? _discordRestHttpVersion;
   int? _discordWssVersion;
-  final List<Glob> _watchedFiles = [];
 
   ClientBuilder setToken(String token) {
     _token = token;
@@ -75,22 +69,8 @@ final class ClientBuilder {
     return this;
   }
 
-  ClientBuilder setHmrDevPort(SendPort? devPort) {
-    _devPort = devPort;
-    _hasDefinedDevPort = true;
-
-    ioc.bind<SendPort?>(() => _devPort);
-
-    return this;
-  }
-
   ClientBuilder validateEnvironment(List<EnvSchema> schema) {
     _schemas.addAll(schema);
-    return this;
-  }
-
-  ClientBuilder watch(List<Glob> globs) {
-    _watchedFiles.addAll(globs);
     return this;
   }
 
@@ -105,13 +85,6 @@ final class ClientBuilder {
   }
 
   void _createCache() {
-    final isDevelopmentMode = env.get(AppEnv.dartEnv) == DartEnv.development;
-    final isMainIsolate = Isolate.current.debugName == 'main';
-
-    if (isDevelopmentMode && isMainIsolate) {
-      return;
-    }
-
     if (_cache case final CacheProviderContract cache) {
       cache.init();
     }
@@ -164,7 +137,6 @@ final class ClientBuilder {
       shardConfig,
       logger: logger,
       httpClient: http,
-      devPort: _devPort,
     );
 
     final runtimeState = RuntimeState();
@@ -186,9 +158,6 @@ final class ClientBuilder {
     );
 
     final kernel = Kernel(
-      _hasDefinedDevPort,
-      _devPort,
-      _watchedFiles,
       logger: logger,
       httpClient: http,
       packetListener: packetListener,

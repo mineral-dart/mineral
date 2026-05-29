@@ -137,9 +137,6 @@ final class _FakeInteractiveComponentManager
 Kernel _buildFakeKernel(_FakeEventListener eventListener, LoggerContract logger,
     RuntimeState runtimeState) {
   return Kernel(
-    false,
-    null,
-    [],
     logger: logger,
     httpClient: _FakeHttpClient(),
     packetListener: _FakePacketListener(),
@@ -176,7 +173,7 @@ void main() {
       eventListener = _FakeEventListener();
       kernel = _buildFakeKernel(eventListener, testIoc.logger, runtimeState);
       eventListener.kernel = kernel;
-      dispatcher = PacketDispatcher(kernel, runtimeState);
+      dispatcher = PacketDispatcher(kernel);
     });
 
     tearDown(() {

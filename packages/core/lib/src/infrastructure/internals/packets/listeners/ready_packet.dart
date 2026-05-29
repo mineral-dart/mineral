@@ -8,11 +8,6 @@ import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.d
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
 
-final class ReadyPacketMessage<T> {
-  ShardMessage<T> message;
-  ReadyPacketMessage(this.message);
-}
-
 final class ReadyPacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.ready;

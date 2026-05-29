@@ -78,7 +78,7 @@ final class PacketListener implements PacketListenerContract {
   }
 
   void init() {
-    dispatcher = PacketDispatcher(kernel, runtimeState);
+    dispatcher = PacketDispatcher(kernel);
     final logger = kernel.logger;
     final wss = kernel.wss;
     final m = marshaller;

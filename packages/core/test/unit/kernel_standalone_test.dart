@@ -139,9 +139,6 @@ void main() {
       final wss = FakeWebsocketOrchestrator();
 
       final kernel = Kernel(
-        false,
-        null,
-        const [],
         logger: logger,
         httpClient: _FakeHttpClient(),
         packetListener: _FakePacketListener(),
