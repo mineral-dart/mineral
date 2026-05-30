@@ -200,7 +200,7 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
     final int resetAfter = (sessionLimit?['reset_after'] as int?) ?? 0;
     final int maxConcurrency = (sessionLimit?['max_concurrency'] as int?) ?? 1;
 
-    _logger.info(
+    _logger.trace(
       'Gateway session_start_limit: remaining=$remaining, '
       'reset_after=${resetAfter}ms, max_concurrency=$maxConcurrency',
     );

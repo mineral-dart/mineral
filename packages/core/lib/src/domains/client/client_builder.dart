@@ -99,6 +99,19 @@ final class ClientBuilder {
     final logger = _logger ?? Logger(logLevel as LogLevel, dartEnv.value);
     ioc.bind<LoggerContract>(() => logger);
 
+    // Dedicated subsystem loggers so output is prefixed with a meaningful
+    // label (`[websocket]`, `[http]`, `[datastore]`, `[marshaller]`) instead
+    // of the default `[mineral]`. Only applies when the user hasn't
+    // overridden the logger via `setLogger` — custom loggers are used as-is
+    // to respect their own labelling conventions.
+    LoggerContract labelled(String label) => _logger ??
+        Logger(logLevel as LogLevel, dartEnv.value, label: label);
+
+    final wssLogger = labelled('websocket');
+    final httpLogger = labelled('http');
+    final dataStoreLogger = labelled('datastore');
+    final marshallerLogger = labelled('marshaller');
+
     _createCache();
 
     final token = env.get<String>(AppEnv.token, defaultValue: _token);
@@ -126,7 +139,7 @@ final class ClientBuilder {
         token: token,
         intent: intent,
         version: shardVersion,
-        encoding: wsEncodingStrategy.strategy(logger: logger));
+        encoding: wsEncodingStrategy.strategy(logger: wssLogger));
 
     final packetListener = PacketListener();
     final eventListener = EventListener();
@@ -135,14 +148,16 @@ final class ClientBuilder {
     final interactiveComponent = InteractiveComponentManager();
     final wssOrchestrator = WebsocketOrchestrator(
       shardConfig,
-      logger: logger,
+      logger: wssLogger,
       httpClient: http,
     );
 
     final runtimeState = RuntimeState();
 
     final dataLayer = composeDataLayer(
-      logger: logger,
+      marshallerLogger: marshallerLogger,
+      dataStoreLogger: dataStoreLogger,
+      httpLogger: httpLogger,
       cache: _cache,
       httpClient: http,
       wss: wssOrchestrator,

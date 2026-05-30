@@ -13,22 +13,33 @@ final class Logger implements LoggerContract {
 
   final LogLevel _logLevel;
   final String _dartEnv;
+  final String _label;
 
-  final _logger = logging.Logger('Core');
+  // Detached so records do NOT propagate to `logging.Logger.root`. Listening
+  // on the root would double-dispatch when multiple Logger instances exist
+  // (e.g. the default `[mineral]` logger + the dedicated `[websocket]` one).
+  final logging.Logger _logger = logging.Logger.detached('core');
 
-  Logger(this._logLevel, this._dartEnv) {
-    logging.Logger.root.level = _logLevel.level;
+  Logger(this._logLevel, this._dartEnv, {String label = 'mineral'})
+      : _label = label {
+    _logger.level = _logLevel.level;
 
-    logging.Logger.root.onRecord.listen((record) {
-      final time = '[${DateFormat.Hms().format(record.time)}]';
+    _logger.onRecord.listen((record) {
+      final time = DateFormat.Hms().format(record.time);
 
       List<Sequence> makeMessage(
           String messageType, Color messageColor, List<Sequence> message) {
         return [
           SetStyles(Style.foreground(Color.brightBlack)),
           Print(time),
+          SetStyles.reset,
+          Print(' '),
           SetStyles(Style.foreground(messageColor)),
-          Print(' $messageType'),
+          Print('[$_label]'),
+          SetStyles.reset,
+          Print(' '),
+          SetStyles(Style.foreground(messageColor)),
+          Print(messageType),
           SetStyles.reset,
           Print(': '),
           ...message,
@@ -58,13 +69,23 @@ final class Logger implements LoggerContract {
         return;
       }
 
-      if (stdout.supportsAnsiEscapes) {
+      if (_supportsColor) {
         stdout.writeAnsiAll(message);
         return;
       }
 
       message.writeWithoutAnsi();
     });
+  }
+
+  /// Honors `FORCE_COLOR` (set by parents like HMR that pipe our stdout) and
+  /// falls back to the TTY probe when the env var is absent.
+  static bool get _supportsColor {
+    final force = Platform.environment['FORCE_COLOR'];
+    if (force != null && force.isNotEmpty && force != '0') {
+      return true;
+    }
+    return stdout.supportsAnsiEscapes;
   }
 
   @override

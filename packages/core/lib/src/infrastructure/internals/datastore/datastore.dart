@@ -74,8 +74,9 @@ final class DataStore implements DataStoreContract {
     required this.client,
     required MarshallerContract marshaller,
     required LoggerContract logger,
+    required LoggerContract httpLogger,
   }) {
-    requestBucket = RequestBucket(client, logger: logger);
+    requestBucket = RequestBucket(client, logger: httpLogger);
     channel = ChannelPart(marshaller, this);
     server = ServerPart(marshaller, this);
     member = MemberPart(marshaller, this);
