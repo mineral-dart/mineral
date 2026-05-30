@@ -41,3 +41,10 @@ export 'src/recorders/bot_actions.dart';
 export 'src/recorders/handler_error.dart';
 export 'src/recorders/recorded_action.dart';
 export 'src/simulators/registries.dart' show TestInteractionResponder;
+
+// The package name (`mineral_test`) makes this library's filename match the
+// `_test.dart` glob used by `package:test`. When `dart test` scans broad
+// paths (e.g. `dart test .` from the workspace root), it tries to load this
+// library file and fails on the missing `main`. The empty entry point keeps
+// the runner happy — it loads, finds zero tests, and moves on.
+void main() {}

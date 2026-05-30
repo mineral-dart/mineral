@@ -25,9 +25,9 @@ final class TestMarshaller implements MarshallerContract {
   final CacheKey cacheKey = CacheKey();
 
   TestMarshaller({
+    required EntityContext entityContext,
     LoggerContract? logger,
     this.cache,
-    required EntityContext entityContext,
   }) : logger = logger ?? FakeLogger() {
     serializers = SerializerBucket(this, entityContext);
   }
