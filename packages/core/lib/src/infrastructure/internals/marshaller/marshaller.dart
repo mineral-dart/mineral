@@ -42,22 +42,25 @@ final class Marshaller implements MarshallerContract {
 /// one step. The cycle is closed in this single function: outside this file
 /// the three components appear fully formed and immutable.
 DataLayerComposition composeDataLayer({
-  required LoggerContract logger,
+  required LoggerContract marshallerLogger,
+  required LoggerContract dataStoreLogger,
+  required LoggerContract httpLogger,
   required CacheProviderContract? cache,
   required HttpClientContract httpClient,
   required WebsocketOrchestratorContract wss,
   required RuntimeState runtimeState,
 }) {
-  final marshaller = Marshaller._(logger: logger, cache: cache);
+  final marshaller = Marshaller._(logger: marshallerLogger, cache: cache);
   final dataStore = DataStore(
     client: httpClient,
     marshaller: marshaller,
-    logger: logger,
+    logger: dataStoreLogger,
+    httpLogger: httpLogger,
   );
   final entityContext = EntityContext(
     datastore: dataStore,
     wss: wss,
-    logger: logger,
+    logger: dataStoreLogger,
     runtimeState: runtimeState,
   );
   marshaller._serializers = SerializerBucket(marshaller, entityContext);

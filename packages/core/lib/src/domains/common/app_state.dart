@@ -7,8 +7,6 @@ import 'package:mineral/src/domains/common/kernel.dart';
 import 'package:mineral/src/domains/events/event_listener.dart';
 import 'package:mineral/src/domains/global_states/global_state_manager.dart';
 import 'package:mineral/src/domains/providers/provider_manager.dart';
-import 'package:mineral/src/infrastructure/internals/packets/listeners/ready_packet.dart';
-import 'package:mineral/src/infrastructure/internals/packets/packet_listener.dart';
 
 /// Aggregate of every framework service produced by [ClientBuilder.build]
 /// (defined in `client_builder.dart`). Built once in the Composition Root,
@@ -39,10 +37,6 @@ final class AppState {
   /// Null until then; downstream packet listeners that need it (e.g.
   /// `GuildCreatePacket`) read this slot at runtime.
   Bot? bot;
-
-  /// HMR-only: most recent READY message, replayed on reload by
-  /// [HmrRunningStrategy].
-  ReadyPacketMessage? readyPacketMessage;
 
   AppState({
     required this.logger,

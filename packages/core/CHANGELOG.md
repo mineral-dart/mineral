@@ -1,3 +1,60 @@
+# 5.0.0
+
+## Highlights
+
+Mineral drops its built-in HMR scaffolding and relies on `package:hmr` ^2.0.0
+running externally. The two-isolate model (main + development) is gone — bots
+now execute in a single process and hot reload preserves both the Discord
+gateway connection and in-memory state across edits.
+
+## Breaking changes
+
+- `ClientBuilder.setHmrDevPort(SendPort?)` removed. Bots no longer receive a
+  `SendPort` from a parent isolate.
+- `ClientBuilder.watch(List<Glob>)` removed. Configure watched paths in your
+  app's `pubspec.yaml` under the `hmr.include` key instead.
+- `main()` signature change. User entrypoints become standard
+  `void main(List<String> args)` (no `SendPort? port` second argument).
+- `HmrRunningStrategy` deleted. `Kernel` always uses `DefaultRunningStrategy`.
+- `ReadyPacketMessage` and `RuntimeState.readyPacketMessage` removed — replay
+  is no longer needed because the WebSocket session survives reloads in
+  process.
+
+## Migration
+
+In your bot:
+
+```diff
+- import 'dart:isolate';
+  import 'package:mineral/api.dart';
+
+- void main(List<String> _, SendPort? port) async {
++ void main(List<String> args) async {
+    final client = ClientBuilder()
+-       .setHmrDevPort(port)
+        .setIntent(Intent.allNonPrivileged)
+        .build();
+    await client.init();
+  }
+```
+
+In your bot's `pubspec.yaml`:
+
+```yaml
+dev_dependencies:
+  hmr: ^2.0.0
+
+# optional, defaults to bin/<package>.dart
+hmr:
+  entrypoint: bin/main.dart
+```
+
+To run with hot reload:
+
+```bash
+dart run hmr
+```
+
 # 4.2.0
 
 ## What's Changed

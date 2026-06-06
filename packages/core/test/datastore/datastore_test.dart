@@ -18,7 +18,10 @@ void main() {
           HttpClientConfigImpl(uri: Uri.parse('https://discord.com/api/v10'));
       final client = HttpClient(config: config);
       dataStore = DataStore(
-          client: client, marshaller: FakeMarshaller(), logger: FakeLogger());
+          client: client,
+          marshaller: FakeMarshaller(),
+          logger: FakeLogger(),
+          httpLogger: FakeLogger());
     });
 
     test('stores the HttpClient', () {

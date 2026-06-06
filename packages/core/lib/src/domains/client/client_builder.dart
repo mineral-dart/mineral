@@ -1,6 +1,3 @@
-import 'dart:isolate';
-
-import 'package:glob/glob.dart';
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
@@ -25,15 +22,12 @@ final class ClientBuilder {
   final List<EnvSchema> _schemas = [];
   final List<ConstructableWithArgs<ProviderContract, Client>> _providers = [];
 
-  SendPort? _devPort;
-  bool _hasDefinedDevPort = false;
   WebsocketEncoder _wssEncoder = WebsocketEncoder.json;
 
   String? _token;
   int? _intent;
   int? _discordRestHttpVersion;
   int? _discordWssVersion;
-  final List<Glob> _watchedFiles = [];
 
   ClientBuilder setToken(String token) {
     _token = token;
@@ -75,22 +69,8 @@ final class ClientBuilder {
     return this;
   }
 
-  ClientBuilder setHmrDevPort(SendPort? devPort) {
-    _devPort = devPort;
-    _hasDefinedDevPort = true;
-
-    ioc.bind<SendPort?>(() => _devPort);
-
-    return this;
-  }
-
   ClientBuilder validateEnvironment(List<EnvSchema> schema) {
     _schemas.addAll(schema);
-    return this;
-  }
-
-  ClientBuilder watch(List<Glob> globs) {
-    _watchedFiles.addAll(globs);
     return this;
   }
 
@@ -105,13 +85,6 @@ final class ClientBuilder {
   }
 
   void _createCache() {
-    final isDevelopmentMode = env.get(AppEnv.dartEnv) == DartEnv.development;
-    final isMainIsolate = Isolate.current.debugName == 'main';
-
-    if (isDevelopmentMode && isMainIsolate) {
-      return;
-    }
-
     if (_cache case final CacheProviderContract cache) {
       cache.init();
     }
@@ -125,6 +98,19 @@ final class ClientBuilder {
 
     final logger = _logger ?? Logger(logLevel as LogLevel, dartEnv.value);
     ioc.bind<LoggerContract>(() => logger);
+
+    // Dedicated subsystem loggers so output is prefixed with a meaningful
+    // label (`[websocket]`, `[http]`, `[datastore]`, `[marshaller]`) instead
+    // of the default `[mineral]`. Only applies when the user hasn't
+    // overridden the logger via `setLogger` — custom loggers are used as-is
+    // to respect their own labelling conventions.
+    LoggerContract labelled(String label) => _logger ??
+        Logger(logLevel as LogLevel, dartEnv.value, label: label);
+
+    final wssLogger = labelled('websocket');
+    final httpLogger = labelled('http');
+    final dataStoreLogger = labelled('datastore');
+    final marshallerLogger = labelled('marshaller');
 
     _createCache();
 
@@ -153,7 +139,7 @@ final class ClientBuilder {
         token: token,
         intent: intent,
         version: shardVersion,
-        encoding: wsEncodingStrategy.strategy(logger: logger));
+        encoding: wsEncodingStrategy.strategy(logger: wssLogger));
 
     final packetListener = PacketListener();
     final eventListener = EventListener();
@@ -162,15 +148,16 @@ final class ClientBuilder {
     final interactiveComponent = InteractiveComponentManager();
     final wssOrchestrator = WebsocketOrchestrator(
       shardConfig,
-      logger: logger,
+      logger: wssLogger,
       httpClient: http,
-      devPort: _devPort,
     );
 
     final runtimeState = RuntimeState();
 
     final dataLayer = composeDataLayer(
-      logger: logger,
+      marshallerLogger: marshallerLogger,
+      dataStoreLogger: dataStoreLogger,
+      httpLogger: httpLogger,
       cache: _cache,
       httpClient: http,
       wss: wssOrchestrator,
@@ -186,9 +173,6 @@ final class ClientBuilder {
     );
 
     final kernel = Kernel(
-      _hasDefinedDevPort,
-      _devPort,
-      _watchedFiles,
       logger: logger,
       httpClient: http,
       packetListener: packetListener,

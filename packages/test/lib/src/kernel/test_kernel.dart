@@ -51,8 +51,11 @@ final class TestKernel {
     late final EntityContext entityContext;
 
     marshaller = TestMarshaller.unbound(logger: logger);
-    dataStore =
-        DataStore(client: httpClient, marshaller: marshaller, logger: logger);
+    dataStore = DataStore(
+        client: httpClient,
+        marshaller: marshaller,
+        logger: logger,
+        httpLogger: logger);
     entityContext = EntityContext(
       datastore: dataStore,
       wss: _UnimplementedWss(),
