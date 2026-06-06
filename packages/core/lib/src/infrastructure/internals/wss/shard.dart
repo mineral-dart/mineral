@@ -129,12 +129,15 @@ final class Shard implements ShardContract {
             default:
               logger.warn('Unknown op code: $code');
           }
+          // ignore: avoid_catching_errors, crash-safety boundary for shard message processing
         } on Error catch (e, stackTrace) {
-          logger.error('Fatal error processing opcode $code on $shardName: $e');
-          logger.trace('$stackTrace');
+          logger
+            ..error('Fatal error processing opcode $code on $shardName: $e')
+            ..trace('$stackTrace');
         } on Exception catch (e, stackTrace) {
-          logger.error('Error processing opcode $code on $shardName: $e');
-          logger.trace('$stackTrace');
+          logger
+            ..error('Error processing opcode $code on $shardName: $e')
+            ..trace('$stackTrace');
         }
       }
     });

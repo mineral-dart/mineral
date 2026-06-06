@@ -1,6 +1,5 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
-import 'package:mineral/src/infrastructure/io/exceptions/invalid_component_exception.dart';
 
 abstract interface class InteractiveComponentService {
   T get<T extends InteractiveComponent>(String customId);

@@ -1,6 +1,5 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
-import 'package:mineral/src/domains/commands/command_context.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class MessageCommandContext extends CommandContext {

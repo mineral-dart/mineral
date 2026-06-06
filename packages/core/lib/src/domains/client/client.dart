@@ -2,7 +2,6 @@ import 'package:mineral/api.dart';
 import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/commands/command_declaration_bucket.dart';
-import 'package:mineral/src/domains/commands/command_interaction_manager.dart';
 import 'package:mineral/src/domains/common/kernel.dart';
 import 'package:mineral/src/domains/common/utils/listenable.dart';
 import 'package:mineral/src/domains/events/event_bucket.dart';

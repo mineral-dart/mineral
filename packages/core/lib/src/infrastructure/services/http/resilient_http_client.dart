@@ -65,7 +65,9 @@ final class ResilientHttpClient implements HttpClientContract {
         }
         return response;
       } on SocketException {
-        if (attempt >= maxRetries) rethrow;
+        if (attempt >= maxRetries) {
+          rethrow;
+        }
         await Future.delayed(_backoffFor(attempt));
       }
     }

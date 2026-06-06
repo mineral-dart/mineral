@@ -71,22 +71,21 @@ void main() {
       });
 
       test('sends OpCode.resume when _pendingResume is true', () {
-        // Set up session info first
-        auth.setupRequirements({
-          'sequence': 42,
-          'session_id': 'abc123',
-          'resume_gateway_url': 'wss://resume',
-        });
-
         // Simulate a resume flow: trigger resume which sets _pendingResume
         // then on next identify() it should send resume instead
         // We can't set _pendingResume directly (private), but we can
         // test the flow by using identify after a specific setup
-
+        //
         // Actually, _pendingResume is set in resume() which is async
         // and would call shard.init(). Instead, let's test the identify path
         // directly by verifying the normal identify behavior.
-        auth.identify({'heartbeat_interval': 45000});
+        auth
+          ..setupRequirements({
+            'sequence': 42,
+            'session_id': 'abc123',
+            'resume_gateway_url': 'wss://resume',
+          })
+          ..identify({'heartbeat_interval': 45000});
 
         final msg = _decodeMessage(fakeClient.sentMessages.first);
         // Without _pendingResume, it sends identify (op=2)
@@ -147,8 +146,9 @@ void main() {
 
     group('ack()', () {
       test('resets attempts to 0', () {
-        auth.attempts = 5;
-        auth.ack();
+        auth
+          ..attempts = 5
+          ..ack();
         expect(auth.attempts, equals(0));
       });
 
@@ -182,12 +182,12 @@ void main() {
 
     group('invalidateSession()', () {
       test('clears sessionId and resumeUrl', () {
-        auth.setupRequirements({
-          'session_id': 'abc',
-          'resume_gateway_url': 'wss://resume',
-        });
-
-        auth.invalidateSession();
+        auth
+          ..setupRequirements({
+            'session_id': 'abc',
+            'resume_gateway_url': 'wss://resume',
+          })
+          ..invalidateSession();
 
         expect(auth.sessionId, isNull);
         expect(auth.resumeUrl, isNull);
@@ -232,8 +232,9 @@ void main() {
 
       test('stops the heartbeat timer', () async {
         // Create a heartbeat timer
-        auth.createHeartbeatTimer(100000); // long interval
-        auth.cancelHeartbeat();
+        auth
+          ..createHeartbeatTimer(100000) // long interval
+          ..cancelHeartbeat();
 
         // Wait a moment — if timer was not cancelled, attempts would increase
         await Future<void>.delayed(const Duration(milliseconds: 50));

@@ -123,7 +123,9 @@ final class _RecordingProvider implements ProviderContract {
   @override
   Future<void> ready() async {
     readyCalled = true;
-    if (throwOnReady != null) throw throwOnReady!;
+    if (throwOnReady != null) {
+      throw throwOnReady!;
+    }
   }
 
   @override

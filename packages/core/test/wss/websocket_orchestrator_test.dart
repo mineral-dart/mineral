@@ -102,8 +102,9 @@ void main() {
     group('removeFromRequestQueue', () {
       test('removes the specified entry', () {
         final entry = _entry('to-remove');
-        orchestrator.addToRequestQueue(entry);
-        orchestrator.removeFromRequestQueue(entry);
+        orchestrator
+          ..addToRequestQueue(entry)
+          ..removeFromRequestQueue(entry);
 
         expect(orchestrator.requestQueue, isEmpty);
       });
@@ -113,9 +114,8 @@ void main() {
         final remove = _entry('remove');
         orchestrator
           ..addToRequestQueue(keep)
-          ..addToRequestQueue(remove);
-
-        orchestrator.removeFromRequestQueue(remove);
+          ..addToRequestQueue(remove)
+          ..removeFromRequestQueue(remove);
 
         expect(orchestrator.requestQueue, hasLength(1));
         expect(orchestrator.requestQueue.first.uid, equals('keep'));

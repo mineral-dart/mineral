@@ -69,7 +69,7 @@ void main() {
 
     group('setHandle', () {
       test('stores the handler function', () {
-        final handler = (ctx, options) {};
+        void handler(ctx, options) {}
         builder.setHandle(handler);
         expect(builder.handle, handler);
       });

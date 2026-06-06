@@ -126,7 +126,9 @@ final class ShardAuthentication implements ShardAuthenticationContract {
     final maxAttempts = shard.wss.config.maxReconnectAttempts;
 
     cancelHeartbeat();
-    if (resume) _pendingResume = true;
+    if (resume) {
+      _pendingResume = true;
+    }
     attempts = 0;
     intentionalDisconnect = true;
     await shard.client.disconnect(code: _internalCloseCode);

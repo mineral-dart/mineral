@@ -14,7 +14,7 @@ import '../helpers/ioc_test_helper.dart';
 import '../helpers/mocks.dart';
 
 
-Shard _createShard({int maxReconnectAttempts = 3, required FakeLogger logger}) {
+Shard _createShard({required FakeLogger logger, int maxReconnectAttempts = 3}) {
   return Shard(
     shardName: 'test-shard-0',
     shardIndex: 0,
@@ -61,8 +61,9 @@ void main() {
       });
 
       test('cancels heartbeat and resets attempts', () {
-        auth.createHeartbeatTimer(100000);
-        auth.attempts = 5;
+        auth
+          ..createHeartbeatTimer(100000)
+          ..attempts = 5;
 
         runZonedGuarded(() {
           auth.reconnect();
@@ -102,11 +103,12 @@ void main() {
       });
 
       test('sets pendingResume so next identify sends resume opcode', () async {
-        auth.setupRequirements({
-          'session_id': 'session-abc',
-          'resume_gateway_url': 'wss://resume.discord.gg',
-        });
-        auth.sequence = 42;
+        auth
+          ..setupRequirements({
+            'session_id': 'session-abc',
+            'resume_gateway_url': 'wss://resume.discord.gg',
+          })
+          ..sequence = 42;
 
         // resume() sets _pendingResume = true synchronously before awaiting
         // disconnect/init. We trigger it and absorb the async error from
@@ -194,7 +196,9 @@ void main() {
         runZonedGuarded(() {
           auth.reconnect();
         }, (error, _) {
-          if (error is FatalGatewayException) caught = error;
+          if (error is FatalGatewayException) {
+            caught = error;
+          }
         });
 
         await Future<void>.delayed(Duration.zero);

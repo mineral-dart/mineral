@@ -3,7 +3,6 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
-import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -119,11 +118,15 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
   Map<String, dynamic>? findButtonByCustomId(
       Map<String, dynamic> payload, String customId) {
     final components = payload['message']['components'] as List<dynamic>?;
-    if (components == null) return null;
+    if (components == null) {
+      return null;
+    }
 
     for (final component in components) {
       final subComponents = component['components'] as List<dynamic>?;
-      if (subComponents == null) continue;
+      if (subComponents == null) {
+        continue;
+      }
       for (final subComponent in subComponents) {
         if (subComponent['custom_id'] == customId) {
           return subComponent as Map<String, dynamic>;

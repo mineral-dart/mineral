@@ -1,8 +1,8 @@
+import 'package:mineral/src/api/common/commands/command_option_type.dart';
+import 'package:mineral/src/api/common/commands/command_type.dart';
 import 'package:mineral/src/api/common/components/button.dart';
 import 'package:mineral/src/api/common/components/component.dart';
 import 'package:mineral/src/api/common/components/text_input.dart';
-import 'package:mineral/src/api/common/commands/command_option_type.dart';
-import 'package:mineral/src/api/common/commands/command_type.dart';
 import 'package:mineral/src/api/common/message_type.dart';
 import 'package:mineral/src/api/common/polls/poll_layout.dart';
 import 'package:mineral/src/api/common/premium_tier.dart';

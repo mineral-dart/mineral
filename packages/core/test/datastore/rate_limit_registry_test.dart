@@ -77,13 +77,14 @@ void main() {
     test('lockRoute on known bucket sets remaining=0', () {
       final registry = RateLimitRegistry();
       final route = RouteKey('GET', '/x');
-      registry.updateFromHeaders(route, {
-        Header('X-RateLimit-Bucket', 'b'),
-        Header('X-RateLimit-Limit', '5'),
-        Header('X-RateLimit-Remaining', '4'),
-        Header('X-RateLimit-Reset-After', '1.0'),
-      });
-      registry.lockRoute(route, const Duration(seconds: 2));
+      registry
+        ..updateFromHeaders(route, {
+          Header('X-RateLimit-Bucket', 'b'),
+          Header('X-RateLimit-Limit', '5'),
+          Header('X-RateLimit-Remaining', '4'),
+          Header('X-RateLimit-Reset-After', '1.0'),
+        })
+        ..lockRoute(route, const Duration(seconds: 2));
       expect(registry.bucketFor(route)?.remaining, equals(0));
       expect(registry.delayFor(route), greaterThan(Duration.zero));
     });

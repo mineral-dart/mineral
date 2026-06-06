@@ -5,7 +5,6 @@ import 'package:mineral/src/api/server/channels/private_thread_channel.dart';
 import 'package:mineral/src/api/server/channels/public_thread_channel.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 import 'package:mineral/src/infrastructure/internals/http/discord_header.dart';
-import 'package:mineral/src/infrastructure/io/exceptions/serialization_exception.dart';
 
 final class ThreadPart extends BasePart implements ThreadPartContract {
   ThreadPart(super.marshaller, super.dataStore);
@@ -75,9 +74,10 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
       ...raw,
       'guild_id': guildId,
     });
-    if (serialized is! T)
+    if (serialized is! T) {
       throw SerializationException(
           'Expected $T but got ${serialized.runtimeType}');
+    }
 
     return serialized;
   }
@@ -99,9 +99,10 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
       ...raw,
       'guild_id': guildId,
     });
-    if (serialized is! T)
+    if (serialized is! T) {
       throw SerializationException(
           'Expected $T but got ${serialized.runtimeType}');
+    }
 
     return serialized;
   }

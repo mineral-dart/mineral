@@ -32,6 +32,7 @@ final class PacketDispatcher implements PacketDispatcherContract {
           'PacketDispatcher: error in listener for ${message.type}: $e',
         );
         _kernel.logger.trace('$stackTrace');
+        // ignore: avoid_catching_errors, crash-safety boundary for packet listeners
       } on Error catch (e, stackTrace) {
         _kernel.logger.error(
           'PacketDispatcher: fatal error in listener for ${message.type}: $e',

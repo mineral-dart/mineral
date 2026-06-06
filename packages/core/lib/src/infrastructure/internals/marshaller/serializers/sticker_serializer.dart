@@ -2,15 +2,13 @@ import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/common/sticker.dart';
 import 'package:mineral/src/api/common/types/format_type.dart';
 import 'package:mineral/src/api/common/types/sticker_type.dart';
-import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
 final class StickerSerializer implements SerializerContract<Sticker> {
   final MarshallerContract _marshaller;
-  final EntityContext _ctx;
 
-  StickerSerializer(this._marshaller, this._ctx);
+  StickerSerializer(this._marshaller);
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {

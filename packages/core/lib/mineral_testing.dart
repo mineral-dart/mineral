@@ -5,5 +5,6 @@
 /// ```dart
 /// import 'package:mineral/mineral_testing.dart';
 /// ```
+library;
 export 'package:mineral/src/testing/fake_cache_provider.dart';
 export 'package:mineral/src/testing/fake_logger.dart';

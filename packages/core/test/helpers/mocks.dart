@@ -5,7 +5,6 @@ import 'package:mineral/services.dart';
 import 'package:mineral/src/api/common/bot/bot.dart';
 import 'package:mineral/src/api/server/server.dart';
 import 'package:mineral/src/domains/commands/command_builder.dart';
-import 'package:mineral/src/domains/commands/command_interaction_manager.dart';
 import 'package:mineral/src/domains/events/event_dispatcher.dart';
 import 'package:mineral/src/domains/events/event_listener.dart';
 import 'package:mineral/src/domains/providers/provider_manager.dart';

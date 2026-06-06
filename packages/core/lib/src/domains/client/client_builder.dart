@@ -1,7 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
-import 'package:mineral/src/domains/commands/command_interaction_manager.dart';
 import 'package:mineral/src/domains/common/app_state.dart';
 import 'package:mineral/src/domains/common/kernel.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
@@ -10,7 +9,6 @@ import 'package:mineral/src/domains/container/ioc_container.dart';
 import 'package:mineral/src/domains/events/event_listener.dart';
 import 'package:mineral/src/domains/global_states/global_state_manager.dart';
 import 'package:mineral/src/domains/providers/provider_manager.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_listener.dart';
 import 'package:mineral/src/infrastructure/internals/wss/sharding_config.dart';
 import 'package:mineral/src/infrastructure/internals/wss/websocket_orchestrator.dart';

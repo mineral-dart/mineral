@@ -54,8 +54,8 @@ final class CommandInteractionManager
     required MarshallerContract marshaller,
     required EntityContext ctx,
   }) {
-    final manager = CommandInteractionManager._();
-    manager._dataStoreRef = dataStore;
+    final manager = CommandInteractionManager._()
+      .._dataStoreRef = dataStore;
     manager.dispatcher = CommandInteractionDispatcher(
       manager,
       marshaller: marshaller,

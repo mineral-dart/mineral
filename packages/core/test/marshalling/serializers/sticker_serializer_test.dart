@@ -7,7 +7,6 @@ import 'package:mineral/src/infrastructure/internals/marshaller/serializers/stic
 import 'package:test/test.dart';
 
 import '../../helpers/fake_cache_provider.dart';
-import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
 
 void main() {
@@ -17,10 +16,7 @@ void main() {
 
     setUp(() {
       cache = FakeCacheProvider();
-      serializer = StickerSerializer(
-        FakeMarshaller(cache: cache),
-        fakeEntityContext(),
-      );
+      serializer = StickerSerializer(FakeMarshaller(cache: cache));
     });
 
     Map<String, dynamic> normalizedPayload() => {

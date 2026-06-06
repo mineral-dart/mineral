@@ -8,7 +8,7 @@ sealed class MineralException implements Exception {
   MineralException(this.message);
 
   @override
-  String toString() => '${runtimeType}: $message';
+  String toString() => '$runtimeType: $message';
 }
 
 /// An exception the bot can catch, log, and potentially recover from.

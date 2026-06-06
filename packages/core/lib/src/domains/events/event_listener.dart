@@ -52,6 +52,7 @@ final class EventListener implements EventListenerContract {
         kernel.logger.error('Failed to dispatch event "${event.name}": $e');
         kernel.logger.trace('$stackTrace');
         onEventError?.call(event, e, stackTrace);
+        // ignore: avoid_catching_errors, crash-safety boundary for event handlers
       } on Error catch (e, stackTrace) {
         kernel.logger.error('Failed to dispatch event "${event.name}": $e');
         kernel.logger.trace('$stackTrace');

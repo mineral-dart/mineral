@@ -109,7 +109,7 @@ void main() {
         };
       }).listen((e) => modalSubmits.add(e.payload as String));
 
-      // Dispatch button events with various constraints
+      // Dispatch button and modal events with various constraints
       dispatcher
         ..dispatch(
           event: Event.serverButtonClick,
@@ -124,10 +124,7 @@ void main() {
         ..dispatch(
           event: Event.serverButtonClick,
           payload: 'click-3',
-        );
-
-      // Dispatch modal events with various constraints
-      dispatcher
+        )
         ..dispatch(
           event: Event.serverModalSubmit,
           payload: 'submit-1',
@@ -211,12 +208,12 @@ void main() {
       expect(messageEvents, ['msg-1']);
 
       // Dispose
-      dispatcher.dispose();
-
-      // Dispatch after dispose -- controllers are closed and cleared,
-      // so dispatch should be a no-op (no controller found).
-      dispatcher.dispatch(event: Event.ready, payload: 'bot-2');
-      dispatcher.dispatch(event: Event.serverMessageCreate, payload: 'msg-2');
+      dispatcher
+        ..dispose()
+        // Dispatch after dispose -- controllers are closed and cleared,
+        // so dispatch should be a no-op (no controller found).
+        ..dispatch(event: Event.ready, payload: 'bot-2')
+        ..dispatch(event: Event.serverMessageCreate, payload: 'msg-2');
 
       await Future.delayed(Duration(milliseconds: 50));
 

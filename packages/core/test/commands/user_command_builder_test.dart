@@ -1,6 +1,4 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/src/infrastructure/io/exceptions/command_name_exception.dart';
-import 'package:mineral/src/infrastructure/io/exceptions/missing_property_exception.dart';
 import 'package:test/test.dart';
 
 void main() {

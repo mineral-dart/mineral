@@ -33,7 +33,7 @@ void main() {
 
   group('CommandRegistration', () {
     test('stores handler and options', () {
-      final handler = (ctx, options) {};
+      void handler(ctx, options) {}
       final registration = CommandRegistration(
         name: 'test',
         handler: handler,

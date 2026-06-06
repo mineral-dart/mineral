@@ -3,9 +3,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
-import 'package:mineral/src/domains/commands/command_interaction_manager.dart';
-import 'package:mineral/src/domains/commands/contexts/message_command_context.dart';
-import 'package:mineral/src/domains/commands/contexts/user_command_context.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class CommandInteractionDispatcher
@@ -186,6 +183,7 @@ final class CommandInteractionDispatcher
       _marshaller.logger.error('$e');
       _marshaller.logger.trace('$stackTrace');
       _interactionManager.onCommandError?.call(failure);
+      // ignore: avoid_catching_errors, crash-safety boundary for command handlers
     } on Error catch (e, stackTrace) {
       final failure = CommandFailure(
         commandName: registration.name,

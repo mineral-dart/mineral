@@ -52,8 +52,7 @@ void main() {
         wss: FakeWebsocketOrchestrator(),
         logger: FakeLogger(),
         strategy: strategy,
-      );
-      shard.client = FakeWebsocketClient();
+      )..client = FakeWebsocketClient();
       shardData = ShardData(shard, strategy);
     });
 
@@ -87,18 +86,19 @@ void main() {
       });
 
       test('overwrites previous sequence with the latest value', () {
-        shardData.dispatch(_msg(ShardMessage(
-          type: 'MSG',
-          opCode: OpCode.dispatch,
-          sequence: 10,
-          payload: {},
-        )));
-        shardData.dispatch(_msg(ShardMessage(
-          type: 'MSG',
-          opCode: OpCode.dispatch,
-          sequence: 20,
-          payload: {},
-        )));
+        shardData
+          ..dispatch(_msg(ShardMessage(
+            type: 'MSG',
+            opCode: OpCode.dispatch,
+            sequence: 10,
+            payload: {},
+          )))
+          ..dispatch(_msg(ShardMessage(
+            type: 'MSG',
+            opCode: OpCode.dispatch,
+            sequence: 20,
+            payload: {},
+          )));
 
         expect(shard.authentication.sequence, equals(20));
       });

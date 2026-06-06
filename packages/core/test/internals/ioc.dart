@@ -175,8 +175,8 @@ void main() {
 
   group('dispose with Disposable', () {
     test('calls dispose on services implementing Disposable', () async {
-      final container = IocContainer();
-      container.bind<DisposableService>(DisposableService.new);
+      final container = IocContainer()
+        ..bind<DisposableService>(DisposableService.new);
 
       final service = container.resolve<DisposableService>();
       expect(service.disposed, isFalse);
@@ -186,15 +186,13 @@ void main() {
     });
 
     test('does not throw when disposing non-Disposable services', () async {
-      final container = IocContainer();
-      container.bind<Foo>(Foo.new);
+      final container = IocContainer()..bind<Foo>(Foo.new);
 
       await expectLater(container.dispose(), completes);
     });
 
     test('calls dispose on all Disposable services', () async {
-      final container = IocContainer();
-      container
+      final container = IocContainer()
         ..bind<DisposableService>(DisposableService.new)
         ..bind<Foo>(Foo.new);
 

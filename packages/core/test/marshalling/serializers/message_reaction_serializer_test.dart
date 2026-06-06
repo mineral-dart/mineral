@@ -68,8 +68,8 @@ void main() {
 
       test('defaults animated to false when absent', () async {
         final payload = normalizedPayload();
-        final emoji = Map<String, dynamic>.from(payload['emoji'] as Map);
-        emoji.remove('animated');
+        final emoji = Map<String, dynamic>.from(payload['emoji'] as Map)
+          ..remove('animated');
         payload['emoji'] = emoji;
         final reaction = await serializer.serialize(payload);
 

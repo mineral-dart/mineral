@@ -21,7 +21,9 @@ final class FakeWebsocketOrchestrator extends WebsocketOrchestratorContract {
   @override
   RequestQueueEntry? findInRequestQueue(String uid) {
     for (final entry in requestQueue) {
-      if (entry.uid == uid) return entry;
+      if (entry.uid == uid) {
+        return entry;
+      }
     }
     return null;
   }

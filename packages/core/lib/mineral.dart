@@ -7,6 +7,7 @@
 ///
 /// For contracts used when writing DI extensions or custom services,
 /// use `package:mineral/mineral_contracts.dart` instead.
+library;
 export 'package:mineral/api.dart';
 export 'package:mineral/container.dart';
 export 'package:mineral/events.dart';

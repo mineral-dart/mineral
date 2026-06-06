@@ -4,7 +4,6 @@ import 'package:mineral/services.dart';
 import 'package:mineral/src/api/common/polls/poll_answer_vote.dart';
 import 'package:mineral/src/domains/common/utils/attachment.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
-import 'package:mineral/src/infrastructure/io/exceptions/serialization_exception.dart';
 
 final class MessagePart extends BasePart implements MessagePartContract {
   MessagePart(super.marshaller, super.dataStore);
@@ -120,10 +119,11 @@ final class MessagePart extends BasePart implements MessagePartContract {
 
     final rawMessage = await marshaller.serializers.message.normalize(body);
     final message = await marshaller.serializers.message.serialize(rawMessage);
-    if (message is! T)
+    if (message is! T) {
       throw SerializationException(
         'Expected $T but got ${message.runtimeType}',
       );
+    }
     return message;
   }
 
@@ -181,10 +181,11 @@ final class MessagePart extends BasePart implements MessagePartContract {
 
     final message = await marshaller.serializers.message.normalize(body);
     final serialized = await marshaller.serializers.message.serialize(message);
-    if (serialized is! T)
+    if (serialized is! T) {
       throw SerializationException(
         'Expected $T but got ${serialized.runtimeType}',
       );
+    }
     return serialized;
   }
 
@@ -212,10 +213,11 @@ final class MessagePart extends BasePart implements MessagePartContract {
 
     final raw = await marshaller.serializers.message.normalize(result);
     final serialized = await marshaller.serializers.message.serialize(raw);
-    if (serialized is! R)
+    if (serialized is! R) {
       throw SerializationException(
         'Expected $R but got ${serialized.runtimeType}',
       );
+    }
     return serialized;
   }
 
@@ -232,10 +234,11 @@ final class MessagePart extends BasePart implements MessagePartContract {
       message,
     );
 
-    if (serializedMessage is! T)
+    if (serializedMessage is! T) {
       throw SerializationException(
         'Expected $T but got ${serializedMessage.runtimeType}',
       );
+    }
     return serializedMessage;
   }
 

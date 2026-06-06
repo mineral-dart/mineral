@@ -1,5 +1,5 @@
 export 'package:mineral/src/domains/commands/command_interaction_manager.dart'
-    show CommandInteractionManagerContract, CommandInteractionManager;
+    show CommandInteractionManager, CommandInteractionManagerContract;
 export 'package:mineral/src/domains/components/interactives/components/interactive_button.dart';
 export 'package:mineral/src/domains/components/interactives/components/interactive_component.dart';
 export 'package:mineral/src/domains/components/interactives/components/interactive_modal.dart';

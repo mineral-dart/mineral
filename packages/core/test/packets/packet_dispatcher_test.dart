@@ -200,8 +200,9 @@ void main() {
           payload: <String, dynamic>{},
         );
 
-        dispatcher.listen(fakePacket, slowListener);
-        dispatcher.dispatch(fakeMessage);
+        dispatcher
+          ..listen(fakePacket, slowListener)
+          ..dispatch(fakeMessage);
 
         // Without await on Function.apply, handled would still become true
         // eventually (fire-and-forget), but this verifies the async work
@@ -226,8 +227,9 @@ void main() {
           payload: <String, dynamic>{'content': 'hello'},
         );
 
-        dispatcher.listen(fakePacket, captureListener);
-        dispatcher.dispatch(fakeMessage);
+        dispatcher
+          ..listen(fakePacket, captureListener)
+          ..dispatch(fakeMessage);
 
         await Future.delayed(const Duration(milliseconds: 20));
         expect(receivedMessage, isNotNull);

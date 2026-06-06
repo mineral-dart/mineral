@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mineral/src/api/common/commands/builder/command_declaration_builder.dart';
 import 'package:mineral/src/api/common/commands/builder/translation.dart';
 import 'package:mineral/src/api/common/commands/command_context_type.dart';
@@ -5,7 +7,8 @@ import 'package:mineral/src/api/common/commands/command_option.dart';
 import 'package:mineral/src/api/common/commands/command_option_type.dart';
 import 'package:mineral/src/api/common/commands/command_type.dart';
 import 'package:mineral/src/api/common/lang.dart';
-import 'package:mineral/src/domains/commands/command_handler.dart';
+import 'package:mineral/src/domains/commands/command_context.dart';
+import 'package:mineral/src/domains/commands/command_options.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/command_name_exception.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/missing_method_exception.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/missing_property_exception.dart';
@@ -286,7 +289,7 @@ void main() {
 
     group('reduceHandlers', () {
       test('returns single handler for simple command', () {
-        final CommandHandler handler = (ctx, options) {};
+        FutureOr<void> handler(CommandContext ctx, CommandOptions options) {}
         builder
           ..setName('ping')
           ..setDescription('Pong!')
@@ -300,8 +303,8 @@ void main() {
       });
 
       test('returns handlers for subcommands with dotted names', () {
-        final CommandHandler banHandler = (ctx, options) {};
-        final CommandHandler kickHandler = (ctx, options) {};
+        FutureOr<void> banHandler(CommandContext ctx, CommandOptions options) {}
+        FutureOr<void> kickHandler(CommandContext ctx, CommandOptions options) {}
 
         builder
           ..setName('mod')
@@ -329,7 +332,7 @@ void main() {
       });
 
       test('returns handlers for groups with triple-dotted names', () {
-        final CommandHandler handler = (ctx, options) {};
+        FutureOr<void> handler(CommandContext ctx, CommandOptions options) {}
 
         builder
           ..setName('admin')

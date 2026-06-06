@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:mineral/api.dart';
-import 'package:mineral/src/domains/components/component_context_base.dart';
-import 'package:mineral/src/domains/components/selects/select_context.dart';
 
 /// Shared base for select-menu interaction contexts.
 ///

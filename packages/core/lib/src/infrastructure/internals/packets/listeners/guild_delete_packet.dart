@@ -1,5 +1,4 @@
 import 'package:mineral/events.dart';
-import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/domains/services/cache/cache_invalidation.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';

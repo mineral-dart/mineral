@@ -9,7 +9,6 @@ import 'package:mineral/src/domains/services/wss/running_strategy.dart';
 import 'package:mineral/src/infrastructure/internals/wss/builders/discord_message_builder.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard.dart';
 import 'package:mineral/src/infrastructure/internals/wss/websocket_isolate_message_transfert.dart';
-import 'package:mineral/src/infrastructure/io/exceptions/token_exception.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -29,7 +28,9 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
   @override
   RequestQueueEntry? findInRequestQueue(String uid) {
     for (final entry in _requestQueue) {
-      if (entry.uid == uid) return entry;
+      if (entry.uid == uid) {
+        return entry;
+      }
     }
     return null;
   }
@@ -126,7 +127,9 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
   /// Formula: shard_id = (guild_id >> 22) % num_shards
   int _shardForGuild(String guildId) {
     final id = BigInt.parse(guildId);
-    if (shards.isEmpty) return 0;
+    if (shards.isEmpty) {
+      return 0;
+    }
     return ((id >> 22) % BigInt.from(shards.length)).toInt();
   }
 

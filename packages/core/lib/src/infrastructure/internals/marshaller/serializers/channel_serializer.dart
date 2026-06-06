@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:mineral/api.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
-import 'package:mineral/src/infrastructure/io/exceptions/serialization_exception.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/private_channel_factory.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/server_announcement_channel_factory.dart';

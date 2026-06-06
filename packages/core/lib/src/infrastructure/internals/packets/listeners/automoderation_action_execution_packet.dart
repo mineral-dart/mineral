@@ -7,7 +7,6 @@ import 'package:mineral/src/api/server/moderation/enums/action_type.dart';
 import 'package:mineral/src/api/server/moderation/enums/trigger_type.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
-import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';

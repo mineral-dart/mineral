@@ -3,7 +3,6 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 import 'package:mineral/src/infrastructure/internals/http/discord_header.dart';
-import 'package:mineral/src/infrastructure/io/exceptions/serialization_exception.dart';
 
 final class ChannelPart extends BasePart implements ChannelPartContract {
   ChannelPart(super.marshaller, super.dataStore);
@@ -21,9 +20,10 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     }).wait;
 
     return channels.asMap().map((_, value) {
-      if (value is! T)
+      if (value is! T) {
         throw SerializationException(
             'Expected $T but got ${value.runtimeType}');
+      }
       return MapEntry(value.id, value);
     });
   }
@@ -36,9 +36,10 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     if (!force && cachedChannel != null) {
       final serialized =
           await marshaller.serializers.channels.serialize(cachedChannel);
-      if (serialized is! T)
+      if (serialized is! T) {
         throw SerializationException(
             'Expected $T but got ${serialized.runtimeType}');
+      }
 
       return serialized;
     }
@@ -48,9 +49,10 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
 
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize(raw);
-    if (serialized is! T)
+    if (serialized is! T) {
       throw SerializationException(
           'Expected $T but got ${serialized.runtimeType}');
+    }
 
     return serialized;
   }
@@ -72,9 +74,10 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
       ...raw,
       'guild_id': guildId,
     });
-    if (serialized is! T)
+    if (serialized is! T) {
       throw SerializationException(
           'Expected $T but got ${serialized.runtimeType}');
+    }
 
     return serialized;
   }
@@ -112,9 +115,10 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
       ...raw,
       'guild_id': guildId,
     });
-    if (serialized is! T)
+    if (serialized is! T) {
       throw SerializationException(
           'Expected $T but got ${serialized.runtimeType}');
+    }
 
     return serialized;
   }

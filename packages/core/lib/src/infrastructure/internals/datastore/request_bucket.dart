@@ -61,6 +61,7 @@ final class QueueableRequest<T> {
         try {
           _onSuccess?.call(response.body);
           completer.complete(response.body);
+          // ignore: avoid_catching_errors, surface type mismatch as a proper HttpException
         } on TypeError catch (e) {
           completer.completeError(HttpException(
             'Response body type mismatch: expected $T, '

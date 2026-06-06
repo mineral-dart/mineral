@@ -5,7 +5,6 @@ import 'package:mineral/src/infrastructure/internals/marshaller/serializers/poll
 import 'package:test/test.dart';
 
 import '../../helpers/fake_cache_provider.dart';
-import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
 
 void main() {
@@ -15,10 +14,7 @@ void main() {
 
     setUp(() {
       cache = FakeCacheProvider();
-      serializer = PollSerializer(
-        FakeMarshaller(cache: cache),
-        fakeEntityContext(),
-      );
+      serializer = PollSerializer(FakeMarshaller(cache: cache));
     });
 
     Map<String, dynamic> serializePayload() => {

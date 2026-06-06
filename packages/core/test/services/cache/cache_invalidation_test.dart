@@ -10,10 +10,10 @@ void main() {
     test('removes the key when invalidationEnabled is true', () async {
       final cache = FakeCacheProvider()..store['users/1'] = {'id': '1'};
       final container = IocContainer()
-        ..bind<CacheConfig>(() => CacheConfig.defaults());
+        ..bind<CacheConfig>(CacheConfig.defaults);
 
       await runWithIoc(container, () async {
-        final CacheProviderContract? nullable = cache;
+        final CacheProviderContract nullable = cache;
         await nullable.invalidate('users/1');
       });
 
@@ -23,10 +23,10 @@ void main() {
     test('keeps the key when invalidationEnabled is false', () async {
       final cache = FakeCacheProvider()..store['users/1'] = {'id': '1'};
       final container = IocContainer()
-        ..bind<CacheConfig>(() => CacheConfig.legacy());
+        ..bind<CacheConfig>(CacheConfig.legacy);
 
       await runWithIoc(container, () async {
-        final CacheProviderContract? nullable = cache;
+        final CacheProviderContract nullable = cache;
         await nullable.invalidate('users/1');
       });
 
@@ -38,7 +38,7 @@ void main() {
       final container = IocContainer();
 
       await runWithIoc(container, () async {
-        final CacheProviderContract? nullable = cache;
+        final CacheProviderContract nullable = cache;
         await nullable.invalidate('users/1');
       });
 
@@ -47,7 +47,7 @@ void main() {
 
     test('is a no-op when the cache is null', () async {
       final container = IocContainer()
-        ..bind<CacheConfig>(() => CacheConfig.defaults());
+        ..bind<CacheConfig>(CacheConfig.defaults);
 
       await runWithIoc(container, () async {
         const CacheProviderContract? nullable = null;
