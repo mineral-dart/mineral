@@ -9,7 +9,7 @@ environment:
 resolution: workspace
 
 dependencies:
-  mineral: ^4.3.0
+  mineral: ^5.0.0
   test: ^1.28.0
 
 dev_dependencies:
