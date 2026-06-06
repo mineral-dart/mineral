@@ -5,7 +5,8 @@ import 'global_states/vote_counter.dart';
 import 'poll/poll_provider.dart';
 import 'welcome/welcome_provider.dart';
 
-void main(List<String> args) async {
+// Run from `hmr` command, configuration available via `pubspec.yaml`
+void main() async {
   final client = ClientBuilder()
       .setIntent(Intent.allNonPrivileged)
       .registerProvider(WelcomeProvider.new)
