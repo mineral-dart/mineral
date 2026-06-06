@@ -1,3 +1,11 @@
+## 2.0.0
+
+- Enhance Redis provider
+- Clear Redis password from memory after authentication
+- Apply TTL eviction in `MemoryProvider`
+- Honor TTL in `RedisProvider` via `SET … PX`
+- Upgrade `mineral` dependency to `^5.0.0`
+
 ## 1.2.0
 
 - Create release candidate from core
