@@ -1,6 +1,8 @@
 import 'package:mineral/src/api/common/channel.dart';
 import 'package:mineral/src/api/common/embed/message_embed.dart';
+import 'package:mineral/src/api/common/message_snapshot.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
+import 'package:mineral/src/api/common/types/message_reference_type.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
 
@@ -14,6 +16,8 @@ final class MessageProperties<T extends Channel> {
   final List<MessageEmbed> embeds;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final MessageReferenceType? referenceType;
+  final List<MessageSnapshot> snapshots;
 
   MessageProperties({
     required this.id,
@@ -25,11 +29,15 @@ final class MessageProperties<T extends Channel> {
     required this.embeds,
     required this.createdAt,
     required this.updatedAt,
+    this.referenceType,
+    this.snapshots = const [],
   });
 
   factory MessageProperties.fromJson(
     Map<String, dynamic> json, {
     required SerializerContract<MessageEmbed> embedSerializer,
+    List<MessageSnapshot> snapshots = const [],
+    MessageReferenceType? referenceType,
   }) {
     final embeds = List<MessageEmbed>.unmodifiable(
         (json['embeds'] as Iterable<dynamic>)
@@ -47,6 +55,8 @@ final class MessageProperties<T extends Channel> {
       updatedAt: Helper.createOrNull(
           field: json['edited_timestamp'],
           fn: () => DateTime.parse(json['edited_timestamp'] as String)),
+      referenceType: referenceType,
+      snapshots: snapshots,
     );
   }
 }

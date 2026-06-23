@@ -22,6 +22,17 @@ abstract interface class BaseMessage {
 
   DateTime? get updatedAt;
 
+  /// The type of the message reference, if present.
+  /// `null` for messages with no reference. [MessageReferenceType.forward]
+  /// when the message is a forwarded message.
+  MessageReferenceType? get referenceType;
+
+  /// Snapshots of the forwarded messages, when [isForwarded] is `true`.
+  List<MessageSnapshot> get snapshots;
+
+  /// Whether this message is a forwarded message.
+  bool get isForwarded;
+
   Future<T> resolveChannel<T extends Channel>();
 
   /// Reply to the message with a new message.
@@ -41,6 +52,13 @@ abstract interface class BaseMessage {
   /// await message.edit(builder);
   /// ```
   Future<void> edit(MessageBuilder builder);
+
+  /// Forward this message to another channel.
+  ///
+  /// ```dart
+  /// final forwarded = await message.forward<Message>(targetChannelId);
+  /// ```
+  Future<T> forward<T extends Message>(Snowflake targetChannelId);
 }
 
 abstract interface class ServerMessage implements BaseMessage {
@@ -99,6 +117,15 @@ final class Message implements ServerMessage, PrivateMessage, BaseMessage {
   @override
   DateTime? get updatedAt => _properties.updatedAt;
 
+  @override
+  MessageReferenceType? get referenceType => _properties.referenceType;
+
+  @override
+  List<MessageSnapshot> get snapshots => _properties.snapshots;
+
+  @override
+  bool get isForwarded => referenceType == MessageReferenceType.forward;
+
   Message(this._properties, {required EntityContext ctx})
       : _ctx = ctx,
         reactions = ReactionManger(_properties.id.value,
@@ -137,6 +164,15 @@ final class Message implements ServerMessage, PrivateMessage, BaseMessage {
   @override
   Future<T> reply<T extends Message>(MessageBuilder builder) async {
     return _datastore.message.reply(id, channelId, builder);
+  }
+
+  @override
+  Future<T> forward<T extends Message>(Snowflake targetChannelId) async {
+    return _datastore.message.forward<T>(
+      targetChannelId,
+      messageId: id,
+      sourceChannelId: channelId,
+    );
   }
 
   /// Pin the message.

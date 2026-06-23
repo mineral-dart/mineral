@@ -222,6 +222,37 @@ final class MessagePart extends BasePart implements MessagePartContract {
   }
 
   @override
+  Future<T> forward<T extends Message>(
+    Snowflake targetChannelId, {
+    required Snowflake messageId,
+    required Snowflake sourceChannelId,
+    Snowflake? guildId,
+  }) async {
+    final ref = <String, dynamic>{
+      'type': 1,
+      'message_id': messageId.value,
+      'channel_id': sourceChannelId.value,
+      if (guildId != null) 'guild_id': guildId.value,
+    };
+
+    final req = Request.json(
+      endpoint: '/channels/${targetChannelId.value}/messages',
+      body: {'message_reference': ref},
+    );
+
+    final body = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+
+    final raw = await marshaller.serializers.message.normalize(body);
+    final serialized = await marshaller.serializers.message.serialize(raw);
+    if (serialized is! T) {
+      throw SerializationException(
+        'Expected $T but got ${serialized.runtimeType}',
+      );
+    }
+    return serialized;
+  }
+
+  @override
   Future<T> sendPoll<T extends Message>(String channelId, Poll poll) async {
     final req = Request.json(
       endpoint: '/channels/$channelId/messages',

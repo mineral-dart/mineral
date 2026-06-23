@@ -127,6 +127,19 @@ abstract interface class MessagePartContract implements DataStorePart {
 
   Future<R> reply<T extends Channel, R extends Message>(
       Snowflake id, Snowflake channelId, MessageBuilder builder);
+
+  /// Forward a message to another channel.
+  ///
+  /// Posts a `message_reference` with `type: 1` (FORWARD) to [targetChannelId].
+  /// [messageId] is the id of the message being forwarded.
+  /// [sourceChannelId] is the channel the original message lives in.
+  /// [guildId] is optional; include it for server messages.
+  Future<T> forward<T extends Message>(
+    Snowflake targetChannelId, {
+    required Snowflake messageId,
+    required Snowflake sourceChannelId,
+    Snowflake? guildId,
+  });
 }
 
 abstract interface class RolePartContract implements DataStorePart {
