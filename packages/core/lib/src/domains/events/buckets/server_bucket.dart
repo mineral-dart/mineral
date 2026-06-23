@@ -290,6 +290,31 @@ final class ServerBucket {
       _events.make(Event.serverRuleExecution,
           (ServerRuleExecutionArgs p) => handle(p.execution));
 
+  void integrationsUpdate(FutureOr<void> Function(Server server) handle) =>
+      _events.make(Event.serverIntegrationsUpdate,
+          (ServerIntegrationsUpdateArgs p) => handle(p.server));
+
+  void integrationCreate(
+          FutureOr<void> Function(Server server, Integration integration)
+              handle) =>
+      _events.make(Event.serverIntegrationCreate,
+          (ServerIntegrationCreateArgs p) => handle(p.server, p.integration));
+
+  void integrationUpdate(
+          FutureOr<void> Function(Server server, Integration integration)
+              handle) =>
+      _events.make(Event.serverIntegrationUpdate,
+          (ServerIntegrationUpdateArgs p) => handle(p.server, p.integration));
+
+  void integrationDelete(
+          FutureOr<void> Function(Server server, Snowflake integrationId,
+                  Snowflake? applicationId)
+              handle) =>
+      _events.make(
+          Event.serverIntegrationDelete,
+          (ServerIntegrationDeleteArgs p) =>
+              handle(p.server, p.integrationId, p.applicationId));
+
   void applicationCommandPermissionsUpdate(
           FutureOr<void> Function(Server server,
                   GuildApplicationCommandPermissions permissions)

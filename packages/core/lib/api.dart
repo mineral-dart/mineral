@@ -109,6 +109,7 @@ export 'package:mineral/src/api/server/enums/application_command_permission_type
 export 'package:mineral/src/api/server/enums/default_message_notification.dart';
 export 'package:mineral/src/api/server/enums/explicit_content_filter.dart';
 export 'package:mineral/src/api/server/enums/forum_layout_types.dart';
+export 'package:mineral/src/api/server/enums/integration_expire_behavior.dart';
 export 'package:mineral/src/api/server/enums/member_flag.dart';
 export 'package:mineral/src/api/server/enums/mfa_level.dart';
 export 'package:mineral/src/api/server/enums/nsfw_level.dart';
@@ -117,6 +118,7 @@ export 'package:mineral/src/api/server/enums/system_channel_flag.dart';
 export 'package:mineral/src/api/server/enums/verification_level.dart';
 export 'package:mineral/src/api/server/guild_application_command_permissions.dart';
 export 'package:mineral/src/api/server/guild_scheduled_event.dart';
+export 'package:mineral/src/api/server/integration.dart';
 export 'package:mineral/src/api/server/invite.dart';
 export 'package:mineral/src/api/server/managers/channel_manager.dart';
 export 'package:mineral/src/api/server/managers/emoji_manager.dart';
