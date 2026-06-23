@@ -57,6 +57,8 @@ enum PacketType implements PacketTypeContract {
   voiceStateUpdate('VOICE_STATE_UPDATE'),
   voiceChannelStatusUpdate('VOICE_CHANNEL_STATUS_UPDATE'),
 
+  userUpdate('USER_UPDATE'),
+
   inviteCreate('INVITE_CREATE'),
   inviteDelete('INVITE_DELETE'),
 
