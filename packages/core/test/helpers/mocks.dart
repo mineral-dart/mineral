@@ -59,6 +59,9 @@ final class FakeCommandInteractionManager
 
   @override
   void addCommand(CommandBuilder command) {}
+
+  @override
+  Future<void> handleAutocomplete(Map<String, dynamic> payload) async {}
 }
 
 /// A no-op [RunningStrategy] that immediately returns from every hook.
