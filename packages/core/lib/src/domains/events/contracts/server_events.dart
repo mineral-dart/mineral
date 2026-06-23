@@ -232,6 +232,19 @@ abstract class ServerMessageCreateEvent extends BaseListenableEvent {
   FutureOr<void> handle(ServerMessage message);
 }
 
+typedef ServerMessageUpdateArgs = ({ServerMessage? before, ServerMessage after});
+
+abstract class ServerMessageUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverMessageUpdate;
+
+  @override
+  Function get handler =>
+      (ServerMessageUpdateArgs p) => handle(p.before, p.after);
+
+  FutureOr<void> handle(ServerMessage? before, ServerMessage after);
+}
+
 typedef ServerMessageDeleteArgs = ({
   Server server,
   ServerChannel channel,

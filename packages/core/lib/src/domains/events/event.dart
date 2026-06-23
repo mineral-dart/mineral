@@ -39,6 +39,10 @@ enum Event implements EnhancedEnum<Type>, EventType {
   serverMessageCreate(ServerMessageCreateEvent, [
     ['ServerMessage', 'message']
   ]),
+  serverMessageUpdate(ServerMessageUpdateEvent, [
+    ['ServerMessage?', 'before'],
+    ['ServerMessage', 'after']
+  ]),
   serverMessageDelete(ServerMessageDeleteEvent, [
     ['Server', 'server'],
     ['ServerChannel', 'channel'],
@@ -212,6 +216,10 @@ enum Event implements EnhancedEnum<Type>, EventType {
   // private
   privateMessageCreate(PrivateMessageCreateEvent, [
     ['PrivateMessage', 'message']
+  ]),
+  privateMessageUpdate(PrivateMessageUpdateEvent, [
+    ['PrivateMessage?', 'before'],
+    ['PrivateMessage', 'after']
   ]),
   privateMessageDelete(PrivateMessageDeleteEvent, [
     ['PrivateChannel', 'channel'],
