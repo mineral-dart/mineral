@@ -107,6 +107,8 @@ final class _FakeDataStore implements DataStoreContract {
   @override
   ApplicationEmojiPartContract get applicationEmoji =>
       throw UnimplementedError();
+  @override
+  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────────

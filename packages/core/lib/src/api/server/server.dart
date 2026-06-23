@@ -135,4 +135,40 @@ final class Server {
     final member = await _datastore.member.get(id.value, ownerId.value, force);
     return member!;
   }
+
+  /// Fetch the guild welcome screen.
+  ///
+  /// ```dart
+  /// final screen = await server.fetchWelcomeScreen();
+  /// ```
+  Future<WelcomeScreen> fetchWelcomeScreen() =>
+      _datastore.welcomeScreen.fetch(id.value);
+
+  /// Update the guild welcome screen.
+  ///
+  /// Only the provided parameters are sent in the request body.
+  ///
+  /// ```dart
+  /// await server.updateWelcomeScreen(
+  ///   description: 'Welcome!',
+  ///   enabled: true,
+  ///   reason: 'Setting up welcome screen',
+  /// );
+  /// ```
+  Future<WelcomeScreen> updateWelcomeScreen({
+    bool? enabled,
+    List<WelcomeChannel>? welcomeChannels,
+    String? description,
+    String? reason,
+  }) {
+    final channelsJson =
+        welcomeChannels?.map((c) => c.toJson()).toList();
+    return _datastore.welcomeScreen.update(
+      id.value,
+      enabled: enabled,
+      welcomeChannels: channelsJson,
+      description: description,
+      reason: reason,
+    );
+  }
 }
