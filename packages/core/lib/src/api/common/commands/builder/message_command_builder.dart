@@ -1,7 +1,9 @@
+import 'package:mineral/src/api/common/commands/application_integration_type.dart';
 import 'package:mineral/src/api/common/commands/builder/translation.dart';
 import 'package:mineral/src/api/common/commands/command_context_type.dart';
 import 'package:mineral/src/api/common/commands/command_helper.dart';
 import 'package:mineral/src/api/common/commands/command_kind.dart';
+import 'package:mineral/src/api/common/commands/interaction_context_type.dart';
 import 'package:mineral/src/domains/commands/command_builder.dart';
 import 'package:mineral/src/domains/commands/command_handler.dart';
 import 'package:mineral/src/domains/commands/contexts/message_command_context.dart';
@@ -14,6 +16,8 @@ final class MessageCommandBuilder implements CommandBuilder {
   String? name;
   Map<String, String>? _nameLocalizations;
   CommandContextType context = CommandContextType.server;
+  List<ApplicationIntegrationType>? integrationTypes;
+  List<InteractionContextType>? interactionContexts;
   CommandHandler<MessageCommandContext>? handle;
 
   MessageCommandBuilder setName(String name, {Translation? translation}) {
@@ -36,6 +40,18 @@ final class MessageCommandBuilder implements CommandBuilder {
     return this;
   }
 
+  MessageCommandBuilder setIntegrationTypes(
+      List<ApplicationIntegrationType> types) {
+    integrationTypes = types;
+    return this;
+  }
+
+  MessageCommandBuilder setInteractionContexts(
+      List<InteractionContextType> contexts) {
+    interactionContexts = contexts;
+    return this;
+  }
+
   MessageCommandBuilder setHandle(CommandHandler<MessageCommandContext> fn) {
     handle = fn;
     return this;
@@ -50,6 +66,10 @@ final class MessageCommandBuilder implements CommandBuilder {
       'name': name,
       'name_localizations': _nameLocalizations,
       'type': CommandKind.message.value,
+      if (integrationTypes != null)
+        'integration_types': integrationTypes!.map((e) => e.value).toList(),
+      if (interactionContexts != null)
+        'contexts': interactionContexts!.map((e) => e.value).toList(),
     };
   }
 }

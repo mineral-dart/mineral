@@ -1,3 +1,4 @@
+import 'package:mineral/src/api/common/commands/application_integration_type.dart';
 import 'package:mineral/src/api/common/commands/builder/command_group_builder.dart';
 import 'package:mineral/src/api/common/commands/builder/sub_command_builder.dart';
 import 'package:mineral/src/api/common/commands/builder/translation.dart';
@@ -5,6 +6,7 @@ import 'package:mineral/src/api/common/commands/command_context_type.dart';
 import 'package:mineral/src/api/common/commands/command_helper.dart';
 import 'package:mineral/src/api/common/commands/command_option.dart';
 import 'package:mineral/src/api/common/commands/command_type.dart';
+import 'package:mineral/src/api/common/commands/interaction_context_type.dart';
 import 'package:mineral/src/api/common/commands/sub_command_declaration.dart';
 import 'package:mineral/src/domains/commands/command_builder.dart';
 import 'package:mineral/src/domains/commands/command_context.dart';
@@ -22,6 +24,8 @@ final class CommandDeclarationBuilder implements CommandBuilder {
   String? _description;
   Map<String, String>? _descriptionLocalizations;
   CommandContextType context = CommandContextType.server;
+  List<ApplicationIntegrationType>? integrationTypes;
+  List<InteractionContextType>? interactionContexts;
   final List<CommandOption> options = [];
   final List<SubCommandBuilder> subCommands = [];
   final List<CommandGroupBuilder> groups = [];
@@ -45,6 +49,18 @@ final class CommandDeclarationBuilder implements CommandBuilder {
 
   CommandDeclarationBuilder setContext(CommandContextType context) {
     this.context = context;
+    return this;
+  }
+
+  CommandDeclarationBuilder setIntegrationTypes(
+      List<ApplicationIntegrationType> types) {
+    integrationTypes = types;
+    return this;
+  }
+
+  CommandDeclarationBuilder setInteractionContexts(
+      List<InteractionContextType> contexts) {
+    interactionContexts = contexts;
     return this;
   }
 
@@ -121,6 +137,10 @@ final class CommandDeclarationBuilder implements CommandBuilder {
       if (subCommands.isEmpty && groups.isEmpty)
         'type': CommandType.subCommand.value,
       'options': options,
+      if (integrationTypes != null)
+        'integration_types': integrationTypes!.map((e) => e.value).toList(),
+      if (interactionContexts != null)
+        'contexts': interactionContexts!.map((e) => e.value).toList(),
     };
   }
 
