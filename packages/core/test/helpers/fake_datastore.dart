@@ -85,4 +85,8 @@ final class FakeDataStore implements DataStoreContract {
   @override
   StageInstancePartContract get stageInstance =>
       throw UnimplementedError('stageInstance');
+
+  @override
+  MonetizationPartContract get monetization =>
+      throw UnimplementedError('monetization');
 }

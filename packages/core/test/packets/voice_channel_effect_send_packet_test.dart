@@ -134,6 +134,8 @@ final class _DeferredDataStore implements DataStoreContract {
   @override
   StageInstancePartContract get stageInstance => throw UnimplementedError();
   @override
+  MonetizationPartContract get monetization => throw UnimplementedError();
+  @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
   HttpClientContract get client => throw UnimplementedError();

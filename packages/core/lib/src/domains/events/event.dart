@@ -373,6 +373,24 @@ enum Event implements EnhancedEnum<Type>, EventType {
   serverStageInstanceDelete(ServerStageInstanceDeleteEvent, [
     ['Server', 'server'],
     ['StageInstance', 'instance']
+  ]),
+  entitlementCreate(EntitlementCreateEvent, [
+    ['Entitlement', 'entitlement']
+  ]),
+  entitlementUpdate(EntitlementUpdateEvent, [
+    ['Entitlement', 'entitlement']
+  ]),
+  entitlementDelete(EntitlementDeleteEvent, [
+    ['Entitlement', 'entitlement']
+  ]),
+  subscriptionCreate(SubscriptionCreateEvent, [
+    ['Subscription', 'subscription']
+  ]),
+  subscriptionUpdate(SubscriptionUpdateEvent, [
+    ['Subscription', 'subscription']
+  ]),
+  subscriptionDelete(SubscriptionDeleteEvent, [
+    ['Subscription', 'subscription']
   ]);
 
   @override

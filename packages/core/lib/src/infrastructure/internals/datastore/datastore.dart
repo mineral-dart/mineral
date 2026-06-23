@@ -8,6 +8,7 @@ import 'package:mineral/src/infrastructure/internals/datastore/parts/interaction
 import 'package:mineral/src/infrastructure/internals/datastore/parts/invite_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/member_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/message_part.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/monetization_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/onboarding_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/reaction_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/role_part.dart';
@@ -89,6 +90,9 @@ final class DataStore implements DataStoreContract {
   @override
   late final StageInstancePart stageInstance;
 
+  @override
+  late final MonetizationPart monetization;
+
   DataStore({
     required this.client,
     required MarshallerContract marshaller,
@@ -116,5 +120,6 @@ final class DataStore implements DataStoreContract {
     onboarding = OnboardingPart(marshaller, this);
     template = TemplatePart(marshaller, this);
     stageInstance = StageInstancePart(marshaller, this);
+    monetization = MonetizationPart(marshaller, this);
   }
 }

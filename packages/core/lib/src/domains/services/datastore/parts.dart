@@ -504,3 +504,41 @@ abstract interface class StageInstancePartContract implements DataStorePart {
     String? reason,
   });
 }
+
+abstract interface class MonetizationPartContract implements DataStorePart {
+  Future<List<Sku>> fetchSkus(Object applicationId);
+
+  Future<List<Entitlement>> fetchEntitlements(
+    Object applicationId, {
+    Object? userId,
+    List<Object>? skuIds,
+    Object? guildId,
+    bool? excludeEnded,
+    int? limit,
+    Object? before,
+    Object? after,
+  });
+
+  Future<Entitlement> createTestEntitlement(
+    Object applicationId, {
+    required Object skuId,
+    required Object ownerId,
+    required EntitlementOwnerType ownerType,
+  });
+
+  Future<void> consumeEntitlement(
+      Object applicationId, Object entitlementId);
+
+  Future<void> deleteTestEntitlement(
+      Object applicationId, Object entitlementId);
+
+  Future<List<Subscription>> fetchSubscriptions(
+    Object skuId, {
+    Object? userId,
+    int? limit,
+    Object? before,
+    Object? after,
+  });
+
+  Future<Subscription> getSubscription(Object skuId, Object subscriptionId);
+}

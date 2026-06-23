@@ -76,6 +76,8 @@ final class _DeferredDataStore implements DataStoreContract {
   @override
   StageInstancePartContract get stageInstance => _resolve().stageInstance;
   @override
+  MonetizationPartContract get monetization => _resolve().monetization;
+  @override
   RequestBucket get requestBucket => _resolve().requestBucket;
   @override
   HttpClientContract get client => _resolve().client;
@@ -142,6 +144,8 @@ final class _FakeDataStore implements DataStoreContract {
   TemplatePartContract get template => throw UnimplementedError();
   @override
   StageInstancePartContract get stageInstance => throw UnimplementedError();
+  @override
+  MonetizationPartContract get monetization => throw UnimplementedError();
 }
 
 /// [ChannelPartContract] that returns a pre-built [Channel].
