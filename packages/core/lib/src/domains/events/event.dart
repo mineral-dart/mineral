@@ -68,6 +68,10 @@ enum Event implements EnhancedEnum<Type>, EventType {
   serverChannelPinsUpdate(ServerChannelPinsUpdateEvent, [
     ['ServerChannel', 'channel']
   ]),
+  serverWebhooksUpdate(ServerWebhooksUpdateEvent, [
+    ['Server', 'server'],
+    ['ServerChannel', 'channel']
+  ]),
   privateChannelPinsUpdate(PrivateChannelPinsUpdateEvent, [
     ['PrivateChannel', 'channel']
   ]),

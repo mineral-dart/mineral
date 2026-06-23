@@ -641,6 +641,19 @@ abstract class ServerThreadMemberUpdateEvent extends BaseListenableEvent {
   FutureOr<void> handle(ThreadChannel thread, Server server, Member member);
 }
 
+typedef ServerWebhooksUpdateArgs = ({Server server, ServerChannel? channel});
+
+abstract class ServerWebhooksUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverWebhooksUpdate;
+
+  @override
+  Function get handler =>
+      (ServerWebhooksUpdateArgs p) => handle(p.server, p.channel);
+
+  FutureOr<void> handle(Server server, ServerChannel? channel);
+}
+
 typedef ServerThreadUpdateArgs = ({
   Server server,
   ThreadChannel? before,

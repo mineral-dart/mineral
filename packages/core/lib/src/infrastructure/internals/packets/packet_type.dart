@@ -67,7 +67,9 @@ enum PacketType implements PacketTypeContract {
   messagePollVoteAdd('MESSAGE_POLL_VOTE_ADD'),
   messagePollVoteRemove('MESSAGE_POLL_VOTE_REMOVE'),
 
-  typingStart('TYPING_START');
+  typingStart('TYPING_START'),
+
+  webhooksUpdate('WEBHOOKS_UPDATE');
 
   @override
   final String name;
