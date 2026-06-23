@@ -241,6 +241,15 @@ final class ServerBucket {
           (ServerMessageReactionRemoveAllArgs p) =>
               handle(p.server, p.channel, p.message));
 
+  void messageReactionRemoveEmoji(
+          FutureOr<void> Function(Server server, ServerTextChannel channel,
+                  Message message, PartialEmoji emoji)
+              handle) =>
+      _events.make(
+          Event.serverMessageReactionRemoveEmoji,
+          (ServerMessageReactionRemoveEmojiArgs p) =>
+              handle(p.server, p.channel, p.message, p.emoji));
+
   void auditLog(FutureOr<void> Function(AuditLog audit) handle) => _events.make(
       Event.serverAuditLog, (ServerAuditLogArgs p) => handle(p.audit));
 

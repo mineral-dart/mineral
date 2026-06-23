@@ -191,6 +191,12 @@ enum Event implements EnhancedEnum<Type>, EventType {
     ['ServerTextChannel', 'channel'],
     ['Message', 'message']
   ]),
+  serverMessageReactionRemoveEmoji(ServerMessageReactionRemoveEmojiEvent, [
+    ['Server', 'server'],
+    ['ServerTextChannel', 'channel'],
+    ['Message', 'message'],
+    ['PartialEmoji', 'emoji']
+  ]),
   serverPollVoteAdd(ServerPollVoteAddEvent, [
     ['PollAnswerVote<ServerMessage>', 'message'],
     ['User', 'user']
@@ -271,6 +277,11 @@ enum Event implements EnhancedEnum<Type>, EventType {
   privateMessageReactionRemoveAll(PrivateMessageReactionRemoveAllEvent, [
     ['PrivateChannel', 'channel'],
     ['Message', 'message']
+  ]),
+  privateMessageReactionRemoveEmoji(PrivateMessageReactionRemoveEmojiEvent, [
+    ['PrivateChannel', 'channel'],
+    ['Message', 'message'],
+    ['PartialEmoji', 'emoji']
   ]),
   voiceStateUpdate(VoiceStateUpdateEvent, [
     ['VoiceState', 'before'],
