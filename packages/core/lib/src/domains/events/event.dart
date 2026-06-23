@@ -307,6 +307,12 @@ enum Event implements EnhancedEnum<Type>, EventType {
     ['VoiceState', 'before'],
     ['VoiceState', 'after']
   ]),
+  serverApplicationCommandPermissionsUpdate(
+      ServerApplicationCommandPermissionsUpdateEvent,
+      [
+        ['Server', 'server'],
+        ['GuildApplicationCommandPermissions', 'permissions']
+      ]),
   serverVoiceChannelEffectSend(ServerVoiceChannelEffectSendEvent, [
     ['Server', 'server'],
     ['ServerChannel', 'channel'],

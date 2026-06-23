@@ -70,7 +70,10 @@ enum PacketType implements PacketTypeContract {
 
   typingStart('TYPING_START'),
 
-  webhooksUpdate('WEBHOOKS_UPDATE');
+  webhooksUpdate('WEBHOOKS_UPDATE'),
+
+  applicationCommandPermissionsUpdate(
+      'APPLICATION_COMMAND_PERMISSIONS_UPDATE');
 
   @override
   final String name;
