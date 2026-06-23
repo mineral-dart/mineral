@@ -134,3 +134,81 @@ abstract class VoiceStateUpdateEvent extends BaseListenableEvent {
 
   FutureOr<void> handle(VoiceState state);
 }
+
+typedef EntitlementCreateArgs = ({Entitlement entitlement});
+
+abstract class EntitlementCreateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.entitlementCreate;
+
+  @override
+  Function get handler =>
+      (EntitlementCreateArgs p) => handle(p.entitlement);
+
+  FutureOr<void> handle(Entitlement entitlement);
+}
+
+typedef EntitlementUpdateArgs = ({Entitlement entitlement});
+
+abstract class EntitlementUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.entitlementUpdate;
+
+  @override
+  Function get handler =>
+      (EntitlementUpdateArgs p) => handle(p.entitlement);
+
+  FutureOr<void> handle(Entitlement entitlement);
+}
+
+typedef EntitlementDeleteArgs = ({Entitlement entitlement});
+
+abstract class EntitlementDeleteEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.entitlementDelete;
+
+  @override
+  Function get handler =>
+      (EntitlementDeleteArgs p) => handle(p.entitlement);
+
+  FutureOr<void> handle(Entitlement entitlement);
+}
+
+typedef SubscriptionCreateArgs = ({Subscription subscription});
+
+abstract class SubscriptionCreateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.subscriptionCreate;
+
+  @override
+  Function get handler =>
+      (SubscriptionCreateArgs p) => handle(p.subscription);
+
+  FutureOr<void> handle(Subscription subscription);
+}
+
+typedef SubscriptionUpdateArgs = ({Subscription subscription});
+
+abstract class SubscriptionUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.subscriptionUpdate;
+
+  @override
+  Function get handler =>
+      (SubscriptionUpdateArgs p) => handle(p.subscription);
+
+  FutureOr<void> handle(Subscription subscription);
+}
+
+typedef SubscriptionDeleteArgs = ({Subscription subscription});
+
+abstract class SubscriptionDeleteEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.subscriptionDelete;
+
+  @override
+  Function get handler =>
+      (SubscriptionDeleteArgs p) => handle(p.subscription);
+
+  FutureOr<void> handle(Subscription subscription);
+}

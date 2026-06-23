@@ -64,6 +64,42 @@ final class EventBucket {
       _registerEvent(event: Event.inviteDelete,
           handle: (InviteDeleteArgs p) => handle(p.code, p.channel));
 
+  void entitlementCreate(
+          FutureOr<void> Function(Entitlement entitlement) handle) =>
+      _registerEvent(
+          event: Event.entitlementCreate,
+          handle: (EntitlementCreateArgs p) => handle(p.entitlement));
+
+  void entitlementUpdate(
+          FutureOr<void> Function(Entitlement entitlement) handle) =>
+      _registerEvent(
+          event: Event.entitlementUpdate,
+          handle: (EntitlementUpdateArgs p) => handle(p.entitlement));
+
+  void entitlementDelete(
+          FutureOr<void> Function(Entitlement entitlement) handle) =>
+      _registerEvent(
+          event: Event.entitlementDelete,
+          handle: (EntitlementDeleteArgs p) => handle(p.entitlement));
+
+  void subscriptionCreate(
+          FutureOr<void> Function(Subscription subscription) handle) =>
+      _registerEvent(
+          event: Event.subscriptionCreate,
+          handle: (SubscriptionCreateArgs p) => handle(p.subscription));
+
+  void subscriptionUpdate(
+          FutureOr<void> Function(Subscription subscription) handle) =>
+      _registerEvent(
+          event: Event.subscriptionUpdate,
+          handle: (SubscriptionUpdateArgs p) => handle(p.subscription));
+
+  void subscriptionDelete(
+          FutureOr<void> Function(Subscription subscription) handle) =>
+      _registerEvent(
+          event: Event.subscriptionDelete,
+          handle: (SubscriptionDeleteArgs p) => handle(p.subscription));
+
   void _registerEvent<T extends Function>(
           {required Event event, required T handle, String? customId}) =>
       _kernel.eventListener

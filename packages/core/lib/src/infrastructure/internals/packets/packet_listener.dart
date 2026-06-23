@@ -13,6 +13,9 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/channel_c
 import 'package:mineral/src/infrastructure/internals/packets/listeners/channel_delete_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/channel_pins_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/channel_update_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/entitlement_create_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/entitlement_delete_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/entitlement_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_audit_log_entry_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_ban_add_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_ban_remove_packet.dart';
@@ -58,6 +61,9 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/ready_pac
 import 'package:mineral/src/infrastructure/internals/packets/listeners/stage_instance_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/stage_instance_delete_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/stage_instance_update_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/subscription_create_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/subscription_delete_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/subscription_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/thread_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/thread_delete_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/thread_members_update_packet.dart';
@@ -202,5 +208,12 @@ final class PacketListener implements PacketListenerContract {
     subscribe(StageInstanceCreatePacket(dataStore: ds));
     subscribe(StageInstanceUpdatePacket(dataStore: ds));
     subscribe(StageInstanceDeletePacket(dataStore: ds));
+
+    subscribe(EntitlementCreatePacket());
+    subscribe(EntitlementUpdatePacket());
+    subscribe(EntitlementDeletePacket());
+    subscribe(SubscriptionCreatePacket());
+    subscribe(SubscriptionUpdatePacket());
+    subscribe(SubscriptionDeletePacket());
   }
 }
