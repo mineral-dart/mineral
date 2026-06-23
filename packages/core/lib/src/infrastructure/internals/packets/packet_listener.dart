@@ -101,6 +101,7 @@ final class PacketListener implements PacketListenerContract {
         commandManager: cm,
         wss: wss,
         runtimeState: runtimeState,
+        entityContext: entityContext,
         cacheConfig: cacheConfig));
     subscribe(MessageCreatePacket(marshaller: m));
     subscribe(MessageUpdatePacket(marshaller: m));

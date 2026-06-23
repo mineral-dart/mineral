@@ -65,6 +65,9 @@ final class _NoopDs implements DataStoreContract {
   GuildScheduledEventPartContract get scheduledEvent =>
       throw UnimplementedError();
   @override
+  ApplicationEmojiPartContract get applicationEmoji =>
+      throw UnimplementedError();
+  @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
   HttpClientContract get client => throw UnimplementedError();
@@ -107,6 +110,9 @@ final class _DeferredDataStore implements DataStoreContract {
   WebhookPartContract get webhook => throw UnimplementedError();
   @override
   GuildScheduledEventPartContract get scheduledEvent =>
+      throw UnimplementedError();
+  @override
+  ApplicationEmojiPartContract get applicationEmoji =>
       throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
@@ -157,6 +163,9 @@ final class _FakeDataStore implements DataStoreContract {
   WebhookPartContract get webhook => throw UnimplementedError();
   @override
   GuildScheduledEventPartContract get scheduledEvent =>
+      throw UnimplementedError();
+  @override
+  ApplicationEmojiPartContract get applicationEmoji =>
       throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
