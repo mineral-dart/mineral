@@ -41,6 +41,7 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/message_p
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_reaction_add_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_reaction_remove_all_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_reaction_remove_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/message_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/presence_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/ready_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/thread_create_packet.dart';
@@ -94,6 +95,7 @@ final class PacketListener implements PacketListenerContract {
         runtimeState: runtimeState,
         cacheConfig: cacheConfig));
     subscribe(MessageCreatePacket(marshaller: m));
+    subscribe(MessageUpdatePacket(marshaller: m));
     subscribe(GuildCreatePacket(
         marshaller: m, commandManager: cm, runtimeState: runtimeState));
     subscribe(GuildUpdatePacket(marshaller: m));

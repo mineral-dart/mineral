@@ -81,6 +81,19 @@ abstract class PrivateMessageCreateEvent extends BaseListenableEvent {
   FutureOr<void> handle(PrivateMessage message);
 }
 
+typedef PrivateMessageUpdateArgs = ({PrivateMessage? before, PrivateMessage after});
+
+abstract class PrivateMessageUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.privateMessageUpdate;
+
+  @override
+  Function get handler =>
+      (PrivateMessageUpdateArgs p) => handle(p.before, p.after);
+
+  FutureOr<void> handle(PrivateMessage? before, PrivateMessage after);
+}
+
 typedef PrivateMessageDeleteArgs = ({
   PrivateChannel channel,
   Snowflake messageId,

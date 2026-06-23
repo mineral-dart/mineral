@@ -27,6 +27,12 @@ final class ServerBucket {
       _events.make(Event.serverMessageCreate,
           (ServerMessageCreateArgs p) => handle(p.message));
 
+  void messageUpdate(
+          FutureOr<void> Function(ServerMessage? before, ServerMessage after)
+              handle) =>
+      _events.make(Event.serverMessageUpdate,
+          (ServerMessageUpdateArgs p) => handle(p.before, p.after));
+
   void messageDelete(
           FutureOr<void> Function(Server server, ServerChannel channel,
                   Snowflake messageId, Message? message)
