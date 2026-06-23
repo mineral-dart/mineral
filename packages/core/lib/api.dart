@@ -129,6 +129,7 @@ export 'package:mineral/src/api/server/managers/emoji_manager.dart';
 export 'package:mineral/src/api/server/managers/member_manager.dart';
 export 'package:mineral/src/api/server/managers/member_role_manager.dart';
 export 'package:mineral/src/api/server/managers/role_manager.dart';
+export 'package:mineral/src/api/server/managers/scheduled_event_manager.dart';
 export 'package:mineral/src/api/server/managers/sticker_manager.dart';
 export 'package:mineral/src/api/server/managers/template_manager.dart';
 export 'package:mineral/src/api/server/member.dart';
