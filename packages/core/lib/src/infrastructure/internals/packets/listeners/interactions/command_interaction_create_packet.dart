@@ -22,6 +22,8 @@ final class CommandInteractionCreatePacket implements ListenablePacket {
 
     if (type == InteractionType.applicationCommand) {
       await _commandManager.dispatcher.dispatch(message.payload as Map<String, dynamic>);
+    } else if (type == InteractionType.applicationCommandAutocomplete) {
+      await _commandManager.handleAutocomplete(message.payload as Map<String, dynamic>);
     }
   }
 }
