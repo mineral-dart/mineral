@@ -9,6 +9,10 @@ enum Event implements EnhancedEnum<Type>, EventType {
   ready(ReadyEvent, [
     ['Bot', 'bot']
   ]),
+  userUpdate(UserUpdateEvent, [
+    ['User?', 'before'],
+    ['User', 'after']
+  ]),
   inviteCreate(InviteCreateEvent, [
     ['Invite', 'invite']
   ]),

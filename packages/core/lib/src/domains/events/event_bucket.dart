@@ -24,6 +24,11 @@ final class EventBucket {
       _registerEvent(event: Event.ready,
           handle: (ReadyArgs p) => handle(p.bot));
 
+  void userUpdate(
+          FutureOr<void> Function(User? before, User after) handle) =>
+      _registerEvent(event: Event.userUpdate,
+          handle: (UserUpdateArgs p) => handle(p.before, p.after));
+
   void voiceStateUpdate(FutureOr<void> Function(VoiceState state) handle) =>
       _registerEvent(event: Event.voiceStateUpdate,
           handle: (VoiceStateUpdateArgs p) => handle(p.state));
