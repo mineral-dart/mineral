@@ -671,3 +671,42 @@ abstract class ServerThreadUpdateEvent extends BaseListenableEvent {
   FutureOr<void> handle(
       Server server, ThreadChannel? before, ThreadChannel after);
 }
+
+typedef ServerVoiceChannelEffectSendArgs = ({
+  Server server,
+  ServerChannel channel,
+  Member member,
+  PartialEmoji? emoji,
+  VoiceChannelEffectAnimationType? animationType,
+  int? animationId,
+  Snowflake? soundId,
+  double? soundVolume,
+});
+
+abstract class ServerVoiceChannelEffectSendEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverVoiceChannelEffectSend;
+
+  @override
+  Function get handler => (ServerVoiceChannelEffectSendArgs p) => handle(
+        p.server,
+        p.channel,
+        p.member,
+        p.emoji,
+        p.animationType,
+        p.animationId,
+        p.soundId,
+        p.soundVolume,
+      );
+
+  FutureOr<void> handle(
+    Server server,
+    ServerChannel channel,
+    Member member,
+    PartialEmoji? emoji,
+    VoiceChannelEffectAnimationType? animationType,
+    int? animationId,
+    Snowflake? soundId,
+    double? soundVolume,
+  );
+}
