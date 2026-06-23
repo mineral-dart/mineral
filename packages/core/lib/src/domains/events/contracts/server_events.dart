@@ -748,6 +748,90 @@ abstract class ServerIntegrationDeleteEvent extends BaseListenableEvent {
       Server server, Snowflake integrationId, Snowflake? applicationId);
 }
 
+typedef ServerScheduledEventCreateArgs = ({
+  Server server,
+  GuildScheduledEvent event
+});
+
+abstract class ServerScheduledEventCreateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverScheduledEventCreate;
+
+  @override
+  Function get handler => (ServerScheduledEventCreateArgs p) =>
+      handle(p.server, p.event);
+
+  FutureOr<void> handle(Server server, GuildScheduledEvent event);
+}
+
+typedef ServerScheduledEventUpdateArgs = ({
+  Server server,
+  GuildScheduledEvent? before,
+  GuildScheduledEvent after
+});
+
+abstract class ServerScheduledEventUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverScheduledEventUpdate;
+
+  @override
+  Function get handler => (ServerScheduledEventUpdateArgs p) =>
+      handle(p.server, p.before, p.after);
+
+  FutureOr<void> handle(
+      Server server, GuildScheduledEvent? before, GuildScheduledEvent after);
+}
+
+typedef ServerScheduledEventDeleteArgs = ({
+  Server server,
+  GuildScheduledEvent event
+});
+
+abstract class ServerScheduledEventDeleteEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverScheduledEventDelete;
+
+  @override
+  Function get handler => (ServerScheduledEventDeleteArgs p) =>
+      handle(p.server, p.event);
+
+  FutureOr<void> handle(Server server, GuildScheduledEvent event);
+}
+
+typedef ServerScheduledEventUserAddArgs = ({
+  Server server,
+  Snowflake eventId,
+  User user
+});
+
+abstract class ServerScheduledEventUserAddEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverScheduledEventUserAdd;
+
+  @override
+  Function get handler => (ServerScheduledEventUserAddArgs p) =>
+      handle(p.server, p.eventId, p.user);
+
+  FutureOr<void> handle(Server server, Snowflake eventId, User user);
+}
+
+typedef ServerScheduledEventUserRemoveArgs = ({
+  Server server,
+  Snowflake eventId,
+  User user
+});
+
+abstract class ServerScheduledEventUserRemoveEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverScheduledEventUserRemove;
+
+  @override
+  Function get handler => (ServerScheduledEventUserRemoveArgs p) =>
+      handle(p.server, p.eventId, p.user);
+
+  FutureOr<void> handle(Server server, Snowflake eventId, User user);
+}
+
 typedef ServerVoiceChannelEffectSendArgs = ({
   Server server,
   ServerChannel channel,

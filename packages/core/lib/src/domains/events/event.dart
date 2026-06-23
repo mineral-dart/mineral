@@ -338,6 +338,29 @@ enum Event implements EnhancedEnum<Type>, EventType {
     ['int?', 'animationId'],
     ['Snowflake?', 'soundId'],
     ['double?', 'soundVolume'],
+  ]),
+  serverScheduledEventCreate(ServerScheduledEventCreateEvent, [
+    ['Server', 'server'],
+    ['GuildScheduledEvent', 'event']
+  ]),
+  serverScheduledEventUpdate(ServerScheduledEventUpdateEvent, [
+    ['Server', 'server'],
+    ['GuildScheduledEvent?', 'before'],
+    ['GuildScheduledEvent', 'after']
+  ]),
+  serverScheduledEventDelete(ServerScheduledEventDeleteEvent, [
+    ['Server', 'server'],
+    ['GuildScheduledEvent', 'event']
+  ]),
+  serverScheduledEventUserAdd(ServerScheduledEventUserAddEvent, [
+    ['Server', 'server'],
+    ['Snowflake', 'eventId'],
+    ['User', 'user']
+  ]),
+  serverScheduledEventUserRemove(ServerScheduledEventUserRemoveEvent, [
+    ['Server', 'server'],
+    ['Snowflake', 'eventId'],
+    ['User', 'user']
   ]);
 
   @override
