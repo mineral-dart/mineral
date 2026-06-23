@@ -39,4 +39,6 @@ abstract class DataStoreContract {
   GuildScheduledEventPartContract get scheduledEvent;
 
   ApplicationEmojiPartContract get applicationEmoji;
+
+  WelcomeScreenPartContract get welcomeScreen;
 }

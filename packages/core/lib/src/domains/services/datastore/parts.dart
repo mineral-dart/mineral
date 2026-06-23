@@ -418,3 +418,15 @@ abstract interface class ApplicationEmojiPartContract implements DataStorePart {
 
   Future<void> delete(Object applicationId, Object emojiId);
 }
+
+abstract interface class WelcomeScreenPartContract implements DataStorePart {
+  Future<WelcomeScreen> fetch(Object serverId);
+
+  Future<WelcomeScreen> update(
+    Object serverId, {
+    bool? enabled,
+    List<Map<String, dynamic>>? welcomeChannels,
+    String? description,
+    String? reason,
+  });
+}
