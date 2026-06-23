@@ -73,6 +73,8 @@ final class _FakeDataStore implements DataStoreContract {
   GuildScheduledEventPartContract get scheduledEvent =>
       throw UnimplementedError();
   @override
+  StageInstancePartContract get stageInstance => throw UnimplementedError();
+  @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
   HttpClientContract get client => throw UnimplementedError();
@@ -121,6 +123,8 @@ final class _DeferredDataStore implements DataStoreContract {
   @override
   GuildScheduledEventPartContract get scheduledEvent =>
       throw UnimplementedError();
+  @override
+  StageInstancePartContract get stageInstance => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override

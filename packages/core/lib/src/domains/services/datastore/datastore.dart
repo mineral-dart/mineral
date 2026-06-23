@@ -45,4 +45,6 @@ abstract class DataStoreContract {
   OnboardingPartContract get onboarding;
 
   TemplatePartContract get template;
+
+  StageInstancePartContract get stageInstance;
 }

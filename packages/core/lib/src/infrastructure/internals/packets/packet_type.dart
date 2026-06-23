@@ -84,7 +84,11 @@ enum PacketType implements PacketTypeContract {
   guildScheduledEventUpdate('GUILD_SCHEDULED_EVENT_UPDATE'),
   guildScheduledEventDelete('GUILD_SCHEDULED_EVENT_DELETE'),
   guildScheduledEventUserAdd('GUILD_SCHEDULED_EVENT_USER_ADD'),
-  guildScheduledEventUserRemove('GUILD_SCHEDULED_EVENT_USER_REMOVE');
+  guildScheduledEventUserRemove('GUILD_SCHEDULED_EVENT_USER_REMOVE'),
+
+  stageInstanceCreate('STAGE_INSTANCE_CREATE'),
+  stageInstanceUpdate('STAGE_INSTANCE_UPDATE'),
+  stageInstanceDelete('STAGE_INSTANCE_DELETE');
 
   @override
   final String name;
