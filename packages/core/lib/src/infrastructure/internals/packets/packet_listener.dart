@@ -19,6 +19,7 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_ban
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_delete_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_emojis_update_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_integrations_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_member_add_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_member_chunk_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_member_remove_packet.dart';
@@ -28,6 +29,9 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_rol
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_role_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_stickers_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_update_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/integration_create_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/integration_delete_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/integration_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/interactions/button_interaction_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/interactions/command_interaction_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/interactions/modal_interaction_create_packet.dart';
@@ -169,6 +173,11 @@ final class PacketListener implements PacketListenerContract {
 
     subscribe(
         ApplicationCommandPermissionsUpdatePacket(dataStore: ds));
+
+    subscribe(GuildIntegrationsUpdatePacket(dataStore: ds));
+    subscribe(IntegrationCreatePacket(dataStore: ds));
+    subscribe(IntegrationUpdatePacket(dataStore: ds));
+    subscribe(IntegrationDeletePacket(dataStore: ds));
 
     subscribe(AutomoderationRuleCreatePacket(marshaller: m));
     subscribe(AutoModerationRuleUpdatePacket(marshaller: m));

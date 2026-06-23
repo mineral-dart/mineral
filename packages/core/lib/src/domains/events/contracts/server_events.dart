@@ -691,6 +691,63 @@ abstract class ServerApplicationCommandPermissionsUpdateEvent
       Server server, GuildApplicationCommandPermissions permissions);
 }
 
+typedef ServerIntegrationsUpdateArgs = ({Server server});
+
+abstract class ServerIntegrationsUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverIntegrationsUpdate;
+
+  @override
+  Function get handler =>
+      (ServerIntegrationsUpdateArgs p) => handle(p.server);
+
+  FutureOr<void> handle(Server server);
+}
+
+typedef ServerIntegrationCreateArgs = ({Server server, Integration integration});
+
+abstract class ServerIntegrationCreateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverIntegrationCreate;
+
+  @override
+  Function get handler =>
+      (ServerIntegrationCreateArgs p) => handle(p.server, p.integration);
+
+  FutureOr<void> handle(Server server, Integration integration);
+}
+
+typedef ServerIntegrationUpdateArgs = ({Server server, Integration integration});
+
+abstract class ServerIntegrationUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverIntegrationUpdate;
+
+  @override
+  Function get handler =>
+      (ServerIntegrationUpdateArgs p) => handle(p.server, p.integration);
+
+  FutureOr<void> handle(Server server, Integration integration);
+}
+
+typedef ServerIntegrationDeleteArgs = ({
+  Server server,
+  Snowflake integrationId,
+  Snowflake? applicationId
+});
+
+abstract class ServerIntegrationDeleteEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverIntegrationDelete;
+
+  @override
+  Function get handler => (ServerIntegrationDeleteArgs p) =>
+      handle(p.server, p.integrationId, p.applicationId);
+
+  FutureOr<void> handle(
+      Server server, Snowflake integrationId, Snowflake? applicationId);
+}
+
 typedef ServerVoiceChannelEffectSendArgs = ({
   Server server,
   ServerChannel channel,
