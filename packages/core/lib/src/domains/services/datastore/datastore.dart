@@ -43,4 +43,6 @@ abstract class DataStoreContract {
   WelcomeScreenPartContract get welcomeScreen;
 
   OnboardingPartContract get onboarding;
+
+  TemplatePartContract get template;
 }

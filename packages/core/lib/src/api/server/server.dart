@@ -36,6 +36,9 @@ final class Server {
 
   DateTime get createdAt => id.createdAt;
 
+  /// Access this server's guild templates.
+  TemplateManager get templates => TemplateManager(id, ctx: _ctx);
+
   /// Set the server's name.
   ///
   /// ```dart
