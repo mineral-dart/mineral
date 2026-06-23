@@ -289,4 +289,28 @@ final class ServerBucket {
   void ruleExecution(FutureOr<void> Function(RuleExecution execution) handle) =>
       _events.make(Event.serverRuleExecution,
           (ServerRuleExecutionArgs p) => handle(p.execution));
+
+  void voiceChannelEffectSend(
+          FutureOr<void> Function(
+                  Server server,
+                  ServerChannel channel,
+                  Member member,
+                  PartialEmoji? emoji,
+                  VoiceChannelEffectAnimationType? animationType,
+                  int? animationId,
+                  Snowflake? soundId,
+                  double? soundVolume)
+              handle) =>
+      _events.make(
+          Event.serverVoiceChannelEffectSend,
+          (ServerVoiceChannelEffectSendArgs p) => handle(
+                p.server,
+                p.channel,
+                p.member,
+                p.emoji,
+                p.animationType,
+                p.animationId,
+                p.soundId,
+                p.soundVolume,
+              ));
 }
