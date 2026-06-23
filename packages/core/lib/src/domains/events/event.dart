@@ -306,6 +306,16 @@ enum Event implements EnhancedEnum<Type>, EventType {
   voiceMove(VoiceMoveEvent, [
     ['VoiceState', 'before'],
     ['VoiceState', 'after']
+  ]),
+  serverVoiceChannelEffectSend(ServerVoiceChannelEffectSendEvent, [
+    ['Server', 'server'],
+    ['ServerChannel', 'channel'],
+    ['Member', 'member'],
+    ['PartialEmoji?', 'emoji'],
+    ['VoiceChannelEffectAnimationType?', 'animationType'],
+    ['int?', 'animationId'],
+    ['Snowflake?', 'soundId'],
+    ['double?', 'soundVolume'],
   ]);
 
   @override
