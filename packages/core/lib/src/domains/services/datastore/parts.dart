@@ -430,3 +430,16 @@ abstract interface class WelcomeScreenPartContract implements DataStorePart {
     String? reason,
   });
 }
+
+abstract interface class OnboardingPartContract implements DataStorePart {
+  Future<Onboarding> fetch(Object serverId);
+
+  Future<Onboarding> update(
+    Object serverId, {
+    List<OnboardingPrompt>? prompts,
+    List<Object>? defaultChannelIds,
+    bool? enabled,
+    OnboardingMode? mode,
+    String? reason,
+  });
+}

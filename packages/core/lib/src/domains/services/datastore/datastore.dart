@@ -41,4 +41,6 @@ abstract class DataStoreContract {
   ApplicationEmojiPartContract get applicationEmoji;
 
   WelcomeScreenPartContract get welcomeScreen;
+
+  OnboardingPartContract get onboarding;
 }

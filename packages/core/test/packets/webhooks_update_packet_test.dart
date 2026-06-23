@@ -67,6 +67,8 @@ final class _DeferredDataStore implements DataStoreContract {
   @override
   WelcomeScreenPartContract get welcomeScreen => _resolve().welcomeScreen;
   @override
+  OnboardingPartContract get onboarding => _resolve().onboarding;
+  @override
   RequestBucket get requestBucket => _resolve().requestBucket;
   @override
   HttpClientContract get client => _resolve().client;
@@ -124,6 +126,8 @@ final class _FakeDataStore implements DataStoreContract {
       throw UnimplementedError();
   @override
   WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
+  @override
+  OnboardingPartContract get onboarding => throw UnimplementedError();
 }
 
 /// [ChannelPartContract] that returns a pre-built [Channel].
@@ -229,6 +233,8 @@ final class _NoopDs implements DataStoreContract {
       throw UnimplementedError();
   @override
   WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
+  @override
+  OnboardingPartContract get onboarding => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override

@@ -70,6 +70,8 @@ final class _NoopDs implements DataStoreContract {
   @override
   WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
   @override
+  OnboardingPartContract get onboarding => throw UnimplementedError();
+  @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
   HttpClientContract get client => throw UnimplementedError();
@@ -118,6 +120,8 @@ final class _DeferredDataStore implements DataStoreContract {
       throw UnimplementedError();
   @override
   WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
+  @override
+  OnboardingPartContract get onboarding => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
@@ -173,6 +177,8 @@ final class _FakeDataStore implements DataStoreContract {
       throw UnimplementedError();
   @override
   WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
+  @override
+  OnboardingPartContract get onboarding => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
