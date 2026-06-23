@@ -361,6 +361,18 @@ enum Event implements EnhancedEnum<Type>, EventType {
     ['Server', 'server'],
     ['Snowflake', 'eventId'],
     ['User', 'user']
+  ]),
+  serverStageInstanceCreate(ServerStageInstanceCreateEvent, [
+    ['Server', 'server'],
+    ['StageInstance', 'instance']
+  ]),
+  serverStageInstanceUpdate(ServerStageInstanceUpdateEvent, [
+    ['Server', 'server'],
+    ['StageInstance', 'instance']
+  ]),
+  serverStageInstanceDelete(ServerStageInstanceDeleteEvent, [
+    ['Server', 'server'],
+    ['StageInstance', 'instance']
   ]);
 
   @override

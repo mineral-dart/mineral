@@ -390,4 +390,28 @@ final class ServerBucket {
                 p.soundId,
                 p.soundVolume,
               ));
+
+  void stageInstanceCreate(
+          FutureOr<void> Function(Server server, StageInstance instance)
+              handle) =>
+      _events.make(
+          Event.serverStageInstanceCreate,
+          (ServerStageInstanceCreateArgs p) =>
+              handle(p.server, p.instance));
+
+  void stageInstanceUpdate(
+          FutureOr<void> Function(Server server, StageInstance instance)
+              handle) =>
+      _events.make(
+          Event.serverStageInstanceUpdate,
+          (ServerStageInstanceUpdateArgs p) =>
+              handle(p.server, p.instance));
+
+  void stageInstanceDelete(
+          FutureOr<void> Function(Server server, StageInstance instance)
+              handle) =>
+      _events.make(
+          Event.serverStageInstanceDelete,
+          (ServerStageInstanceDeleteArgs p) =>
+              handle(p.server, p.instance));
 }

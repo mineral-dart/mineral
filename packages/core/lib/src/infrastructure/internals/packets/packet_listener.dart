@@ -55,6 +55,9 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/message_r
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/presence_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/ready_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/stage_instance_create_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/stage_instance_delete_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/stage_instance_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/thread_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/thread_delete_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/thread_members_update_packet.dart';
@@ -195,5 +198,9 @@ final class PacketListener implements PacketListenerContract {
     subscribe(GuildScheduledEventDeletePacket(marshaller: m, dataStore: ds));
     subscribe(GuildScheduledEventUserAddPacket(dataStore: ds));
     subscribe(GuildScheduledEventUserRemovePacket(dataStore: ds));
+
+    subscribe(StageInstanceCreatePacket(dataStore: ds));
+    subscribe(StageInstanceUpdatePacket(dataStore: ds));
+    subscribe(StageInstanceDeletePacket(dataStore: ds));
   }
 }

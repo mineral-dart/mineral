@@ -466,3 +466,28 @@ abstract interface class TemplatePartContract implements DataStorePart {
 
   Future<GuildTemplate> delete(Object serverId, String code);
 }
+
+abstract interface class StageInstancePartContract implements DataStorePart {
+  Future<StageInstance> get(Object channelId);
+
+  Future<StageInstance> create({
+    required Object channelId,
+    required String topic,
+    StagePrivacyLevel? privacyLevel,
+    bool? sendStartNotification,
+    Object? guildScheduledEventId,
+    String? reason,
+  });
+
+  Future<StageInstance> update({
+    required Object channelId,
+    String? topic,
+    StagePrivacyLevel? privacyLevel,
+    String? reason,
+  });
+
+  Future<void> delete({
+    required Object channelId,
+    String? reason,
+  });
+}

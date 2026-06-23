@@ -71,6 +71,8 @@ final class _DeferredDataStore implements DataStoreContract {
   @override
   TemplatePartContract get template => _resolve().template;
   @override
+  StageInstancePartContract get stageInstance => _resolve().stageInstance;
+  @override
   RequestBucket get requestBucket => _resolve().requestBucket;
   @override
   HttpClientContract get client => _resolve().client;
@@ -132,6 +134,8 @@ final class _FakeDataStore implements DataStoreContract {
   OnboardingPartContract get onboarding => throw UnimplementedError();
   @override
   TemplatePartContract get template => throw UnimplementedError();
+  @override
+  StageInstancePartContract get stageInstance => throw UnimplementedError();
 }
 
 /// [ChannelPartContract] that returns a pre-built [Channel].
@@ -241,6 +245,8 @@ final class _NoopDs implements DataStoreContract {
   OnboardingPartContract get onboarding => throw UnimplementedError();
   @override
   TemplatePartContract get template => throw UnimplementedError();
+  @override
+  StageInstancePartContract get stageInstance => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override

@@ -870,3 +870,51 @@ abstract class ServerVoiceChannelEffectSendEvent extends BaseListenableEvent {
     double? soundVolume,
   );
 }
+
+typedef ServerStageInstanceCreateArgs = ({
+  Server server,
+  StageInstance instance
+});
+
+abstract class ServerStageInstanceCreateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverStageInstanceCreate;
+
+  @override
+  Function get handler => (ServerStageInstanceCreateArgs p) =>
+      handle(p.server, p.instance);
+
+  FutureOr<void> handle(Server server, StageInstance instance);
+}
+
+typedef ServerStageInstanceUpdateArgs = ({
+  Server server,
+  StageInstance instance
+});
+
+abstract class ServerStageInstanceUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverStageInstanceUpdate;
+
+  @override
+  Function get handler => (ServerStageInstanceUpdateArgs p) =>
+      handle(p.server, p.instance);
+
+  FutureOr<void> handle(Server server, StageInstance instance);
+}
+
+typedef ServerStageInstanceDeleteArgs = ({
+  Server server,
+  StageInstance instance
+});
+
+abstract class ServerStageInstanceDeleteEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverStageInstanceDelete;
+
+  @override
+  Function get handler => (ServerStageInstanceDeleteArgs p) =>
+      handle(p.server, p.instance);
+
+  FutureOr<void> handle(Server server, StageInstance instance);
+}
