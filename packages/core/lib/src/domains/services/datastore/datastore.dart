@@ -37,4 +37,6 @@ abstract class DataStoreContract {
   WebhookPartContract get webhook;
 
   GuildScheduledEventPartContract get scheduledEvent;
+
+  ApplicationEmojiPartContract get applicationEmoji;
 }

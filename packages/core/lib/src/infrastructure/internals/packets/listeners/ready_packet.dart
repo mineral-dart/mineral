@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/api/common/bot/bot.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
@@ -19,17 +20,20 @@ final class ReadyPacket implements ListenablePacket {
   final WebsocketOrchestratorContract _wss;
   final RuntimeState _runtimeState;
   final CacheConfig? _cacheConfig;
+  final EntityContext _entityContext;
 
   ReadyPacket({
     required MarshallerContract marshaller,
     required CommandInteractionManagerContract commandManager,
     required WebsocketOrchestratorContract wss,
     required RuntimeState runtimeState,
+    required EntityContext entityContext,
     CacheConfig? cacheConfig,
   })  : _marshaller = marshaller,
         _commandManager = commandManager,
         _wss = wss,
         _runtimeState = runtimeState,
+        _entityContext = entityContext,
         _cacheConfig = cacheConfig;
 
   @override
@@ -38,7 +42,8 @@ final class ReadyPacket implements ListenablePacket {
     // in the shared [RuntimeState] for downstream consumers (GuildCreatePacket,
     // Interaction).
     final bot = _runtimeState.bot ??=
-        Bot.fromJson(message.payload as Map<String, dynamic>, wss: _wss);
+        Bot.fromJson(message.payload as Map<String, dynamic>,
+            wss: _wss, entityContext: _entityContext);
 
     if (!isAlreadyUsed) {
       await _commandManager.registerGlobal(bot);

@@ -1,8 +1,10 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class Bot {
   final WebsocketOrchestratorContract _wss;
+  final EntityContext? _ctx;
 
   final Snowflake id;
   final String? discriminator;
@@ -33,7 +35,23 @@ final class Bot {
     required this.presences,
     required this.guildIds,
     required this.application,
-  }) : _wss = wss;
+    EntityContext? ctx,
+  })  : _wss = wss,
+        _ctx = ctx;
+
+  /// Manager for application-owned emojis (usable across all servers).
+  /// ```dart
+  /// final emojis = await bot.emojis.fetch();
+  /// ```
+  ApplicationEmojiManager get emojis {
+    final ctx = _ctx;
+    if (ctx == null) {
+      throw StateError(
+          'Bot.emojis requires an EntityContext. '
+          'Pass entityContext: to Bot.fromJson().');
+    }
+    return ApplicationEmojiManager(application.id, ctx: ctx);
+  }
 
   /// Updates presence of this
   void setPresence(
@@ -46,11 +64,13 @@ final class Bot {
   factory Bot.fromJson(
     Map<String, dynamic> json, {
     required WebsocketOrchestratorContract wss,
+    EntityContext? entityContext,
   }) {
     final user = json['user'] as Map<String, dynamic>;
     final application = json['application'] as Map<String, dynamic>;
     return Bot._(
         wss: wss,
+        ctx: entityContext,
         id: Snowflake.parse(user['id']),
         discriminator: user['discriminator'] as String?,
         version: json['v'] as int,

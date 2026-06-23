@@ -406,3 +406,15 @@ abstract interface class InvitePartContract implements DataStorePart {
 
   Future<void> delete(String code, String? reason);
 }
+
+abstract interface class ApplicationEmojiPartContract implements DataStorePart {
+  Future<Map<Snowflake, Emoji>> fetch(Object applicationId);
+
+  Future<Emoji?> get(Object applicationId, Object emojiId);
+
+  Future<Emoji> create(Object applicationId, String name, Image image);
+
+  Future<Emoji?> update(Object applicationId, Object emojiId, String name);
+
+  Future<void> delete(Object applicationId, Object emojiId);
+}

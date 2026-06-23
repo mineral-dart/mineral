@@ -102,6 +102,9 @@ final class _FakeDataStore implements DataStoreContract {
   @override
   GuildScheduledEventPartContract get scheduledEvent =>
       throw UnimplementedError();
+  @override
+  ApplicationEmojiPartContract get applicationEmoji =>
+      throw UnimplementedError();
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

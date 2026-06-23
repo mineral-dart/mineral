@@ -1,5 +1,6 @@
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/services/http/http.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/application_emoji_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/channel_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/emoji_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/guild_scheduled_event_part.dart';
@@ -69,6 +70,9 @@ final class DataStore implements DataStoreContract {
   @override
   late final GuildScheduledEventPart scheduledEvent;
 
+  @override
+  late final ApplicationEmojiPart applicationEmoji;
+
   DataStore({
     required this.client,
     required MarshallerContract marshaller,
@@ -91,5 +95,6 @@ final class DataStore implements DataStoreContract {
     invite = InvitePart(marshaller, this);
     webhook = WebhookPart(marshaller, this);
     scheduledEvent = GuildScheduledEventPart(marshaller, this);
+    applicationEmoji = ApplicationEmojiPart(marshaller, this);
   }
 }
