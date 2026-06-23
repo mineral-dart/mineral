@@ -65,6 +65,8 @@ final class _DeferredDataStore implements DataStoreContract {
   ApplicationEmojiPartContract get applicationEmoji =>
       _resolve().applicationEmoji;
   @override
+  WelcomeScreenPartContract get welcomeScreen => _resolve().welcomeScreen;
+  @override
   RequestBucket get requestBucket => _resolve().requestBucket;
   @override
   HttpClientContract get client => _resolve().client;
@@ -120,6 +122,8 @@ final class _FakeDataStore implements DataStoreContract {
   @override
   ApplicationEmojiPartContract get applicationEmoji =>
       throw UnimplementedError();
+  @override
+  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
 }
 
 /// [ChannelPartContract] that returns a pre-built [Channel].
@@ -223,6 +227,8 @@ final class _NoopDs implements DataStoreContract {
   @override
   ApplicationEmojiPartContract get applicationEmoji =>
       throw UnimplementedError();
+  @override
+  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override

@@ -68,6 +68,8 @@ final class _NoopDs implements DataStoreContract {
   ApplicationEmojiPartContract get applicationEmoji =>
       throw UnimplementedError();
   @override
+  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
+  @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
   HttpClientContract get client => throw UnimplementedError();
@@ -114,6 +116,8 @@ final class _DeferredDataStore implements DataStoreContract {
   @override
   ApplicationEmojiPartContract get applicationEmoji =>
       throw UnimplementedError();
+  @override
+  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
@@ -167,6 +171,8 @@ final class _FakeDataStore implements DataStoreContract {
   @override
   ApplicationEmojiPartContract get applicationEmoji =>
       throw UnimplementedError();
+  @override
+  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override

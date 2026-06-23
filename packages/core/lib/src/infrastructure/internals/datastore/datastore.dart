@@ -16,6 +16,7 @@ import 'package:mineral/src/infrastructure/internals/datastore/parts/sticker_par
 import 'package:mineral/src/infrastructure/internals/datastore/parts/thread_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/user_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/webhook_part.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/welcome_screen_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.dart';
 
 final class DataStore implements DataStoreContract {
@@ -73,6 +74,9 @@ final class DataStore implements DataStoreContract {
   @override
   late final ApplicationEmojiPart applicationEmoji;
 
+  @override
+  late final WelcomeScreenPart welcomeScreen;
+
   DataStore({
     required this.client,
     required MarshallerContract marshaller,
@@ -96,5 +100,6 @@ final class DataStore implements DataStoreContract {
     webhook = WebhookPart(marshaller, this);
     scheduledEvent = GuildScheduledEventPart(marshaller, this);
     applicationEmoji = ApplicationEmojiPart(marshaller, this);
+    welcomeScreen = WelcomeScreenPart(marshaller, this);
   }
 }
