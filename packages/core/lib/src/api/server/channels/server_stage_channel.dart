@@ -42,4 +42,45 @@ final class ServerStageChannel extends ServerChannel {
   Future<void> setDefaultThreadRateLimitPerUser(Duration value,
           {String? reason}) =>
       methods.setDefaultThreadRateLimitPerUser(value, reason);
+
+  /// Starts a new stage instance for this channel.
+  Future<StageInstance> startStageInstance({
+    required String topic,
+    StagePrivacyLevel? privacyLevel,
+    bool? sendStartNotification,
+    Object? guildScheduledEventId,
+    String? reason,
+  }) =>
+      properties.ctx.datastore.stageInstance.create(
+        channelId: properties.id.value,
+        topic: topic,
+        privacyLevel: privacyLevel,
+        sendStartNotification: sendStartNotification,
+        guildScheduledEventId: guildScheduledEventId,
+        reason: reason,
+      );
+
+  /// Fetches the current stage instance for this channel.
+  Future<StageInstance> fetchStageInstance() =>
+      properties.ctx.datastore.stageInstance.get(properties.id.value);
+
+  /// Updates the stage instance for this channel.
+  Future<StageInstance> editStageInstance({
+    String? topic,
+    StagePrivacyLevel? privacyLevel,
+    String? reason,
+  }) =>
+      properties.ctx.datastore.stageInstance.update(
+        channelId: properties.id.value,
+        topic: topic,
+        privacyLevel: privacyLevel,
+        reason: reason,
+      );
+
+  /// Ends (deletes) the stage instance for this channel.
+  Future<void> endStageInstance({String? reason}) =>
+      properties.ctx.datastore.stageInstance.delete(
+        channelId: properties.id.value,
+        reason: reason,
+      );
 }
