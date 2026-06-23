@@ -290,6 +290,15 @@ final class ServerBucket {
       _events.make(Event.serverRuleExecution,
           (ServerRuleExecutionArgs p) => handle(p.execution));
 
+  void applicationCommandPermissionsUpdate(
+          FutureOr<void> Function(Server server,
+                  GuildApplicationCommandPermissions permissions)
+              handle) =>
+      _events.make(
+          Event.serverApplicationCommandPermissionsUpdate,
+          (ServerApplicationCommandPermissionsUpdateArgs p) =>
+              handle(p.server, p.permissions));
+
   void voiceChannelEffectSend(
           FutureOr<void> Function(
                   Server server,
