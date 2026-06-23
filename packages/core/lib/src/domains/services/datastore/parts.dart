@@ -443,3 +443,26 @@ abstract interface class OnboardingPartContract implements DataStorePart {
     String? reason,
   });
 }
+
+abstract interface class TemplatePartContract implements DataStorePart {
+  Future<Map<String, GuildTemplate>> fetchForServer(Object serverId);
+
+  Future<GuildTemplate> getByCode(String code);
+
+  Future<GuildTemplate> create(
+    Object serverId, {
+    required String name,
+    String? description,
+  });
+
+  Future<GuildTemplate> sync(Object serverId, String code);
+
+  Future<GuildTemplate> update(
+    Object serverId,
+    String code, {
+    String? name,
+    String? description,
+  });
+
+  Future<GuildTemplate> delete(Object serverId, String code);
+}

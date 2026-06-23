@@ -72,6 +72,8 @@ final class _NoopDs implements DataStoreContract {
   @override
   OnboardingPartContract get onboarding => throw UnimplementedError();
   @override
+  TemplatePartContract get template => throw UnimplementedError();
+  @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
   HttpClientContract get client => throw UnimplementedError();
@@ -125,6 +127,8 @@ final class _DeferredDataStore implements DataStoreContract {
   WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
   @override
   OnboardingPartContract get onboarding => throw UnimplementedError();
+  @override
+  TemplatePartContract get template => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
@@ -184,6 +188,8 @@ final class _FakeDataStore implements DataStoreContract {
   WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
   @override
   OnboardingPartContract get onboarding => throw UnimplementedError();
+  @override
+  TemplatePartContract get template => throw UnimplementedError();
   @override
   GuildScheduledEventPartContract get scheduledEvent =>
       throw UnimplementedError();

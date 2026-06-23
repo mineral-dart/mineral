@@ -78,4 +78,7 @@ final class FakeDataStore implements DataStoreContract {
   @override
   OnboardingPartContract get onboarding =>
       throw UnimplementedError('onboarding');
+
+  @override
+  TemplatePartContract get template => throw UnimplementedError('template');
 }
