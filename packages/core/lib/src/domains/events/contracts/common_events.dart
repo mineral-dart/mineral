@@ -4,6 +4,18 @@ import 'package:mineral/api.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/domains/events/types/base_listenable_event.dart';
 
+typedef UserUpdateArgs = ({User? before, User after});
+
+abstract class UserUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.userUpdate;
+
+  @override
+  Function get handler => (UserUpdateArgs p) => handle(p.before, p.after);
+
+  FutureOr<void> handle(User? before, User after);
+}
+
 typedef InviteCreateArgs = ({Invite invite});
 
 abstract class InviteCreateEvent extends BaseListenableEvent {
