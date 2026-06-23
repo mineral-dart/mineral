@@ -672,6 +672,25 @@ abstract class ServerThreadUpdateEvent extends BaseListenableEvent {
       Server server, ThreadChannel? before, ThreadChannel after);
 }
 
+typedef ServerApplicationCommandPermissionsUpdateArgs = ({
+  Server server,
+  GuildApplicationCommandPermissions permissions
+});
+
+abstract class ServerApplicationCommandPermissionsUpdateEvent
+    extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverApplicationCommandPermissionsUpdate;
+
+  @override
+  Function get handler =>
+      (ServerApplicationCommandPermissionsUpdateArgs p) =>
+          handle(p.server, p.permissions);
+
+  FutureOr<void> handle(
+      Server server, GuildApplicationCommandPermissions permissions);
+}
+
 typedef ServerVoiceChannelEffectSendArgs = ({
   Server server,
   ServerChannel channel,

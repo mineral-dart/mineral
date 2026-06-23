@@ -4,6 +4,7 @@ import 'package:mineral/src/domains/common/kernel.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/packets/packet_dispatcher.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/application_command_permissions_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/automoderation_action_execution_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/automoderation_rule_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/automoderation_rule_delete_packet.dart';
@@ -165,6 +166,9 @@ final class PacketListener implements PacketListenerContract {
 
     subscribe(MessagePollVoteAddPacket(dataStore: ds));
     subscribe(MessagePollVoteRemovePacket(dataStore: ds));
+
+    subscribe(
+        ApplicationCommandPermissionsUpdatePacket(dataStore: ds));
 
     subscribe(AutomoderationRuleCreatePacket(marshaller: m));
     subscribe(AutoModerationRuleUpdatePacket(marshaller: m));
