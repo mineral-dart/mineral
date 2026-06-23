@@ -171,4 +171,40 @@ final class Server {
       reason: reason,
     );
   }
+
+  /// Fetch the guild onboarding configuration.
+  ///
+  /// ```dart
+  /// final onboarding = await server.fetchOnboarding();
+  /// ```
+  Future<Onboarding> fetchOnboarding() =>
+      _datastore.onboarding.fetch(id.value);
+
+  /// Update the guild onboarding configuration.
+  ///
+  /// Only the provided parameters are sent in the request body.
+  ///
+  /// ```dart
+  /// await server.updateOnboarding(
+  ///   enabled: true,
+  ///   mode: OnboardingMode.default_,
+  ///   reason: 'Enabling onboarding',
+  /// );
+  /// ```
+  Future<Onboarding> updateOnboarding({
+    List<OnboardingPrompt>? prompts,
+    List<Snowflake>? defaultChannelIds,
+    bool? enabled,
+    OnboardingMode? mode,
+    String? reason,
+  }) {
+    return _datastore.onboarding.update(
+      id.value,
+      prompts: prompts,
+      defaultChannelIds: defaultChannelIds?.cast<Object>(),
+      enabled: enabled,
+      mode: mode,
+      reason: reason,
+    );
+  }
 }

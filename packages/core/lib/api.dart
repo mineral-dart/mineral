@@ -137,6 +137,7 @@ export 'package:mineral/src/api/server/member_voice.dart';
 export 'package:mineral/src/api/server/moderation/action.dart';
 export 'package:mineral/src/api/server/moderation/auto_moderation_rule.dart';
 export 'package:mineral/src/api/server/moderation/rule_execution.dart';
+export 'package:mineral/src/api/server/onboarding.dart';
 export 'package:mineral/src/api/server/role.dart';
 export 'package:mineral/src/api/server/server.dart';
 export 'package:mineral/src/api/server/server_assets.dart';

@@ -8,6 +8,7 @@ import 'package:mineral/src/infrastructure/internals/datastore/parts/interaction
 import 'package:mineral/src/infrastructure/internals/datastore/parts/invite_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/member_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/message_part.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/onboarding_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/reaction_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/role_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/rules_part.dart';
@@ -77,6 +78,9 @@ final class DataStore implements DataStoreContract {
   @override
   late final WelcomeScreenPart welcomeScreen;
 
+  @override
+  late final OnboardingPart onboarding;
+
   DataStore({
     required this.client,
     required MarshallerContract marshaller,
@@ -101,5 +105,6 @@ final class DataStore implements DataStoreContract {
     scheduledEvent = GuildScheduledEventPart(marshaller, this);
     applicationEmoji = ApplicationEmojiPart(marshaller, this);
     welcomeScreen = WelcomeScreenPart(marshaller, this);
+    onboarding = OnboardingPart(marshaller, this);
   }
 }
