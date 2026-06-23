@@ -7,11 +7,14 @@ import 'package:mineral/src/api/common/commands/builder/command_definition_build
 import 'package:mineral/src/api/common/commands/builder/message_command_builder.dart';
 import 'package:mineral/src/api/common/commands/builder/user_command_builder.dart';
 import 'package:mineral/src/api/common/commands/command_context_type.dart';
+import 'package:mineral/src/api/common/commands/command_option.dart';
+import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/server/server.dart';
 import 'package:mineral/src/domains/commands/command_builder.dart';
 import 'package:mineral/src/domains/commands/command_interaction_dispatcher.dart';
 import 'package:mineral/src/domains/commands/command_registration.dart';
 import 'package:mineral/src/domains/commands/command_result.dart';
+import 'package:mineral/src/domains/commands/contexts/autocomplete_context.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/invalid_command_exception.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/missing_property_exception.dart';
@@ -28,6 +31,8 @@ abstract class CommandInteractionManagerContract {
   Future<void> registerServer(Bot bot, Server server);
 
   void addCommand(CommandBuilder command);
+
+  Future<void> handleAutocomplete(Map<String, dynamic> payload);
 }
 
 final class CommandInteractionManager
@@ -47,6 +52,11 @@ final class CommandInteractionManager
   DataStoreContract get _dataStore => _dataStoreRef;
   late final DataStoreContract _dataStoreRef;
 
+  late final MarshallerContract _marshaller;
+
+  /// Registry: root command name → option name → handler.
+  final Map<String, Map<String, AutocompleteHandler>> _autocompleteHandlers = {};
+
   CommandInteractionManager._();
 
   factory CommandInteractionManager({
@@ -55,7 +65,8 @@ final class CommandInteractionManager
     required EntityContext ctx,
   }) {
     final manager = CommandInteractionManager._()
-      .._dataStoreRef = dataStore;
+      .._dataStoreRef = dataStore
+      .._marshaller = marshaller;
     manager.dispatcher = CommandInteractionDispatcher(
       manager,
       marshaller: marshaller,
@@ -109,6 +120,154 @@ final class CommandInteractionManager
 
     commands.add(command);
     commandsHandler.addAll(handlers);
+
+    // Collect autocomplete handlers from option trees.
+    _registerAutocompleteHandlers(name, command);
+  }
+
+  /// Walks the command's option tree and registers any [AutocompleteHandler]s.
+  void _registerAutocompleteHandlers(String rootName, CommandBuilder command) {
+    final declaration = switch (command) {
+      final CommandDeclarationBuilder b => b,
+      final CommandDefinitionBuilder d => d.command,
+      _ => null,
+    };
+
+    if (declaration == null) {
+      return;
+    }
+
+    final handlers = _autocompleteHandlers.putIfAbsent(rootName, () => {});
+
+    // Top-level options.
+    for (final option in declaration.options) {
+      _collectFromOption(option, handlers);
+    }
+
+    // Sub-commands.
+    for (final sub in declaration.subCommands) {
+      for (final option in sub.options) {
+        _collectFromOption(option, handlers);
+      }
+    }
+
+    // Groups → sub-commands.
+    for (final group in declaration.groups) {
+      for (final sub in group.commands) {
+        for (final option in sub.options) {
+          _collectFromOption(option, handlers);
+        }
+      }
+    }
+  }
+
+  void _collectFromOption(
+      CommandOption option, Map<String, AutocompleteHandler> handlers) {
+    if (option is Option &&
+        option.autocomplete &&
+        option.onAutocomplete != null) {
+      handlers[option.name] = option.onAutocomplete!;
+    }
+  }
+
+  @override
+  Future<void> handleAutocomplete(Map<String, dynamic> payload) async {
+    final data = payload['data'] as Map<String, dynamic>?;
+    if (data == null) {
+      _marshaller.logger.warn('Autocomplete payload missing "data" field');
+      return;
+    }
+
+    final rootName = data['name'] as String?;
+    if (rootName == null) {
+      _marshaller.logger.warn('Autocomplete payload missing command name');
+      return;
+    }
+
+    final rawOptions = data['options'];
+    if (rawOptions == null) {
+      _marshaller.logger.warn('Autocomplete payload has no options');
+      return;
+    }
+
+    // Find focused option recursively.
+    final focused = _findFocused(rawOptions as Iterable<dynamic>);
+    if (focused == null) {
+      _marshaller.logger.warn('No focused option found in autocomplete payload');
+      return;
+    }
+
+    final optionName = focused['name'] as String;
+    final optionValue = '${focused['value'] ?? ''}';
+
+    // Collect other options (non-focused).
+    final otherOptions = <String, dynamic>{};
+    _collectNonFocused(rawOptions, otherOptions);
+
+    // Look up handler.
+    final commandHandlers = _autocompleteHandlers[rootName];
+    final handler = commandHandlers?[optionName];
+    if (handler == null) {
+      _marshaller.logger.warn(
+          'No autocomplete handler for command "$rootName" option "$optionName"');
+      return;
+    }
+
+    final ctx = AutocompleteContext(
+      name: optionName,
+      value: optionValue,
+      options: otherOptions,
+    );
+
+    final choices = await handler(ctx);
+    // Discord allows max 25 choices.
+    final capped = choices.length > 25 ? choices.take(25).toList() : choices;
+
+    final id = Snowflake.parse(payload['id'] as String);
+    final token = payload['token'] as String;
+
+    await _dataStore.interaction.sendAutocompleteResult(id, token, capped);
+  }
+
+  /// Recurses into options to find the one with `focused == true`.
+  Map<String, dynamic>? _findFocused(Iterable<dynamic> options) {
+    for (final raw in options) {
+      if (raw is! Map<String, dynamic>) {
+        continue;
+      }
+      if (raw['focused'] == true) {
+        return raw;
+      }
+      // Sub-commands nest their own options list.
+      final nested = raw['options'];
+      if (nested != null) {
+        final result = _findFocused(nested as Iterable<dynamic>);
+        if (result != null) {
+          return result;
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Collects name→value for all non-focused options at any depth.
+  void _collectNonFocused(
+      Iterable<dynamic> options, Map<String, dynamic> out) {
+    for (final raw in options) {
+      if (raw is! Map<String, dynamic>) {
+        continue;
+      }
+      if (raw['focused'] != true) {
+        final name = raw['name'] as String?;
+        if (name != null && raw.containsKey('value')) {
+          out[name] = raw['value'];
+        }
+      }
+      final nested = raw['options'];
+      if (nested != null) {
+        _collectNonFocused(nested as Iterable<dynamic>, out);
+      }
+    }
   }
 
   @override

@@ -146,4 +146,23 @@ final class InteractionPart extends BasePart
 
     await dataStore.requestBucket.post<Map<String, dynamic>>(req);
   }
+
+  @override
+  Future<void> sendAutocompleteResult(
+    Snowflake id,
+    String token,
+    List<Choice> choices,
+  ) async {
+    final req =
+        Request.json(endpoint: '/interactions/$id/$token/callback', body: {
+      'type': InteractionCallbackType.applicationCommandAutocompleteResult.value,
+      'data': {
+        'choices': choices
+            .map((c) => {'name': c.name, 'value': c.value})
+            .toList(),
+      },
+    });
+
+    await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+  }
 }

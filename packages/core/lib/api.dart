@@ -150,6 +150,7 @@ export 'package:mineral/src/domains/commands/command_handler.dart';
 export 'package:mineral/src/domains/commands/command_options.dart';
 export 'package:mineral/src/domains/commands/command_registration.dart';
 export 'package:mineral/src/domains/commands/command_result.dart';
+export 'package:mineral/src/domains/commands/contexts/autocomplete_context.dart';
 export 'package:mineral/src/domains/commands/contexts/global_command_context.dart';
 export 'package:mineral/src/domains/commands/contexts/message_command_context.dart';
 export 'package:mineral/src/domains/commands/contexts/server_command_context.dart';
