@@ -155,6 +155,24 @@ abstract class PrivateMessageReactionRemoveAllEvent
   FutureOr<void> handle(PrivateChannel channel, Message message);
 }
 
+typedef PrivateMessageReactionRemoveEmojiArgs = ({
+  PrivateChannel channel,
+  Message message,
+  PartialEmoji emoji
+});
+
+abstract class PrivateMessageReactionRemoveEmojiEvent
+    extends BaseListenableEvent {
+  @override
+  Event get event => Event.privateMessageReactionRemoveEmoji;
+
+  @override
+  Function get handler => (PrivateMessageReactionRemoveEmojiArgs p) =>
+      handle(p.channel, p.message, p.emoji);
+
+  FutureOr<void> handle(PrivateChannel channel, Message message, PartialEmoji emoji);
+}
+
 typedef PrivateModalSubmitArgs<T> = ({PrivateModalContext ctx, T data});
 
 abstract class PrivateModalSubmitEvent<T> extends BaseListenableEvent {

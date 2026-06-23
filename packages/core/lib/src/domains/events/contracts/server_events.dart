@@ -327,6 +327,26 @@ abstract class ServerMessageReactionRemoveAllEvent extends BaseListenableEvent {
       Server server, ServerTextChannel channel, Message message);
 }
 
+typedef ServerMessageReactionRemoveEmojiArgs = ({
+  Server server,
+  ServerTextChannel channel,
+  Message message,
+  PartialEmoji emoji
+});
+
+abstract class ServerMessageReactionRemoveEmojiEvent
+    extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverMessageReactionRemoveEmoji;
+
+  @override
+  Function get handler => (ServerMessageReactionRemoveEmojiArgs p) =>
+      handle(p.server, p.channel, p.message, p.emoji);
+
+  FutureOr<void> handle(
+      Server server, ServerTextChannel channel, Message message, PartialEmoji emoji);
+}
+
 typedef ServerModalSubmitArgs<T> = ({ServerModalContext ctx, T data});
 
 abstract class ServerModalSubmitEvent<T> extends BaseListenableEvent {

@@ -40,6 +40,7 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/message_p
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_poll_vote_remove_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_reaction_add_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_reaction_remove_all_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/message_reaction_remove_emoji_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_reaction_remove_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/presence_update_packet.dart';
@@ -125,6 +126,7 @@ final class PacketListener implements PacketListenerContract {
     subscribe(MessageReactionAddPacket(marshaller: m));
     subscribe(MessageReactionRemovePacket(marshaller: m));
     subscribe(MessageReactionRemoveAllPacket(dataStore: ds));
+    subscribe(MessageReactionRemoveEmojiPacket(dataStore: ds));
 
     subscribe(ButtonInteractionCreatePacket(
         logger: logger, interactiveComponent: ic, ctx: entityContext));

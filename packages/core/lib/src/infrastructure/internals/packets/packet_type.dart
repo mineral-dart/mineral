@@ -13,6 +13,7 @@ enum PacketType implements PacketTypeContract {
   messageReactionAdd('MESSAGE_REACTION_ADD'),
   messageReactionRemove('MESSAGE_REACTION_REMOVE'),
   messageReactionRemoveAll('MESSAGE_REACTION_REMOVE_ALL'),
+  messageReactionRemoveEmoji('MESSAGE_REACTION_REMOVE_EMOJI'),
 
   threadCreate('THREAD_CREATE'),
   threadUpdate('THREAD_UPDATE'),

@@ -84,6 +84,15 @@ final class PrivateBucket {
           (PrivateMessageReactionRemoveAllArgs p) =>
               handle(p.channel, p.message));
 
+  void messageReactionRemoveEmoji(
+          FutureOr<void> Function(
+                  PrivateChannel channel, Message message, PartialEmoji emoji)
+              handle) =>
+      _events.make(
+          Event.privateMessageReactionRemoveEmoji,
+          (PrivateMessageReactionRemoveEmojiArgs p) =>
+              handle(p.channel, p.message, p.emoji));
+
   void pollVoteAdd(
           FutureOr<void> Function(PollAnswerVote<Message> answer, User user)
               handle) =>
