@@ -39,6 +39,10 @@ final class Server {
   /// Access this server's guild templates.
   TemplateManager get templates => TemplateManager(id, ctx: _ctx);
 
+  /// Access this server's scheduled events.
+  ScheduledEventManager get scheduledEvents =>
+      ScheduledEventManager(id, ctx: _ctx);
+
   /// Set the server's name.
   ///
   /// ```dart

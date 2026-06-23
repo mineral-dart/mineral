@@ -324,6 +324,49 @@ final class ServerBucket {
           (ServerApplicationCommandPermissionsUpdateArgs p) =>
               handle(p.server, p.permissions));
 
+  void scheduledEventCreate(
+          FutureOr<void> Function(Server server, GuildScheduledEvent event)
+              handle) =>
+      _events.make(
+          Event.serverScheduledEventCreate,
+          (ServerScheduledEventCreateArgs p) =>
+              handle(p.server, p.event));
+
+  void scheduledEventUpdate(
+          FutureOr<void> Function(Server server, GuildScheduledEvent? before,
+                  GuildScheduledEvent after)
+              handle) =>
+      _events.make(
+          Event.serverScheduledEventUpdate,
+          (ServerScheduledEventUpdateArgs p) =>
+              handle(p.server, p.before, p.after));
+
+  void scheduledEventDelete(
+          FutureOr<void> Function(Server server, GuildScheduledEvent event)
+              handle) =>
+      _events.make(
+          Event.serverScheduledEventDelete,
+          (ServerScheduledEventDeleteArgs p) =>
+              handle(p.server, p.event));
+
+  void scheduledEventUserAdd(
+          FutureOr<void> Function(
+                  Server server, Snowflake eventId, User user)
+              handle) =>
+      _events.make(
+          Event.serverScheduledEventUserAdd,
+          (ServerScheduledEventUserAddArgs p) =>
+              handle(p.server, p.eventId, p.user));
+
+  void scheduledEventUserRemove(
+          FutureOr<void> Function(
+                  Server server, Snowflake eventId, User user)
+              handle) =>
+      _events.make(
+          Event.serverScheduledEventUserRemove,
+          (ServerScheduledEventUserRemoveArgs p) =>
+              handle(p.server, p.eventId, p.user));
+
   void voiceChannelEffectSend(
           FutureOr<void> Function(
                   Server server,

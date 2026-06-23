@@ -27,6 +27,11 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_mem
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_role_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_role_delete_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_role_update_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_create_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_delete_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_update_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_user_add_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_user_remove_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_stickers_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/integration_create_packet.dart';
@@ -184,5 +189,11 @@ final class PacketListener implements PacketListenerContract {
     subscribe(AutoModerationRuleUpdatePacket(marshaller: m));
     subscribe(AutomoderationRuleDeletePacket(marshaller: m));
     subscribe(AutomoderationActionExecutionPacket(dataStore: ds));
+
+    subscribe(GuildScheduledEventCreatePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildScheduledEventUpdatePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildScheduledEventDeletePacket(marshaller: m, dataStore: ds));
+    subscribe(GuildScheduledEventUserAddPacket(dataStore: ds));
+    subscribe(GuildScheduledEventUserRemovePacket(dataStore: ds));
   }
 }
