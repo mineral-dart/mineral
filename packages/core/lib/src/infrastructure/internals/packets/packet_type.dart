@@ -88,7 +88,15 @@ enum PacketType implements PacketTypeContract {
 
   stageInstanceCreate('STAGE_INSTANCE_CREATE'),
   stageInstanceUpdate('STAGE_INSTANCE_UPDATE'),
-  stageInstanceDelete('STAGE_INSTANCE_DELETE');
+  stageInstanceDelete('STAGE_INSTANCE_DELETE'),
+
+  entitlementCreate('ENTITLEMENT_CREATE'),
+  entitlementUpdate('ENTITLEMENT_UPDATE'),
+  entitlementDelete('ENTITLEMENT_DELETE'),
+
+  subscriptionCreate('SUBSCRIPTION_CREATE'),
+  subscriptionUpdate('SUBSCRIPTION_UPDATE'),
+  subscriptionDelete('SUBSCRIPTION_DELETE');
 
   @override
   final String name;

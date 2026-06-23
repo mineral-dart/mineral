@@ -47,4 +47,6 @@ abstract class DataStoreContract {
   TemplatePartContract get template;
 
   StageInstancePartContract get stageInstance;
+
+  MonetizationPartContract get monetization;
 }

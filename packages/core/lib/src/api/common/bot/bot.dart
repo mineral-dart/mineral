@@ -53,6 +53,20 @@ final class Bot {
     return ApplicationEmojiManager(application.id, ctx: ctx);
   }
 
+  /// Manager for application monetization (SKUs, Entitlements, Subscriptions).
+  /// ```dart
+  /// final skus = await bot.monetization.fetchSkus();
+  /// ```
+  MonetizationManager get monetization {
+    final ctx = _ctx;
+    if (ctx == null) {
+      throw StateError(
+          'Bot.monetization requires an EntityContext. '
+          'Pass entityContext: to Bot.fromJson().');
+    }
+    return MonetizationManager(application.id, ctx: ctx);
+  }
+
   /// Updates presence of this
   void setPresence(
           {List<BotActivity>? activities, StatusType? status, bool? afk}) =>
