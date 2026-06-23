@@ -313,6 +313,22 @@ enum Event implements EnhancedEnum<Type>, EventType {
         ['Server', 'server'],
         ['GuildApplicationCommandPermissions', 'permissions']
       ]),
+  serverIntegrationsUpdate(ServerIntegrationsUpdateEvent, [
+    ['Server', 'server']
+  ]),
+  serverIntegrationCreate(ServerIntegrationCreateEvent, [
+    ['Server', 'server'],
+    ['Integration', 'integration']
+  ]),
+  serverIntegrationUpdate(ServerIntegrationUpdateEvent, [
+    ['Server', 'server'],
+    ['Integration', 'integration']
+  ]),
+  serverIntegrationDelete(ServerIntegrationDeleteEvent, [
+    ['Server', 'server'],
+    ['Snowflake', 'integrationId'],
+    ['Snowflake?', 'applicationId']
+  ]),
   serverVoiceChannelEffectSend(ServerVoiceChannelEffectSendEvent, [
     ['Server', 'server'],
     ['ServerChannel', 'channel'],
