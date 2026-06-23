@@ -14,6 +14,7 @@ import 'package:mineral/src/infrastructure/internals/datastore/parts/role_part.d
 import 'package:mineral/src/infrastructure/internals/datastore/parts/rules_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/server_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/sticker_part.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/template_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/thread_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/user_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/webhook_part.dart';
@@ -81,6 +82,9 @@ final class DataStore implements DataStoreContract {
   @override
   late final OnboardingPart onboarding;
 
+  @override
+  late final TemplatePart template;
+
   DataStore({
     required this.client,
     required MarshallerContract marshaller,
@@ -106,5 +110,6 @@ final class DataStore implements DataStoreContract {
     applicationEmoji = ApplicationEmojiPart(marshaller, this);
     welcomeScreen = WelcomeScreenPart(marshaller, this);
     onboarding = OnboardingPart(marshaller, this);
+    template = TemplatePart(marshaller, this);
   }
 }
