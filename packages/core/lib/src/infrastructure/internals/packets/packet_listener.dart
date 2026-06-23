@@ -56,6 +56,7 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_dis
 import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_join_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_leave_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_move_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/webhooks_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_dispatcher.dart';
 
 final class PacketListener implements PacketListenerContract {
@@ -106,6 +107,7 @@ final class PacketListener implements PacketListenerContract {
     subscribe(ChannelUpdatePacket(logger: logger, marshaller: m));
     subscribe(ChannelDeletePacket(marshaller: m));
     subscribe(ChannelPinsUpdatePacket(logger: logger, dataStore: ds));
+    subscribe(WebhooksUpdatePacket(dataStore: ds));
     subscribe(GuildMemberAddPacket(marshaller: m, dataStore: ds));
     subscribe(GuildMemberRemovePacket(marshaller: m, dataStore: ds));
     subscribe(GuildMemberUpdatePacket(marshaller: m, dataStore: ds));

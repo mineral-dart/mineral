@@ -74,6 +74,12 @@ final class ServerBucket {
       _events.make(Event.serverChannelPinsUpdate,
           (ServerChannelPinsUpdateArgs p) => handle(p.server, p.channel));
 
+  void webhooksUpdate(
+          FutureOr<void> Function(Server server, ServerChannel? channel)
+              handle) =>
+      _events.make(Event.serverWebhooksUpdate,
+          (ServerWebhooksUpdateArgs p) => handle(p.server, p.channel));
+
   void memberAdd(
           FutureOr<void> Function(Member member, Server server) handle) =>
       _events.make(Event.serverMemberAdd,
