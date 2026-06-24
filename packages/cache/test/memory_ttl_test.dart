@@ -18,7 +18,7 @@ void main() {
       expect(provider.get('key'), isNull);
     });
 
-    test('entries without ttl never expire (no CacheConfig in IoC)',
+    test('entries without ttl never expire (default config has disabled TTL policy)',
         () async {
       final provider = MemoryProvider(env);
       provider.put('key', {'a': 1});
@@ -91,65 +91,72 @@ void main() {
     });
   });
 
-  group('MemoryProvider with CacheConfig in IoC', () {
-    test('put without ttl uses the configured policy', () async {
-      final container = IocContainer()
-        ..bind<CacheConfig>(() => CacheConfig(
-              ttlPolicy: CacheTtlPolicy.disabled().override({
-                'users/': const Duration(milliseconds: 20),
-              }),
-            ));
+  // ── M23: provider holds its own CacheConfig (no IoC required) ────────────
 
-      await runWithIoc(container, () async {
-        final provider = MemoryProvider(env);
-        provider.put('users/1', {'id': 1});
+  group('MemoryProvider with injected CacheConfig (M23)', () {
+    test('put without ttl uses the policy from injected config', () async {
+      final provider = MemoryProvider(env)
+        ..config = CacheConfig(
+          ttlPolicy: CacheTtlPolicy.disabled().override({
+            'users/': const Duration(milliseconds: 20),
+          }),
+        );
+      provider.put('users/1', {'id': 1});
 
-        expect(provider.has('users/1'), isTrue);
+      expect(provider.has('users/1'), isTrue);
 
-        await Future<void>.delayed(const Duration(milliseconds: 40));
+      await Future<void>.delayed(const Duration(milliseconds: 40));
 
-        expect(provider.has('users/1'), isFalse);
-      });
+      expect(provider.has('users/1'), isFalse);
     });
 
-    test('explicit ttl on put overrides the policy', () async {
-      final container = IocContainer()
-        ..bind<CacheConfig>(() => CacheConfig(
-              ttlPolicy: CacheTtlPolicy.disabled().override({
-                'users/': const Duration(milliseconds: 20),
-              }),
-            ));
+    test('explicit ttl on put overrides the injected policy', () async {
+      final provider = MemoryProvider(env)
+        ..config = CacheConfig(
+          ttlPolicy: CacheTtlPolicy.disabled().override({
+            'users/': const Duration(milliseconds: 20),
+          }),
+        );
+      provider.put('users/1', {'id': 1}, ttl: const Duration(seconds: 30));
 
-      await runWithIoc(container, () async {
-        final provider = MemoryProvider(env);
-        provider.put('users/1', {'id': 1}, ttl: const Duration(seconds: 30));
+      await Future<void>.delayed(const Duration(milliseconds: 40));
 
-        await Future<void>.delayed(const Duration(milliseconds: 40));
-
-        expect(provider.has('users/1'), isTrue);
-      });
+      expect(provider.has('users/1'), isTrue);
     });
 
-    test('sweeper actively removes expired entries', () async {
+    test('sweeper actively removes expired entries when configured via injected config',
+        () async {
+      final provider = MemoryProvider(env)
+        ..config = CacheConfig(
+          sweeperInterval: const Duration(milliseconds: 30),
+        );
+
+      // LoggerContract is still resolved from IoC for the init() trace log.
       final container = IocContainer()
-        ..bind<LoggerContract>(_NoopLogger.new)
-        ..bind<CacheConfig>(() => CacheConfig(
-              sweeperInterval: const Duration(milliseconds: 30),
-            ));
+        ..bind<LoggerContract>(_NoopLogger.new);
 
       await runWithIoc(container, () async {
-        final provider = MemoryProvider(env)..init();
+        provider.init();
         provider.put('k', {'v': 1}, ttl: const Duration(milliseconds: 20));
 
         await Future<void>.delayed(const Duration(milliseconds: 80));
 
         // The sweeper should have removed the entry without any read call.
-        // We verify by checking the underlying length, which itself runs a
-        // sweep — but the entry must have been removed before that anyway.
         expect(provider.length(), 0);
 
         provider.dispose();
       });
+    });
+
+    test('config field defaults to CacheConfig.defaults() (no explicit assignment)', () {
+      final provider = MemoryProvider(env);
+      // CacheConfig.defaults() has invalidationEnabled=true and the default TTL policy.
+      expect(provider.config.invalidationEnabled, isTrue);
+    });
+
+    test('injected legacy config disables invalidation flag', () {
+      final provider = MemoryProvider(env)..config = CacheConfig.legacy();
+      expect(provider.config.invalidationEnabled, isFalse);
     });
   });
 

@@ -1,7 +1,16 @@
 import 'dart:async';
 
+import 'package:mineral/src/domains/services/cache/cache_config.dart';
+
 abstract interface class CacheProviderContract {
   String get name;
+
+  /// The [CacheConfig] that governs this provider's TTL policy and
+  /// invalidation behaviour. Assigned by [ClientBuilder] after construction.
+  /// Defaults to [CacheConfig.defaults] so providers remain usable in tests
+  /// without a full application wiring.
+  CacheConfig get config;
+  set config(CacheConfig value);
 
   FutureOr<void> init();
 

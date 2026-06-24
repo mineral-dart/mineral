@@ -9,14 +9,14 @@ final class MemoryProvider implements CacheProviderContract {
   final Map<String, _Entry> _storage = {};
   Timer? _sweeper;
 
+  @override
+  CacheConfig config = CacheConfig.defaults();
+
   LoggerContract get logger => ioc.resolve<LoggerContract>();
 
-  CacheTtlPolicy get _ttlPolicy =>
-      ioc.resolveOrNull<CacheConfig>()?.ttlPolicy ??
-      CacheTtlPolicy.disabled();
+  CacheTtlPolicy get _ttlPolicy => config.ttlPolicy;
 
-  Duration get _sweeperInterval =>
-      ioc.resolveOrNull<CacheConfig>()?.sweeperInterval ?? Duration.zero;
+  Duration get _sweeperInterval => config.sweeperInterval;
 
   MemoryProvider(Env env);
 
