@@ -38,6 +38,12 @@ class MockInteractiveComponentManager extends Mock
 
 class MockChannelPart extends Mock implements ChannelPartContract {}
 
+/// A mocktail mock for [DataStoreContract].
+///
+/// All getters are handled by mocktail's [noSuchMethod]; stub the ones you
+/// need with `when(() => ds.guild).thenReturn(myPart)`.
+class MockDataStore extends Mock implements DataStoreContract {}
+
 class MockRunningStrategy extends Mock implements RunningStrategy {}
 
 class MockHttpClient extends Mock implements HttpClientContract {}

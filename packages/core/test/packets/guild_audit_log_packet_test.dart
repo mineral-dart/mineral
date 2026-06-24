@@ -12,7 +12,7 @@ import 'package:test/test.dart';
 
 import '../helpers/fake_logger.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
-import 'helpers/packet_test_helpers.dart';
+import '../helpers/mocks.dart';
 
 // ── IDs ───────────────────────────────────────────────────────────────────────
 
@@ -50,7 +50,7 @@ void main() {
   setUp(() {
     logger = FakeLogger();
     ctx = EntityContext(
-      datastore: LazyDataStore(() => throw UnimplementedError()),
+      datastore: MockDataStore(),
       wss: FakeWebsocketOrchestrator(),
       logger: logger,
       runtimeState: RuntimeState(),

@@ -1,21 +1,19 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/services.dart';
 import 'package:mineral/src/api/common/permissions.dart';
-import 'package:mineral/src/api/guild/managers/rules_manager.dart';
 import 'package:mineral/src/api/guild/managers/threads_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
-import 'package:mineral/src/domains/common/runtime_state.dart';
-import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_channel_effect_send_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-import '../helpers/fake_logger.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
+import '../helpers/mocks.dart';
+import 'helpers/packet_test_helpers.dart';
 
 // ── Test IDs ─────────────────────────────────────────────────────────────────
 
@@ -25,299 +23,7 @@ const _userId = '345678901234567890';
 const _emojiId = '999888777666555444';
 const _soundId = '111222333444555666';
 
-// ── No-op stubs ───────────────────────────────────────────────────────────────
-
-final class _NoopDs implements DataStoreContract {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  ChannelPartContract get channel => throw UnimplementedError();
-  @override
-  GuildPartContract get guild => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
-
-// ── Fake DataStore ────────────────────────────────────────────────────────────
-
-/// Delegates every accessor to a lazily-resolved [DataStoreContract].
-/// Breaks circular dependency: EntityContext → DataStoreContract → domain
-/// objects built with EntityContext.
-final class _DeferredDataStore implements DataStoreContract {
-  final DataStoreContract Function() _resolve;
-
-  _DeferredDataStore(this._resolve);
-
-  @override
-  ChannelPartContract get channel => _resolve().channel;
-  @override
-  GuildPartContract get guild => _resolve().guild;
-  @override
-  MemberPartContract get member => _resolve().member;
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  MonetizationPartContract get monetization => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
-
-final class _FakeDataStore implements DataStoreContract {
-  final ChannelPartContract _channelPart;
-  final GuildPartContract _guildPart;
-  final MemberPartContract _memberPart;
-
-  _FakeDataStore({
-    required ChannelPartContract channelPart,
-    required GuildPartContract guildPart,
-    required MemberPartContract memberPart,
-  })  : _channelPart = channelPart,
-        _guildPart = guildPart,
-        _memberPart = memberPart;
-
-  @override
-  ChannelPartContract get channel => _channelPart;
-  @override
-  GuildPartContract get guild => _guildPart;
-  @override
-  MemberPartContract get member => _memberPart;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
-
-// ── Fake parts ────────────────────────────────────────────────────────────────
-
-final class _FakeChannelPart implements ChannelPartContract {
-  final Channel _channel;
-
-  _FakeChannelPart(this._channel);
-
-  @override
-  Future<T?> get<T extends Channel>(Object id, bool force) async {
-    if (_channel is T) {
-      // ignore: unnecessary_cast
-      return _channel as T;
-    }
-    return null;
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-}
-
-final class _FakeServerPart implements GuildPartContract {
-  final Guild _guild;
-
-  _FakeServerPart(this._guild);
-
-  @override
-  Future<Guild> get(Object id, bool force) async => _guild;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-}
-
-final class _FakeMemberPart implements MemberPartContract {
-  final Member _member;
-
-  _FakeMemberPart(this._member);
-
-  @override
-  Future<Member?> get(Object guildId, Object id, bool force) async => _member;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-}
-
 // ── Domain object builders ────────────────────────────────────────────────────
-
-EntityContext _buildCtx(DataStoreContract dataStore) => EntityContext(
-      datastore: dataStore,
-      wss: FakeWebsocketOrchestrator(),
-      logger: FakeLogger(),
-      runtimeState: RuntimeState(),
-    );
-
-Guild _buildServer(EntityContext ctx) {
-  final id = Snowflake.parse(_guildId);
-  return Guild(
-    ctx: ctx,
-    id: id,
-    name: 'Test Guild',
-    ownerId: Snowflake.parse('000000000000000001'),
-    description: null,
-    applicationId: null,
-    members: MemberManager(id, ctx: ctx),
-    settings: GuildSettings(
-      bitfieldPermission: null,
-      afkTimeout: null,
-      hasWidgetEnabled: false,
-      verificationLevel: VerificationLevel.none,
-      defaultMessageNotifications: DefaultMessageNotification.allMessages,
-      explicitContentFilter: ExplicitContentFilter.disabled,
-      features: [],
-      mfaLevel: MfaLevel.none,
-      systemChannelFlags: [],
-      vanityUrlCode: null,
-      subscription: GuildSubscription(
-        tier: PremiumTier.none,
-        subscriptionCount: null,
-        hasEnabledProgressBar: false,
-      ),
-      preferredLocale: 'en-US',
-      maxVideoChannelUsers: null,
-      nsfwLevel: NsfwLevel.none,
-      rulesManager: RulesManager(id, ctx: ctx),
-    ),
-    roles: RoleManager(id, ctx: ctx),
-    channels: ChannelManager(
-      id,
-      ctx: ctx,
-      afkChannelId: null,
-      systemChannelId: null,
-      rulesChannelId: null,
-      publicUpdatesChannelId: null,
-      safetyAlertsChannelId: null,
-    ),
-    threads: ThreadsManager(id, null, ctx: ctx),
-    assets: GuildAsset(
-      id,
-      ctx: ctx,
-      emojis: EmojiManager(id, ctx: ctx),
-      stickers: StickerManager(id, ctx: ctx),
-      icon: null,
-      splash: null,
-      banner: null,
-      discoverySplash: null,
-    ),
-  );
-}
 
 GuildVoiceChannel _buildVoiceChannel(EntityContext ctx) => GuildVoiceChannel(
       ChannelProperties(
@@ -392,6 +98,30 @@ Member _buildMember(EntityContext ctx) {
   );
 }
 
+// ── Helper: build a wired MockDataStore ───────────────────────────────────────
+
+MockDataStore _buildWiredDs() {
+  final ds = MockDataStore();
+  final ctx = buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator());
+  final guild = buildMinimalGuild(_guildId, ctx);
+  final channel = _buildVoiceChannel(ctx);
+  final member = _buildMember(ctx);
+  when(() => ds.guild).thenReturn(FakeGuildPart(guild));
+  when(() => ds.channel).thenReturn(FakeChannelPart(channel));
+  when(() => ds.member).thenReturn(_FakeMemberPart(member));
+  return ds;
+}
+
+// ── Fake member part ──────────────────────────────────────────────────────────
+
+class _FakeMemberPart extends Mock implements MemberPartContract {
+  final Member _member;
+  _FakeMemberPart(this._member);
+
+  @override
+  Future<Member?> get(Object guildId, Object id, bool force) async => _member;
+}
+
 // ── Shard message factories ───────────────────────────────────────────────────
 
 ShardMessage<dynamic> _shardMessage(Map<String, dynamic> payload) =>
@@ -414,24 +144,7 @@ void main() {
     // ── packetType identity ─────────────────────────────────────────────────
 
     test('packetType is voiceChannelEffectSend', () {
-      final ds = _FakeDataStore(
-        channelPart: _FakeChannelPart(
-          _buildVoiceChannel(
-            _buildCtx(_NoopDs()),
-          ),
-        ),
-        guildPart: _FakeServerPart(
-          _buildServer(
-            _buildCtx(_NoopDs()),
-          ),
-        ),
-        memberPart: _FakeMemberPart(
-          _buildMember(
-            _buildCtx(_NoopDs()),
-          ),
-        ),
-      );
-      final packet = VoiceChannelEffectSendPacket(dataStore: ds);
+      final packet = VoiceChannelEffectSendPacket(dataStore: _buildWiredDs());
 
       expect(packet.packetType, equals(PacketType.voiceChannelEffectSend));
       expect(packet.packetType.name, equals('VOICE_CHANNEL_EFFECT_SEND'));
@@ -441,29 +154,9 @@ void main() {
 
     group('emoji effect (animation_type set, no sound)', () {
       late VoiceChannelEffectSendPacket packet;
-      late EntityContext ctx;
 
       setUp(() {
-        late _FakeDataStore ds;
-
-        ctx = EntityContext(
-          datastore: _DeferredDataStore(() => ds),
-          wss: FakeWebsocketOrchestrator(),
-          logger: FakeLogger(),
-          runtimeState: RuntimeState(),
-        );
-
-        final guild = _buildServer(ctx);
-        final channel = _buildVoiceChannel(ctx);
-        final member = _buildMember(ctx);
-
-        ds = _FakeDataStore(
-          channelPart: _FakeChannelPart(channel),
-          guildPart: _FakeServerPart(guild),
-          memberPart: _FakeMemberPart(member),
-        );
-
-        packet = VoiceChannelEffectSendPacket(dataStore: ds);
+        packet = VoiceChannelEffectSendPacket(dataStore: _buildWiredDs());
       });
 
       test('dispatches Event.guildVoiceChannelEffectSend', () async {
@@ -585,26 +278,7 @@ void main() {
       late VoiceChannelEffectSendPacket packet;
 
       setUp(() {
-        late _FakeDataStore ds;
-
-        final ctx = EntityContext(
-          datastore: _DeferredDataStore(() => ds),
-          wss: FakeWebsocketOrchestrator(),
-          logger: FakeLogger(),
-          runtimeState: RuntimeState(),
-        );
-
-        final guild = _buildServer(ctx);
-        final channel = _buildVoiceChannel(ctx);
-        final member = _buildMember(ctx);
-
-        ds = _FakeDataStore(
-          channelPart: _FakeChannelPart(channel),
-          guildPart: _FakeServerPart(guild),
-          memberPart: _FakeMemberPart(member),
-        );
-
-        packet = VoiceChannelEffectSendPacket(dataStore: ds);
+        packet = VoiceChannelEffectSendPacket(dataStore: _buildWiredDs());
       });
 
       test('dispatches Event.guildVoiceChannelEffectSend with sound payload',
@@ -643,26 +317,7 @@ void main() {
       late VoiceChannelEffectSendPacket packet;
 
       setUp(() {
-        late _FakeDataStore ds;
-
-        final ctx = EntityContext(
-          datastore: _DeferredDataStore(() => ds),
-          wss: FakeWebsocketOrchestrator(),
-          logger: FakeLogger(),
-          runtimeState: RuntimeState(),
-        );
-
-        final guild = _buildServer(ctx);
-        final channel = _buildVoiceChannel(ctx);
-        final member = _buildMember(ctx);
-
-        ds = _FakeDataStore(
-          channelPart: _FakeChannelPart(channel),
-          guildPart: _FakeServerPart(guild),
-          memberPart: _FakeMemberPart(member),
-        );
-
-        packet = VoiceChannelEffectSendPacket(dataStore: ds);
+        packet = VoiceChannelEffectSendPacket(dataStore: _buildWiredDs());
       });
 
       test('all optional fields null when absent from payload', () async {

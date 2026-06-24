@@ -1,20 +1,15 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/services.dart';
-import 'package:mineral/src/api/guild/managers/rules_manager.dart';
-import 'package:mineral/src/api/guild/managers/threads_manager.dart';
-import 'package:mineral/src/domains/common/entity_context.dart';
-import 'package:mineral/src/domains/common/runtime_state.dart';
-import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/application_command_permissions_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-import '../helpers/fake_logger.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
+import '../helpers/mocks.dart';
+import 'helpers/packet_test_helpers.dart';
 
 // ── Test IDs ──────────────────────────────────────────────────────────────────
 
@@ -24,257 +19,6 @@ const _commandId = '111000111000111000';
 const _roleId = '333444555666777888';
 const _userId = '444555666777888999';
 const _channelId = '555666777888999000';
-
-// ── No-op stub ────────────────────────────────────────────────────────────────
-
-final class _NoopDs implements DataStoreContract {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  ChannelPartContract get channel => throw UnimplementedError();
-  @override
-  GuildPartContract get guild => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
-
-// ── Deferred data store ───────────────────────────────────────────────────────
-
-final class _DeferredDataStore implements DataStoreContract {
-  final DataStoreContract Function() _resolve;
-
-  _DeferredDataStore(this._resolve);
-
-  @override
-  GuildPartContract get guild => _resolve().guild;
-  @override
-  ChannelPartContract get channel => _resolve().channel;
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  MonetizationPartContract get monetization => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
-
-// ── Fake data store ───────────────────────────────────────────────────────────
-
-final class _FakeDataStore implements DataStoreContract {
-  final GuildPartContract _guildPart;
-
-  _FakeDataStore({required GuildPartContract guildPart})
-      : _guildPart = guildPart;
-
-  @override
-  GuildPartContract get guild => _guildPart;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  ChannelPartContract get channel => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
-
-// ── Fake guild part ──────────────────────────────────────────────────────────
-
-final class _FakeServerPart implements GuildPartContract {
-  final Guild _guild;
-
-  _FakeServerPart(this._guild);
-
-  @override
-  Future<Guild> get(Object id, bool force) async => _guild;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-}
-
-// ── Domain object builder ─────────────────────────────────────────────────────
-
-Guild _buildServer(EntityContext ctx) {
-  final id = Snowflake.parse(_guildId);
-  return Guild(
-    ctx: ctx,
-    id: id,
-    name: 'Test Guild',
-    ownerId: Snowflake.parse('000000000000000001'),
-    description: null,
-    applicationId: null,
-    members: MemberManager(id, ctx: ctx),
-    settings: GuildSettings(
-      bitfieldPermission: null,
-      afkTimeout: null,
-      hasWidgetEnabled: false,
-      verificationLevel: VerificationLevel.none,
-      defaultMessageNotifications: DefaultMessageNotification.allMessages,
-      explicitContentFilter: ExplicitContentFilter.disabled,
-      features: [],
-      mfaLevel: MfaLevel.none,
-      systemChannelFlags: [],
-      vanityUrlCode: null,
-      subscription: GuildSubscription(
-        tier: PremiumTier.none,
-        subscriptionCount: null,
-        hasEnabledProgressBar: false,
-      ),
-      preferredLocale: 'en-US',
-      maxVideoChannelUsers: null,
-      nsfwLevel: NsfwLevel.none,
-      rulesManager: RulesManager(id, ctx: ctx),
-    ),
-    roles: RoleManager(id, ctx: ctx),
-    channels: ChannelManager(
-      id,
-      ctx: ctx,
-      afkChannelId: null,
-      systemChannelId: null,
-      rulesChannelId: null,
-      publicUpdatesChannelId: null,
-      safetyAlertsChannelId: null,
-    ),
-    threads: ThreadsManager(id, null, ctx: ctx),
-    assets: GuildAsset(
-      id,
-      ctx: ctx,
-      emojis: EmojiManager(id, ctx: ctx),
-      stickers: StickerManager(id, ctx: ctx),
-      icon: null,
-      splash: null,
-      banner: null,
-      discoverySplash: null,
-    ),
-  );
-}
 
 // ── Shard message factory ─────────────────────────────────────────────────────
 
@@ -302,7 +46,7 @@ void main() {
 
     test('packetType is applicationCommandPermissionsUpdate', () {
       final packet =
-          ApplicationCommandPermissionsUpdatePacket(dataStore: _NoopDs());
+          ApplicationCommandPermissionsUpdatePacket(dataStore: buildMockDs());
       expect(packet.packetType,
           equals(PacketType.applicationCommandPermissionsUpdate));
       expect(packet.packetType.name,
@@ -316,19 +60,9 @@ void main() {
       late Guild guild;
 
       setUp(() {
-        late _FakeDataStore ds;
-
-        final ctx = EntityContext(
-          datastore: _DeferredDataStore(() => ds),
-          wss: FakeWebsocketOrchestrator(),
-          logger: FakeLogger(),
-          runtimeState: RuntimeState(),
-        );
-
-        guild = _buildServer(ctx);
-
-        ds = _FakeDataStore(guildPart: _FakeServerPart(guild));
-
+        final ds = MockDataStore();
+        guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+        when(() => ds.guild).thenReturn(FakeGuildPart(guild));
         packet = ApplicationCommandPermissionsUpdatePacket(dataStore: ds);
       });
 

@@ -1,15 +1,15 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
-import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
-import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_logger.dart';
 import '../helpers/fake_marshaller.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
 import '../helpers/ioc_test_helper.dart';
+import '../helpers/mocks.dart';
 
 // ── Fake interaction part that captures sendAutocompleteResult calls ──────────
 
@@ -58,70 +58,10 @@ final class _FakeInteractionPart implements InteractionPartContract {
       throw UnimplementedError();
 }
 
-// ── Minimal DataStore that routes interaction to the fake part ────────────────
-
-final class _FakeDataStore implements DataStoreContract {
-  final _FakeInteractionPart _interaction;
-
-  _FakeDataStore(this._interaction);
-
-  @override
-  InteractionPartContract get interaction => _interaction;
-
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-  @override
-  ChannelPartContract get channel => throw UnimplementedError();
-  @override
-  GuildPartContract get guild => throw UnimplementedError();
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  MonetizationPartContract get monetization => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-}
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 CommandInteractionManager _buildManager({
-  required _FakeDataStore dataStore,
+  required MockDataStore dataStore,
   required MarshallerContract marshaller,
 }) {
   return CommandInteractionManager(
@@ -141,7 +81,7 @@ CommandInteractionManager _buildManager({
 void main() {
   group('CommandInteractionManager.handleAutocomplete', () {
     late _FakeInteractionPart fakePart;
-    late _FakeDataStore fakeDataStore;
+    late MockDataStore fakeDataStore;
     late FakeLogger logger;
     late FakeMarshaller marshaller;
     late CommandInteractionManager manager;
@@ -149,7 +89,8 @@ void main() {
 
     setUp(() {
       fakePart = _FakeInteractionPart();
-      fakeDataStore = _FakeDataStore(fakePart);
+      fakeDataStore = MockDataStore();
+      when(() => fakeDataStore.interaction).thenReturn(fakePart);
       logger = FakeLogger();
       marshaller = FakeMarshaller(logger: logger);
 

@@ -1,15 +1,6 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/services.dart';
-import 'package:mineral/src/api/guild/managers/rules_manager.dart';
-import 'package:mineral/src/api/guild/managers/threads_manager.dart';
-import 'package:mineral/src/domains/common/entity_context.dart';
-import 'package:mineral/src/domains/common/runtime_state.dart';
-import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/serializer_bucket.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_delete_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_update_packet.dart';
@@ -17,11 +8,14 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_sch
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_user_remove_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_cache_provider.dart';
-import '../helpers/fake_logger.dart';
+import '../helpers/fake_marshaller.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
+import '../helpers/mocks.dart';
+import 'helpers/packet_test_helpers.dart';
 
 // ── IDs ───────────────────────────────────────────────────────────────────────
 
@@ -30,202 +24,34 @@ const _eventId = '111222333444555666';
 const _userId = '999888777666555444';
 const _channelId = '777888999000111222';
 
-// ── Stub DataStore ────────────────────────────────────────────────────────────
-
-final class _FakeDataStore implements DataStoreContract {
-  final GuildPartContract _guildPart;
-  final UserPartContract _userPart;
-
-  _FakeDataStore({
-    required GuildPartContract guildPart,
-    UserPartContract? userPart,
-  })  : _guildPart = guildPart,
-        _userPart = userPart ?? _ThrowUserPart();
-
-  @override
-  GuildPartContract get guild => _guildPart;
-
-  @override
-  UserPartContract get user => _userPart;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  ChannelPartContract get channel => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError('client');
-}
-
-final class _ThrowUserPart implements UserPartContract {
-  @override
-  Future<User?> get(Object id, bool force) => throw UnimplementedError();
-}
-
-final class _FakeServerPart implements GuildPartContract {
-  final Guild _guild;
-  _FakeServerPart(this._guild);
-
-  @override
-  Future<Guild> get(Object id, bool force) async => _guild;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-}
-
-final class _FakeUserPart implements UserPartContract {
-  final User _user;
-  _FakeUserPart(this._user);
-
-  @override
-  Future<User?> get(Object id, bool force) async => _user;
-}
-
-// ── Fake Marshaller ───────────────────────────────────────────────────────────
-
-final class _FakeMarshaller implements MarshallerContract {
-  @override
-  final LoggerContract logger = FakeLogger();
-
-  @override
-  final CacheProviderContract? cache;
-
-  @override
-  final CacheKey cacheKey = CacheKey();
-
-  @override
-  late final SerializerBucket serializers;
-
-  _FakeMarshaller({this.cache, EntityContext? entityContext}) {
-    serializers = SerializerBucket(
-        this,
-        entityContext ??
-            EntityContext(
-              datastore: _NullDataStore(),
-              wss: FakeWebsocketOrchestrator(),
-              logger: logger,
-              runtimeState: RuntimeState(),
-            ));
-  }
-}
-
-final class _NullDataStore implements DataStoreContract {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-}
-
 // ── Domain object builders ────────────────────────────────────────────────────
 
-Guild _buildServer(EntityContext ctx) {
-  final id = Snowflake.parse(_guildId);
-  return Guild(
+User _buildUser(MockDataStore ds) {
+  final ctx = buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator());
+  return User(
     ctx: ctx,
-    id: id,
-    name: 'Test Guild',
-    ownerId: Snowflake.parse('000000000000000001'),
-    description: null,
-    applicationId: null,
-    members: MemberManager(id, ctx: ctx),
-    settings: GuildSettings(
-      bitfieldPermission: null,
-      afkTimeout: null,
-      hasWidgetEnabled: false,
-      verificationLevel: VerificationLevel.none,
-      defaultMessageNotifications: DefaultMessageNotification.allMessages,
-      explicitContentFilter: ExplicitContentFilter.disabled,
-      features: [],
-      mfaLevel: MfaLevel.none,
-      systemChannelFlags: [],
-      vanityUrlCode: null,
-      subscription: GuildSubscription(
-        tier: PremiumTier.none,
-        subscriptionCount: null,
-        hasEnabledProgressBar: false,
-      ),
-      preferredLocale: 'en-US',
-      maxVideoChannelUsers: null,
-      nsfwLevel: NsfwLevel.none,
-      rulesManager: RulesManager(id, ctx: ctx),
-    ),
-    roles: RoleManager(id, ctx: ctx),
-    channels: ChannelManager(
-      id,
-      ctx: ctx,
-      afkChannelId: null,
-      systemChannelId: null,
-      rulesChannelId: null,
-      publicUpdatesChannelId: null,
-      safetyAlertsChannelId: null,
-    ),
-    threads: ThreadsManager(id, null, ctx: ctx),
-    assets: GuildAsset(
-      id,
-      ctx: ctx,
-      emojis: EmojiManager(id, ctx: ctx),
-      stickers: StickerManager(id, ctx: ctx),
-      icon: null,
-      splash: null,
+    id: Snowflake.parse(_userId),
+    username: 'testuser',
+    discriminator: '0000',
+    avatar: null,
+    bot: false,
+    system: false,
+    mfaEnabled: false,
+    locale: null,
+    verified: false,
+    email: null,
+    flags: null,
+    premiumType: null,
+    publicFlags: null,
+    assets: UserAssets(
+      avatar: null,
+      avatarDecoration: null,
       banner: null,
-      discoverySplash: null,
     ),
+    createdAt: null,
+    presence: null,
   );
 }
-
-User _buildUser(EntityContext ctx) => User(
-      ctx: ctx,
-      id: Snowflake.parse(_userId),
-      username: 'testuser',
-      discriminator: '0000',
-      avatar: null,
-      bot: false,
-      system: false,
-      mfaEnabled: false,
-      locale: null,
-      verified: false,
-      email: null,
-      flags: null,
-      premiumType: null,
-      publicFlags: null,
-      assets: UserAssets(
-        avatar: null,
-        avatarDecoration: null,
-        banner: null,
-      ),
-      createdAt: null,
-      presence: null,
-    );
 
 // ── Scheduled event payload ───────────────────────────────────────────────────
 
@@ -297,30 +123,30 @@ void main() {
 
   group('PacketType identity', () {
     test('GuildScheduledEventCreatePacket has correct packetType', () {
-      final marshaller = _FakeMarshaller();
+      final marshaller = FakeMarshaller();
       final packet = GuildScheduledEventCreatePacket(
         marshaller: marshaller,
-        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
+        dataStore: buildMockDs(),
       );
       expect(packet.packetType, equals(PacketType.guildScheduledEventCreate));
       expect(packet.packetType.name, equals('GUILD_SCHEDULED_EVENT_CREATE'));
     });
 
     test('GuildScheduledEventUpdatePacket has correct packetType', () {
-      final marshaller = _FakeMarshaller();
+      final marshaller = FakeMarshaller();
       final packet = GuildScheduledEventUpdatePacket(
         marshaller: marshaller,
-        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
+        dataStore: buildMockDs(),
       );
       expect(packet.packetType, equals(PacketType.guildScheduledEventUpdate));
       expect(packet.packetType.name, equals('GUILD_SCHEDULED_EVENT_UPDATE'));
     });
 
     test('GuildScheduledEventDeletePacket has correct packetType', () {
-      final marshaller = _FakeMarshaller();
+      final marshaller = FakeMarshaller();
       final packet = GuildScheduledEventDeletePacket(
         marshaller: marshaller,
-        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
+        dataStore: buildMockDs(),
       );
       expect(packet.packetType, equals(PacketType.guildScheduledEventDelete));
       expect(packet.packetType.name, equals('GUILD_SCHEDULED_EVENT_DELETE'));
@@ -328,7 +154,7 @@ void main() {
 
     test('GuildScheduledEventUserAddPacket has correct packetType', () {
       final packet = GuildScheduledEventUserAddPacket(
-        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
+        dataStore: buildMockDs(),
       );
       expect(packet.packetType, equals(PacketType.guildScheduledEventUserAdd));
       expect(packet.packetType.name, equals('GUILD_SCHEDULED_EVENT_USER_ADD'));
@@ -336,7 +162,7 @@ void main() {
 
     test('GuildScheduledEventUserRemovePacket has correct packetType', () {
       final packet = GuildScheduledEventUserRemovePacket(
-        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
+        dataStore: buildMockDs(),
       );
       expect(
           packet.packetType, equals(PacketType.guildScheduledEventUserRemove));
@@ -348,29 +174,16 @@ void main() {
   // ── GUILD_SCHEDULED_EVENT_CREATE ───────────────────────────────────────────
 
   group('GuildScheduledEventCreatePacket', () {
-    late _FakeDataStore ds;
-    late _FakeMarshaller marshaller;
+    late MockDataStore ds;
+    late FakeMarshaller marshaller;
 
     setUp(() {
-      final ctx = EntityContext(
-        datastore: _NullDataStore(),
-        wss: FakeWebsocketOrchestrator(),
-        logger: FakeLogger(),
-        runtimeState: RuntimeState(),
+      ds = MockDataStore();
+      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      when(() => ds.guild).thenReturn(FakeGuildPart(guild));
+      marshaller = FakeMarshaller(
+        entityContext: buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
       );
-      // We need a deferred setup since marshaller/guild depend on each other
-      late _FakeDataStore dsFinal;
-      marshaller = _FakeMarshaller(
-        entityContext: EntityContext(
-          datastore: _LazyDataStore(() => dsFinal),
-          wss: FakeWebsocketOrchestrator(),
-          logger: FakeLogger(),
-          runtimeState: RuntimeState(),
-        ),
-      );
-      final guild = _buildServer(ctx);
-      dsFinal = _FakeDataStore(guildPart: _FakeServerPart(guild));
-      ds = dsFinal;
     });
 
     test('dispatches Event.guildScheduledEventCreate', () async {
@@ -422,33 +235,19 @@ void main() {
   // ── GUILD_SCHEDULED_EVENT_UPDATE ───────────────────────────────────────────
 
   group('GuildScheduledEventUpdatePacket', () {
-    late _FakeDataStore ds;
-    late _FakeMarshaller marshaller;
+    late MockDataStore ds;
+    late FakeMarshaller marshaller;
     late FakeCacheProvider cache;
 
     setUp(() {
       cache = FakeCacheProvider();
-
-      late _FakeDataStore dsFinal;
-      marshaller = _FakeMarshaller(
+      ds = MockDataStore();
+      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      when(() => ds.guild).thenReturn(FakeGuildPart(guild));
+      marshaller = FakeMarshaller(
         cache: cache,
-        entityContext: EntityContext(
-          datastore: _LazyDataStore(() => dsFinal),
-          wss: FakeWebsocketOrchestrator(),
-          logger: FakeLogger(),
-          runtimeState: RuntimeState(),
-        ),
+        entityContext: buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
       );
-
-      final ctx = EntityContext(
-        datastore: _NullDataStore(),
-        wss: FakeWebsocketOrchestrator(),
-        logger: FakeLogger(),
-        runtimeState: RuntimeState(),
-      );
-      final guild = _buildServer(ctx);
-      dsFinal = _FakeDataStore(guildPart: _FakeServerPart(guild));
-      ds = dsFinal;
     });
 
     test('dispatches Event.guildScheduledEventUpdate', () async {
@@ -520,28 +319,16 @@ void main() {
   // ── GUILD_SCHEDULED_EVENT_DELETE ───────────────────────────────────────────
 
   group('GuildScheduledEventDeletePacket', () {
-    late _FakeDataStore ds;
-    late _FakeMarshaller marshaller;
+    late MockDataStore ds;
+    late FakeMarshaller marshaller;
 
     setUp(() {
-      late _FakeDataStore dsFinal;
-      marshaller = _FakeMarshaller(
-        entityContext: EntityContext(
-          datastore: _LazyDataStore(() => dsFinal),
-          wss: FakeWebsocketOrchestrator(),
-          logger: FakeLogger(),
-          runtimeState: RuntimeState(),
-        ),
+      ds = MockDataStore();
+      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      when(() => ds.guild).thenReturn(FakeGuildPart(guild));
+      marshaller = FakeMarshaller(
+        entityContext: buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
       );
-      final ctx = EntityContext(
-        datastore: _NullDataStore(),
-        wss: FakeWebsocketOrchestrator(),
-        logger: FakeLogger(),
-        runtimeState: RuntimeState(),
-      );
-      final guild = _buildServer(ctx);
-      dsFinal = _FakeDataStore(guildPart: _FakeServerPart(guild));
-      ds = dsFinal;
     });
 
     test('dispatches Event.guildScheduledEventDelete', () async {
@@ -586,22 +373,14 @@ void main() {
   // ── GUILD_SCHEDULED_EVENT_USER_ADD ─────────────────────────────────────────
 
   group('GuildScheduledEventUserAddPacket', () {
-    late _FakeDataStore ds;
+    late MockDataStore ds;
 
     setUp(() {
-      final ctx = EntityContext(
-        datastore: _NullDataStore(),
-        wss: FakeWebsocketOrchestrator(),
-        logger: FakeLogger(),
-        runtimeState: RuntimeState(),
-      );
-      late _FakeDataStore dsFinal;
-      final user = _buildUser(ctx);
-      dsFinal = _FakeDataStore(
-        guildPart: _FakeServerPart(_buildServer(ctx)),
-        userPart: _FakeUserPart(user),
-      );
-      ds = dsFinal;
+      ds = MockDataStore();
+      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final user = _buildUser(ds);
+      when(() => ds.guild).thenReturn(FakeGuildPart(guild));
+      when(() => ds.user).thenReturn(FakeUserPart(user));
     });
 
     test('dispatches Event.guildScheduledEventUserAdd', () async {
@@ -644,22 +423,14 @@ void main() {
   // ── GUILD_SCHEDULED_EVENT_USER_REMOVE ──────────────────────────────────────
 
   group('GuildScheduledEventUserRemovePacket', () {
-    late _FakeDataStore ds;
+    late MockDataStore ds;
 
     setUp(() {
-      final ctx = EntityContext(
-        datastore: _NullDataStore(),
-        wss: FakeWebsocketOrchestrator(),
-        logger: FakeLogger(),
-        runtimeState: RuntimeState(),
-      );
-      late _FakeDataStore dsFinal;
-      final user = _buildUser(ctx);
-      dsFinal = _FakeDataStore(
-        guildPart: _FakeServerPart(_buildServer(ctx)),
-        userPart: _FakeUserPart(user),
-      );
-      ds = dsFinal;
+      ds = MockDataStore();
+      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final user = _buildUser(ds);
+      when(() => ds.guild).thenReturn(FakeGuildPart(guild));
+      when(() => ds.user).thenReturn(FakeUserPart(user));
     });
 
     test('dispatches Event.guildScheduledEventUserRemove', () async {
@@ -698,64 +469,4 @@ void main() {
       expect(args!.user.id, equals(Snowflake.parse(_userId)));
     });
   });
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-final class _DummyServerPart implements GuildPartContract {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  Future<Guild> get(Object id, bool force) => throw UnimplementedError();
-}
-
-/// A [DataStoreContract] that resolves lazily, used to break circular init deps.
-final class _LazyDataStore implements DataStoreContract {
-  final DataStoreContract Function() _resolve;
-  _LazyDataStore(this._resolve);
-
-  @override
-  GuildPartContract get guild => _resolve().guild;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  ChannelPartContract get channel => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
 }
