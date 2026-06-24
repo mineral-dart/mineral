@@ -133,7 +133,7 @@ void main() {
         // so we absorb the async error.
         runZonedGuarded(() {
           auth.heartbeat();
-        }, (_, __) {});
+        }, (_, _) {});
 
         // Give a tick for the async error log
         await Future<void>.delayed(Duration.zero);
@@ -199,7 +199,7 @@ void main() {
         // Trigger reconnects to increment the counter
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         // Give async reconnect time to start
         await Future<void>.delayed(Duration.zero);
@@ -209,7 +209,7 @@ void main() {
         // Should be able to reconnect again without hitting max
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 
@@ -246,7 +246,7 @@ void main() {
       test('disconnects the client', () {
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(fakeClient.disconnected, isTrue);
       });
@@ -256,7 +256,7 @@ void main() {
 
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(auth.attempts, equals(0));
       });
@@ -264,7 +264,7 @@ void main() {
       test('sets intentionalDisconnect to true', () {
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(auth.intentionalDisconnect, isTrue);
       });
@@ -272,7 +272,7 @@ void main() {
       test('uses internal close code 4900', () {
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(fakeClient.lastDisconnectCode, equals(4900));
       });
@@ -280,7 +280,7 @@ void main() {
       test('logs reconnect warning', () async {
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 
@@ -292,7 +292,7 @@ void main() {
       test('disconnects client', () {
         runZonedGuarded(() {
           auth.resume();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(fakeClient.disconnected, isTrue);
       });
@@ -302,7 +302,7 @@ void main() {
 
         runZonedGuarded(() {
           auth.resume();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(auth.attempts, equals(0));
       });
@@ -310,7 +310,7 @@ void main() {
       test('sets intentionalDisconnect to true', () {
         runZonedGuarded(() {
           auth.resume();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(auth.intentionalDisconnect, isTrue);
       });
@@ -318,7 +318,7 @@ void main() {
       test('uses internal close code 4900', () {
         runZonedGuarded(() {
           auth.resume();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(fakeClient.lastDisconnectCode, equals(4900));
       });

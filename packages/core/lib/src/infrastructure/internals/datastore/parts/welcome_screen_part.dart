@@ -29,9 +29,9 @@ final class WelcomeScreenPart extends BasePart
     final parsedGuildId = Snowflake.parse(guildId);
 
     final body = <String, dynamic>{
-      if (enabled != null) 'enabled': enabled,
-      if (welcomeChannels != null) 'welcome_channels': welcomeChannels,
-      if (description != null) 'description': description,
+      'enabled': ?enabled,
+      'welcome_channels': ?welcomeChannels,
+      'description': ?description,
     };
 
     final req = Request.json(
