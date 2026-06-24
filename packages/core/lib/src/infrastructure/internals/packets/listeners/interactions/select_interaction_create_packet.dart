@@ -56,15 +56,15 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
 
       switch (selectMenuType) {
         case ComponentType.channelSelectMenu:
-          _dispatchChannelSelectMenu(ctx, payload, dispatch);
+          await _dispatchChannelSelectMenu(ctx, payload, dispatch);
         case ComponentType.roleSelectMenu:
-          _dispatchRoleSelectMenu(ctx, payload, dispatch);
+          await _dispatchRoleSelectMenu(ctx, payload, dispatch);
         case ComponentType.userSelectMenu:
-          _dispatchUserSelectMenu(ctx, payload, dispatch);
+          await _dispatchUserSelectMenu(ctx, payload, dispatch);
         case ComponentType.mentionableSelectMenu:
-          _dispatchMentionableSelectMenu(ctx, payload, dispatch);
+          await _dispatchMentionableSelectMenu(ctx, payload, dispatch);
         case ComponentType.textSelectMenu:
-          _dispatchTextSelectMenu(ctx, payload, dispatch);
+          await _dispatchTextSelectMenu(ctx, payload, dispatch);
         default:
           _logger.warn('Select menu type $selectMenuType not found');
       }

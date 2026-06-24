@@ -93,7 +93,7 @@ final class Shard implements ShardContract {
 
     client.interceptor.request.add(wss.config.encoding.encode);
 
-    client.listen((message) {
+    await client.listen((message) {
       if (message.content
           case ShardMessage(opCode: final code, payload: final payload)) {
         try {
