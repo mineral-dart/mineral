@@ -54,7 +54,7 @@ void main() {
       test('disconnects with internal close code 4900', () {
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(fakeClient.disconnected, isTrue);
         expect(fakeClient.lastDisconnectCode, equals(4900));
@@ -67,7 +67,7 @@ void main() {
 
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(auth.attempts, equals(0));
       });
@@ -75,7 +75,7 @@ void main() {
       test('sets intentionalDisconnect to true', () {
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(auth.intentionalDisconnect, isTrue);
       });
@@ -83,7 +83,7 @@ void main() {
       test('logs reconnect warning with shard name', () async {
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 
@@ -96,7 +96,7 @@ void main() {
       test('disconnects with internal close code 4900', () {
         runZonedGuarded(() {
           auth.resume();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(fakeClient.disconnected, isTrue);
         expect(fakeClient.lastDisconnectCode, equals(4900));
@@ -115,7 +115,7 @@ void main() {
         // shard.init(), then simulate the identify call that would follow.
         runZonedGuarded(() {
           auth.resume();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 
@@ -137,7 +137,7 @@ void main() {
       test('sets intentionalDisconnect to true', () {
         runZonedGuarded(() {
           auth.resume();
-        }, (_, __) {});
+        }, (_, _) {});
 
         expect(auth.intentionalDisconnect, isTrue);
       });
@@ -145,7 +145,7 @@ void main() {
       test('logs resuming warning with shard name', () async {
         runZonedGuarded(() {
           auth.resume();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 
@@ -224,7 +224,7 @@ void main() {
         // Increment reconnect attempts first
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 
@@ -238,7 +238,7 @@ void main() {
         // (if _reconnectAttempts was not reset, this could fail with max=3)
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 
@@ -263,7 +263,7 @@ void main() {
         // Trigger a reconnect to increment _reconnectAttempts
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 
@@ -273,7 +273,7 @@ void main() {
         // Should be able to reconnect again from attempt 1
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 
@@ -293,14 +293,14 @@ void main() {
         // First reconnect is allowed (attempt 1)
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 
         // Second would throw FatalGatewayException
         runZonedGuarded(() {
           auth.reconnect();
-        }, (_, __) {});
+        }, (_, _) {});
 
         await Future<void>.delayed(Duration.zero);
 

@@ -38,7 +38,7 @@ Object? _dispatchSilently(void Function() fn) {
     } on Object catch (e) {
       caught = e;
     }
-  }, (_, __) {
+  }, (_, _) {
     // Silently absorb uncaught async errors from resume()/reconnect()
   });
   return caught;
