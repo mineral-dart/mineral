@@ -88,7 +88,7 @@ final class QueueableRequest<T> {
         }
 
         _logger.warn(
-          'Rate limit reached on $route '
+          'Rate limit reached on ${route.redactedString} '
           '(attempt ${attempt + 1}/$_maxRateLimitRetries, '
           '${isGlobal ? 'global' : 'bucket'}). '
           'Retrying in ${retryDelay.inMilliseconds}ms',

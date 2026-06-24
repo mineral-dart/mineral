@@ -69,4 +69,77 @@ void main() {
       expect(a.hashCode, equals(b.hashCode));
     });
   });
+
+  group('RouteKey.redactedString — token masking (CWE-532)', () {
+    test('webhook token is masked in redactedString', () {
+      final key =
+          RouteKey('POST', '/webhooks/111111111111111111/supersecrettoken');
+      expect(key.redactedString, equals('POST /webhooks/111111111111111111/***'));
+    });
+
+    test('interaction token is masked in redactedString', () {
+      final key = RouteKey(
+          'POST', '/interactions/111111111111111111/supersecrettoken');
+      expect(key.redactedString, equals('POST /interactions/{id}/***'));
+    });
+
+    test('normal route is unchanged in redactedString', () {
+      final key = RouteKey('GET', '/channels/111111111111111111/messages');
+      expect(key.redactedString,
+          equals('GET /channels/111111111111111111/messages'));
+    });
+
+    test('users route is unchanged in redactedString', () {
+      final key = RouteKey('GET', '/users/@me');
+      expect(key.redactedString, equals('GET /users/@me'));
+    });
+
+    test('webhook bucketing key (normalizedPath) is preserved raw', () {
+      final key =
+          RouteKey('POST', '/webhooks/111111111111111111/supersecrettoken');
+      // normalizedPath must contain the actual token for bucketing
+      expect(key.normalizedPath,
+          equals('/webhooks/111111111111111111/supersecrettoken'));
+    });
+
+    test('interaction bucketing key (normalizedPath) is preserved raw', () {
+      final key = RouteKey(
+          'POST', '/interactions/111111111111111111/supersecrettoken');
+      expect(key.normalizedPath,
+          equals('/interactions/{id}/supersecrettoken'));
+    });
+
+    test('two webhooks with same id+token map to same bucket', () {
+      final a =
+          RouteKey('POST', '/webhooks/111111111111111111/supersecrettoken');
+      final b =
+          RouteKey('POST', '/webhooks/111111111111111111/supersecrettoken');
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
+    });
+
+    test('two webhooks with different tokens map to different buckets', () {
+      final a =
+          RouteKey('POST', '/webhooks/111111111111111111/tokenA');
+      final b =
+          RouteKey('POST', '/webhooks/111111111111111111/tokenB');
+      expect(a, isNot(equals(b)));
+    });
+
+    test('webhook route with trailing sub-path masks only the token segment',
+        () {
+      final key =
+          RouteKey('POST', '/webhooks/111111111111111111/supersecrettoken/slack');
+      expect(key.redactedString,
+          equals('POST /webhooks/111111111111111111/***/slack'));
+    });
+
+    test('toString still exposes normalizedPath (not used in logs)', () {
+      final key =
+          RouteKey('POST', '/webhooks/111111111111111111/supersecrettoken');
+      // toString is the raw form; the test documents intentional behaviour
+      expect(key.toString(),
+          equals('POST /webhooks/111111111111111111/supersecrettoken'));
+    });
+  });
 }
