@@ -46,3 +46,4 @@ linter:
     use_string_buffers: true
     unawaited_futures: true
     only_throw_errors: true
+    use_null_aware_elements: false

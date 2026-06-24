@@ -70,7 +70,7 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
   }) async {
     final body = <String, dynamic>{
       'name': name,
-      'avatar': ?avatar,
+      if (avatar != null) 'avatar': avatar,
     };
 
     final req = Request.json(
@@ -95,8 +95,8 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
     String? reason,
   }) async {
     final body = <String, dynamic>{
-      'name': ?name,
-      'avatar': ?avatar,
+      if (name != null) 'name': name,
+      if (avatar != null) 'avatar': avatar,
       if (channelId != null) 'channel_id': channelId.toString(),
     };
 
@@ -121,8 +121,8 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
     String? avatar,
   }) async {
     final body = <String, dynamic>{
-      'name': ?name,
-      'avatar': ?avatar,
+      if (name != null) 'name': name,
+      if (avatar != null) 'avatar': avatar,
     };
 
     final req =

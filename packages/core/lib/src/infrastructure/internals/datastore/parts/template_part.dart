@@ -34,7 +34,7 @@ final class TemplatePart extends BasePart implements TemplatePartContract {
     final parsedGuildId = Snowflake.parse(guildId);
     final body = <String, dynamic>{
       'name': name,
-      'description': ?description,
+      if (description != null) 'description': description,
     };
     final req = Request.json(endpoint: '/guilds/$parsedGuildId/templates', body: body);
     final result =
@@ -61,8 +61,8 @@ final class TemplatePart extends BasePart implements TemplatePartContract {
   }) async {
     final parsedGuildId = Snowflake.parse(guildId);
     final body = <String, dynamic>{
-      'name': ?name,
-      'description': ?description,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
     };
     final req = Request.json(
         endpoint: '/guilds/$parsedGuildId/templates/$code', body: body);
