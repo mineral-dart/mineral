@@ -14,6 +14,7 @@ import '../helpers/fake_cache_provider.dart';
 import '../helpers/fake_logger.dart';
 import '../helpers/fake_marshaller.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
+import '../helpers/mocks.dart';
 
 // ── IDs ───────────────────────────────────────────────────────────────────────
 
@@ -136,7 +137,7 @@ void main() {
       runtimeState = RuntimeState();
 
       ctx = EntityContext(
-        datastore: _NullDataStore(),
+        datastore: MockDataStore(),
         wss: wss,
         logger: logger,
         runtimeState: runtimeState,
@@ -252,8 +253,3 @@ void main() {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-final class _NullDataStore implements DataStoreContract {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-}

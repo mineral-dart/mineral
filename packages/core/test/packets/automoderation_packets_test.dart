@@ -3,8 +3,6 @@ library;
 
 import 'package:mineral/api.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/src/domains/common/entity_context.dart';
-import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/automoderation_rule_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/automoderation_rule_delete_packet.dart';
@@ -14,9 +12,9 @@ import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_cache_provider.dart';
-import '../helpers/fake_logger.dart';
 import '../helpers/fake_marshaller.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
+import '../helpers/mocks.dart';
 import 'helpers/packet_test_helpers.dart';
 
 // ── IDs ───────────────────────────────────────────────────────────────────────
@@ -70,12 +68,7 @@ void main() {
 
     marshaller = FakeMarshaller(
       cache: cache,
-      entityContext: EntityContext(
-        datastore: LazyDataStore(() => throw UnimplementedError()),
-        wss: wss,
-        logger: FakeLogger(),
-        runtimeState: RuntimeState(),
-      ),
+      entityContext: buildCtx(dataStore: MockDataStore(), wss: wss),
     );
   });
 

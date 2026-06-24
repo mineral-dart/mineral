@@ -14,6 +14,7 @@ import '../helpers/fake_cache_provider.dart';
 import '../helpers/fake_logger.dart';
 import '../helpers/fake_marshaller.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
+import '../helpers/mocks.dart';
 
 // ── No-op CommandInteractionManager stub ──────────────────────────────────────
 
@@ -89,7 +90,7 @@ void main() {
       marshaller = FakeMarshaller(logger: logger);
 
       ctx = EntityContext(
-        datastore: _NullDataStore(),
+        datastore: MockDataStore(),
         wss: wss,
         logger: logger,
         runtimeState: runtimeState,
@@ -209,12 +210,6 @@ void main() {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-final class _NullDataStore implements DataStoreContract {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-}
 
 final class _CountingCommandManager implements CommandInteractionManagerContract {
   final void Function() onRegisterGlobal;

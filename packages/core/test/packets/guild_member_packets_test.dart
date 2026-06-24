@@ -1,12 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/services.dart';
-import 'package:mineral/src/api/guild/managers/rules_manager.dart';
-import 'package:mineral/src/api/guild/managers/threads_manager.dart';
-import 'package:mineral/src/domains/common/entity_context.dart';
-import 'package:mineral/src/domains/common/runtime_state.dart';
-import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_member_add_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_member_chunk_packet.dart';
@@ -14,12 +8,14 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_mem
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_member_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_cache_provider.dart';
-import '../helpers/fake_logger.dart';
 import '../helpers/fake_marshaller.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
+import '../helpers/mocks.dart';
+import 'helpers/packet_test_helpers.dart';
 
 // ── IDs ───────────────────────────────────────────────────────────────────────
 
@@ -93,6 +89,17 @@ ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
       payload: payload,
     );
 
+// ── Fake member part ──────────────────────────────────────────────────────────
+
+class _FakeMemberPart extends Mock implements MemberPartContract {
+  final Member _member;
+  _FakeMemberPart(this._member);
+
+  @override
+  Future<Member?> get(Object guildId, Object memberId, bool force) async =>
+      _member;
+}
+
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 void main() {
@@ -100,31 +107,20 @@ void main() {
   late FakeCacheProvider cache;
   late FakeMarshaller marshaller;
   late Guild fakeGuild;
-  late _FakeDataStore dataStore;
+  late MockDataStore dataStore;
 
   setUp(() async {
     wss = FakeWebsocketOrchestrator();
     cache = FakeCacheProvider();
 
-    late _FakeDataStore dsFinal;
+    dataStore = MockDataStore();
+
     marshaller = FakeMarshaller(
       cache: cache,
-      entityContext: EntityContext(
-        datastore: _LazyDataStore(() => dsFinal),
-        wss: wss,
-        logger: FakeLogger(),
-        runtimeState: RuntimeState(),
-      ),
+      entityContext: buildCtx(dataStore: dataStore, wss: wss),
     );
 
-    // Build guild through the serializer so managers get correct context.
-    final ctx = EntityContext(
-      datastore: _LazyDataStore(() => dsFinal),
-      wss: wss,
-      logger: FakeLogger(),
-      runtimeState: RuntimeState(),
-    );
-    fakeGuild = _minimalGuild(ctx);
+    fakeGuild = buildMinimalGuild(_guildId, buildCtx(dataStore: dataStore, wss: wss));
 
     // Also pre-populate a normalized member in cache (needed for update test).
     final normalizedMember = await marshaller.serializers.member.normalize({
@@ -132,26 +128,23 @@ void main() {
       'guild_id': _guildId,
     });
 
-    dsFinal = _FakeDataStore(
-      guildPart: _FakeGuildPart(fakeGuild),
-      userPart: _FakeUserPart(
-        await marshaller.serializers.user.serialize(
-          await marshaller.serializers.user.normalize({
-            'id': _userId,
-            'username': 'TestMember',
-            'discriminator': '0001',
-            'avatar': null,
-            'bot': false,
-            'global_name': null,
-            'public_flags': 0,
-          }),
-        ),
-      ),
-      memberPart: _FakeMemberPart(
-        await marshaller.serializers.member.serialize(normalizedMember),
-      ),
+    final user = await marshaller.serializers.user.serialize(
+      await marshaller.serializers.user.normalize({
+        'id': _userId,
+        'username': 'TestMember',
+        'discriminator': '0001',
+        'avatar': null,
+        'bot': false,
+        'global_name': null,
+        'public_flags': 0,
+      }),
     );
-    dataStore = dsFinal;
+
+    final member = await marshaller.serializers.member.serialize(normalizedMember);
+
+    when(() => dataStore.guild).thenReturn(FakeGuildPart(fakeGuild));
+    when(() => dataStore.user).thenReturn(FakeUserPart(user));
+    when(() => dataStore.member).thenReturn(_FakeMemberPart(member));
   });
 
   // ── GUILD_MEMBER_ADD ───────────────────────────────────────────────────────
@@ -375,227 +368,4 @@ void main() {
       expect(args!.members, hasLength(1));
     });
   });
-}
-
-// ── Domain object helpers ─────────────────────────────────────────────────────
-
-Guild _minimalGuild(EntityContext ctx) {
-  final id = Snowflake.parse(_guildId);
-  return Guild(
-    ctx: ctx,
-    id: id,
-    name: 'Test Guild',
-    ownerId: Snowflake.parse('000000000000000001'),
-    description: null,
-    applicationId: null,
-    members: MemberManager(id, ctx: ctx),
-    settings: GuildSettings(
-      bitfieldPermission: null,
-      afkTimeout: null,
-      hasWidgetEnabled: false,
-      verificationLevel: VerificationLevel.none,
-      defaultMessageNotifications: DefaultMessageNotification.allMessages,
-      explicitContentFilter: ExplicitContentFilter.disabled,
-      features: [],
-      mfaLevel: MfaLevel.none,
-      systemChannelFlags: [],
-      vanityUrlCode: null,
-      subscription: GuildSubscription(
-        tier: PremiumTier.none,
-        subscriptionCount: null,
-        hasEnabledProgressBar: false,
-      ),
-      preferredLocale: 'en-US',
-      maxVideoChannelUsers: null,
-      nsfwLevel: NsfwLevel.none,
-      rulesManager: RulesManager(id, ctx: ctx),
-    ),
-    roles: RoleManager(id, ctx: ctx),
-    channels: ChannelManager(
-      id,
-      ctx: ctx,
-      afkChannelId: null,
-      systemChannelId: null,
-      rulesChannelId: null,
-      publicUpdatesChannelId: null,
-      safetyAlertsChannelId: null,
-    ),
-    threads: ThreadsManager(id, null, ctx: ctx),
-    assets: GuildAsset(
-      id,
-      ctx: ctx,
-      emojis: EmojiManager(id, ctx: ctx),
-      stickers: StickerManager(id, ctx: ctx),
-      icon: null,
-      splash: null,
-      banner: null,
-      discoverySplash: null,
-    ),
-  );
-}
-
-// ── Shared fakes ──────────────────────────────────────────────────────────────
-
-final class _FakeGuildPart implements GuildPartContract {
-  final Guild _guild;
-  _FakeGuildPart(this._guild);
-
-  @override
-  Future<Guild> get(Object id, bool force) async => _guild;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-}
-
-final class _FakeUserPart implements UserPartContract {
-  final User _user;
-  _FakeUserPart(this._user);
-
-  @override
-  Future<User?> get(Object id, bool force) async => _user;
-}
-
-final class _FakeMemberPart implements MemberPartContract {
-  final Member _member;
-  _FakeMemberPart(this._member);
-
-  @override
-  Future<Member?> get(Object guildId, Object memberId, bool force) async =>
-      _member;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-}
-
-final class _FakeDataStore implements DataStoreContract {
-  final GuildPartContract _guildPart;
-  final UserPartContract _userPart;
-  final MemberPartContract _memberPart;
-
-  _FakeDataStore({
-    required GuildPartContract guildPart,
-    required UserPartContract userPart,
-    required MemberPartContract memberPart,
-  })  : _guildPart = guildPart,
-        _userPart = userPart,
-        _memberPart = memberPart;
-
-  @override
-  GuildPartContract get guild => _guildPart;
-  @override
-  UserPartContract get user => _userPart;
-  @override
-  MemberPartContract get member => _memberPart;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  ChannelPartContract get channel => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  MonetizationPartContract get monetization => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
-
-final class _LazyDataStore implements DataStoreContract {
-  final DataStoreContract Function() _resolve;
-  _LazyDataStore(this._resolve);
-
-  @override
-  GuildPartContract get guild => _resolve().guild;
-  @override
-  MemberPartContract get member => _resolve().member;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  ChannelPartContract get channel => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  MonetizationPartContract get monetization => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
 }

@@ -9,6 +9,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_websocket_orchestrator.dart';
+import '../helpers/mocks.dart';
 
 // ── Fakes & Mocks ──────────────────────────────────────────────────────────
 
@@ -23,69 +24,33 @@ class _MockChannelPart extends Mock implements ChannelPartContract {}
 
 class _MockMessagePart extends Mock implements MessagePartContract {}
 
-// ── Minimal DataStoreContract implementations ──────────────────────────────
-//
-// Because DataStoreContract is an abstract interface (not final), we can
-// implement it directly and override only the parts we need.
+// ── DataStore factory helpers ──────────────────────────────────────────────
 
-final class _MemberRoleDataStore implements DataStoreContract {
-  final MemberPartContract _member;
-  final RolePartContract _role;
-
-  _MemberRoleDataStore(this._member, this._role);
-
-  @override
-  MemberPartContract get member => _member;
-
-  @override
-  RolePartContract get role => _role;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
+MockDataStore _memberRoleDs(MemberPartContract member, RolePartContract role) {
+  final ds = MockDataStore();
+  when(() => ds.member).thenReturn(member);
+  when(() => ds.role).thenReturn(role);
+  return ds;
 }
 
-final class _ChannelMessageDataStore implements DataStoreContract {
-  final ChannelPartContract _channel;
-  final MessagePartContract _message;
-
-  _ChannelMessageDataStore(this._channel, this._message);
-
-  @override
-  ChannelPartContract get channel => _channel;
-
-  @override
-  MessagePartContract get message => _message;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
+MockDataStore _channelMessageDs(
+    ChannelPartContract channel, MessagePartContract message) {
+  final ds = MockDataStore();
+  when(() => ds.channel).thenReturn(channel);
+  when(() => ds.message).thenReturn(message);
+  return ds;
 }
 
-final class _MessageOnlyDataStore implements DataStoreContract {
-  final MessagePartContract _message;
-
-  _MessageOnlyDataStore(this._message);
-
-  @override
-  MessagePartContract get message => _message;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
+MockDataStore _messageOnlyDs(MessagePartContract message) {
+  final ds = MockDataStore();
+  when(() => ds.message).thenReturn(message);
+  return ds;
 }
 
-final class _RoleDataStore implements DataStoreContract {
-  final RolePartContract _role;
-
-  _RoleDataStore(this._role);
-
-  @override
-  RolePartContract get role => _role;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
+MockDataStore _roleOnlyDs(RolePartContract role) {
+  final ds = MockDataStore();
+  when(() => ds.role).thenReturn(role);
+  return ds;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -252,7 +217,7 @@ void main() {
     setUp(() {
       mockMember = _MockMemberPart();
       mockRole = _MockRolePart();
-      final ctx = _ctx(_MemberRoleDataStore(mockMember, mockRole));
+      final ctx = _ctx(_memberRoleDs(mockMember, mockRole));
       member = _buildMember(ctx);
     });
 
@@ -413,7 +378,7 @@ void main() {
     setUp(() {
       mockMember = _MockMemberPart();
       mockRole = _MockRolePart();
-      final ctx = _ctx(_MemberRoleDataStore(mockMember, mockRole));
+      final ctx = _ctx(_memberRoleDs(mockMember, mockRole));
       member = _buildMember(ctx);
     });
 
@@ -503,7 +468,7 @@ void main() {
 
     setUp(() {
       mockRole = _MockRolePart();
-      final ctx = _ctx(_RoleDataStore(mockRole));
+      final ctx = _ctx(_roleOnlyDs(mockRole));
       role = _buildRole(ctx);
     });
 
@@ -621,7 +586,7 @@ void main() {
     setUp(() {
       mockChannel = _MockChannelPart();
       mockMessage = _MockMessagePart();
-      final ctx = _ctx(_ChannelMessageDataStore(mockChannel, mockMessage));
+      final ctx = _ctx(_channelMessageDs(mockChannel, mockMessage));
       channel = GuildTextChannel(_buildTextProps(ctx));
     });
 
@@ -684,7 +649,7 @@ void main() {
     setUp(() {
       mockChannel = _MockChannelPart();
       final mockMessage = _MockMessagePart();
-      final ctx = _ctx(_ChannelMessageDataStore(mockChannel, mockMessage));
+      final ctx = _ctx(_channelMessageDs(mockChannel, mockMessage));
       voiceChannel = GuildVoiceChannel(_buildVoiceProps(ctx))..members = [];
     });
 
@@ -751,7 +716,7 @@ void main() {
 
     setUp(() {
       mockMessage = _MockMessagePart();
-      final ctx = _ctx(_MessageOnlyDataStore(mockMessage));
+      final ctx = _ctx(_messageOnlyDs(mockMessage));
       message = Message(_buildMessageProps(), ctx: ctx);
     });
 
@@ -870,7 +835,7 @@ void main() {
     setUp(() {
       mockChannel = _MockChannelPart();
       final mockMessage = _MockMessagePart();
-      final ctx = _ctx(_ChannelMessageDataStore(mockChannel, mockMessage));
+      final ctx = _ctx(_channelMessageDs(mockChannel, mockMessage));
       methods = ChannelMethods(
         Snowflake('222000222000222000'),
         Snowflake('555000555000555000'),
