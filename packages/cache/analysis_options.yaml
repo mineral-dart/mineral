@@ -17,6 +17,7 @@ linter:
   rules:
     unawaited_futures: true
     only_throw_errors: true
+    use_null_aware_elements: false
 
 # analyzer:
 #   exclude:

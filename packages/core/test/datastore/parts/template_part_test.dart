@@ -38,7 +38,7 @@ Map<String, dynamic> _templatePayload({
       'updated_at': updatedAt,
       'source_guild_id': sourceGuildId,
       'serialized_source_guild': {'name': 'Test Guild'},
-      'is_dirty': ?isDirty,
+      if (isDirty != null) 'is_dirty': isDirty,
     };
 
 (TemplatePart, void Function() restore) _buildPart(FakeHttpClient client) {
