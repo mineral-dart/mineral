@@ -55,9 +55,9 @@ final class SoundboardPart extends BasePart implements SoundboardPartContract {
     final body = <String, dynamic>{
       'name': name,
       'sound': sound,
-      'volume': ?volume,
+      if (volume != null) 'volume': volume,
       if (emojiId != null) 'emoji_id': Snowflake.parse(emojiId).value,
-      'emoji_name': ?emojiName,
+      if (emojiName != null) 'emoji_name': emojiName,
     };
 
     final req = Request.json(
@@ -83,10 +83,10 @@ final class SoundboardPart extends BasePart implements SoundboardPartContract {
     final parsedGuildId = Snowflake.parse(guildId);
     final id = Snowflake.parse(soundId);
     final body = <String, dynamic>{
-      'name': ?name,
-      'volume': ?volume,
+      if (name != null) 'name': name,
+      if (volume != null) 'volume': volume,
       if (emojiId != null) 'emoji_id': Snowflake.parse(emojiId).value,
-      'emoji_name': ?emojiName,
+      if (emojiName != null) 'emoji_name': emojiName,
     };
 
     final req = Request.json(

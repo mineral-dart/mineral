@@ -54,6 +54,10 @@ linter:
     use_string_buffers: true
     unawaited_futures: true
     only_throw_errors: true
+    # Disabled: the null-aware element syntax (`{'k': ?v}`) requires a newer
+    # language version than the supported SDK floor and breaks consumers on
+    # older SDKs. Keep the explicit `if (v != null)` form instead.
+    use_null_aware_elements: false
 
     # analyzer:
     #   exclude:

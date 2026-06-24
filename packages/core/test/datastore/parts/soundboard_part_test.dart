@@ -27,11 +27,11 @@ Map<String, dynamic> _soundPayload({
       'sound_id': id ?? _soundId,
       'name': name,
       'volume': volume,
-      'emoji_id': ?emojiId,
-      'emoji_name': ?emojiName,
-      'guild_id': ?guildId,
+      if (emojiId != null) 'emoji_id': emojiId,
+      if (emojiName != null) 'emoji_name': emojiName,
+      if (guildId != null) 'guild_id': guildId,
       'available': available,
-      'user': ?user,
+      if (user != null) 'user': user,
     };
 
 (SoundboardPart, void Function() restore) _buildPart(FakeHttpClient client) {
