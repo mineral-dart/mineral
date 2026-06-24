@@ -10,7 +10,7 @@ import 'welcome/welcome_provider.dart';
 
 // Run from `hmr` command, configuration available via `pubspec.yaml`
 void main() async {
-  final client = await ClientBuilder()
+  final client = ClientBuilder()
       .setIntent(Intent.allNonPrivileged)
       .registerProvider(WelcomeProvider.new)
       .registerProvider(PollProvider.new)

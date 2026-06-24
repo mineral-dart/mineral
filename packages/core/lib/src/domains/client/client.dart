@@ -18,6 +18,8 @@ final class Client {
 
   final CommandInteractionManagerContract _commands;
 
+  final CacheProviderContract? _cache;
+
   IocContainer get container => ioc;
 
   LoggerContract get logger => _kernel.logger;
@@ -30,9 +32,11 @@ final class Client {
     Kernel kernel, {
     required this.rest,
     required CommandInteractionManagerContract commandManager,
+    CacheProviderContract? cache,
   })  : events = EventBucket(kernel),
         commands = CommandBucket(commandManager),
         _commands = commandManager,
+        _cache = cache,
         _kernel = kernel;
 
   void register<T>(Listenable Function() constructor) {
@@ -54,7 +58,10 @@ final class Client {
     _commands.onCommandError = handler;
   }
 
-  Future<void> init() => _kernel.init();
+  Future<void> init() async {
+    await _cache?.init();
+    await _kernel.init();
+  }
 
   Future<void> dispose() => _kernel.dispose();
 }
