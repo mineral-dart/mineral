@@ -6,9 +6,8 @@ import 'package:mineral/src/api/guild/managers/rules_manager.dart';
 import 'package:mineral/src/api/guild/managers/threads_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
+import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
-import 'package:mineral/src/infrastructure/internals/datastore/parts/thread_part.dart';
-import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/webhooks_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -53,7 +52,7 @@ final class _DeferredDataStore implements DataStoreContract {
   @override
   ReactionPartContract get reaction => _resolve().reaction;
   @override
-  ThreadPart get thread => _resolve().thread;
+  ThreadPartContract get thread => _resolve().thread;
   @override
   InvitePartContract get invite => _resolve().invite;
   @override
@@ -77,7 +76,7 @@ final class _DeferredDataStore implements DataStoreContract {
   @override
   SoundboardPartContract get soundboard => _resolve().soundboard;
   @override
-  RequestBucket get requestBucket => _resolve().requestBucket;
+  RequestBucketContract get requestBucket => _resolve().requestBucket;
   @override
   HttpClientContract get client => _resolve().client;
 }
@@ -99,7 +98,7 @@ final class _FakeDataStore implements DataStoreContract {
   GuildPartContract get guild => _guildPart;
 
   @override
-  RequestBucket get requestBucket => throw UnimplementedError();
+  RequestBucketContract get requestBucket => throw UnimplementedError();
   @override
   HttpClientContract get client => throw UnimplementedError();
   @override
@@ -121,7 +120,7 @@ final class _FakeDataStore implements DataStoreContract {
   @override
   ReactionPartContract get reaction => throw UnimplementedError();
   @override
-  ThreadPart get thread => throw UnimplementedError();
+  ThreadPartContract get thread => throw UnimplementedError();
   @override
   InvitePartContract get invite => throw UnimplementedError();
   @override
@@ -236,7 +235,7 @@ final class _NoopDs implements DataStoreContract {
   @override
   ReactionPartContract get reaction => throw UnimplementedError();
   @override
-  ThreadPart get thread => throw UnimplementedError();
+  ThreadPartContract get thread => throw UnimplementedError();
   @override
   InvitePartContract get invite => throw UnimplementedError();
   @override
@@ -256,7 +255,7 @@ final class _NoopDs implements DataStoreContract {
   @override
   StageInstancePartContract get stageInstance => throw UnimplementedError();
   @override
-  RequestBucket get requestBucket => throw UnimplementedError();
+  RequestBucketContract get requestBucket => throw UnimplementedError();
   @override
   HttpClientContract get client => throw UnimplementedError();
 }

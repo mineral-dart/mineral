@@ -1,6 +1,6 @@
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
-import 'package:mineral/src/infrastructure/internals/datastore/parts/thread_part.dart';
+import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.dart';
 import 'package:mineral/src/testing/fake_logger.dart';
 
@@ -11,7 +11,7 @@ import 'package:mineral/src/testing/fake_logger.dart';
 /// or use a real Part instance passed directly to the system under test.
 final class FakeDataStore implements DataStoreContract {
   @override
-  late final RequestBucket requestBucket;
+  late final RequestBucketContract requestBucket;
 
   @override
   final HttpClientContract client;
@@ -55,7 +55,7 @@ final class FakeDataStore implements DataStoreContract {
   ReactionPartContract get reaction => throw UnimplementedError('reaction');
 
   @override
-  ThreadPart get thread => throw UnimplementedError('thread');
+  ThreadPartContract get thread => throw UnimplementedError('thread');
 
   @override
   InvitePartContract get invite => throw UnimplementedError('invite');

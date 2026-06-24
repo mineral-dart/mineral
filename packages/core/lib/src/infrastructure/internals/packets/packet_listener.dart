@@ -88,14 +88,30 @@ final class PacketListener implements PacketListenerContract {
   @override
   late final PacketDispatcherContract dispatcher;
 
-  late final Kernel kernel;
-  late final MarshallerContract marshaller;
-  late final DataStoreContract dataStore;
-  late final InteractiveComponentManagerContract interactiveComponent;
-  late final CommandInteractionManagerContract commandManager;
-  late final EntityContext entityContext;
-  late final RuntimeState runtimeState;
-  CacheConfig? cacheConfig;
+  // `kernel` is the only field kept as a settable late field because of a
+  // genuine construction cycle: Kernel receives PacketListener as a required
+  // argument, so the kernel cannot be available when PacketListener is
+  // constructed. Every other dependency is available before Kernel is built
+  // and is therefore passed as a required constructor parameter.
+  late Kernel kernel;
+
+  final MarshallerContract marshaller;
+  final DataStoreContract dataStore;
+  final InteractiveComponentManagerContract interactiveComponent;
+  final CommandInteractionManagerContract commandManager;
+  final EntityContext entityContext;
+  final RuntimeState runtimeState;
+  final CacheConfig? cacheConfig;
+
+  PacketListener({
+    required this.marshaller,
+    required this.dataStore,
+    required this.interactiveComponent,
+    required this.commandManager,
+    required this.entityContext,
+    required this.runtimeState,
+    this.cacheConfig,
+  });
 
   void subscribe(ListenablePacket packet) {
     dispatcher.listen(packet.packetType, packet.listen);

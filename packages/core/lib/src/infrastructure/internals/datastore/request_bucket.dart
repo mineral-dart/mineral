@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
+import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/rate_limit_registry.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/route_key.dart';
 
@@ -120,7 +121,7 @@ final class QueueableRequest<T> {
   }
 }
 
-final class RequestBucket {
+final class RequestBucket implements RequestBucketContract {
   final HttpClientContract client;
   final RateLimitRegistry registry;
   final LoggerContract logger;
@@ -129,6 +130,7 @@ final class RequestBucket {
   RequestBucket(this.client, {required this.logger, RateLimitRegistry? registry})
       : registry = registry ?? RateLimitRegistry();
 
+  @override
   Future<T> get<T>(RequestContract request,
           {void Function(T)? onSuccess,
           Exception Function(Response)? onError,
@@ -136,6 +138,7 @@ final class RequestBucket {
       _send<T>('GET', request, client.get,
           onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
 
+  @override
   Future<T> post<T>(RequestContract request,
           {void Function(T)? onSuccess,
           Exception Function(Response)? onError,
@@ -143,6 +146,7 @@ final class RequestBucket {
       _send<T>('POST', request, client.post,
           onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
 
+  @override
   Future<T> put<T>(RequestContract request,
           {void Function(T)? onSuccess,
           Exception Function(Response)? onError,
@@ -150,6 +154,7 @@ final class RequestBucket {
       _send<T>('PUT', request, client.put,
           onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
 
+  @override
   Future<T> patch<T>(RequestContract request,
           {void Function(T)? onSuccess,
           Exception Function(Response)? onError,
@@ -157,6 +162,7 @@ final class RequestBucket {
       _send<T>('PATCH', request, client.patch,
           onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
 
+  @override
   Future<T> delete<T>(RequestContract request,
           {void Function(T)? onSuccess,
           Exception Function(Response)? onError,
