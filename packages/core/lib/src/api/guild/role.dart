@@ -127,11 +127,11 @@ final class Role {
       guildId: guildId.value,
       reason: reason,
       payload: {
-        'name': ?name,
+        if (name != null) 'name': name,
         if (color != null) 'color': color.toInt(),
-        'hoist': ?hoist,
-        'unicode_emoji': ?emoji,
-        'mentionable': ?mentionable,
+        if (hoist != null) 'hoist': hoist,
+        if (emoji != null) 'unicode_emoji': emoji,
+        if (mentionable != null) 'mentionable': mentionable,
       },
     );
   }

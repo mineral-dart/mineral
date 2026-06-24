@@ -81,8 +81,8 @@ final class GuildScheduledEventPart extends BasePart
       if (entityMetadata != null) 'entity_metadata': entityMetadata.toJson(),
       if (scheduledEndTime != null)
         'scheduled_end_time': scheduledEndTime.toIso8601String(),
-      'description': ?description,
-      'image': ?image,
+      if (description != null) 'description': description,
+      if (image != null) 'image': image,
     };
 
     final req = Request.json(
@@ -117,16 +117,16 @@ final class GuildScheduledEventPart extends BasePart
     final body = <String, dynamic>{
       if (channelId != null) 'channel_id': channelId.toString(),
       if (entityMetadata != null) 'entity_metadata': entityMetadata.toJson(),
-      'name': ?name,
+      if (name != null) 'name': name,
       if (privacyLevel != null) 'privacy_level': privacyLevel.value,
       if (scheduledStartTime != null)
         'scheduled_start_time': scheduledStartTime.toIso8601String(),
       if (scheduledEndTime != null)
         'scheduled_end_time': scheduledEndTime.toIso8601String(),
-      'description': ?description,
+      if (description != null) 'description': description,
       if (entityType != null) 'entity_type': entityType.value,
       if (status != null) 'status': status.value,
-      'image': ?image,
+      if (image != null) 'image': image,
     };
 
     final req = Request.json(

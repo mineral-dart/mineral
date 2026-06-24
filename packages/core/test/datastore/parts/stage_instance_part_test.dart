@@ -23,7 +23,7 @@ Map<String, dynamic> _stageInstancePayload({
       'channel_id': _channelId,
       'topic': topic ?? 'Test Topic',
       'privacy_level': privacyLevel,
-      'guild_scheduled_event_id': ?guildScheduledEventId,
+      if (guildScheduledEventId != null) 'guild_scheduled_event_id': guildScheduledEventId,
     };
 
 (StageInstancePart, void Function() restore) _buildPart(FakeHttpClient client) {

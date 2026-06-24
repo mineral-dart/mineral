@@ -42,8 +42,8 @@ Map<String, dynamic> _entitlementPayload({
       'application_id': applicationId,
       'type': type,
       'deleted': deleted,
-      'user_id': ?userId,
-      'guild_id': ?guildId,
+      if (userId != null) 'user_id': userId,
+      if (guildId != null) 'guild_id': guildId,
     };
 
 Map<String, dynamic> _subscriptionPayload({
