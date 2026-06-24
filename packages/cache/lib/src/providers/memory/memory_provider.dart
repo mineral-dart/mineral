@@ -90,7 +90,7 @@ final class MemoryProvider implements CacheProviderContract {
       _storage.remove(key);
       return null;
     }
-    return entry.value as Map<String, dynamic>?;
+    return _deepCopy(entry.value) as Map<String, dynamic>?;
   }
 
   @override
@@ -127,16 +127,25 @@ final class MemoryProvider implements CacheProviderContract {
   @override
   void put<T>(String key, T object, {Duration? ttl}) {
     final effectiveTtl = ttl ?? _ttlPolicy.ttlFor(key);
-    _storage[key] = _Entry(object, effectiveTtl);
+    _storage[key] = _Entry(_deepCopy(object), effectiveTtl);
   }
 
   @override
   void putMany<T>(Map<String, T> objects, {Duration? ttl}) {
     for (final entry in objects.entries) {
       final effectiveTtl = ttl ?? _ttlPolicy.ttlFor(entry.key);
-      _storage[entry.key] = _Entry(entry.value, effectiveTtl);
+      _storage[entry.key] = _Entry(_deepCopy(entry.value), effectiveTtl);
     }
   }
+
+  /// Returns a structural deep copy of [value] via a JSON round-trip.
+  ///
+  /// The marshaller normalises all entities to `Map<String, dynamic>` before
+  /// caching, so the stored values are always JSON-encodable.  The round-trip
+  /// matches Redis's serialisation semantics: after `put`, the caller cannot
+  /// mutate the cached entry by modifying the original object.
+  static dynamic _deepCopy(dynamic value) =>
+      jsonDecode(jsonEncode(value));
 
   @override
   void remove(String key) => _storage.remove(key);
@@ -168,7 +177,11 @@ final class MemoryProvider implements CacheProviderContract {
 
 final class _Entry {
   _Entry(this.value, Duration? ttl)
-      : expiresAt = ttl == null ? null : DateTime.now().add(ttl);
+      // Duration.zero is treated as "no expiry", matching Redis semantics
+      // where buildSetCommand omits PX for non-positive durations.
+      : expiresAt = (ttl == null || ttl <= Duration.zero)
+            ? null
+            : DateTime.now().add(ttl);
 
   final dynamic value;
   final DateTime? expiresAt;

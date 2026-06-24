@@ -152,6 +152,75 @@ void main() {
       });
     });
   });
+
+  // ── M24: Duration.zero semantics ─────────────────────────────────────────
+
+  group('Duration.zero semantics (M24)', () {
+    test('Duration.zero on put means no expiry (matches Redis semantics)',
+        () async {
+      final provider = MemoryProvider(env);
+      provider.put('k', {'v': 1}, ttl: Duration.zero);
+
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+
+      // Duration.zero must NOT cause immediate eviction; it means "no expiry",
+      // matching Redis buildSetCommand which emits a plain SET (no PX) for
+      // non-positive durations.
+      expect(provider.has('k'), isTrue);
+      expect(provider.get('k'), {'v': 1});
+    });
+
+    test('Duration.zero via putMany means no expiry', () async {
+      final provider = MemoryProvider(env);
+      provider.putMany({'k1': {'a': 1}, 'k2': {'b': 2}}, ttl: Duration.zero);
+
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+
+      expect(provider.has('k1'), isTrue);
+      expect(provider.has('k2'), isTrue);
+    });
+  });
+
+  // ── M25: copy-on-store / copy-on-get semantics ────────────────────────────
+
+  group('MemoryProvider copy semantics (M25)', () {
+    test('mutating the original map after put does not corrupt the cache', () {
+      final provider = MemoryProvider(env);
+      final original = <String, dynamic>{'name': 'Alice', 'score': 10};
+      provider.put('users/1', original);
+
+      // Mutate the original object after storing it.
+      original['name'] = 'Eve';
+      original['score'] = 99;
+
+      final cached = provider.get('users/1');
+      expect(cached, {'name': 'Alice', 'score': 10});
+    });
+
+    test('mutating a value returned by get does not corrupt the cache', () {
+      final provider = MemoryProvider(env);
+      provider.put('users/2', {'name': 'Bob', 'score': 5});
+
+      final first = provider.get('users/2')!;
+      first['score'] = 999; // mutate the returned copy
+
+      final second = provider.get('users/2')!;
+      expect(second['score'], 5); // cache is untouched
+    });
+
+    test('putMany copies each entry independently', () {
+      final provider = MemoryProvider(env);
+      final a = <String, dynamic>{'x': 1};
+      final b = <String, dynamic>{'x': 2};
+      provider.putMany({'k1': a, 'k2': b});
+
+      a['x'] = 100;
+      b['x'] = 200;
+
+      expect(provider.get('k1'), {'x': 1});
+      expect(provider.get('k2'), {'x': 2});
+    });
+  });
 }
 
 final class _NoopLogger implements LoggerContract {
