@@ -36,7 +36,7 @@ final class ShardNetworkError implements ShardNetworkErrorContract {
       return; // handled — do not propagate
     }
     shard.logger.error('Unexpected reconnect error: $error\n$stack');
-    throw error;
+    Error.throwWithStackTrace(error, stack);
   }
 
   // ── Public dispatch ────────────────────────────────────────────────────────
