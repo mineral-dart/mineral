@@ -25,7 +25,7 @@ Register providers and start the bot. Each provider groups related commands, eve
 
 ```dart
 void main() async {
-  final client = ClientBuilder()
+  final client = await ClientBuilder()
     .setIntent(Intent.allNonPrivileged)
     .registerProvider(WelcomeProvider.new)
     .registerProvider(FeedbackProvider.new)
