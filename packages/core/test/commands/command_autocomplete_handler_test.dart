@@ -3,8 +3,7 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
-import 'package:mineral/src/infrastructure/internals/datastore/parts/thread_part.dart';
-import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.dart';
+import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_logger.dart';
@@ -70,7 +69,7 @@ final class _FakeDataStore implements DataStoreContract {
   InteractionPartContract get interaction => _interaction;
 
   @override
-  RequestBucket get requestBucket => throw UnimplementedError();
+  RequestBucketContract get requestBucket => throw UnimplementedError();
   @override
   HttpClientContract get client => throw UnimplementedError();
   @override
@@ -94,7 +93,7 @@ final class _FakeDataStore implements DataStoreContract {
   @override
   ReactionPartContract get reaction => throw UnimplementedError();
   @override
-  ThreadPart get thread => throw UnimplementedError();
+  ThreadPartContract get thread => throw UnimplementedError();
   @override
   InvitePartContract get invite => throw UnimplementedError();
   @override
