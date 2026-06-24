@@ -24,35 +24,34 @@ const _instanceId = '999888777666555444';
 Map<String, dynamic> _stageInstancePayload({
   String topic = 'Test Stage',
   int privacyLevel = 2,
-}) =>
-    {
-      'id': _instanceId,
-      'guild_id': _guildId,
-      'channel_id': _channelId,
-      'topic': topic,
-      'privacy_level': privacyLevel,
-    };
+}) => {
+  'id': _instanceId,
+  'guild_id': _guildId,
+  'channel_id': _channelId,
+  'topic': topic,
+  'privacy_level': privacyLevel,
+};
 
 ShardMessage<dynamic> _buildCreateMessage() => ShardMessage(
-      type: 'STAGE_INSTANCE_CREATE',
-      opCode: OpCode.dispatch,
-      sequence: 1,
-      payload: _stageInstancePayload(),
-    );
+  type: 'STAGE_INSTANCE_CREATE',
+  opCode: OpCode.dispatch,
+  sequence: 1,
+  payload: _stageInstancePayload(),
+);
 
 ShardMessage<dynamic> _buildUpdateMessage() => ShardMessage(
-      type: 'STAGE_INSTANCE_UPDATE',
-      opCode: OpCode.dispatch,
-      sequence: 2,
-      payload: _stageInstancePayload(topic: 'Updated Topic'),
-    );
+  type: 'STAGE_INSTANCE_UPDATE',
+  opCode: OpCode.dispatch,
+  sequence: 2,
+  payload: _stageInstancePayload(topic: 'Updated Topic'),
+);
 
 ShardMessage<dynamic> _buildDeleteMessage() => ShardMessage(
-      type: 'STAGE_INSTANCE_DELETE',
-      opCode: OpCode.dispatch,
-      sequence: 3,
-      payload: _stageInstancePayload(),
-    );
+  type: 'STAGE_INSTANCE_DELETE',
+  opCode: OpCode.dispatch,
+  sequence: 3,
+  payload: _stageInstancePayload(),
+);
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -61,25 +60,19 @@ void main() {
 
   group('PacketType identity', () {
     test('StageInstanceCreatePacket has correct packetType', () {
-      final packet = StageInstanceCreatePacket(
-        dataStore: buildMockDs(),
-      );
+      final packet = StageInstanceCreatePacket(dataStore: buildMockDs());
       expect(packet.packetType, equals(PacketType.stageInstanceCreate));
       expect(packet.packetType.name, equals('STAGE_INSTANCE_CREATE'));
     });
 
     test('StageInstanceUpdatePacket has correct packetType', () {
-      final packet = StageInstanceUpdatePacket(
-        dataStore: buildMockDs(),
-      );
+      final packet = StageInstanceUpdatePacket(dataStore: buildMockDs());
       expect(packet.packetType, equals(PacketType.stageInstanceUpdate));
       expect(packet.packetType.name, equals('STAGE_INSTANCE_UPDATE'));
     });
 
     test('StageInstanceDeletePacket has correct packetType', () {
-      final packet = StageInstanceDeletePacket(
-        dataStore: buildMockDs(),
-      );
+      final packet = StageInstanceDeletePacket(dataStore: buildMockDs());
       expect(packet.packetType, equals(PacketType.stageInstanceDelete));
       expect(packet.packetType.name, equals('STAGE_INSTANCE_DELETE'));
     });
@@ -92,7 +85,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -100,10 +96,11 @@ void main() {
       final packet = StageInstanceCreatePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -115,10 +112,11 @@ void main() {
       final packet = StageInstanceCreatePacket(dataStore: ds);
       GuildStageInstanceCreateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildStageInstanceCreate) {
           args = payload as GuildStageInstanceCreateArgs;
         }
@@ -145,7 +143,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -153,10 +154,11 @@ void main() {
       final packet = StageInstanceUpdatePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -168,10 +170,11 @@ void main() {
       final packet = StageInstanceUpdatePacket(dataStore: ds);
       GuildStageInstanceUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildStageInstanceUpdate) {
           args = payload as GuildStageInstanceUpdateArgs;
         }
@@ -194,7 +197,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -202,10 +208,11 @@ void main() {
       final packet = StageInstanceDeletePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -217,10 +224,11 @@ void main() {
       final packet = StageInstanceDeletePacket(dataStore: ds);
       GuildStageInstanceDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildStageInstanceDelete) {
           args = payload as GuildStageInstanceDeleteArgs;
         }

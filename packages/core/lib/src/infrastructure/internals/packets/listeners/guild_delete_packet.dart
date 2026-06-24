@@ -12,11 +12,13 @@ final class GuildDeletePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   GuildDeletePacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final cacheKey = _marshaller.cacheKey.guild(message.payload['id'] as Object);
+    final cacheKey = _marshaller.cacheKey.guild(
+      message.payload['id'] as Object,
+    );
     final rawServer = await _marshaller.cache?.get(cacheKey);
     final guild = rawServer != null
         ? await _marshaller.serializers.guild.serialize(rawServer)
@@ -24,6 +26,9 @@ final class GuildDeletePacket implements ListenablePacket {
 
     await _marshaller.cache.invalidate(cacheKey);
 
-    dispatch<GuildDeleteArgs>(event: Event.guildDelete, payload: (guild: guild));
+    dispatch<GuildDeleteArgs>(
+      event: Event.guildDelete,
+      payload: (guild: guild),
+    );
   }
 }

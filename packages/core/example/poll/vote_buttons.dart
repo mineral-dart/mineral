@@ -15,7 +15,9 @@ final class VoteYesButton extends GuildButtonClickEvent with State {
     await ctx.interaction.wait();
     final message = await ctx.resolveMessage();
     await ctx.interaction.editReply(
-      builder: MessageBuilder.text('${message.content}\n\n✅ Someone voted **Yes**!'),
+      builder: MessageBuilder.text(
+        '${message.content}\n\n✅ Someone voted **Yes**!',
+      ),
     );
   }
 }
@@ -31,7 +33,9 @@ final class VoteNoButton extends GuildButtonClickEvent with State {
     await ctx.interaction.wait();
     final message = await ctx.resolveMessage();
     await ctx.interaction.editReply(
-      builder: MessageBuilder.text('${message.content}\n\n❌ Someone voted **No**!'),
+      builder: MessageBuilder.text(
+        '${message.content}\n\n❌ Someone voted **No**!',
+      ),
     );
   }
 }

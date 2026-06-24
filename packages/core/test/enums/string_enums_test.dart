@@ -15,23 +15,38 @@ void main() {
 
     test('known values resolve correctly', () {
       expect(
-          findInEnum(MessageEmbedType.values, 'rich'), MessageEmbedType.rich);
+        findInEnum(MessageEmbedType.values, 'rich'),
+        MessageEmbedType.rich,
+      );
       expect(
-          findInEnum(MessageEmbedType.values, 'image'), MessageEmbedType.image);
+        findInEnum(MessageEmbedType.values, 'image'),
+        MessageEmbedType.image,
+      );
       expect(
-          findInEnum(MessageEmbedType.values, 'video'), MessageEmbedType.video);
+        findInEnum(MessageEmbedType.values, 'video'),
+        MessageEmbedType.video,
+      );
       expect(
-          findInEnum(MessageEmbedType.values, 'gifv'), MessageEmbedType.gifv);
-      expect(findInEnum(MessageEmbedType.values, 'article'),
-          MessageEmbedType.article);
+        findInEnum(MessageEmbedType.values, 'gifv'),
+        MessageEmbedType.gifv,
+      );
       expect(
-          findInEnum(MessageEmbedType.values, 'link'), MessageEmbedType.link);
+        findInEnum(MessageEmbedType.values, 'article'),
+        MessageEmbedType.article,
+      );
+      expect(
+        findInEnum(MessageEmbedType.values, 'link'),
+        MessageEmbedType.link,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
       expect(
-        findInEnum(MessageEmbedType.values, 'nope',
-            orElse: MessageEmbedType.unknown),
+        findInEnum(
+          MessageEmbedType.values,
+          'nope',
+          orElse: MessageEmbedType.unknown,
+        ),
         MessageEmbedType.unknown,
       );
     });
@@ -59,8 +74,11 @@ void main() {
 
     test('unknown value with orElse returns unknown', () {
       expect(
-        findInEnum(ImageExtension.values, '.bmp',
-            orElse: ImageExtension.unknown),
+        findInEnum(
+          ImageExtension.values,
+          '.bmp',
+          orElse: ImageExtension.unknown,
+        ),
         ImageExtension.unknown,
       );
     });
@@ -121,10 +139,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(LogLevel.values, 'DEBUG'),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(LogLevel.values, 'DEBUG'), throwsArgumentError);
     });
   });
 
@@ -134,12 +149,16 @@ void main() {
     });
 
     test('known values resolve correctly', () {
-      expect(findInEnum(Permission.values, 1 << 0),
-          Permission.createInstantInvite);
+      expect(
+        findInEnum(Permission.values, 1 << 0),
+        Permission.createInstantInvite,
+      );
       expect(findInEnum(Permission.values, 1 << 3), Permission.administrator);
       expect(findInEnum(Permission.values, 1 << 11), Permission.sendMessages);
       expect(
-          findInEnum(Permission.values, 1 << 40), Permission.moderateMembers);
+        findInEnum(Permission.values, 1 << 40),
+        Permission.moderateMembers,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
@@ -150,10 +169,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(Permission.values, -999),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(Permission.values, -999), throwsArgumentError);
     });
   });
 
@@ -163,18 +179,27 @@ void main() {
     });
 
     test('known values resolve correctly', () {
-      expect(findInEnum(InteractionContextType.values, 0),
-          InteractionContextType.guild);
-      expect(findInEnum(InteractionContextType.values, 1),
-          InteractionContextType.botPrivate);
-      expect(findInEnum(InteractionContextType.values, 2),
-          InteractionContextType.privateChannel);
+      expect(
+        findInEnum(InteractionContextType.values, 0),
+        InteractionContextType.guild,
+      );
+      expect(
+        findInEnum(InteractionContextType.values, 1),
+        InteractionContextType.botPrivate,
+      );
+      expect(
+        findInEnum(InteractionContextType.values, 2),
+        InteractionContextType.privateChannel,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
       expect(
-        findInEnum(InteractionContextType.values, 99,
-            orElse: InteractionContextType.unknown),
+        findInEnum(
+          InteractionContextType.values,
+          99,
+          orElse: InteractionContextType.unknown,
+        ),
         InteractionContextType.unknown,
       );
     });

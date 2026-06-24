@@ -20,8 +20,8 @@ final class GuildScheduledEventPart extends BasePart
       },
     );
 
-    final result =
-        await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
+    final result = await dataStore.requestBucket
+        .get<List<Map<String, dynamic>>>(req);
 
     final events = await result.map((json) async {
       final raw = await marshaller.serializers.scheduledEvent.normalize(json);
@@ -91,8 +91,9 @@ final class GuildScheduledEventPart extends BasePart
       headers: {DiscordHeader.auditLogReason(reason)},
     );
 
-    final result =
-        await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.scheduledEvent.normalize(result);
     return marshaller.serializers.scheduledEvent.serialize(raw);
@@ -135,8 +136,9 @@ final class GuildScheduledEventPart extends BasePart
       headers: {DiscordHeader.auditLogReason(reason)},
     );
 
-    final result =
-        await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.scheduledEvent.normalize(result);
     return marshaller.serializers.scheduledEvent.serialize(raw);
@@ -174,20 +176,24 @@ final class GuildScheduledEventPart extends BasePart
       },
     );
 
-    final result =
-        await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
+    final result = await dataStore.requestBucket
+        .get<List<Map<String, dynamic>>>(req);
 
     return result
-        .map((json) => GuildScheduledEventUser(
-              eventId: Snowflake.parse(json['guild_scheduled_event_id']),
-              userId: Snowflake.parse(
-                  (json['user'] as Map<String, dynamic>)['id']),
-              memberId: json['member'] != null
-                  ? Snowflake.parse(
-                      ((json['member'] as Map<String, dynamic>)['user']
-                              as Map<String, dynamic>)['id'])
-                  : null,
-            ))
+        .map(
+          (json) => GuildScheduledEventUser(
+            eventId: Snowflake.parse(json['guild_scheduled_event_id']),
+            userId: Snowflake.parse(
+              (json['user'] as Map<String, dynamic>)['id'],
+            ),
+            memberId: json['member'] != null
+                ? Snowflake.parse(
+                    ((json['member'] as Map<String, dynamic>)['user']
+                        as Map<String, dynamic>)['id'],
+                  )
+                : null,
+          ),
+        )
         .toList();
   }
 }

@@ -40,14 +40,15 @@ final class Shard implements ShardContract {
 
   late final ShardNetworkError networkError;
 
-  Shard(
-      {required this.shardName,
-      required this.shardIndex,
-      required this.shardCount,
-      required this.url,
-      required this.wss,
-      required this.logger,
-      required RunningStrategy strategy}) {
+  Shard({
+    required this.shardName,
+    required this.shardIndex,
+    required this.shardCount,
+    required this.url,
+    required this.wss,
+    required this.logger,
+    required RunningStrategy strategy,
+  }) {
     authentication = ShardAuthentication(this);
     networkError = ShardNetworkError(this);
     dispatchEvent = ShardData(this, strategy);
@@ -60,23 +61,26 @@ final class Shard implements ShardContract {
     }
 
     client = WebsocketClientImpl(
-        name: shardName,
-        url: this.url,
-        logger: logger,
-        onError: (error) {
-          logger.error('WebSocket error: $error');
-          if (error is Map && error['code'] is int) {
-            networkError.dispatch(error['code']);
-          } else {
-            networkError.dispatch(null);
-          }
-        },
-        onClose: networkError.dispatch,
-        onOpen: (message) {
-          if (message.content case ShardMessage(:final payload)) {
-            logger.trace(jsonEncode(redactSensitiveFields(payload as Map<String, dynamic>)));
-          }
-        });
+      name: shardName,
+      url: this.url,
+      logger: logger,
+      onError: (error) {
+        logger.error('WebSocket error: $error');
+        if (error is Map && error['code'] is int) {
+          networkError.dispatch(error['code']);
+        } else {
+          networkError.dispatch(null);
+        }
+      },
+      onClose: networkError.dispatch,
+      onOpen: (message) {
+        if (message.content case ShardMessage(:final payload)) {
+          logger.trace(
+            jsonEncode(redactSensitiveFields(payload as Map<String, dynamic>)),
+          );
+        }
+      },
+    );
 
     client.interceptor.message
       ..add(wss.config.encoding.decode)
@@ -86,7 +90,7 @@ final class Shard implements ShardContract {
           'shard': shardName,
           'message': logPayload is Map<String, dynamic>
               ? redactSensitiveFields(logPayload)
-              : logPayload
+              : logPayload,
         });
         return message;
       });
@@ -94,8 +98,10 @@ final class Shard implements ShardContract {
     client.interceptor.request.add(wss.config.encoding.encode);
 
     await client.listen((message) {
-      if (message.content
-          case ShardMessage(opCode: final code, payload: final payload)) {
+      if (message.content case ShardMessage(
+        opCode: final code,
+        payload: final payload,
+      )) {
         try {
           switch (code) {
             case OpCode.hello:
@@ -117,10 +123,15 @@ final class Shard implements ShardContract {
                 authentication.reconnect();
               }
             case OpCode.dispatch:
-              if ([PacketType.ready.name, PacketType.guildCreate.name]
-                  .contains((message.content as ShardMessage).type)) {
+              if ([
+                PacketType.ready.name,
+                PacketType.guildCreate.name,
+              ].contains((message.content as ShardMessage).type)) {
                 final decoded = wss.config.encoding.decode(message);
-                onceEventQueue.add((decoded.content as ShardMessage).serialize() as Map<String, dynamic>);
+                onceEventQueue.add(
+                  (decoded.content as ShardMessage).serialize()
+                      as Map<String, dynamic>,
+                );
               }
 
               dispatchEvent.dispatch(message);

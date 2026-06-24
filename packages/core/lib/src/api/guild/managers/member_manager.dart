@@ -35,15 +35,19 @@ final class MemberRecord {
   MemberRecord(this.members);
 
   Map<Snowflake, Member> get humans {
-    return members.entries.where((element) => !element.value.isBot).fold({},
-        (value, element) {
+    return members.entries.where((element) => !element.value.isBot).fold({}, (
+      value,
+      element,
+    ) {
       return {...value, element.key: element.value};
     });
   }
 
   Map<Snowflake, Member> get bots {
-    return members.entries.where((element) => element.value.isBot).fold({},
-        (value, element) {
+    return members.entries.where((element) => element.value.isBot).fold({}, (
+      value,
+      element,
+    ) {
       return {...value, element.key: element.value};
     });
   }

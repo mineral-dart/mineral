@@ -26,14 +26,19 @@ abstract class ButtonContextBase extends ComponentContextBase
   });
 
   Future<GuildChannel> resolveChannel({bool force = false}) async {
-    final channel =
-        await _dataStore.channel.get<GuildChannel>(channelId.value, force);
+    final channel = await _dataStore.channel.get<GuildChannel>(
+      channelId.value,
+      force,
+    );
     return channel!;
   }
 
   Future<GuildMessage> resolveMessage({bool force = false}) async {
-    final message = await _dataStore.message
-        .get<GuildMessage>(channelId.value, messageId.value, force);
+    final message = await _dataStore.message.get<GuildMessage>(
+      channelId.value,
+      messageId.value,
+      force,
+    );
     return message!;
   }
 }

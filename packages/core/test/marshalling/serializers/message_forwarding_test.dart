@@ -27,47 +27,47 @@ void main() {
 
     /// A normalized payload that looks like a forwarded message (type=1).
     Map<String, dynamic> forwardedNormalizedPayload() => {
-          'id': '111222333444555666',
-          'author_id': '987654321098765432',
-          'content': '',
-          'embeds': <Map<String, dynamic>>[],
-          'channel_id': '777888999000111222',
-          'guild_id': '123456789012345678',
-          'author_is_bot': false,
-          'timestamp': '2024-06-01T12:00:00.000Z',
-          'edited_timestamp': null,
-          'message_reference': {
-            'type': 1,
-            'message_id': '999888777666555444',
-            'channel_id': '444555666777888999',
+      'id': '111222333444555666',
+      'author_id': '987654321098765432',
+      'content': '',
+      'embeds': <Map<String, dynamic>>[],
+      'channel_id': '777888999000111222',
+      'guild_id': '123456789012345678',
+      'author_is_bot': false,
+      'timestamp': '2024-06-01T12:00:00.000Z',
+      'edited_timestamp': null,
+      'message_reference': {
+        'type': 1,
+        'message_id': '999888777666555444',
+        'channel_id': '444555666777888999',
+      },
+      'message_snapshots': [
+        {
+          'message': {
+            'type': 0,
+            'content': 'This is the original forwarded content',
+            'embeds': <Map<String, dynamic>>[],
+            'timestamp': '2024-05-31T10:00:00.000Z',
+            'edited_timestamp': null,
+            'flags': 0,
           },
-          'message_snapshots': [
-            {
-              'message': {
-                'type': 0,
-                'content': 'This is the original forwarded content',
-                'embeds': <Map<String, dynamic>>[],
-                'timestamp': '2024-05-31T10:00:00.000Z',
-                'edited_timestamp': null,
-                'flags': 0,
-              },
-            },
-          ],
-        };
+        },
+      ],
+    };
 
     /// A normalized payload for a plain (non-forwarded) message.
     Map<String, dynamic> plainNormalizedPayload() => {
-          'id': '111222333444555666',
-          'author_id': '987654321098765432',
-          'content': 'Hello world!',
-          'embeds': <Map<String, dynamic>>[],
-          'channel_id': '777888999000111222',
-          'guild_id': '123456789012345678',
-          'author_is_bot': false,
-          'timestamp': '2024-06-01T12:00:00.000Z',
-          'edited_timestamp': null,
-          // no message_reference or message_snapshots
-        };
+      'id': '111222333444555666',
+      'author_id': '987654321098765432',
+      'content': 'Hello world!',
+      'embeds': <Map<String, dynamic>>[],
+      'channel_id': '777888999000111222',
+      'guild_id': '123456789012345678',
+      'author_is_bot': false,
+      'timestamp': '2024-06-01T12:00:00.000Z',
+      'edited_timestamp': null,
+      // no message_reference or message_snapshots
+    };
 
     // ── forwarded message parsing ─────────────────────────────────────────────
 
@@ -189,20 +189,21 @@ void main() {
     });
 
     test(
-        'message_reference.type=0 produces referenceType == MessageReferenceType.default_',
-        () async {
-      final payload = plainNormalizedPayload()
-        ..['message_reference'] = {
-          'type': 0,
-          'message_id': '999888777666555444',
-          'channel_id': '444555666777888999',
-        };
+      'message_reference.type=0 produces referenceType == MessageReferenceType.default_',
+      () async {
+        final payload = plainNormalizedPayload()
+          ..['message_reference'] = {
+            'type': 0,
+            'message_id': '999888777666555444',
+            'channel_id': '444555666777888999',
+          };
 
-      final message = await serializer.serialize(payload);
+        final message = await serializer.serialize(payload);
 
-      expect(message.referenceType, equals(MessageReferenceType.default_));
-      expect(message.isForwarded, isFalse);
-    });
+        expect(message.referenceType, equals(MessageReferenceType.default_));
+        expect(message.isForwarded, isFalse);
+      },
+    );
   });
 
   // ── forward send ─────────────────────────────────────────────────────────────
@@ -216,32 +217,32 @@ void main() {
     /// A minimal Discord message payload that the guild would return after
     /// receiving a forward request. It looks like a forwarded message.
     Map<String, dynamic> fakeForwardResponse() => {
-          'id': '222333444555666777',
-          'author': {'id': '987654321098765432', 'bot': false},
-          'content': '',
-          'embeds': <Map<String, dynamic>>[],
-          'channel_id': '555666777888999000',
-          'guild_id': '123456789012345678',
-          'timestamp': '2024-06-01T14:00:00.000Z',
-          'edited_timestamp': null,
-          'message_reference': {
-            'type': 1,
-            'message_id': '111222333444555666',
-            'channel_id': '777888999000111222',
+      'id': '222333444555666777',
+      'author': {'id': '987654321098765432', 'bot': false},
+      'content': '',
+      'embeds': <Map<String, dynamic>>[],
+      'channel_id': '555666777888999000',
+      'guild_id': '123456789012345678',
+      'timestamp': '2024-06-01T14:00:00.000Z',
+      'edited_timestamp': null,
+      'message_reference': {
+        'type': 1,
+        'message_id': '111222333444555666',
+        'channel_id': '777888999000111222',
+      },
+      'message_snapshots': [
+        {
+          'message': {
+            'type': 0,
+            'content': 'original content',
+            'embeds': <Map<String, dynamic>>[],
+            'timestamp': '2024-06-01T12:00:00.000Z',
+            'edited_timestamp': null,
+            'flags': 0,
           },
-          'message_snapshots': [
-            {
-              'message': {
-                'type': 0,
-                'content': 'original content',
-                'embeds': <Map<String, dynamic>>[],
-                'timestamp': '2024-06-01T12:00:00.000Z',
-                'edited_timestamp': null,
-                'flags': 0,
-              },
-            },
-          ],
-        };
+        },
+      ],
+    };
 
     setUp(() {
       http = FakeHttpClient([
@@ -311,24 +312,26 @@ void main() {
       expect(ref['guild_id'], equals('123456789012345678'));
     });
 
-    test('guildId is omitted from message_reference when not provided',
-        () async {
-      final targetChannelId = Snowflake('555666777888999000');
-      final messageId = Snowflake('111222333444555666');
-      final sourceChannelId = Snowflake('777888999000111222');
+    test(
+      'guildId is omitted from message_reference when not provided',
+      () async {
+        final targetChannelId = Snowflake('555666777888999000');
+        final messageId = Snowflake('111222333444555666');
+        final sourceChannelId = Snowflake('777888999000111222');
 
-      await messagePart.forward<Message>(
-        targetChannelId,
-        messageId: messageId,
-        sourceChannelId: sourceChannelId,
-      );
+        await messagePart.forward<Message>(
+          targetChannelId,
+          messageId: messageId,
+          sourceChannelId: sourceChannelId,
+        );
 
-      final request = http.requests.first;
-      final body = request.body as Map<String, dynamic>;
-      final ref = body['message_reference'] as Map<String, dynamic>;
+        final request = http.requests.first;
+        final body = request.body as Map<String, dynamic>;
+        final ref = body['message_reference'] as Map<String, dynamic>;
 
-      expect(ref.containsKey('guild_id'), isFalse);
-    });
+        expect(ref.containsKey('guild_id'), isFalse);
+      },
+    );
 
     test('returns a Message and isForwarded is true', () async {
       final targetChannelId = Snowflake('555666777888999000');

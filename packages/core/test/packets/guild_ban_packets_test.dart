@@ -22,17 +22,17 @@ const _userId = '111222333444555666';
 // ── Payload helpers ───────────────────────────────────────────────────────────
 
 Map<String, dynamic> _banPayload() => {
-      'guild_id': _guildId,
-      'user': {
-        'id': _userId,
-        'username': 'BannedUser',
-        'discriminator': '0001',
-        'avatar': null,
-        'bot': false,
-        'global_name': null,
-        'public_flags': 0,
-      },
-    };
+  'guild_id': _guildId,
+  'user': {
+    'id': _userId,
+    'username': 'BannedUser',
+    'discriminator': '0001',
+    'avatar': null,
+    'bot': false,
+    'global_name': null,
+    'public_flags': 0,
+  },
+};
 
 ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
     ShardMessage(
@@ -84,21 +84,26 @@ void main() {
 
   group('GuildBanAddPacket', () {
     test('packetType is PacketType.guildBanAdd', () {
-      final packet =
-          GuildBanAddPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildBanAddPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.guildBanAdd));
       expect(packet.packetType.name, equals('GUILD_BAN_ADD'));
     });
 
     test('dispatches Event.guildBanAdd', () async {
-      final packet =
-          GuildBanAddPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildBanAddPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -108,14 +113,17 @@ void main() {
     });
 
     test('payload carries guild and user', () async {
-      final packet =
-          GuildBanAddPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildBanAddPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildBanAddArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildBanAdd) {
           args = payload as GuildBanAddArgs;
         }
@@ -132,13 +140,16 @@ void main() {
       final memberKey = marshaller.cacheKey.member(_guildId, _userId);
       await cache.put(memberKey, {'id': _userId});
 
-      final packet =
-          GuildBanAddPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildBanAddPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(_msg('GUILD_BAN_ADD', _banPayload()), dispatch);
 
@@ -151,21 +162,26 @@ void main() {
 
   group('GuildBanRemovePacket', () {
     test('packetType is PacketType.guildBanRemove', () {
-      final packet =
-          GuildBanRemovePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildBanRemovePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.guildBanRemove));
       expect(packet.packetType.name, equals('GUILD_BAN_REMOVE'));
     });
 
     test('dispatches Event.guildBanRemove', () async {
-      final packet =
-          GuildBanRemovePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildBanRemovePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -175,14 +191,17 @@ void main() {
     });
 
     test('payload carries guild and user', () async {
-      final packet =
-          GuildBanRemovePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildBanRemovePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildBanRemoveArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildBanRemove) {
           args = payload as GuildBanRemoveArgs;
         }
@@ -196,4 +215,3 @@ void main() {
     });
   });
 }
-

@@ -10,7 +10,7 @@ final class ReactionManger {
   final String _channelId;
 
   ReactionManger(this._messageId, this._channelId, {required EntityContext ctx})
-      : _ctx = ctx;
+    : _ctx = ctx;
 
   Future<void> add(PartialEmoji emoji) =>
       _datastore.reaction.add(_channelId, _messageId, emoji);

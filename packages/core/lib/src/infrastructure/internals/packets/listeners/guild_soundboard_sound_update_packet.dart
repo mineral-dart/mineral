@@ -12,13 +12,15 @@ final class GuildSoundboardSoundUpdatePacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   GuildSoundboardSoundUpdatePacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
-    final guild =
-        await _dataStore.guild.get(payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      payload['guild_id'] as Object,
+      false,
+    );
     final sound = SoundboardSound.fromJson(payload);
 
     dispatch<GuildSoundboardSoundUpdateArgs>(

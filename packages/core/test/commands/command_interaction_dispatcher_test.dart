@@ -19,7 +19,9 @@ MockDataStore _buildFakeDataStore() {
 
   // channel part: always returns null (no active DM / guild channel lookup)
   final channelPart = MockChannelPart();
-  when(() => channelPart.get<Channel>(any(), any())).thenAnswer((_) async => null);
+  when(
+    () => channelPart.get<Channel>(any(), any()),
+  ).thenAnswer((_) async => null);
   when(() => ds.channel).thenReturn(channelPart);
 
   // user part: returns a minimal User for any id
@@ -115,27 +117,22 @@ void main() {
     group('unknown command', () {
       test('logs warning when no handler matches', () async {
         await dispatcher.dispatch({
-          'data': {
-            'name': 'nonexistent',
-            'options': null,
-            'guild_id': null,
-          },
+          'data': {'name': 'nonexistent', 'options': null, 'guild_id': null},
         });
 
-        expect(logger.warnings,
-            contains(contains('Unknown command received: "nonexistent"')));
+        expect(
+          logger.warnings,
+          contains(contains('Unknown command received: "nonexistent"')),
+        );
       });
 
       test('does not throw when command is unknown', () async {
         await expectLater(
-            dispatcher.dispatch({
-              'data': {
-                'name': 'nonexistent',
-                'options': null,
-                'guild_id': null,
-              },
-            }),
-            completes);
+          dispatcher.dispatch({
+            'data': {'name': 'nonexistent', 'options': null, 'guild_id': null},
+          }),
+          completes,
+        );
       });
     });
 
@@ -149,14 +146,16 @@ void main() {
                 'name': 'kick',
                 'type': 1, // SUB_COMMAND
                 'options': null,
-              }
+              },
             ],
             'guild_id': null,
           },
         });
 
-        expect(logger.warnings,
-            contains(contains('Unknown command received: "admin.kick"')));
+        expect(
+          logger.warnings,
+          contains(contains('Unknown command received: "admin.kick"')),
+        );
       });
 
       test('builds "parent.group.subcommand" for SUB_COMMAND_GROUP', () async {
@@ -172,26 +171,28 @@ void main() {
                     'name': 'add',
                     'type': 1, // SUB_COMMAND
                     'options': null,
-                  }
+                  },
                 ],
-              }
+              },
             ],
             'guild_id': null,
           },
         });
 
         expect(
-            logger.warnings,
-            contains(
-                contains('Unknown command received: "settings.role.add"')));
+          logger.warnings,
+          contains(contains('Unknown command received: "settings.role.add"')),
+        );
       });
 
       test('found sub-command does not log unknown warning', () async {
-        manager.commandsHandler.add(CommandRegistration(
-          name: 'settings.color',
-          handler: (ctx, opts) {},
-          declaredOptions: [],
-        ));
+        manager.commandsHandler.add(
+          CommandRegistration(
+            name: 'settings.color',
+            handler: (ctx, opts) {},
+            declaredOptions: [],
+          ),
+        );
 
         await dispatcher.dispatch({
           'id': '111111111111111111',
@@ -200,7 +201,7 @@ void main() {
           'version': 1,
           'channel_id': '333333333333333333',
           'member': {
-            'user': {'id': '444444444444444444'}
+            'user': {'id': '444444444444444444'},
           },
           'data': {
             'name': 'settings',
@@ -209,14 +210,16 @@ void main() {
                 'name': 'color',
                 'type': 1, // SUB_COMMAND
                 'options': null,
-              }
+              },
             ],
             'guild_id': null,
           },
         });
 
-        expect(logger.warnings.where((w) => w.contains('Unknown command')),
-            isEmpty);
+        expect(
+          logger.warnings.where((w) => w.contains('Unknown command')),
+          isEmpty,
+        );
       });
     });
 
@@ -224,13 +227,15 @@ void main() {
       test('invokes handler with correct options for global command', () async {
         String? receivedValue;
 
-        manager.commandsHandler.add(CommandRegistration(
-          name: 'greet',
-          handler: (ctx, opts) {
-            receivedValue = (opts as CommandOptions).get<String>('name');
-          },
-          declaredOptions: [],
-        ));
+        manager.commandsHandler.add(
+          CommandRegistration(
+            name: 'greet',
+            handler: (ctx, opts) {
+              receivedValue = (opts as CommandOptions).get<String>('name');
+            },
+            declaredOptions: [],
+          ),
+        );
 
         await dispatcher.dispatch({
           'id': '111111111111111111',
@@ -239,7 +244,7 @@ void main() {
           'version': 1,
           'channel_id': '333333333333333333',
           'member': {
-            'user': {'id': '444444444444444444'}
+            'user': {'id': '444444444444444444'},
           },
           'data': {
             'name': 'greet',
@@ -256,13 +261,15 @@ void main() {
       test('invokes handler with no options', () async {
         bool handlerCalled = false;
 
-        manager.commandsHandler.add(CommandRegistration(
-          name: 'ping',
-          handler: (ctx, opts) {
-            handlerCalled = true;
-          },
-          declaredOptions: [],
-        ));
+        manager.commandsHandler.add(
+          CommandRegistration(
+            name: 'ping',
+            handler: (ctx, opts) {
+              handlerCalled = true;
+            },
+            declaredOptions: [],
+          ),
+        );
 
         await dispatcher.dispatch({
           'id': '111111111111111111',
@@ -271,13 +278,9 @@ void main() {
           'version': 1,
           'channel_id': '333333333333333333',
           'member': {
-            'user': {'id': '444444444444444444'}
+            'user': {'id': '444444444444444444'},
           },
-          'data': {
-            'name': 'ping',
-            'options': null,
-            'guild_id': null,
-          },
+          'data': {'name': 'ping', 'options': null, 'guild_id': null},
         });
 
         expect(handlerCalled, isTrue);
@@ -291,13 +294,15 @@ void main() {
           capturedFailure = failure;
         };
 
-        manager.commandsHandler.add(CommandRegistration(
-          name: 'fail',
-          handler: (ctx, opts) {
-            throw Exception('handler error');
-          },
-          declaredOptions: [],
-        ));
+        manager.commandsHandler.add(
+          CommandRegistration(
+            name: 'fail',
+            handler: (ctx, opts) {
+              throw Exception('handler error');
+            },
+            declaredOptions: [],
+          ),
+        );
 
         await dispatcher.dispatch({
           'id': '111111111111111111',
@@ -306,95 +311,104 @@ void main() {
           'version': 1,
           'channel_id': '333333333333333333',
           'member': {
-            'user': {'id': '444444444444444444'}
+            'user': {'id': '444444444444444444'},
           },
-          'data': {
-            'name': 'fail',
-            'options': null,
-            'guild_id': null,
-          },
+          'data': {'name': 'fail', 'options': null, 'guild_id': null},
         });
 
         expect(capturedFailure, isNotNull);
         expect(capturedFailure!.commandName, equals('fail'));
         expect(capturedFailure!.error, isA<Exception>());
-        expect(logger.errors,
-            contains(contains('Failed to execute command handler "fail"')));
+        expect(
+          logger.errors,
+          contains(contains('Failed to execute command handler "fail"')),
+        );
       });
 
       test('does not propagate exception when handler throws', () async {
         manager.onCommandError = (failure) {};
 
-        manager.commandsHandler.add(CommandRegistration(
-          name: 'boom',
-          handler: (ctx, opts) {
-            throw Exception('unexpected');
-          },
-          declaredOptions: [],
-        ));
+        manager.commandsHandler.add(
+          CommandRegistration(
+            name: 'boom',
+            handler: (ctx, opts) {
+              throw Exception('unexpected');
+            },
+            declaredOptions: [],
+          ),
+        );
 
         await expectLater(
-            dispatcher.dispatch({
-              'id': '111111111111111111',
-              'application_id': '222222222222222222',
-              'token': 'fake-token',
-              'version': 1,
-              'channel_id': '333333333333333333',
-              'member': {
-                'user': {'id': '444444444444444444'}
-              },
-              'data': {
-                'name': 'boom',
-                'options': null,
-                'guild_id': null,
-              },
-            }),
-            completes);
+          dispatcher.dispatch({
+            'id': '111111111111111111',
+            'application_id': '222222222222222222',
+            'token': 'fake-token',
+            'version': 1,
+            'channel_id': '333333333333333333',
+            'member': {
+              'user': {'id': '444444444444444444'},
+            },
+            'data': {'name': 'boom', 'options': null, 'guild_id': null},
+          }),
+          completes,
+        );
       });
     });
 
     group('context menu routing', () {
-      test('routes type=2 (USER) and logs unknown when no handler matches',
-          () async {
-        await dispatcher.dispatch({
-          'data': {
-            'name': 'Get user info',
-            'type': 2,
-            'target_id': '444444444444444444',
-            'resolved': {
-              'users': {
-                '444444444444444444': {'id': '444444444444444444'},
+      test(
+        'routes type=2 (USER) and logs unknown when no handler matches',
+        () async {
+          await dispatcher.dispatch({
+            'data': {
+              'name': 'Get user info',
+              'type': 2,
+              'target_id': '444444444444444444',
+              'resolved': {
+                'users': {
+                  '444444444444444444': {'id': '444444444444444444'},
+                },
               },
             },
-          },
-        });
+          });
 
-        expect(
+          expect(
             logger.warnings,
-            contains(contains(
-                'Unknown user context command received: "Get user info"')));
-      });
+            contains(
+              contains(
+                'Unknown user context command received: "Get user info"',
+              ),
+            ),
+          );
+        },
+      );
 
-      test('routes type=3 (MESSAGE) and logs unknown when no handler matches',
-          () async {
-        await dispatcher.dispatch({
-          'data': {
-            'name': 'Report message',
-            'type': 3,
-            'target_id': '555555555555555555',
-            'resolved': {
-              'messages': {
-                '555555555555555555': {'id': '555555555555555555'},
+      test(
+        'routes type=3 (MESSAGE) and logs unknown when no handler matches',
+        () async {
+          await dispatcher.dispatch({
+            'data': {
+              'name': 'Report message',
+              'type': 3,
+              'target_id': '555555555555555555',
+              'resolved': {
+                'messages': {
+                  '555555555555555555': {'id': '555555555555555555'},
+                },
               },
             },
-          },
-        });
+          });
 
-        expect(
+          expect(
             logger.warnings,
-            contains(contains(
-                'Unknown message context command received: "Report message"')));
-      });
+            contains(
+              contains(
+                'Unknown message context command received: "Report message"',
+              ),
+            ),
+          );
+        },
+      );
 
       test('does not treat type=2 as chat_input sub-command path', () async {
         await dispatcher.dispatch({
@@ -410,26 +424,30 @@ void main() {
           },
         });
 
-        expect(logger.warnings.where((w) => w.contains('Unknown command received')),
-            isEmpty);
+        expect(
+          logger.warnings.where((w) => w.contains('Unknown command received')),
+          isEmpty,
+        );
       });
     });
 
     group('required options validation', () {
       test('logs error when required option is missing', () async {
-        manager.commandsHandler.add(CommandRegistration(
-          name: 'greet',
-          handler: (ctx, opts) {
-            fail('handler should not be called');
-          },
-          declaredOptions: [
-            Option.string(
-              name: 'username',
-              description: 'The user to greet',
-              required: true,
-            ),
-          ],
-        ));
+        manager.commandsHandler.add(
+          CommandRegistration(
+            name: 'greet',
+            handler: (ctx, opts) {
+              fail('handler should not be called');
+            },
+            declaredOptions: [
+              Option.string(
+                name: 'username',
+                description: 'The user to greet',
+                required: true,
+              ),
+            ],
+          ),
+        );
 
         await dispatcher.dispatch({
           'id': '111111111111111111',
@@ -438,37 +456,37 @@ void main() {
           'version': 1,
           'channel_id': '333333333333333333',
           'member': {
-            'user': {'id': '444444444444444444'}
+            'user': {'id': '444444444444444444'},
           },
-          'data': {
-            'name': 'greet',
-            'options': null,
-            'guild_id': null,
-          },
+          'data': {'name': 'greet', 'options': null, 'guild_id': null},
         });
 
         expect(
-            logger.errors,
-            contains(contains(
-                'requires option "username" but it was not provided')));
+          logger.errors,
+          contains(
+            contains('requires option "username" but it was not provided'),
+          ),
+        );
       });
 
       test('proceeds when required option is present', () async {
         String? receivedValue;
 
-        manager.commandsHandler.add(CommandRegistration(
-          name: 'greet',
-          handler: (ctx, opts) {
-            receivedValue = (opts as CommandOptions).get<String>('username');
-          },
-          declaredOptions: [
-            Option.string(
-              name: 'username',
-              description: 'The user to greet',
-              required: true,
-            ),
-          ],
-        ));
+        manager.commandsHandler.add(
+          CommandRegistration(
+            name: 'greet',
+            handler: (ctx, opts) {
+              receivedValue = (opts as CommandOptions).get<String>('username');
+            },
+            declaredOptions: [
+              Option.string(
+                name: 'username',
+                description: 'The user to greet',
+                required: true,
+              ),
+            ],
+          ),
+        );
 
         await dispatcher.dispatch({
           'id': '111111111111111111',
@@ -477,7 +495,7 @@ void main() {
           'version': 1,
           'channel_id': '333333333333333333',
           'member': {
-            'user': {'id': '444444444444444444'}
+            'user': {'id': '444444444444444444'},
           },
           'data': {
             'name': 'greet',

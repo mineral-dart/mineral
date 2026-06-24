@@ -12,7 +12,8 @@ final class RolePart extends BasePart implements RolePartContract {
   Future<Map<Snowflake, Role>> fetch(Object guildId, bool force) async {
     final parsedGuildId = Snowflake.parse(guildId);
     final req = Request.json(endpoint: '/guilds/$parsedGuildId/roles');
-    final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
+    final result = await dataStore.requestBucket
+        .get<List<Map<String, dynamic>>>(req);
 
     final roles = await result.map((element) async {
       final raw = await marshaller.serializers.role.normalize({
@@ -30,7 +31,10 @@ final class RolePart extends BasePart implements RolePartContract {
   Future<Role?> get(Object guildId, Object id, bool force) async {
     final parsedGuildId = Snowflake.parse(guildId);
     final roleId = Snowflake.parse(id);
-    final String key = marshaller.cacheKey.guildRole(parsedGuildId.value, roleId.value);
+    final String key = marshaller.cacheKey.guildRole(
+      parsedGuildId.value,
+      roleId.value,
+    );
 
     final cachedRole = await marshaller.cache?.get(key);
     if (!force && cachedRole != null) {
@@ -50,25 +54,30 @@ final class RolePart extends BasePart implements RolePartContract {
 
   @override
   Future<Role> create(
-      Object guildId,
-      String name,
-      List<Permission> permissions,
-      Color color,
-      bool hoist,
-      bool mentionable,
-      String? reason) async {
+    Object guildId,
+    String name,
+    List<Permission> permissions,
+    Color color,
+    bool hoist,
+    bool mentionable,
+    String? reason,
+  ) async {
     final parsedGuildId = Snowflake.parse(guildId);
-    final req = Request.json(endpoint: '/guilds/$parsedGuildId/roles', body: {
-      'name': name,
-      'permissions': listToBitfield(permissions),
-      'color': color.toInt(),
-      'hoist': hoist,
-      'mentionable': mentionable,
-    }, headers: {
-      DiscordHeader.auditLogReason(reason)
-    });
+    final req = Request.json(
+      endpoint: '/guilds/$parsedGuildId/roles',
+      body: {
+        'name': name,
+        'permissions': listToBitfield(permissions),
+        'color': color.toInt(),
+        'hoist': hoist,
+        'mentionable': mentionable,
+      },
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
-    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.role.normalize(result);
     final role = await marshaller.serializers.role.serialize({
@@ -80,65 +89,75 @@ final class RolePart extends BasePart implements RolePartContract {
   }
 
   @override
-  Future<void> add(
-      {required Object memberId,
-      required Object guildId,
-      required Object roleId,
-      required String? reason}) async {
+  Future<void> add({
+    required Object memberId,
+    required Object guildId,
+    required Object roleId,
+    required String? reason,
+  }) async {
     final userId = Snowflake.parse(memberId);
     final parsedGuildId = Snowflake.parse(guildId);
     final req = Request.json(
-        endpoint: '/guilds/$parsedGuildId/members/$userId/roles/$roleId',
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/guilds/$parsedGuildId/members/$userId/roles/$roleId',
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
     await dataStore.requestBucket.put<Map<String, dynamic>>(req);
   }
 
   @override
-  Future<void> remove(
-      {required Object memberId,
-      required Object guildId,
-      required Object roleId,
-      required String? reason}) async {
+  Future<void> remove({
+    required Object memberId,
+    required Object guildId,
+    required Object roleId,
+    required String? reason,
+  }) async {
     final userId = Snowflake.parse(memberId);
     final parsedGuildId = Snowflake.parse(guildId);
     final req = Request.json(
-        endpoint: '/guilds/$parsedGuildId/members/$userId/roles/$roleId',
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/guilds/$parsedGuildId/members/$userId/roles/$roleId',
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
-  Future<void> sync(
-      {required Object memberId,
-      required Object guildId,
-      required List<Object> roleIds,
-      required String? reason}) async {
+  Future<void> sync({
+    required Object memberId,
+    required Object guildId,
+    required List<Object> roleIds,
+    required String? reason,
+  }) async {
     final userId = Snowflake.parse(memberId);
     final parsedGuildId = Snowflake.parse(guildId);
     final req = Request.json(
-        endpoint: '/guilds/$parsedGuildId/members/$userId',
-        body: {'roles': roleIds},
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/guilds/$parsedGuildId/members/$userId',
+      body: {'roles': roleIds},
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
     await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
   }
 
   @override
-  Future<Role?> update(
-      {required Object id,
-      required Object guildId,
-      required Map<String, dynamic> payload,
-      required String? reason}) async {
+  Future<Role?> update({
+    required Object id,
+    required Object guildId,
+    required Map<String, dynamic> payload,
+    required String? reason,
+  }) async {
     final roleId = Snowflake.parse(id);
     final parsedGuildId = Snowflake.parse(guildId);
     final req = Request.json(
-        endpoint: '/guilds/$parsedGuildId/roles/$roleId',
-        body: payload,
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/guilds/$parsedGuildId/roles/$roleId',
+      body: payload,
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
-    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.role.normalize(result);
     final role = await marshaller.serializers.role.serialize({
@@ -150,15 +169,17 @@ final class RolePart extends BasePart implements RolePartContract {
   }
 
   @override
-  Future<void> delete(
-      {required Object id,
-      required Object guildId,
-      required String? reason}) async {
+  Future<void> delete({
+    required Object id,
+    required Object guildId,
+    required String? reason,
+  }) async {
     final roleId = Snowflake.parse(id);
     final parsedGuildId = Snowflake.parse(guildId);
     final req = Request.json(
-        endpoint: '/guilds/$parsedGuildId/roles/$roleId',
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/guilds/$parsedGuildId/roles/$roleId',
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }

@@ -52,10 +52,11 @@ final class TestKernel {
 
     marshaller = TestMarshaller.unbound(logger: logger);
     dataStore = DataStore(
-        client: httpClient,
-        marshaller: marshaller,
-        logger: logger,
-        httpLogger: logger);
+      client: httpClient,
+      marshaller: marshaller,
+      logger: logger,
+      httpLogger: logger,
+    );
     entityContext = EntityContext(
       datastore: dataStore,
       wss: _UnimplementedWss(),
@@ -77,7 +78,8 @@ final class TestKernel {
       ..bind<DataStoreContract>(() => dataStore)
       ..bind<CommandInteractionManagerContract>(() => commandManager)
       ..bind<InteractiveComponentManagerContract>(
-          InteractiveComponentManager.new);
+        InteractiveComponentManager.new,
+      );
 
     final restore = scopedIoc(container);
     return TestKernel._(container, restore, logger, actions);
@@ -92,8 +94,8 @@ final class TestKernel {
 
 final class _UnimplementedWss implements WebsocketOrchestratorContract {
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(
-          'TestKernel does not bind a real WebsocketOrchestratorContract; '
-          'tests that touch wss should be migrated to a richer fixture.');
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError(
+    'TestKernel does not bind a real WebsocketOrchestratorContract; '
+    'tests that touch wss should be migrated to a richer fixture.',
+  );
 }

@@ -36,8 +36,8 @@ final class Bot {
     required this.guildIds,
     required this.application,
     EntityContext? ctx,
-  })  : _wss = wss,
-        _ctx = ctx;
+  }) : _wss = wss,
+       _ctx = ctx;
 
   /// Manager for application-owned emojis (usable across all guilds).
   /// ```dart
@@ -47,8 +47,9 @@ final class Bot {
     final ctx = _ctx;
     if (ctx == null) {
       throw StateError(
-          'Bot.emojis requires an EntityContext. '
-          'Pass entityContext: to Bot.fromJson().');
+        'Bot.emojis requires an EntityContext. '
+        'Pass entityContext: to Bot.fromJson().',
+      );
     }
     return ApplicationEmojiManager(application.id, ctx: ctx);
   }
@@ -61,16 +62,19 @@ final class Bot {
     final ctx = _ctx;
     if (ctx == null) {
       throw StateError(
-          'Bot.monetization requires an EntityContext. '
-          'Pass entityContext: to Bot.fromJson().');
+        'Bot.monetization requires an EntityContext. '
+        'Pass entityContext: to Bot.fromJson().',
+      );
     }
     return MonetizationManager(application.id, ctx: ctx);
   }
 
   /// Updates presence of this
-  void setPresence(
-          {List<BotActivity>? activities, StatusType? status, bool? afk}) =>
-      _wss.setBotPresence(activities, status, afk);
+  void setPresence({
+    List<BotActivity>? activities,
+    StatusType? status,
+    bool? afk,
+  }) => _wss.setBotPresence(activities, status, afk);
 
   @override
   String toString() => '<@$id>';
@@ -83,25 +87,30 @@ final class Bot {
     final user = json['user'] as Map<String, dynamic>;
     final application = json['application'] as Map<String, dynamic>;
     return Bot._(
-        wss: wss,
-        ctx: entityContext,
-        id: Snowflake.parse(user['id']),
-        discriminator: user['discriminator'] as String?,
-        version: json['v'] as int,
-        username: user['username'] as String,
-        hasEnabledMfa: user['mfa_enabled'] as bool,
-        globalName: user['global_name'] as String?,
-        flags: user['flags'] as int,
-        avatar: user['avatar'] as String?,
-        sessionType: json['session_type'] as String,
-        privateChannels: List.unmodifiable(json['private_channels'] as List<dynamic>),
-        presences: List.unmodifiable(json['presences'] as List<dynamic>),
-        guildIds: List.unmodifiable(
-            (json['guilds'] as Iterable<dynamic>).map((element) => Snowflake.parse((element as Map<String, dynamic>)['id']))),
-        application: PartialApplication(
-          id: Snowflake.parse(application['id']),
-          flags: application['flags'] as int,
+      wss: wss,
+      ctx: entityContext,
+      id: Snowflake.parse(user['id']),
+      discriminator: user['discriminator'] as String?,
+      version: json['v'] as int,
+      username: user['username'] as String,
+      hasEnabledMfa: user['mfa_enabled'] as bool,
+      globalName: user['global_name'] as String?,
+      flags: user['flags'] as int,
+      avatar: user['avatar'] as String?,
+      sessionType: json['session_type'] as String,
+      privateChannels: List.unmodifiable(
+        json['private_channels'] as List<dynamic>,
+      ),
+      presences: List.unmodifiable(json['presences'] as List<dynamic>),
+      guildIds: List.unmodifiable(
+        (json['guilds'] as Iterable<dynamic>).map(
+          (element) => Snowflake.parse((element as Map<String, dynamic>)['id']),
         ),
+      ),
+      application: PartialApplication(
+        id: Snowflake.parse(application['id']),
+        flags: application['flags'] as int,
+      ),
     );
   }
 }

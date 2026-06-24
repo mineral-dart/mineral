@@ -4,7 +4,9 @@ import 'package:mineral/src/api/guild/audit_log/audit_log.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 Future<AuditLog> webhookCreateAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return WebhookCreateAuditLog(
     guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
@@ -16,20 +18,24 @@ Future<AuditLog> webhookCreateAuditLogHandler(
 }
 
 Future<AuditLog> webhookUpdateAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return WebhookUpdateAuditLog(
     guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     webhookId: Snowflake.parse(json['target_id']),
-    changes: List<Map<String, dynamic>>.from(json['changes'] as Iterable<dynamic>)
-        .map(Change.fromJson)
-        .toList(),
+    changes: List<Map<String, dynamic>>.from(
+      json['changes'] as Iterable<dynamic>,
+    ).map(Change.fromJson).toList(),
     ctx: ctx,
   );
 }
 
 Future<AuditLog> webhookDeleteAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return WebhookDeleteAuditLog(
     guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),

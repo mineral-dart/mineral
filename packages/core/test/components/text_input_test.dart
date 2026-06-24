@@ -8,12 +8,13 @@ void main() {
       final input = TextInput('username', style: TextInputStyle.short);
 
       expect(
-          input.toJson(),
-          equals({
-            'type': ComponentType.textInput.value,
-            'custom_id': 'username',
-            'style': 1,
-          }));
+        input.toJson(),
+        equals({
+          'type': ComponentType.textInput.value,
+          'custom_id': 'username',
+          'style': 1,
+        }),
+      );
     });
 
     test('omits optional fields when not set', () {
@@ -38,17 +39,18 @@ void main() {
       );
 
       expect(
-          input.toJson(),
-          equals({
-            'type': ComponentType.textInput.value,
-            'custom_id': 'feedback',
-            'style': 2,
-            'min_length': 10,
-            'max_length': 500,
-            'placeholder': 'Tell us what you think...',
-            'value': 'Pre-filled text',
-            'required': true,
-          }));
+        input.toJson(),
+        equals({
+          'type': ComponentType.textInput.value,
+          'custom_id': 'feedback',
+          'style': 2,
+          'min_length': 10,
+          'max_length': 500,
+          'placeholder': 'Tell us what you think...',
+          'value': 'Pre-filled text',
+          'required': true,
+        }),
+      );
     });
 
     test('generates valid Discord API JSON with short style', () {
@@ -64,8 +66,11 @@ void main() {
     });
 
     test('generates valid Discord API JSON with required false', () {
-      final input =
-          TextInput('optional', style: TextInputStyle.short, isRequired: false);
+      final input = TextInput(
+        'optional',
+        style: TextInputStyle.short,
+        isRequired: false,
+      );
 
       expect(input.toJson()['required'], equals(false));
     });

@@ -25,7 +25,40 @@ const _userId = '111222333444555666';
 // ── Minimal payloads ──────────────────────────────────────────────────────────
 
 Map<String, dynamic> _memberPayload() => {
-      'guild_id': _guildId,
+  'guild_id': _guildId,
+  'user': {
+    'id': _userId,
+    'username': 'TestMember',
+    'discriminator': '0001',
+    'avatar': null,
+    'bot': false,
+    'global_name': null,
+    'public_flags': 0,
+  },
+  'nick': null,
+  'roles': <String>[],
+  'joined_at': '2024-01-01T00:00:00.000Z',
+  'deaf': false,
+  'mute': false,
+  'flags': 0,
+  'pending': false,
+};
+
+Map<String, dynamic> _memberRemovePayload() => {
+  'guild_id': _guildId,
+  'user': {
+    'id': _userId,
+    'username': 'TestMember',
+    'discriminator': '0001',
+    'avatar': null,
+    'bot': false,
+  },
+};
+
+Map<String, dynamic> _chunkPayload() => {
+  'guild_id': _guildId,
+  'members': <Map<String, dynamic>>[
+    {
       'user': {
         'id': _userId,
         'username': 'TestMember',
@@ -42,44 +75,11 @@ Map<String, dynamic> _memberPayload() => {
       'mute': false,
       'flags': 0,
       'pending': false,
-    };
-
-Map<String, dynamic> _memberRemovePayload() => {
-      'guild_id': _guildId,
-      'user': {
-        'id': _userId,
-        'username': 'TestMember',
-        'discriminator': '0001',
-        'avatar': null,
-        'bot': false,
-      },
-    };
-
-Map<String, dynamic> _chunkPayload() => {
-      'guild_id': _guildId,
-      'members': <Map<String, dynamic>>[
-        {
-          'user': {
-            'id': _userId,
-            'username': 'TestMember',
-            'discriminator': '0001',
-            'avatar': null,
-            'bot': false,
-            'global_name': null,
-            'public_flags': 0,
-          },
-          'nick': null,
-          'roles': <String>[],
-          'joined_at': '2024-01-01T00:00:00.000Z',
-          'deaf': false,
-          'mute': false,
-          'flags': 0,
-          'pending': false,
-        }
-      ],
-      'presences': <dynamic>[],
-      'nonce': 'test-nonce-001',
-    };
+    },
+  ],
+  'presences': <dynamic>[],
+  'nonce': 'test-nonce-001',
+};
 
 ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
     ShardMessage(
@@ -120,7 +120,10 @@ void main() {
       entityContext: buildCtx(dataStore: dataStore, wss: wss),
     );
 
-    fakeGuild = buildMinimalGuild(_guildId, buildCtx(dataStore: dataStore, wss: wss));
+    fakeGuild = buildMinimalGuild(
+      _guildId,
+      buildCtx(dataStore: dataStore, wss: wss),
+    );
 
     // Also pre-populate a normalized member in cache (needed for update test).
     final normalizedMember = await marshaller.serializers.member.normalize({
@@ -140,7 +143,9 @@ void main() {
       }),
     );
 
-    final member = await marshaller.serializers.member.serialize(normalizedMember);
+    final member = await marshaller.serializers.member.serialize(
+      normalizedMember,
+    );
 
     when(() => dataStore.guild).thenReturn(FakeGuildPart(fakeGuild));
     when(() => dataStore.user).thenReturn(FakeUserPart(user));
@@ -151,21 +156,26 @@ void main() {
 
   group('GuildMemberAddPacket', () {
     test('packetType is PacketType.guildMemberAdd', () {
-      final packet =
-          GuildMemberAddPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildMemberAddPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.guildMemberAdd));
       expect(packet.packetType.name, equals('GUILD_MEMBER_ADD'));
     });
 
     test('dispatches Event.guildMemberAdd', () async {
-      final packet =
-          GuildMemberAddPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildMemberAddPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -175,14 +185,17 @@ void main() {
     });
 
     test('payload carries guild and member', () async {
-      final packet =
-          GuildMemberAddPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildMemberAddPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildMemberAddArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildMemberAdd) {
           args = payload as GuildMemberAddArgs;
         }
@@ -201,45 +214,57 @@ void main() {
   group('GuildMemberRemovePacket', () {
     test('packetType is PacketType.guildMemberRemove', () {
       final packet = GuildMemberRemovePacket(
-          marshaller: marshaller, dataStore: dataStore);
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.guildMemberRemove));
       expect(packet.packetType.name, equals('GUILD_MEMBER_REMOVE'));
     });
 
     test('dispatches Event.guildMemberRemove', () async {
       final packet = GuildMemberRemovePacket(
-          marshaller: marshaller, dataStore: dataStore);
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('GUILD_MEMBER_REMOVE', _memberRemovePayload()), dispatch);
+        _msg('GUILD_MEMBER_REMOVE', _memberRemovePayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildMemberRemove));
     });
 
     test('payload carries guild and user', () async {
       final packet = GuildMemberRemovePacket(
-          marshaller: marshaller, dataStore: dataStore);
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildMemberRemoveArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildMemberRemove) {
           args = payload as GuildMemberRemoveArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_MEMBER_REMOVE', _memberRemovePayload()), dispatch);
+        _msg('GUILD_MEMBER_REMOVE', _memberRemovePayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
@@ -251,15 +276,20 @@ void main() {
       await cache.put(memberKey, {'id': _userId, 'username': 'TestMember'});
 
       final packet = GuildMemberRemovePacket(
-          marshaller: marshaller, dataStore: dataStore);
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(
-          _msg('GUILD_MEMBER_REMOVE', _memberRemovePayload()), dispatch);
+        _msg('GUILD_MEMBER_REMOVE', _memberRemovePayload()),
+        dispatch,
+      );
 
       final cached = await cache.get(memberKey);
       expect(cached, isNull);
@@ -271,45 +301,57 @@ void main() {
   group('GuildMemberUpdatePacket', () {
     test('packetType is PacketType.guildMemberUpdate', () {
       final packet = GuildMemberUpdatePacket(
-          marshaller: marshaller, dataStore: dataStore);
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.guildMemberUpdate));
       expect(packet.packetType.name, equals('GUILD_MEMBER_UPDATE'));
     });
 
     test('dispatches Event.guildMemberUpdate', () async {
       final packet = GuildMemberUpdatePacket(
-          marshaller: marshaller, dataStore: dataStore);
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('GUILD_MEMBER_UPDATE', _memberPayload()), dispatch);
+        _msg('GUILD_MEMBER_UPDATE', _memberPayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildMemberUpdate));
     });
 
     test('payload carries guild, before and after member', () async {
       final packet = GuildMemberUpdatePacket(
-          marshaller: marshaller, dataStore: dataStore);
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildMemberUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildMemberUpdate) {
           args = payload as GuildMemberUpdateArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_MEMBER_UPDATE', _memberPayload()), dispatch);
+        _msg('GUILD_MEMBER_UPDATE', _memberPayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
@@ -323,45 +365,60 @@ void main() {
   group('GuildMemberChunkPacket', () {
     test('packetType is PacketType.guildMemberChunk', () {
       final packet = GuildMemberChunkPacket(
-          marshaller: marshaller, dataStore: dataStore, wss: wss);
+        marshaller: marshaller,
+        dataStore: dataStore,
+        wss: wss,
+      );
       expect(packet.packetType, equals(PacketType.guildMemberChunk));
       expect(packet.packetType.name, equals('GUILD_MEMBERS_CHUNK'));
     });
 
     test('dispatches Event.guildMemberChunk', () async {
       final packet = GuildMemberChunkPacket(
-          marshaller: marshaller, dataStore: dataStore, wss: wss);
+        marshaller: marshaller,
+        dataStore: dataStore,
+        wss: wss,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('GUILD_MEMBERS_CHUNK', _chunkPayload()), dispatch);
+        _msg('GUILD_MEMBERS_CHUNK', _chunkPayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildMemberChunk));
     });
 
     test('payload carries guild and members list', () async {
       final packet = GuildMemberChunkPacket(
-          marshaller: marshaller, dataStore: dataStore, wss: wss);
+        marshaller: marshaller,
+        dataStore: dataStore,
+        wss: wss,
+      );
       GuildMemberChunkArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildMemberChunk) {
           args = payload as GuildMemberChunkArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_MEMBERS_CHUNK', _chunkPayload()), dispatch);
+        _msg('GUILD_MEMBERS_CHUNK', _chunkPayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild.id, equals(Snowflake.parse(_guildId)));

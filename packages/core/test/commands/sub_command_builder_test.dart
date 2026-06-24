@@ -28,10 +28,7 @@ void main() {
 
       test('stores name localizations with translation', () {
         final translation = Translation({
-          'name': {
-            Lang.fr: 'bannir',
-            Lang.de: 'verbannen',
-          },
+          'name': {Lang.fr: 'bannir', Lang.de: 'verbannen'},
         });
 
         builder.setName('ban', translation: translation);
@@ -61,8 +58,9 @@ void main() {
       });
 
       test('returns self for chaining', () {
-        final result =
-            builder.addOption(Option.string(name: 'test', description: 'test'));
+        final result = builder.addOption(
+          Option.string(name: 'test', description: 'test'),
+        );
         expect(result, same(builder));
       });
     });
@@ -99,8 +97,13 @@ void main() {
         builder
           ..setName('ban')
           ..setDescription('Ban a user')
-          ..addOption(Option.user(
-              name: 'target', description: 'User to ban', required: true))
+          ..addOption(
+            Option.user(
+              name: 'target',
+              description: 'User to ban',
+              required: true,
+            ),
+          )
           ..setHandle((ctx, options) {});
 
         final json = builder.toJson();
@@ -113,9 +116,7 @@ void main() {
 
       test('includes name localizations', () {
         final translation = Translation({
-          'name': {
-            Lang.fr: 'bannir',
-          },
+          'name': {Lang.fr: 'bannir'},
         });
 
         builder
@@ -131,9 +132,7 @@ void main() {
 
       test('includes description localizations', () {
         final translation = Translation({
-          'description': {
-            Lang.fr: 'Bannir un utilisateur',
-          },
+          'description': {Lang.fr: 'Bannir un utilisateur'},
         });
 
         builder
@@ -145,19 +144,25 @@ void main() {
 
         expect(json['description_localizations'], isNotNull);
         expect(
-            json['description_localizations']['fr'], 'Bannir un utilisateur');
+          json['description_localizations']['fr'],
+          'Bannir un utilisateur',
+        );
       });
 
       test('throws MissingPropertyException when name is null', () {
         builder.setDescription('test');
         expect(
-            () => builder.toJson(), throwsA(isA<MissingPropertyException>()));
+          () => builder.toJson(),
+          throwsA(isA<MissingPropertyException>()),
+        );
       });
 
       test('throws MissingPropertyException when description is null', () {
         builder.setName('test');
         expect(
-            () => builder.toJson(), throwsA(isA<MissingPropertyException>()));
+          () => builder.toJson(),
+          throwsA(isA<MissingPropertyException>()),
+        );
       });
     });
   });

@@ -11,7 +11,7 @@ final class UserUpdatePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   UserUpdatePacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -20,14 +20,16 @@ final class UserUpdatePacket implements ListenablePacket {
 
     final userCacheKey = _marshaller.cacheKey.user(userId);
     final rawUser = await _marshaller.cache?.get(userCacheKey);
-    final before =
-        rawUser != null ? await _marshaller.serializers.user.serialize(rawUser) : null;
+    final before = rawUser != null
+        ? await _marshaller.serializers.user.serialize(rawUser)
+        : null;
 
-    final rawAfter =
-        await _marshaller.serializers.user.normalize(payload);
+    final rawAfter = await _marshaller.serializers.user.normalize(payload);
     final after = await _marshaller.serializers.user.serialize(rawAfter);
 
     dispatch<UserUpdateArgs>(
-        event: Event.userUpdate, payload: (before: before, after: after));
+      event: Event.userUpdate,
+      payload: (before: before, after: after),
+    );
   }
 }

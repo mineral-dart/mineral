@@ -1,4 +1,1 @@
-enum ThreadType {
-  private,
-  public;
-}
+enum ThreadType { private, public }

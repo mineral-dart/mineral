@@ -44,13 +44,15 @@ final class SearchCommand implements CommandDeclaration {
     return CommandDeclarationBuilder()
       ..setName('search')
       ..setDescription('Search the fruit catalog with autocomplete')
-      ..addOption(Option.string(
-        name: 'fruit',
-        description: 'Start typing to see suggestions',
-        required: true,
-        autocomplete: true,
-        onAutocomplete: _complete,
-      ))
+      ..addOption(
+        Option.string(
+          name: 'fruit',
+          description: 'Start typing to see suggestions',
+          required: true,
+          autocomplete: true,
+          onAutocomplete: _complete,
+        ),
+      )
       ..setHandle(handle);
   }
 }

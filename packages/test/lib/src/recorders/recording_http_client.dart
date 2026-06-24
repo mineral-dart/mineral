@@ -28,24 +28,19 @@ final class RecordingHttpClient implements HttpClientContract {
       throw UnimplementedError('RecordingHttpClient.config is not exposed');
 
   @override
-  Future<Response<T>> get<T>(RequestContract r) =>
-      _handle<T>('GET', r);
+  Future<Response<T>> get<T>(RequestContract r) => _handle<T>('GET', r);
 
   @override
-  Future<Response<T>> post<T>(RequestContract r) =>
-      _handle<T>('POST', r);
+  Future<Response<T>> post<T>(RequestContract r) => _handle<T>('POST', r);
 
   @override
-  Future<Response<T>> put<T>(RequestContract r) =>
-      _handle<T>('PUT', r);
+  Future<Response<T>> put<T>(RequestContract r) => _handle<T>('PUT', r);
 
   @override
-  Future<Response<T>> patch<T>(RequestContract r) =>
-      _handle<T>('PATCH', r);
+  Future<Response<T>> patch<T>(RequestContract r) => _handle<T>('PATCH', r);
 
   @override
-  Future<Response<T>> delete<T>(RequestContract r) =>
-      _handle<T>('DELETE', r);
+  Future<Response<T>> delete<T>(RequestContract r) => _handle<T>('DELETE', r);
 
   @override
   Future<Response<T>> send<T>(RequestContract r) =>
@@ -84,16 +79,17 @@ final class RecordingHttpClient implements HttpClientContract {
       }
       if (segments.length == 4) {
         if (method == 'PATCH') {
-          _actions.record(MessageEdited(
-            channelId: segments[1],
-            messageId: segments[3],
-            content: _extractContent(map['components']),
-          ));
+          _actions.record(
+            MessageEdited(
+              channelId: segments[1],
+              messageId: segments[3],
+              content: _extractContent(map['components']),
+            ),
+          );
         } else if (method == 'DELETE') {
-          _actions.record(MessageDeleted(
-            channelId: segments[1],
-            messageId: segments[3],
-          ));
+          _actions.record(
+            MessageDeleted(channelId: segments[1], messageId: segments[3]),
+          );
         }
       }
       return const {};
@@ -105,12 +101,14 @@ final class RecordingHttpClient implements HttpClientContract {
         segments[2] == 'bans' &&
         method == 'PUT') {
       final secs = map['delete_message_seconds'];
-      _actions.record(MemberBanned(
-        guildId: segments[1],
-        memberId: segments[3],
-        reason: reason,
-        deleteSince: secs is int ? Duration(seconds: secs) : null,
-      ));
+      _actions.record(
+        MemberBanned(
+          guildId: segments[1],
+          memberId: segments[3],
+          reason: reason,
+          deleteSince: secs is int ? Duration(seconds: secs) : null,
+        ),
+      );
       return const {};
     }
 
@@ -120,19 +118,23 @@ final class RecordingHttpClient implements HttpClientContract {
         segments[2] == 'members' &&
         segments[4] == 'roles') {
       if (method == 'PUT') {
-        _actions.record(RoleAssigned(
-          guildId: segments[1],
-          memberId: segments[3],
-          roleId: segments[5],
-          reason: reason,
-        ));
+        _actions.record(
+          RoleAssigned(
+            guildId: segments[1],
+            memberId: segments[3],
+            roleId: segments[5],
+            reason: reason,
+          ),
+        );
       } else if (method == 'DELETE') {
-        _actions.record(RoleRemoved(
-          guildId: segments[1],
-          memberId: segments[3],
-          roleId: segments[5],
-          reason: reason,
-        ));
+        _actions.record(
+          RoleRemoved(
+            guildId: segments[1],
+            memberId: segments[3],
+            roleId: segments[5],
+            reason: reason,
+          ),
+        );
       }
       return const {};
     }
@@ -147,16 +149,19 @@ final class RecordingHttpClient implements HttpClientContract {
   ) {
     final type = body['type'];
     final data = body['data'];
-    final dataMap =
-        data is Map<String, dynamic> ? data : const <String, dynamic>{};
+    final dataMap = data is Map<String, dynamic>
+        ? data
+        : const <String, dynamic>{};
 
     if (type == 9) {
-      _actions.record(ModalShown(
-        interactionId: id,
-        token: token,
-        customId: dataMap['custom_id'] as String? ?? '',
-        title: dataMap['title'] as String?,
-      ));
+      _actions.record(
+        ModalShown(
+          interactionId: id,
+          token: token,
+          customId: dataMap['custom_id'] as String? ?? '',
+          title: dataMap['title'] as String?,
+        ),
+      );
       return const {};
     }
 
@@ -164,13 +169,15 @@ final class RecordingHttpClient implements HttpClientContract {
     final ephemeral = flags is int && (flags & (1 << 6)) != 0;
     final components = _readComponents(dataMap['components']);
 
-    _actions.record(InteractionReply(
-      interactionId: id,
-      token: token,
-      content: _extractContent(dataMap['components']),
-      ephemeral: ephemeral,
-      components: components,
-    ));
+    _actions.record(
+      InteractionReply(
+        interactionId: id,
+        token: token,
+        content: _extractContent(dataMap['components']),
+        ephemeral: ephemeral,
+        components: components,
+      ),
+    );
     return const {};
   }
 
@@ -179,11 +186,13 @@ final class RecordingHttpClient implements HttpClientContract {
     Map<String, dynamic> body,
   ) {
     final components = _readComponents(body['components']);
-    _actions.record(SentMessage(
-      channelId: channelId,
-      content: _extractContent(body['components']),
-      components: components,
-    ));
+    _actions.record(
+      SentMessage(
+        channelId: channelId,
+        content: _extractContent(body['components']),
+        components: components,
+      ),
+    );
     final id = (_autoId++).toString();
     return {
       'id': id,
@@ -275,5 +284,5 @@ final class _StubResponse<T> implements Response<T> {
   final T body;
 
   _StubResponse(this.method, this.uri, Map<String, dynamic> bodyMap)
-      : body = bodyMap as T;
+    : body = bodyMap as T;
 }

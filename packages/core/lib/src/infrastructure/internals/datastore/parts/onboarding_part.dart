@@ -4,17 +4,14 @@ import 'package:mineral/services.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 import 'package:mineral/src/infrastructure/internals/http/discord_header.dart';
 
-final class OnboardingPart extends BasePart
-    implements OnboardingPartContract {
+final class OnboardingPart extends BasePart implements OnboardingPartContract {
   OnboardingPart(super.marshaller, super.dataStore);
 
   @override
   Future<Onboarding> fetch(Object guildId) async {
     final parsedGuildId = Snowflake.parse(guildId);
-    final req =
-        Request.json(endpoint: '/guilds/$parsedGuildId/onboarding');
-    final result =
-        await dataStore.requestBucket.get<Map<String, dynamic>>(req);
+    final req = Request.json(endpoint: '/guilds/$parsedGuildId/onboarding');
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
     return Onboarding.fromJson(result);
   }
 
@@ -30,11 +27,11 @@ final class OnboardingPart extends BasePart
     final parsedGuildId = Snowflake.parse(guildId);
 
     final body = <String, dynamic>{
-      if (prompts != null)
-        'prompts': prompts.map((p) => p.toJson()).toList(),
+      if (prompts != null) 'prompts': prompts.map((p) => p.toJson()).toList(),
       if (defaultChannelIds != null)
-        'default_channel_ids':
-            defaultChannelIds.map((id) => id.toString()).toList(),
+        'default_channel_ids': defaultChannelIds
+            .map((id) => id.toString())
+            .toList(),
       if (enabled != null) 'enabled': enabled,
       if (mode != null) 'mode': mode.value,
     };
@@ -44,8 +41,7 @@ final class OnboardingPart extends BasePart
       body: body,
       headers: {DiscordHeader.auditLogReason(reason)},
     );
-    final result =
-        await dataStore.requestBucket.put<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.put<Map<String, dynamic>>(req);
     return Onboarding.fromJson(result);
   }
 }

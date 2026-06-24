@@ -13,7 +13,6 @@ import '../helpers/fake_websocket_orchestrator.dart';
 import '../helpers/ioc_test_helper.dart';
 import '../helpers/mocks.dart';
 
-
 Shard _createShard({required FakeLogger logger, int maxReconnectAttempts = 3}) {
   return Shard(
     shardName: 'test-shard-0',
@@ -155,36 +154,44 @@ void main() {
     });
 
     group('FatalGatewayException on max attempts exceeded', () {
-      test('throws FatalGatewayException after exceeding maxReconnectAttempts',
-          () async {
-        // Create a shard with maxReconnectAttempts = 1
-        shard = _createShard(maxReconnectAttempts: 1, logger: logger);
-        fakeClient = FakeWebsocketClient();
-        shard.client = fakeClient;
-        auth = shard.authentication;
+      test(
+        'throws FatalGatewayException after exceeding maxReconnectAttempts',
+        () async {
+          // Create a shard with maxReconnectAttempts = 1
+          shard = _createShard(maxReconnectAttempts: 1, logger: logger);
+          fakeClient = FakeWebsocketClient();
+          shard.client = fakeClient;
+          auth = shard.authentication;
 
-        // First reconnect attempt (attempt 1) should succeed (log warning)
-        final errors = <Object>[];
-        runZonedGuarded(() {
-          auth.reconnect();
-        }, (error, _) {
-          errors.add(error);
-        });
+          // First reconnect attempt (attempt 1) should succeed (log warning)
+          final errors = <Object>[];
+          runZonedGuarded(
+            () {
+              auth.reconnect();
+            },
+            (error, _) {
+              errors.add(error);
+            },
+          );
 
-        await Future<void>.delayed(Duration.zero);
+          await Future<void>.delayed(Duration.zero);
 
-        // Second reconnect attempt (attempt 2) exceeds max of 1
-        runZonedGuarded(() {
-          auth.reconnect();
-        }, (error, _) {
-          errors.add(error);
-        });
+          // Second reconnect attempt (attempt 2) exceeds max of 1
+          runZonedGuarded(
+            () {
+              auth.reconnect();
+            },
+            (error, _) {
+              errors.add(error);
+            },
+          );
 
-        await Future<void>.delayed(Duration.zero);
+          await Future<void>.delayed(Duration.zero);
 
-        expect(errors.whereType<FatalGatewayException>(), isNotEmpty);
-        expect(logger.errors, contains(contains('Max reconnect attempts')));
-      });
+          expect(errors.whereType<FatalGatewayException>(), isNotEmpty);
+          expect(logger.errors, contains(contains('Max reconnect attempts')));
+        },
+      );
 
       test('throws FatalGatewayException with correct message', () async {
         shard = _createShard(maxReconnectAttempts: 0, logger: logger);
@@ -193,13 +200,16 @@ void main() {
         auth = shard.authentication;
 
         FatalGatewayException? caught;
-        runZonedGuarded(() {
-          auth.reconnect();
-        }, (error, _) {
-          if (error is FatalGatewayException) {
-            caught = error;
-          }
-        });
+        runZonedGuarded(
+          () {
+            auth.reconnect();
+          },
+          (error, _) {
+            if (error is FatalGatewayException) {
+              caught = error;
+            }
+          },
+        );
 
         await Future<void>.delayed(Duration.zero);
 
@@ -242,8 +252,9 @@ void main() {
 
         await Future<void>.delayed(Duration.zero);
 
-        final reconnectWarnings =
-            logger.warnings.where((w) => w.contains('Reconnecting')).toList();
+        final reconnectWarnings = logger.warnings
+            .where((w) => w.contains('Reconnecting'))
+            .toList();
         expect(reconnectWarnings, hasLength(2));
       });
 
@@ -278,51 +289,58 @@ void main() {
         await Future<void>.delayed(Duration.zero);
 
         // Both reconnect attempts should have logged "attempt 1/3"
-        final attemptLogs =
-            logger.warnings.where((w) => w.contains('attempt 1/')).toList();
+        final attemptLogs = logger.warnings
+            .where((w) => w.contains('attempt 1/'))
+            .toList();
         expect(attemptLogs, hasLength(2));
       });
 
-      test('allows reconnection after previously hitting max attempts',
-          () async {
-        shard = _createShard(maxReconnectAttempts: 1, logger: logger);
-        fakeClient = FakeWebsocketClient();
-        shard.client = fakeClient;
-        auth = shard.authentication;
+      test(
+        'allows reconnection after previously hitting max attempts',
+        () async {
+          shard = _createShard(maxReconnectAttempts: 1, logger: logger);
+          fakeClient = FakeWebsocketClient();
+          shard.client = fakeClient;
+          auth = shard.authentication;
 
-        // First reconnect is allowed (attempt 1)
-        runZonedGuarded(() {
-          auth.reconnect();
-        }, (_, _) {});
+          // First reconnect is allowed (attempt 1)
+          runZonedGuarded(() {
+            auth.reconnect();
+          }, (_, _) {});
 
-        await Future<void>.delayed(Duration.zero);
+          await Future<void>.delayed(Duration.zero);
 
-        // Second would throw FatalGatewayException
-        runZonedGuarded(() {
-          auth.reconnect();
-        }, (_, _) {});
+          // Second would throw FatalGatewayException
+          runZonedGuarded(() {
+            auth.reconnect();
+          }, (_, _) {});
 
-        await Future<void>.delayed(Duration.zero);
+          await Future<void>.delayed(Duration.zero);
 
-        // Reset counter
-        auth.resetReconnectAttempts();
+          // Reset counter
+          auth.resetReconnectAttempts();
 
-        // Should be able to reconnect again
-        final errors = <Object>[];
-        runZonedGuarded(() {
-          auth.reconnect();
-        }, (error, _) {
-          errors.add(error);
-        });
+          // Should be able to reconnect again
+          final errors = <Object>[];
+          runZonedGuarded(
+            () {
+              auth.reconnect();
+            },
+            (error, _) {
+              errors.add(error);
+            },
+          );
 
-        await Future<void>.delayed(Duration.zero);
+          await Future<void>.delayed(Duration.zero);
 
-        // After reset, the reconnect should succeed (log a warning, not throw)
-        final postResetWarnings =
-            logger.warnings.where((w) => w.contains('Reconnecting')).toList();
-        expect(postResetWarnings.length, greaterThanOrEqualTo(2));
-        expect(errors.whereType<FatalGatewayException>(), isEmpty);
-      });
+          // After reset, the reconnect should succeed (log a warning, not throw)
+          final postResetWarnings = logger.warnings
+              .where((w) => w.contains('Reconnecting'))
+              .toList();
+          expect(postResetWarnings.length, greaterThanOrEqualTo(2));
+          expect(errors.whereType<FatalGatewayException>(), isEmpty);
+        },
+      );
     });
   });
 }

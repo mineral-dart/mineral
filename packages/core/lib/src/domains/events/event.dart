@@ -7,327 +7,328 @@ interface class EventType {}
 
 enum Event implements EnhancedEnum<Type>, EventType {
   ready(ReadyEvent, [
-    ['Bot', 'bot']
+    ['Bot', 'bot'],
   ]),
   userUpdate(UserUpdateEvent, [
     ['User?', 'before'],
-    ['User', 'after']
+    ['User', 'after'],
   ]),
   inviteCreate(InviteCreateEvent, [
-    ['Invite', 'invite']
+    ['Invite', 'invite'],
   ]),
   inviteDelete(InviteDeleteEvent, [
     ['String', 'code'],
-    ['Channel', 'channel']
+    ['Channel', 'channel'],
   ]),
   typing(TypingEvent, [
-    ['Typing', 'typing']
+    ['Typing', 'typing'],
   ]),
   guildAuditLog(GuildAuditLogEvent, [
-    ['Guild', 'guild']
+    ['Guild', 'guild'],
   ]),
   guildCreate(GuildCreateEvent, [
-    ['Guild', 'guild']
+    ['Guild', 'guild'],
   ]),
   guildUpdate(GuildUpdateEvent, [
     ['Guild', 'before'],
-    ['Guild', 'after']
+    ['Guild', 'after'],
   ]),
   guildDelete(GuildDeleteEvent, [
-    ['Guild', 'guild']
+    ['Guild', 'guild'],
   ]),
   guildMessageCreate(GuildMessageCreateEvent, [
-    ['GuildMessage', 'message']
+    ['GuildMessage', 'message'],
   ]),
   guildMessageUpdate(GuildMessageUpdateEvent, [
     ['GuildMessage?', 'before'],
-    ['GuildMessage', 'after']
+    ['GuildMessage', 'after'],
   ]),
   guildMessageDelete(GuildMessageDeleteEvent, [
     ['Guild', 'guild'],
     ['GuildChannel', 'channel'],
     ['Snowflake', 'messageId'],
-    ['Message?', 'message']
+    ['Message?', 'message'],
   ]),
   guildMessageDeleteBulk(GuildMessageDeleteBulkEvent, [
     ['Guild', 'guild'],
     ['GuildChannel', 'channel'],
     ['List<Snowflake>', 'messageIds'],
-    ['Map<Snowflake, Message>', 'messages']
+    ['Map<Snowflake, Message>', 'messages'],
   ]),
   guildChannelCreate(GuildChannelCreateEvent, [
-    ['GuildChannel', 'channel']
+    ['GuildChannel', 'channel'],
   ]),
   guildChannelUpdate(GuildChannelUpdateEvent, [
     ['GuildChannel', 'before'],
-    ['GuildChannel', 'after']
+    ['GuildChannel', 'after'],
   ]),
   guildChannelDelete(GuildChannelDeleteEvent, [
-    ['GuildChannel', 'channel']
+    ['GuildChannel', 'channel'],
   ]),
   guildChannelPinsUpdate(GuildChannelPinsUpdateEvent, [
-    ['GuildChannel', 'channel']
+    ['GuildChannel', 'channel'],
   ]),
   guildWebhooksUpdate(GuildWebhooksUpdateEvent, [
     ['Guild', 'guild'],
-    ['GuildChannel', 'channel']
+    ['GuildChannel', 'channel'],
   ]),
   privateChannelPinsUpdate(PrivateChannelPinsUpdateEvent, [
-    ['PrivateChannel', 'channel']
+    ['PrivateChannel', 'channel'],
   ]),
   guildMemberAdd(GuildMemberAddEvent, [
     ['Guild', 'guild'],
-    ['Member', 'member']
+    ['Member', 'member'],
   ]),
   guildMemberRemove(GuildMemberRemoveEvent, [
     ['Guild', 'guild'],
-    ['User', 'user']
+    ['User', 'user'],
   ]),
   guildBanAdd(GuildBanAddEvent, [
     ['Guild', 'guild'],
-    ['User', 'user']
+    ['User', 'user'],
   ]),
   guildBanRemove(GuildBanRemoveEvent, [
     ['Guild', 'guild'],
-    ['User', 'user']
+    ['User', 'user'],
   ]),
   guildMemberUpdate(GuildMemberUpdateEvent, [
     ['Guild', 'guild'],
     ['GuildMember', 'before'],
-    ['Member', 'after']
+    ['Member', 'after'],
   ]),
   guildPresenceUpdate(GuildPresenceUpdateEvent, [
     ['Member', 'member'],
     ['Guild', 'guild'],
-    ['Presence', 'presence']
+    ['Presence', 'presence'],
   ]),
   guildEmojisUpdate(GuildEmojisUpdateEvent, [
     ['Map<Snowflake, Emoji>', 'emojis'],
-    ['Guild', 'guild']
+    ['Guild', 'guild'],
   ]),
   guildStickersUpdate(GuildStickersUpdateEvent, [
     ['Guild', 'guild'],
-    ['Map<Snowflake, Sticker>', 'stickers']
+    ['Map<Snowflake, Sticker>', 'stickers'],
   ]),
   guildRoleCreate(GuildRolesCreateEvent, [
     ['Guild', 'guild'],
-    ['Role', 'role']
+    ['Role', 'role'],
   ]),
   guildRoleUpdate(GuildRolesUpdateEvent, [
     ['Guild', 'guild'],
     ['Role', 'before'],
-    ['Role', 'after']
+    ['Role', 'after'],
   ]),
   guildRoleDelete(GuildRolesDeleteEvent, [
     ['Guild', 'guild'],
-    ['Role', 'role']
+    ['Role', 'role'],
   ]),
   guildButtonClick(GuildButtonClickEvent, [
-    ['GuildButtonContext', 'ctx']
+    ['GuildButtonContext', 'ctx'],
   ]),
   guildModalSubmit(GuildModalSubmitEvent, [
-    ['GuildModalContext', 'ctx']
+    ['GuildModalContext', 'ctx'],
   ]),
   guildChannelSelect(GuildChannelSelectEvent, [
     ['GuildSelectContext', 'ctx'],
-    ['List<GuildChannel>', 'channels']
+    ['List<GuildChannel>', 'channels'],
   ]),
   guildRoleSelect(GuildRoleSelectEvent, [
     ['GuildSelectContext', 'ctx'],
-    ['List<Role>', 'roles']
+    ['List<Role>', 'roles'],
   ]),
   guildMemberSelect(GuildMemberSelectEvent, [
     ['GuildSelectContext', 'ctx'],
-    ['List<Member>', 'members']
+    ['List<Member>', 'members'],
   ]),
   guildMentionableSelect(GuildMentionableSelectEvent, [
     ['GuildSelectContext', 'ctx'],
-    ['List<dynamic>', 'mentionables']
+    ['List<dynamic>', 'mentionables'],
   ]),
   guildTextSelect(GuildTextSelectEvent, [
     ['GuildSelectContext', 'ctx'],
-    ['List<String>', 'values']
+    ['List<String>', 'values'],
   ]),
   guildThreadCreate(GuildThreadCreateEvent, [
     ['Guild', 'guild'],
-    ['ThreadChannel', 'channel']
+    ['ThreadChannel', 'channel'],
   ]),
   guildThreadUpdate(GuildThreadUpdateEvent, [
     ['Guild', 'guild'],
     ['ThreadChannel', 'before'],
-    ['ThreadChannel', 'after']
+    ['ThreadChannel', 'after'],
   ]),
   guildThreadDelete(GuildThreadDeleteEvent, [
     ['ThreadChannel', 'thread'],
-    ['Guild', 'guild']
+    ['Guild', 'guild'],
   ]),
   guildThreadMemberUpdate(GuildThreadMemberUpdateEvent, [
     ['ThreadChannel', 'thread'],
     ['Guild', 'guild'],
-    ['Member', 'member']
+    ['Member', 'member'],
   ]),
   guildThreadMemberAdd(GuildThreadMemberAddEvent, [
     ['ThreadChannel', 'thread'],
     ['Guild', 'guild'],
-    ['Member', 'member']
+    ['Member', 'member'],
   ]),
   guildThreadMemberRemove(GuildThreadMemberRemoveEvent, [
     ['ThreadChannel', 'thread'],
     ['Guild', 'guild'],
-    ['Member', 'member']
+    ['Member', 'member'],
   ]),
   guildThreadListSync(GuildThreadListSyncEvent, [
     ['List<ThreadChannel>', 'threads'],
-    ['Guild', 'guild']
+    ['Guild', 'guild'],
   ]),
   guildMemberChunk(GuildMemberChunkEvent, [
     ['Guild', 'guild'],
-    ['Map<Snowflake, Member>', 'members']
+    ['Map<Snowflake, Member>', 'members'],
   ]),
   guildMessageReactionAdd(GuildMessageReactionAddEvent, [
-    ['MessageReaction', 'reaction']
+    ['MessageReaction', 'reaction'],
   ]),
   guildMessageReactionRemove(GuildMessageReactionRemoveEvent, [
-    ['MessageReaction', 'reaction']
+    ['MessageReaction', 'reaction'],
   ]),
   guildMessageReactionRemoveAll(GuildMessageReactionRemoveAllEvent, [
     ['Guild', 'guild'],
     ['GuildTextChannel', 'channel'],
-    ['Message', 'message']
+    ['Message', 'message'],
   ]),
   guildMessageReactionRemoveEmoji(GuildMessageReactionRemoveEmojiEvent, [
     ['Guild', 'guild'],
     ['GuildTextChannel', 'channel'],
     ['Message', 'message'],
-    ['PartialEmoji', 'emoji']
+    ['PartialEmoji', 'emoji'],
   ]),
   guildPollVoteAdd(GuildPollVoteAddEvent, [
     ['PollAnswerVote<GuildMessage>', 'message'],
-    ['User', 'user']
+    ['User', 'user'],
   ]),
   guildPollVoteRemove(GuildPollVoteRemoveEvent, [
     ['PollAnswerVote<GuildMessage>', 'message'],
-    ['User', 'user']
+    ['User', 'user'],
   ]),
   guildRuleCreate(GuildRuleCreateEvent, [
-    ['AutoModerationRule', 'rule']
+    ['AutoModerationRule', 'rule'],
   ]),
   guildRuleUpdate(GuildRuleUpdateEvent, [
     ['AutoModerationRule?', 'before'],
-    ['AutoModerationRule', 'after']
+    ['AutoModerationRule', 'after'],
   ]),
   guildRuleDelete(GuildRuleDeleteEvent, [
-    ['AutoModerationRule', 'rule']
+    ['AutoModerationRule', 'rule'],
   ]),
   guildRuleExecution(GuildRuleExecutionEvent, [
-    ['RuleExecution', 'execution']
+    ['RuleExecution', 'execution'],
   ]),
 
   // private
   privateMessageCreate(PrivateMessageCreateEvent, [
-    ['PrivateMessage', 'message']
+    ['PrivateMessage', 'message'],
   ]),
   privateMessageUpdate(PrivateMessageUpdateEvent, [
     ['PrivateMessage?', 'before'],
-    ['PrivateMessage', 'after']
+    ['PrivateMessage', 'after'],
   ]),
   privateMessageDelete(PrivateMessageDeleteEvent, [
     ['PrivateChannel', 'channel'],
     ['Snowflake', 'messageId'],
-    ['Message?', 'message']
+    ['Message?', 'message'],
   ]),
   privateChannelCreate(PrivateChannelCreateEvent, [
-    ['PrivateChannel', 'channel']
+    ['PrivateChannel', 'channel'],
   ]),
   privateChannelUpdate(PrivateChannelUpdateEvent, [
     ['PrivateChannel', 'before'],
-    ['PrivateChannel', 'after']
+    ['PrivateChannel', 'after'],
   ]),
   privatePollVoteAdd(PrivatePollVoteAddEvent, [
     ['PollAnswerVote<PrivateMessage>', 'message'],
-    ['User', 'user']
+    ['User', 'user'],
   ]),
   privatePollVoteRemove(PrivatePollVoteRemoveEvent, [
     ['PollAnswerVote<PrivateMessage>', 'message'],
-    ['User', 'user']
+    ['User', 'user'],
   ]),
   privateChannelDelete(PrivateChannelDeleteEvent, [
-    ['PrivateChannel', 'channel']
+    ['PrivateChannel', 'channel'],
   ]),
   privateButtonClick(PrivateButtonClickEvent, [
-    ['PrivateButtonContext', 'ctx']
+    ['PrivateButtonContext', 'ctx'],
   ]),
   privateModalSubmit(PrivateModalSubmitEvent, [
-    ['PrivateModalContext', 'ctx']
+    ['PrivateModalContext', 'ctx'],
   ]),
   privateUserSelect(PrivateUserSelectEvent, [
     ['PrivateSelectContext', 'ctx'],
-    ['List<User>', 'users']
+    ['List<User>', 'users'],
   ]),
   privateMentionableSelect(PrivateMentionableSelectEvent, [
     ['PrivateSelectContext', 'ctx'],
-    ['List<dynamic>', 'mentionables']
+    ['List<dynamic>', 'mentionables'],
   ]),
   privateTextSelect(PrivateTextSelectEvent, [
     ['PrivateSelectContext', 'ctx'],
-    ['List<String>', 'values']
+    ['List<String>', 'values'],
   ]),
   privateMessageReactionAdd(PrivateMessageReactionAddEvent, [
-    ['MessageReaction', 'reaction']
+    ['MessageReaction', 'reaction'],
   ]),
   privateMessageReactionRemove(PrivateMessageReactionRemoveEvent, [
-    ['MessageReaction', 'reaction']
+    ['MessageReaction', 'reaction'],
   ]),
   privateMessageReactionRemoveAll(PrivateMessageReactionRemoveAllEvent, [
     ['PrivateChannel', 'channel'],
-    ['Message', 'message']
+    ['Message', 'message'],
   ]),
   privateMessageReactionRemoveEmoji(PrivateMessageReactionRemoveEmojiEvent, [
     ['PrivateChannel', 'channel'],
     ['Message', 'message'],
-    ['PartialEmoji', 'emoji']
+    ['PartialEmoji', 'emoji'],
   ]),
   voiceStateUpdate(VoiceStateUpdateEvent, [
     ['VoiceState', 'before'],
-    ['VoiceState', 'after']
+    ['VoiceState', 'after'],
   ]),
   voiceConnect(VoiceConnectEvent, [
-    ['VoiceState', 'state']
+    ['VoiceState', 'state'],
   ]),
   voiceDisconnect(VoiceDisconnectEvent, [
-    ['VoiceState', 'state']
+    ['VoiceState', 'state'],
   ]),
   voiceJoin(VoiceJoinEvent, [
-    ['VoiceState', 'state']
+    ['VoiceState', 'state'],
   ]),
   voiceLeave(VoiceLeaveEvent, [
-    ['VoiceState', 'state']
+    ['VoiceState', 'state'],
   ]),
   voiceMove(VoiceMoveEvent, [
     ['VoiceState', 'before'],
-    ['VoiceState', 'after']
+    ['VoiceState', 'after'],
   ]),
   guildApplicationCommandPermissionsUpdate(
-      GuildApplicationCommandPermissionsUpdateEvent,
-      [
-        ['Guild', 'guild'],
-        ['GuildApplicationCommandPermissions', 'permissions']
-      ]),
+    GuildApplicationCommandPermissionsUpdateEvent,
+    [
+      ['Guild', 'guild'],
+      ['GuildApplicationCommandPermissions', 'permissions'],
+    ],
+  ),
   guildIntegrationsUpdate(GuildIntegrationsUpdateEvent, [
-    ['Guild', 'guild']
+    ['Guild', 'guild'],
   ]),
   guildIntegrationCreate(GuildIntegrationCreateEvent, [
     ['Guild', 'guild'],
-    ['Integration', 'integration']
+    ['Integration', 'integration'],
   ]),
   guildIntegrationUpdate(GuildIntegrationUpdateEvent, [
     ['Guild', 'guild'],
-    ['Integration', 'integration']
+    ['Integration', 'integration'],
   ]),
   guildIntegrationDelete(GuildIntegrationDeleteEvent, [
     ['Guild', 'guild'],
     ['Snowflake', 'integrationId'],
-    ['Snowflake?', 'applicationId']
+    ['Snowflake?', 'applicationId'],
   ]),
   guildVoiceChannelEffectSend(GuildVoiceChannelEffectSendEvent, [
     ['Guild', 'guild'],
@@ -341,77 +342,77 @@ enum Event implements EnhancedEnum<Type>, EventType {
   ]),
   guildScheduledEventCreate(GuildScheduledEventCreateEvent, [
     ['Guild', 'guild'],
-    ['GuildScheduledEvent', 'event']
+    ['GuildScheduledEvent', 'event'],
   ]),
   guildScheduledEventUpdate(GuildScheduledEventUpdateEvent, [
     ['Guild', 'guild'],
     ['GuildScheduledEvent?', 'before'],
-    ['GuildScheduledEvent', 'after']
+    ['GuildScheduledEvent', 'after'],
   ]),
   guildScheduledEventDelete(GuildScheduledEventDeleteEvent, [
     ['Guild', 'guild'],
-    ['GuildScheduledEvent', 'event']
+    ['GuildScheduledEvent', 'event'],
   ]),
   guildScheduledEventUserAdd(GuildScheduledEventUserAddEvent, [
     ['Guild', 'guild'],
     ['Snowflake', 'eventId'],
-    ['User', 'user']
+    ['User', 'user'],
   ]),
   guildScheduledEventUserRemove(GuildScheduledEventUserRemoveEvent, [
     ['Guild', 'guild'],
     ['Snowflake', 'eventId'],
-    ['User', 'user']
+    ['User', 'user'],
   ]),
   guildStageInstanceCreate(GuildStageInstanceCreateEvent, [
     ['Guild', 'guild'],
-    ['StageInstance', 'instance']
+    ['StageInstance', 'instance'],
   ]),
   guildStageInstanceUpdate(GuildStageInstanceUpdateEvent, [
     ['Guild', 'guild'],
-    ['StageInstance', 'instance']
+    ['StageInstance', 'instance'],
   ]),
   guildStageInstanceDelete(GuildStageInstanceDeleteEvent, [
     ['Guild', 'guild'],
-    ['StageInstance', 'instance']
+    ['StageInstance', 'instance'],
   ]),
   entitlementCreate(EntitlementCreateEvent, [
-    ['Entitlement', 'entitlement']
+    ['Entitlement', 'entitlement'],
   ]),
   entitlementUpdate(EntitlementUpdateEvent, [
-    ['Entitlement', 'entitlement']
+    ['Entitlement', 'entitlement'],
   ]),
   entitlementDelete(EntitlementDeleteEvent, [
-    ['Entitlement', 'entitlement']
+    ['Entitlement', 'entitlement'],
   ]),
   subscriptionCreate(SubscriptionCreateEvent, [
-    ['Subscription', 'subscription']
+    ['Subscription', 'subscription'],
   ]),
   subscriptionUpdate(SubscriptionUpdateEvent, [
-    ['Subscription', 'subscription']
+    ['Subscription', 'subscription'],
   ]),
   subscriptionDelete(SubscriptionDeleteEvent, [
-    ['Subscription', 'subscription']
+    ['Subscription', 'subscription'],
   ]),
 
   guildSoundboardSoundCreate(GuildSoundboardSoundCreateEvent, [
     ['Guild', 'guild'],
-    ['SoundboardSound', 'sound']
+    ['SoundboardSound', 'sound'],
   ]),
   guildSoundboardSoundUpdate(GuildSoundboardSoundUpdateEvent, [
     ['Guild', 'guild'],
-    ['SoundboardSound', 'sound']
+    ['SoundboardSound', 'sound'],
   ]),
   guildSoundboardSoundDelete(GuildSoundboardSoundDeleteEvent, [
     ['Guild', 'guild'],
-    ['Snowflake', 'soundId']
+    ['Snowflake', 'soundId'],
   ]),
   guildSoundboardSoundsUpdate(GuildSoundboardSoundsUpdateEvent, [
     ['Guild', 'guild'],
-    ['List<SoundboardSound>', 'sounds']
+    ['List<SoundboardSound>', 'sounds'],
   ]),
   guildSoundboardSounds(GuildSoundboardSoundsEvent, [
     ['Guild', 'guild'],
-    ['List<SoundboardSound>', 'sounds']
+    ['List<SoundboardSound>', 'sounds'],
   ]);
 
   @override

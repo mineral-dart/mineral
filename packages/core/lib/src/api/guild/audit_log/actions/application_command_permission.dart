@@ -12,6 +12,10 @@ final class ApplicationCommandPermissionUpdateAuditLog extends AuditLog {
     required EntityContext ctx,
     required this.applicationId,
     required this.changes,
-  }) : super(AuditLogType.applicationCommandPermissionUpdate, guildId, userId,
-            ctx: ctx);
+  }) : super(
+         AuditLogType.applicationCommandPermissionUpdate,
+         guildId,
+         userId,
+         ctx: ctx,
+       );
 }

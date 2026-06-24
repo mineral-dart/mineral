@@ -34,7 +34,9 @@ final class MessageSnapshot {
 
     final embedSerializer = EmbedSerializer(marshaller);
     final embeds = List<MessageEmbed>.unmodifiable(
-      rawEmbeds.map((e) => embedSerializer.serialize(e as Map<String, dynamic>)),
+      rawEmbeds.map(
+        (e) => embedSerializer.serialize(e as Map<String, dynamic>),
+      ),
     );
 
     final rawTimestamp = message['timestamp'] as String?;

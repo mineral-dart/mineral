@@ -56,7 +56,7 @@ final class SerializerBucket {
   final SerializerContract<Invite> invite;
 
   final SerializerContract<ChannelPermissionOverwrite>
-      channelPermissionOverwrite;
+  channelPermissionOverwrite;
 
   final SerializerContract<Message> message;
 
@@ -77,22 +77,24 @@ final class SerializerBucket {
   final SerializerContract<GuildScheduledEvent> scheduledEvent;
 
   SerializerBucket(MarshallerContract marshaller, EntityContext ctx)
-      : channels = ChannelSerializer(marshaller, ctx),
-        guild = GuildSerializer(marshaller, ctx),
-        member = MemberSerializer(marshaller, ctx),
-        user = UserSerializer(marshaller, ctx),
-        role = RoleSerializer(marshaller, ctx),
-        emojis = EmojiSerializer(marshaller, ctx),
-        sticker = StickerSerializer(marshaller),
-        channelPermissionOverwrite = ChannelPermissionOverwriteSerializer(marshaller),
-        message = MessageSerializer(marshaller, ctx),
-        embed = EmbedSerializer(marshaller),
-        poll = PollSerializer(marshaller),
-        voice = VoiceStateSerializer(marshaller, ctx),
-        reaction = MessageReactionSerializer(marshaller, ctx),
-        pollAnswerVote = PollAnswerVoteSerializer(marshaller, ctx),
-        rules = RuleSerializer(marshaller),
-        invite = InviteSerializer(marshaller, ctx),
-        webhook = WebhookSerializer(marshaller, ctx),
-        scheduledEvent = GuildScheduledEventSerializer(marshaller, ctx);
+    : channels = ChannelSerializer(marshaller, ctx),
+      guild = GuildSerializer(marshaller, ctx),
+      member = MemberSerializer(marshaller, ctx),
+      user = UserSerializer(marshaller, ctx),
+      role = RoleSerializer(marshaller, ctx),
+      emojis = EmojiSerializer(marshaller, ctx),
+      sticker = StickerSerializer(marshaller),
+      channelPermissionOverwrite = ChannelPermissionOverwriteSerializer(
+        marshaller,
+      ),
+      message = MessageSerializer(marshaller, ctx),
+      embed = EmbedSerializer(marshaller),
+      poll = PollSerializer(marshaller),
+      voice = VoiceStateSerializer(marshaller, ctx),
+      reaction = MessageReactionSerializer(marshaller, ctx),
+      pollAnswerVote = PollAnswerVoteSerializer(marshaller, ctx),
+      rules = RuleSerializer(marshaller),
+      invite = InviteSerializer(marshaller, ctx),
+      webhook = WebhookSerializer(marshaller, ctx),
+      scheduledEvent = GuildScheduledEventSerializer(marshaller, ctx);
 }

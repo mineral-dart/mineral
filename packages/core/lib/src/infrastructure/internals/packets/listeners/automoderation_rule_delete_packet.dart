@@ -12,7 +12,7 @@ final class AutomoderationRuleDeletePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   AutomoderationRuleDeletePacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -20,10 +20,15 @@ final class AutomoderationRuleDeletePacket implements ListenablePacket {
     final rawRule = await _marshaller.serializers.rules.normalize(payload);
     final rule = await _marshaller.serializers.rules.serialize(rawRule);
 
-    final ruleCacheKey = _marshaller.cacheKey
-        .guildRules(payload['guild_id'] as Object, payload['id'] as Object);
+    final ruleCacheKey = _marshaller.cacheKey.guildRules(
+      payload['guild_id'] as Object,
+      payload['id'] as Object,
+    );
     await _marshaller.cache.invalidate(ruleCacheKey);
 
-    dispatch<GuildRuleDeleteArgs>(event: Event.guildRuleDelete, payload: (rule: rule));
+    dispatch<GuildRuleDeleteArgs>(
+      event: Event.guildRuleDelete,
+      payload: (rule: rule),
+    );
   }
 }

@@ -15,8 +15,8 @@ class PartialEmoji {
       PartialEmoji(emoji.id, emoji.name, emoji.animated);
 
   Map<String, dynamic> toJson() => {
-        'id': id?.value,
-        'name': name,
-        'animated': animated,
-      };
+    'id': id?.value,
+    'name': name,
+    'animated': animated,
+  };
 }

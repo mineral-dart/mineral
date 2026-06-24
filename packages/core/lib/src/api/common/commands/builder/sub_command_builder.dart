@@ -27,12 +27,16 @@ final class SubCommandBuilder {
     return this;
   }
 
-  SubCommandBuilder setDescription(String description,
-      {Translation? translation}) {
+  SubCommandBuilder setDescription(
+    String description, {
+    Translation? translation,
+  }) {
     _description = description;
     if (translation != null) {
-      _descriptionLocalizations =
-          _helper.extractTranslations('description', translation);
+      _descriptionLocalizations = _helper.extractTranslations(
+        'description',
+        translation,
+      );
     }
     return this;
   }

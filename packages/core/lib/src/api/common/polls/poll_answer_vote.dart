@@ -6,9 +6,10 @@ final class PollAnswerVote<T extends Message> {
   Guild? guild;
   T message;
 
-  PollAnswerVote(
-      {required this.id,
-      required this.voters,
-      required this.message,
-      this.guild});
+  PollAnswerVote({
+    required this.id,
+    required this.voters,
+    required this.message,
+    this.guild,
+  });
 }

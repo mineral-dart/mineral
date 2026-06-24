@@ -15,18 +15,24 @@ final class PacketDispatcher implements PacketDispatcherContract {
 
   StreamController<ShardMessage> _controllerFor(String packetName) {
     return _controllers.putIfAbsent(
-        packetName, StreamController<ShardMessage>.broadcast);
+      packetName,
+      StreamController<ShardMessage>.broadcast,
+    );
   }
 
   @override
-  void listen(PacketTypeContract packet,
-      Function(ShardMessage, DispatchEvent) listener) {
+  void listen(
+    PacketTypeContract packet,
+    Function(ShardMessage, DispatchEvent) listener,
+  ) {
     final controller = _controllerFor(packet.name);
 
     final subscription = controller.stream.listen((ShardMessage message) async {
       try {
-        await Function.apply(
-            listener, [message, _kernel.eventListener.dispatcher.dispatch]);
+        await Function.apply(listener, [
+          message,
+          _kernel.eventListener.dispatcher.dispatch,
+        ]);
       } on Exception catch (e, stackTrace) {
         _kernel.logger.error(
           'PacketDispatcher: error in listener for ${message.type}: $e',

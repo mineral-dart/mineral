@@ -4,7 +4,9 @@ import 'package:mineral/src/api/guild/audit_log/audit_log.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 Future<AuditLog> messageDeleteAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return MessageDeleteAuditLog(
     guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
@@ -15,7 +17,9 @@ Future<AuditLog> messageDeleteAuditLogHandler(
 }
 
 Future<AuditLog> messageBulkDeleteAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return MessageBulkDeleteAuditLog(
     guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
@@ -26,7 +30,9 @@ Future<AuditLog> messageBulkDeleteAuditLogHandler(
 }
 
 Future<AuditLog> messagePinAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return MessagePinAuditLog(
     guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
@@ -37,11 +43,14 @@ Future<AuditLog> messagePinAuditLogHandler(
 }
 
 Future<AuditLog> messageUnpinAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return MessageUnpinAuditLog(
-      guildId: Snowflake.parse(json['guild_id']),
-      userId: Snowflake.parse(json['user_id']),
-      messageId: Snowflake.parse(json['target_id']),
-      channelId: Snowflake.nullable(json['options']?['channel_id']),
-      ctx: ctx);
+    guildId: Snowflake.parse(json['guild_id']),
+    userId: Snowflake.parse(json['user_id']),
+    messageId: Snowflake.parse(json['target_id']),
+    channelId: Snowflake.nullable(json['options']?['channel_id']),
+    ctx: ctx,
+  );
 }

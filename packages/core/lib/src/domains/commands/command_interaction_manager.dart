@@ -55,7 +55,8 @@ final class CommandInteractionManager
   late final MarshallerContract _marshaller;
 
   /// Registry: root command name → option name → handler.
-  final Map<String, Map<String, AutocompleteHandler>> _autocompleteHandlers = {};
+  final Map<String, Map<String, AutocompleteHandler>> _autocompleteHandlers =
+      {};
 
   CommandInteractionManager._();
 
@@ -87,7 +88,7 @@ final class CommandInteractionManager
       final CommandDefinitionBuilder definition => definition.command.name,
       final UserCommandBuilder b => b.name,
       final MessageCommandBuilder b => b.name,
-      final _ => throw InvalidCommandException('Unknown command type')
+      final _ => throw InvalidCommandException('Unknown command type'),
     };
 
     if (name == null) {
@@ -95,27 +96,36 @@ final class CommandInteractionManager
     }
 
     final handlers = switch (command) {
-      final CommandDeclarationBuilder command =>
-        command.reduceHandlers(command.name!),
+      final CommandDeclarationBuilder command => command.reduceHandlers(
+        command.name!,
+      ),
       final CommandDefinitionBuilder definition =>
         definition.command.reduceHandlers(definition.command.name!),
       final UserCommandBuilder b => [
-          if (b.handle != null)
-            CommandRegistration(
-                name: b.name!, handler: b.handle!, declaredOptions: const [])
-          else
-            throw InvalidCommandException(
-                'User command "${b.name}" has no handler')
-        ],
+        if (b.handle != null)
+          CommandRegistration(
+            name: b.name!,
+            handler: b.handle!,
+            declaredOptions: const [],
+          )
+        else
+          throw InvalidCommandException(
+            'User command "${b.name}" has no handler',
+          ),
+      ],
       final MessageCommandBuilder b => [
-          if (b.handle != null)
-            CommandRegistration(
-                name: b.name!, handler: b.handle!, declaredOptions: const [])
-          else
-            throw InvalidCommandException(
-                'Message command "${b.name}" has no handler')
-        ],
-      final _ => throw InvalidCommandException('Unknown command type')
+        if (b.handle != null)
+          CommandRegistration(
+            name: b.name!,
+            handler: b.handle!,
+            declaredOptions: const [],
+          )
+        else
+          throw InvalidCommandException(
+            'Message command "${b.name}" has no handler',
+          ),
+      ],
+      final _ => throw InvalidCommandException('Unknown command type'),
     };
 
     commands.add(command);
@@ -162,7 +172,9 @@ final class CommandInteractionManager
   }
 
   void _collectFromOption(
-      CommandOption option, Map<String, AutocompleteHandler> handlers) {
+    CommandOption option,
+    Map<String, AutocompleteHandler> handlers,
+  ) {
     if (option is Option &&
         option.autocomplete &&
         option.onAutocomplete != null) {
@@ -193,7 +205,9 @@ final class CommandInteractionManager
     // Find focused option recursively.
     final focused = _findFocused(rawOptions as Iterable<dynamic>);
     if (focused == null) {
-      _marshaller.logger.warn('No focused option found in autocomplete payload');
+      _marshaller.logger.warn(
+        'No focused option found in autocomplete payload',
+      );
       return;
     }
 
@@ -209,7 +223,8 @@ final class CommandInteractionManager
     final handler = commandHandlers?[optionName];
     if (handler == null) {
       _marshaller.logger.warn(
-          'No autocomplete handler for command "$rootName" option "$optionName"');
+        'No autocomplete handler for command "$rootName" option "$optionName"',
+      );
       return;
     }
 
@@ -251,8 +266,7 @@ final class CommandInteractionManager
   }
 
   /// Collects name→value for all non-focused options at any depth.
-  void _collectNonFocused(
-      Iterable<dynamic> options, Map<String, dynamic> out) {
+  void _collectNonFocused(Iterable<dynamic> options, Map<String, dynamic> out) {
     for (final raw in options) {
       if (raw is! Map<String, dynamic>) {
         continue;
@@ -272,32 +286,39 @@ final class CommandInteractionManager
 
   @override
   Future<void> registerGlobal(Bot bot) async {
-    final List<CommandBuilder> globalCommands =
-        _getContext(CommandContextType.global);
+    final List<CommandBuilder> globalCommands = _getContext(
+      CommandContextType.global,
+    );
     final payload = _serializeCommand(globalCommands);
 
     final req = Request.json(
-        endpoint: '/applications/${bot.id}/commands', body: payload);
+      endpoint: '/applications/${bot.id}/commands',
+      body: payload,
+    );
     await _dataStore.client.put(req);
   }
 
   @override
   Future<void> registerServer(Bot bot, Guild guild) async {
-    final List<CommandBuilder> guildCommands =
-        _getContext(CommandContextType.guild);
+    final List<CommandBuilder> guildCommands = _getContext(
+      CommandContextType.guild,
+    );
     final payload = _serializeCommand(guildCommands);
 
     final req = Request.json(
-        endpoint: '/applications/${bot.id}/guilds/${guild.id}/commands',
-        body: payload);
+      endpoint: '/applications/${bot.id}/guilds/${guild.id}/commands',
+      body: payload,
+    );
 
     final response = await _dataStore.client.put(req);
     if (response.statusCode == 400) {
-      final error = Map<String, dynamic>.from(response.body['errors'] as Map<dynamic, dynamic>)
-          .values
-          .firstOrNull?['name'];
+      final error = Map<String, dynamic>.from(
+        response.body['errors'] as Map<dynamic, dynamic>,
+      ).values.firstOrNull?['name'];
 
-      final errors = List.from(error?['_errors'] as Iterable<dynamic>? ?? []).firstOrNull;
+      final errors = List.from(
+        error?['_errors'] as Iterable<dynamic>? ?? [],
+      ).firstOrNull;
 
       throw InvalidCommandException('${errors['code']}: ${errors['message']}');
     }
@@ -310,7 +331,7 @@ final class CommandInteractionManager
         final CommandDefinitionBuilder definition => definition.command.context,
         final UserCommandBuilder b => b.context,
         final MessageCommandBuilder b => b.context,
-        final _ => throw InvalidCommandException('Unknown command type')
+        final _ => throw InvalidCommandException('Unknown command type'),
       };
 
       return context == contextType;
@@ -325,7 +346,7 @@ final class CommandInteractionManager
           definition.command.toJson(),
         final UserCommandBuilder b => b.toJson(),
         final MessageCommandBuilder b => b.toJson(),
-        final _ => throw InvalidCommandException('Unknown command type')
+        final _ => throw InvalidCommandException('Unknown command type'),
       };
     }).toList();
   }

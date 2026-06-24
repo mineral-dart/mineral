@@ -14,14 +14,16 @@ void main() {
     late DataStore dataStore;
 
     setUp(() {
-      final config =
-          HttpClientConfigImpl(uri: Uri.parse('https://discord.com/api/v10'));
+      final config = HttpClientConfigImpl(
+        uri: Uri.parse('https://discord.com/api/v10'),
+      );
       final client = HttpClient(config: config);
       dataStore = DataStore(
-          client: client,
-          marshaller: FakeMarshaller(),
-          logger: FakeLogger(),
-          httpLogger: FakeLogger());
+        client: client,
+        marshaller: FakeMarshaller(),
+        logger: FakeLogger(),
+        httpLogger: FakeLogger(),
+      );
     });
 
     test('stores the HttpClient', () {

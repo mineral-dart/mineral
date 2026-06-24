@@ -4,5 +4,5 @@ final class FatalGatewayException extends FatalMineralException {
   final int code;
 
   FatalGatewayException(String message, this.code)
-      : super('Gateway error $code: $message');
+    : super('Gateway error $code: $message');
 }

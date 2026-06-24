@@ -65,7 +65,8 @@ class HttpClient implements HttpClientContract {
     request.url = Uri(
       host: config.uri.host,
       scheme: config.uri.scheme,
-      path: '${config.uri.path.endsWith('/') ? config.uri.path.substring(0, config.uri.path.length - 1) : config.uri.path}${request.url.path}',
+      path:
+          '${config.uri.path.endsWith('/') ? config.uri.path.substring(0, config.uri.path.length - 1) : config.uri.path}${request.url.path}',
       queryParameters: request.queryParameters,
     );
 
@@ -74,9 +75,10 @@ class HttpClient implements HttpClientContract {
     }
 
     final req = switch (request.type) {
-      RequestType.json => http.Request(request.method!, request.url)
-        ..headers.addAll(_serializeHeaders(request.headers))
-        ..body = request.body != null ? jsonEncode(request.body) : '',
+      RequestType.json =>
+        http.Request(request.method!, request.url)
+          ..headers.addAll(_serializeHeaders(request.headers))
+          ..body = request.body != null ? jsonEncode(request.body) : '',
       RequestType.formData =>
         http.MultipartRequest(request.method!, request.url)
           ..headers.addAll(_serializeHeaders(request.headers))
@@ -84,8 +86,9 @@ class HttpClient implements HttpClientContract {
           ..files.addAll(request.files),
     };
 
-    final http.StreamedResponse streamedResponse =
-        await _client.send(req).timeout(config.requestTimeout);
+    final http.StreamedResponse streamedResponse = await _client
+        .send(req)
+        .timeout(config.requestTimeout);
     final http.Response res = await http.Response.fromStream(streamedResponse);
 
     Response response = ResponseImpl.fromHttpResponse<T>(res);
@@ -99,8 +102,11 @@ class HttpClient implements HttpClientContract {
 
   Map<String, String> _serializeHeaders(Set<Header> headers) {
     return headers.fold(
-        {},
-        (previousValue, element) =>
-            {...previousValue, element.key: element.value});
+      {},
+      (previousValue, element) => {
+        ...previousValue,
+        element.key: element.value,
+      },
+    );
   }
 }

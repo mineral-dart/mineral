@@ -15,38 +15,38 @@ Map<String, dynamic> _onboardingPayload({
   int mode = 0,
   List<Map<String, dynamic>>? prompts,
   List<String>? defaultChannelIds,
-}) =>
-    {
-      'guild_id': _guildId,
-      'prompts': prompts ??
-          [
+}) => {
+  'guild_id': _guildId,
+  'prompts':
+      prompts ??
+      [
+        {
+          'id': '111222333444555666',
+          'type': 0,
+          'options': [
             {
-              'id': '111222333444555666',
-              'type': 0,
-              'options': [
-                {
-                  'id': '999888777666555444',
-                  'channel_ids': ['111111111111111111'],
-                  'role_ids': ['222222222222222222'],
-                  'emoji': {
-                    'id': '333333333333333333',
-                    'name': 'wave',
-                    'animated': false,
-                  },
-                  'title': 'Option A',
-                  'description': 'First option',
-                },
-              ],
-              'title': 'What are you here for?',
-              'single_select': false,
-              'required': true,
-              'in_onboarding': true,
+              'id': '999888777666555444',
+              'channel_ids': ['111111111111111111'],
+              'role_ids': ['222222222222222222'],
+              'emoji': {
+                'id': '333333333333333333',
+                'name': 'wave',
+                'animated': false,
+              },
+              'title': 'Option A',
+              'description': 'First option',
             },
           ],
-      'default_channel_ids': defaultChannelIds ?? ['444444444444444444'],
-      'enabled': enabled,
-      'mode': mode,
-    };
+          'title': 'What are you here for?',
+          'single_select': false,
+          'required': true,
+          'in_onboarding': true,
+        },
+      ],
+  'default_channel_ids': defaultChannelIds ?? ['444444444444444444'],
+  'enabled': enabled,
+  'mode': mode,
+};
 
 (OnboardingPart, void Function() restore) _buildPart(FakeHttpClient client) {
   final ds = FakeDataStore(client);
@@ -81,8 +81,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/onboarding'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/onboarding'),
+        );
       });
 
       test('parses guild_id correctly', () async {
@@ -100,7 +102,9 @@ void main() {
       test('parses enabled correctly', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _onboardingPayload(enabled: false)),
+            200,
+            _onboardingPayload(enabled: false),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -112,8 +116,7 @@ void main() {
 
       test('parses mode correctly as ONBOARDING_DEFAULT', () async {
         final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(
-              200, _onboardingPayload(mode: 0)),
+          FakeResponse<Map<String, dynamic>>(200, _onboardingPayload(mode: 0)),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -125,8 +128,7 @@ void main() {
 
       test('parses mode correctly as ONBOARDING_ADVANCED', () async {
         final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(
-              200, _onboardingPayload(mode: 1)),
+          FakeResponse<Map<String, dynamic>>(200, _onboardingPayload(mode: 1)),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -167,12 +169,12 @@ void main() {
 
         final option = onboarding.prompts.first.options.first;
         expect(option.id, equals(Snowflake.parse('999888777666555444')));
-        expect(option.channelIds,
-            equals([Snowflake.parse('111111111111111111')]));
-        expect(option.roleIds,
-            equals([Snowflake.parse('222222222222222222')]));
-        expect(option.emojiId,
-            equals(Snowflake.parse('333333333333333333')));
+        expect(
+          option.channelIds,
+          equals([Snowflake.parse('111111111111111111')]),
+        );
+        expect(option.roleIds, equals([Snowflake.parse('222222222222222222')]));
+        expect(option.emojiId, equals(Snowflake.parse('333333333333333333')));
         expect(option.emojiName, equals('wave'));
         expect(option.emojiAnimated, isFalse);
         expect(option.title, equals('Option A'));
@@ -188,14 +190,18 @@ void main() {
         final onboarding = await p.fetch(_guildId);
         restore();
 
-        expect(onboarding.defaultChannelIds,
-            equals([Snowflake.parse('444444444444444444')]));
+        expect(
+          onboarding.defaultChannelIds,
+          equals([Snowflake.parse('444444444444444444')]),
+        );
       });
 
       test('handles empty prompts list', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _onboardingPayload(prompts: [])),
+            200,
+            _onboardingPayload(prompts: []),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -208,7 +214,9 @@ void main() {
       test('handles empty defaultChannelIds', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _onboardingPayload(defaultChannelIds: [])),
+            200,
+            _onboardingPayload(defaultChannelIds: []),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -221,8 +229,9 @@ void main() {
       test('parses DROPDOWN prompt type correctly', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200,
-              _onboardingPayload(prompts: [
+            200,
+            _onboardingPayload(
+              prompts: [
                 {
                   'id': '111222333444555666',
                   'type': 1,
@@ -231,8 +240,10 @@ void main() {
                   'single_select': true,
                   'required': false,
                   'in_onboarding': false,
-                }
-              ])),
+                },
+              ],
+            ),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -240,14 +251,17 @@ void main() {
         restore();
 
         expect(
-            onboarding.prompts.first.type, equals(OnboardingPromptType.dropdown));
+          onboarding.prompts.first.type,
+          equals(OnboardingPromptType.dropdown),
+        );
       });
 
       test('parses prompt option with no emoji', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200,
-              _onboardingPayload(prompts: [
+            200,
+            _onboardingPayload(
+              prompts: [
                 {
                   'id': '111222333444555666',
                   'type': 0,
@@ -258,14 +272,16 @@ void main() {
                       'role_ids': [],
                       'title': 'No emoji option',
                       'description': null,
-                    }
+                    },
                   ],
                   'title': 'Prompt',
                   'single_select': false,
                   'required': false,
                   'in_onboarding': true,
-                }
-              ])),
+                },
+              ],
+            ),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -294,14 +310,18 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('PUT'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/onboarding'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/onboarding'),
+        );
       });
 
       test('returns parsed Onboarding from PUT response', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _onboardingPayload(enabled: true, mode: 1)),
+            200,
+            _onboardingPayload(enabled: true, mode: 1),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -323,8 +343,10 @@ void main() {
         restore();
 
         expect(client.calls.single.method, equals('PUT'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/onboarding'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/onboarding'),
+        );
       });
 
       test('only-present fields are sent (enabled only)', () async {
@@ -342,13 +364,14 @@ void main() {
 
       test('sends mode when provided', () async {
         final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(
-              200, _onboardingPayload(mode: 1)),
+          FakeResponse<Map<String, dynamic>>(200, _onboardingPayload(mode: 1)),
         ]);
         final (p, restore) = _buildPart(client);
 
-        final onboarding =
-            await p.update(_guildId, mode: OnboardingMode.advanced);
+        final onboarding = await p.update(
+          _guildId,
+          mode: OnboardingMode.advanced,
+        );
         restore();
 
         expect(onboarding.mode, equals(OnboardingMode.advanced));
@@ -358,9 +381,9 @@ void main() {
       test('sends defaultChannelIds when provided', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200,
-              _onboardingPayload(
-                  defaultChannelIds: ['555555555555555555'])),
+            200,
+            _onboardingPayload(defaultChannelIds: ['555555555555555555']),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -370,8 +393,10 @@ void main() {
         );
         restore();
 
-        expect(onboarding.defaultChannelIds,
-            equals([Snowflake.parse('555555555555555555')]));
+        expect(
+          onboarding.defaultChannelIds,
+          equals([Snowflake.parse('555555555555555555')]),
+        );
       });
 
       test('sends prompts when provided', () async {
@@ -380,10 +405,7 @@ void main() {
         ]);
         final (p, restore) = _buildPart(client);
 
-        final onboarding = await p.update(
-          _guildId,
-          prompts: [],
-        );
+        final onboarding = await p.update(_guildId, prompts: []);
         restore();
 
         expect(onboarding, isA<Onboarding>());

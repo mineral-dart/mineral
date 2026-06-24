@@ -22,44 +22,44 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'id': '444555666',
-          'username': 'testuser',
-          'discriminator': '1234',
-          'flags': 64,
-          'public_flags': 64,
-          'avatar': 'abc123hash',
-          'is_bot': false,
-          'system': false,
-          'mfa_enabled': true,
-          'locale': 'en-US',
-          'verified': true,
-          'email': 'test@example.com',
-          'premium_type': null,
-          'assets': {
-            'user_id': '444555666',
-            'avatar': 'abc123hash',
-            'avatar_decoration': null,
-            'banner': null,
-          },
-        };
+      'id': '444555666',
+      'username': 'testuser',
+      'discriminator': '1234',
+      'flags': 64,
+      'public_flags': 64,
+      'avatar': 'abc123hash',
+      'is_bot': false,
+      'system': false,
+      'mfa_enabled': true,
+      'locale': 'en-US',
+      'verified': true,
+      'email': 'test@example.com',
+      'premium_type': null,
+      'assets': {
+        'user_id': '444555666',
+        'avatar': 'abc123hash',
+        'avatar_decoration': null,
+        'banner': null,
+      },
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'id': '444555666',
-          'username': 'testuser',
-          'discriminator': '1234',
-          'flags': 64,
-          'public_flags': 64,
-          'avatar': 'abc123hash',
-          'bot': false,
-          'system': false,
-          'mfa_enabled': true,
-          'locale': 'en-US',
-          'verified': true,
-          'email': 'test@example.com',
-          'premium_type': null,
-          'avatar_decoration_data': null,
-          'banner': null,
-        };
+      'id': '444555666',
+      'username': 'testuser',
+      'discriminator': '1234',
+      'flags': 64,
+      'public_flags': 64,
+      'avatar': 'abc123hash',
+      'bot': false,
+      'system': false,
+      'mfa_enabled': true,
+      'locale': 'en-US',
+      'verified': true,
+      'email': 'test@example.com',
+      'premium_type': null,
+      'avatar_decoration_data': null,
+      'banner': null,
+    };
 
     group('serialize()', () {
       test('maps all scalar fields correctly', () async {
@@ -92,12 +92,14 @@ void main() {
         expect(user.assets.avatar, isNotNull);
       });
 
-      test('builds UserAssets with null avatarDecoration when absent',
-          () async {
-        final user = await serializer.serialize(normalizedPayload());
+      test(
+        'builds UserAssets with null avatarDecoration when absent',
+        () async {
+          final user = await serializer.serialize(normalizedPayload());
 
-        expect(user.assets.avatarDecoration, isNull);
-      });
+          expect(user.assets.avatarDecoration, isNull);
+        },
+      );
 
       test('builds UserAssets with null banner when absent', () async {
         final user = await serializer.serialize(normalizedPayload());

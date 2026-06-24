@@ -11,8 +11,7 @@ final class FakeWebsocketOrchestrator extends WebsocketOrchestratorContract {
   final FakeShardingConfig _config;
 
   FakeWebsocketOrchestrator({int maxReconnectAttempts = 3})
-      : _config =
-            FakeShardingConfig(maxReconnectAttempts: maxReconnectAttempts);
+    : _config = FakeShardingConfig(maxReconnectAttempts: maxReconnectAttempts);
 
   @override
   final List<RequestQueueEntry> requestQueue = [];
@@ -43,7 +42,10 @@ final class FakeWebsocketOrchestrator extends WebsocketOrchestratorContract {
   void send(WebsocketIsolateMessageTransfert message) {}
   @override
   void setBotPresence(
-      List<BotActivity>? activity, StatusType? status, bool? afk) {}
+    List<BotActivity>? activity,
+    StatusType? status,
+    bool? afk,
+  ) {}
   @override
   Future<Map<String, dynamic>> getWebsocketEndpoint() async => {};
   @override

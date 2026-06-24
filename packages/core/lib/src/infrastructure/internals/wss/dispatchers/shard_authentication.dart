@@ -78,7 +78,8 @@ final class ShardAuthentication implements ShardAuthenticationContract {
   void _onHeartbeatError(Object error, StackTrace stack) {
     if (error is FatalGatewayException) {
       shard.logger.error(
-          'Fatal gateway error during heartbeat: ${error.message} (${error.code}). Cannot reconnect.');
+        'Fatal gateway error during heartbeat: ${error.message} (${error.code}). Cannot reconnect.',
+      );
       cancelHeartbeat();
       unawaited(shard.client.disconnect());
       unawaited(shard.wss.onFatalDisconnect?.call() ?? Future<void>.value());
@@ -90,17 +91,15 @@ final class ShardAuthentication implements ShardAuthenticationContract {
 
   void createHeartbeatTimer(int interval) {
     _heartbeatTimer?.cancel();
-    final jitterDelay =
-        Duration(milliseconds: (_random.nextDouble() * interval).toInt());
+    final jitterDelay = Duration(
+      milliseconds: (_random.nextDouble() * interval).toInt(),
+    );
     _heartbeatTimer = Timer(jitterDelay, () {
-      unawaited(
-        Future.sync(heartbeat).catchError(_onHeartbeatError),
-      );
-      _heartbeatTimer =
-          Timer.periodic(Duration(milliseconds: interval), (timer) {
-        unawaited(
-          Future.sync(heartbeat).catchError(_onHeartbeatError),
-        );
+      unawaited(Future.sync(heartbeat).catchError(_onHeartbeatError));
+      _heartbeatTimer = Timer.periodic(Duration(milliseconds: interval), (
+        timer,
+      ) {
+        unawaited(Future.sync(heartbeat).catchError(_onHeartbeatError));
       });
     });
   }
@@ -135,8 +134,10 @@ final class ShardAuthentication implements ShardAuthenticationContract {
 
   Duration _backoffDelay() {
     final maxDelay = shard.wss.config.maxReconnectDelay;
-    final baseSeconds =
-        min(pow(2, _reconnectAttempts).toInt(), maxDelay.inSeconds);
+    final baseSeconds = min(
+      pow(2, _reconnectAttempts).toInt(),
+      maxDelay.inSeconds,
+    );
     final jitter = Duration(milliseconds: _random.nextInt(1000));
     return Duration(seconds: baseSeconds) + jitter;
   }
@@ -161,7 +162,8 @@ final class ShardAuthentication implements ShardAuthenticationContract {
 
     if (_reconnectAttempts > maxAttempts) {
       logger.error(
-          'Max reconnect attempts ($maxAttempts) reached for ${shard.shardName}');
+        'Max reconnect attempts ($maxAttempts) reached for ${shard.shardName}',
+      );
       throw FatalGatewayException(
         'Max reconnect attempts ($maxAttempts) reached',
         -1,
@@ -170,7 +172,8 @@ final class ShardAuthentication implements ShardAuthenticationContract {
 
     final delay = _backoffDelay();
     logger.warn(
-        '$action ${shard.shardName} in ${delay.inSeconds}s (attempt $_reconnectAttempts/$maxAttempts)');
+      '$action ${shard.shardName} in ${delay.inSeconds}s (attempt $_reconnectAttempts/$maxAttempts)',
+    );
     await Future<void>.delayed(delay);
 
     await shard.init(url: url);

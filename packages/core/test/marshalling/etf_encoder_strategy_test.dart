@@ -50,10 +50,11 @@ void main() {
           channelName: 'shard-0',
           originalContent: packed,
           content: ShardMessage(
-              type: null,
-              opCode: OpCode.unknown,
-              sequence: null,
-              payload: null),
+            type: null,
+            opCode: OpCode.unknown,
+            sequence: null,
+            payload: null,
+          ),
         );
 
         final result = strategy.decode(wsMessage);
@@ -65,20 +66,26 @@ void main() {
         expect(content.payload['content'], 'hello');
       });
 
-      test('throws SerializationException when original content is not bytes', () {
-        final wsMessage = WebsocketMessageImpl<ShardMessage>(
-          channelName: 'shard-0',
-          originalContent: 'a plain string is not etf bytes',
-          content: ShardMessage(
+      test(
+        'throws SerializationException when original content is not bytes',
+        () {
+          final wsMessage = WebsocketMessageImpl<ShardMessage>(
+            channelName: 'shard-0',
+            originalContent: 'a plain string is not etf bytes',
+            content: ShardMessage(
               type: null,
               opCode: OpCode.unknown,
               sequence: null,
-              payload: null),
-        );
+              payload: null,
+            ),
+          );
 
-        expect(() => strategy.decode(wsMessage),
-            throwsA(isA<SerializationException>()));
-      });
+          expect(
+            () => strategy.decode(wsMessage),
+            throwsA(isA<SerializationException>()),
+          );
+        },
+      );
 
       test('decodes HELLO ETF message', () {
         final data = {
@@ -94,10 +101,11 @@ void main() {
           channelName: 'shard-0',
           originalContent: packed,
           content: ShardMessage(
-              type: null,
-              opCode: OpCode.unknown,
-              sequence: null,
-              payload: null),
+            type: null,
+            opCode: OpCode.unknown,
+            sequence: null,
+            payload: null,
+          ),
         );
 
         final result = strategy.decode(wsMessage);
@@ -123,7 +131,9 @@ void main() {
         expect(result.content, isNotNull);
 
         // Verify we can unpack it back
-        final unpacked = eterl.unpack<Map<String, dynamic>>(result.content as List<int>);
+        final unpacked = eterl.unpack<Map<String, dynamic>>(
+          result.content as List<int>,
+        );
         expect(unpacked['op'], 1);
         expect(unpacked['d'], isNull);
       });
@@ -133,7 +143,7 @@ void main() {
           'op': 0,
           't': 'TEST',
           's': 5,
-          'd': {'key': 'value'}
+          'd': {'key': 'value'},
         };
         final jsonString = jsonEncode(original);
 
@@ -149,10 +159,11 @@ void main() {
           channelName: 'shard-0',
           originalContent: encoded.content,
           content: ShardMessage(
-              type: null,
-              opCode: OpCode.unknown,
-              sequence: null,
-              payload: null),
+            type: null,
+            opCode: OpCode.unknown,
+            sequence: null,
+            payload: null,
+          ),
         );
         final decoded = strategy.decode(wsMessage);
         final content = decoded.content as ShardMessage;

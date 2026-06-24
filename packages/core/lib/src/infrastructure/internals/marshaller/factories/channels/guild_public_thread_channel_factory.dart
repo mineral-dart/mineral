@@ -13,7 +13,9 @@ final class GuildPublicThreadChannelFactory
 
   @override
   Future<Map<String, dynamic>> normalize(
-      MarshallerContract marshaller, Map<String, dynamic> json) async {
+    MarshallerContract marshaller,
+    Map<String, dynamic> json,
+  ) async {
     final payload = {
       'id': json['id'],
       'type': json['type'],
@@ -30,8 +32,8 @@ final class GuildPublicThreadChannelFactory
       'thread_metadata': {
         'archived': json['thread_metadata']['archived'],
         'archive_timestamp': json['thread_metadata']['archive_timestamp'],
-        'auto_archive_duration': json['thread_metadata']
-            ['auto_archive_duration'],
+        'auto_archive_duration':
+            json['thread_metadata']['auto_archive_duration'],
         'locked': json['thread_metadata']['locked'],
       },
       'message_count': json['message_count'],
@@ -46,10 +48,16 @@ final class GuildPublicThreadChannelFactory
   }
 
   @override
-  Future<PublicThreadChannel> serialize(MarshallerContract marshaller,
-      EntityContext ctx, Map<String, dynamic> json) async {
-    final properties =
-        await ChannelProperties.serializeCache(marshaller, ctx, json);
+  Future<PublicThreadChannel> serialize(
+    MarshallerContract marshaller,
+    EntityContext ctx,
+    Map<String, dynamic> json,
+  ) async {
+    final properties = await ChannelProperties.serializeCache(
+      marshaller,
+      ctx,
+      json,
+    );
     final metadata = ThreadMetadata.fromMap(json);
 
     return PublicThreadChannel(properties, metadata);
@@ -57,7 +65,9 @@ final class GuildPublicThreadChannelFactory
 
   @override
   Future<Map<String, dynamic>> deserialize(
-      MarshallerContract marshaller, PublicThreadChannel channel) async {
+    MarshallerContract marshaller,
+    PublicThreadChannel channel,
+  ) async {
     return {
       'id': channel.id.value,
       'type': channel.type.value,
@@ -73,8 +83,8 @@ final class GuildPublicThreadChannelFactory
       'owner_id': channel.ownerId.value,
       'thread_metadata': {
         'archived': channel.metadata.archived,
-        'archive_timestamp':
-            channel.metadata.archiveTimestamp?.toIso8601String(),
+        'archive_timestamp': channel.metadata.archiveTimestamp
+            ?.toIso8601String(),
         'auto_archive_duration': channel.metadata.autoArchiveDuration,
         'locked': channel.metadata.locked,
       },

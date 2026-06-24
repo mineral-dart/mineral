@@ -17,15 +17,14 @@ Map<String, dynamic> _skuPayload({
   String name = 'Premium Plan',
   String slug = 'premium-plan',
   int flags = 4,
-}) =>
-    {
-      'id': id,
-      'type': type,
-      'application_id': applicationId,
-      'name': name,
-      'slug': slug,
-      'flags': flags,
-    };
+}) => {
+  'id': id,
+  'type': type,
+  'application_id': applicationId,
+  'name': name,
+  'slug': slug,
+  'flags': flags,
+};
 
 Map<String, dynamic> _entitlementPayload({
   String id = '222333444555666777',
@@ -35,16 +34,15 @@ Map<String, dynamic> _entitlementPayload({
   bool deleted = false,
   String? userId,
   String? guildId,
-}) =>
-    {
-      'id': id,
-      'sku_id': skuId,
-      'application_id': applicationId,
-      'type': type,
-      'deleted': deleted,
-      if (userId != null) 'user_id': userId,
-      if (guildId != null) 'guild_id': guildId,
-    };
+}) => {
+  'id': id,
+  'sku_id': skuId,
+  'application_id': applicationId,
+  'type': type,
+  'deleted': deleted,
+  if (userId != null) 'user_id': userId,
+  if (guildId != null) 'guild_id': guildId,
+};
 
 Map<String, dynamic> _subscriptionPayload({
   String id = '333444555666777888',
@@ -52,16 +50,15 @@ Map<String, dynamic> _subscriptionPayload({
   String skuId = '111222333444555666',
   String entitlementId = '222333444555666777',
   int status = 0,
-}) =>
-    {
-      'id': id,
-      'user_id': userId,
-      'sku_ids': [skuId],
-      'entitlement_ids': [entitlementId],
-      'current_period_start': '2024-01-01T00:00:00.000Z',
-      'current_period_end': '2024-02-01T00:00:00.000Z',
-      'status': status,
-    };
+}) => {
+  'id': id,
+  'user_id': userId,
+  'sku_ids': [skuId],
+  'entitlement_ids': [entitlementId],
+  'current_period_start': '2024-01-01T00:00:00.000Z',
+  'current_period_end': '2024-02-01T00:00:00.000Z',
+  'status': status,
+};
 
 // ── Test constants ────────────────────────────────────────────────────────────
 
@@ -96,8 +93,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/applications/$_applicationId/skus'));
+        expect(
+          client.calls.single.path,
+          equals('/applications/$_applicationId/skus'),
+        );
       });
 
       test('returns a list of Sku entities', () async {
@@ -146,8 +145,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/applications/$_applicationId/entitlements'));
+        expect(
+          client.calls.single.path,
+          equals('/applications/$_applicationId/entitlements'),
+        );
       });
 
       test('returns a list of Entitlement entities', () async {
@@ -188,10 +189,8 @@ void main() {
         expect(client.requests, hasLength(1));
         final queryParams = client.requests.single.queryParameters;
         expect(queryParams['user_id'], equals('444555666777888999'));
-        expect(queryParams['sku_ids'],
-            equals('111222333444555666'));
-        expect(queryParams['guild_id'],
-            equals('555666777888999000'));
+        expect(queryParams['sku_ids'], equals('111222333444555666'));
+        expect(queryParams['guild_id'], equals('555666777888999000'));
         expect(queryParams['exclude_ended'], equals('true'));
         expect(queryParams['limit'], equals('10'));
         expect(queryParams['before'], equals('before-id'));
@@ -218,8 +217,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('POST'));
-        expect(client.calls.single.path,
-            equals('/applications/$_applicationId/entitlements'));
+        expect(
+          client.calls.single.path,
+          equals('/applications/$_applicationId/entitlements'),
+        );
       });
 
       test('sends correct body', () async {
@@ -244,8 +245,10 @@ void main() {
 
       test('returns parsed Entitlement', () async {
         final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(200,
-              _entitlementPayload(id: _entitlementId)),
+          FakeResponse<Map<String, dynamic>>(
+            200,
+            _entitlementPayload(id: _entitlementId),
+          ),
         ]);
         final (part, restore) = _buildPart(client);
 
@@ -265,8 +268,7 @@ void main() {
     // ── consumeEntitlement ────────────────────────────────────────────────
 
     group('consumeEntitlement()', () {
-      test('sends POST to /applications/:id/entitlements/:id/consume',
-          () async {
+      test('sends POST to /applications/:id/entitlements/:id/consume', () async {
         final client = FakeHttpClient([FakeResponse<void>(204, null)]);
         final (part, restore) = _buildPart(client);
 
@@ -278,7 +280,8 @@ void main() {
         expect(
           client.calls.single.path,
           equals(
-              '/applications/$_applicationId/entitlements/$_entitlementId/consume'),
+            '/applications/$_applicationId/entitlements/$_entitlementId/consume',
+          ),
         );
       });
     });
@@ -297,8 +300,7 @@ void main() {
         expect(client.calls.single.method, equals('DELETE'));
         expect(
           client.calls.single.path,
-          equals(
-              '/applications/$_applicationId/entitlements/$_entitlementId'),
+          equals('/applications/$_applicationId/entitlements/$_entitlementId'),
         );
       });
     });
@@ -317,8 +319,7 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/skus/$_skuId/subscriptions'));
+        expect(client.calls.single.path, equals('/skus/$_skuId/subscriptions'));
       });
 
       test('returns a list of Subscription entities', () async {
@@ -332,8 +333,7 @@ void main() {
 
         expect(result, hasLength(1));
         expect(result[0].status, equals(SubscriptionStatus.active));
-        expect(result[0].skuIds,
-            contains(Snowflake.parse(_skuId)));
+        expect(result[0].skuIds, contains(Snowflake.parse(_skuId)));
       });
 
       test('applies query filters when provided', () async {
@@ -381,8 +381,10 @@ void main() {
 
       test('returns a parsed Subscription', () async {
         final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(200,
-              _subscriptionPayload(id: _subscriptionId, status: 1)),
+          FakeResponse<Map<String, dynamic>>(
+            200,
+            _subscriptionPayload(id: _subscriptionId, status: 1),
+          ),
         ]);
         final (part, restore) = _buildPart(client);
 

@@ -18,10 +18,11 @@ final class MessageCommandContext extends CommandContext {
   });
 
   static Future<MessageCommandContext> fromMap(
-      MarshallerContract marshaller,
-      DataStoreContract datastore,
-      EntityContext ctx,
-      Map<String, dynamic> payload) async {
+    MarshallerContract marshaller,
+    DataStoreContract datastore,
+    EntityContext ctx,
+    Map<String, dynamic> payload,
+  ) async {
     final data = payload['data'] as Map<String, dynamic>;
     final targetId = data['target_id'] as String;
     final resolved = data['resolved'] as Map<String, dynamic>?;
@@ -32,8 +33,9 @@ final class MessageCommandContext extends CommandContext {
 
     if (messageJson == null) {
       throw StateError(
-          'Cannot build MessageCommandContext: target message $targetId not '
-          'present in interaction.data.resolved.messages');
+        'Cannot build MessageCommandContext: target message $targetId not '
+        'present in interaction.data.resolved.messages',
+      );
     }
 
     final guildId = payload['guild_id'] as String?;
@@ -46,8 +48,9 @@ final class MessageCommandContext extends CommandContext {
         'channel_id': payload['channel_id'],
     };
 
-    final raw =
-        await marshaller.serializers.message.normalize(enrichedMessageJson);
+    final raw = await marshaller.serializers.message.normalize(
+      enrichedMessageJson,
+    );
     final target = await marshaller.serializers.message.serialize(raw);
     Guild? guild;
     if (guildId != null) {

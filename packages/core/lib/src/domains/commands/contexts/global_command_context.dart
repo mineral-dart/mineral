@@ -18,15 +18,16 @@ final class GlobalCommandContext extends CommandContext {
   });
 
   static Future<GlobalCommandContext> fromMap(
-      MarshallerContract marshaller,
-      DataStoreContract datastore,
-      EntityContext ctx,
-      Map<String, dynamic> payload) async {
+    MarshallerContract marshaller,
+    DataStoreContract datastore,
+    EntityContext ctx,
+    Map<String, dynamic> payload,
+  ) async {
     final memberMap = payload['member'] as Map<String, dynamic>;
     final memberUser = memberMap['user'] as Map<String, dynamic>;
     final (user, channel) = await (
       datastore.user.get(memberUser['id'] as String, false),
-      datastore.channel.get(payload['channel_id'] as String, false)
+      datastore.channel.get(payload['channel_id'] as String, false),
     ).wait;
 
     if (user == null) {

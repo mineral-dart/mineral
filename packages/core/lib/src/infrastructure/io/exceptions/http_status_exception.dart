@@ -5,5 +5,5 @@ final class HttpStatusException extends RecoverableMineralException {
   final String body;
 
   HttpStatusException(this.statusCode, this.body)
-      : super('HTTP $statusCode: $body');
+    : super('HTTP $statusCode: $body');
 }

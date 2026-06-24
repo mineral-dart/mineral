@@ -24,10 +24,11 @@ final class UserCommandContext extends CommandContext {
   });
 
   static Future<UserCommandContext> fromMap(
-      MarshallerContract marshaller,
-      DataStoreContract datastore,
-      EntityContext ctx,
-      Map<String, dynamic> payload) async {
+    MarshallerContract marshaller,
+    DataStoreContract datastore,
+    EntityContext ctx,
+    Map<String, dynamic> payload,
+  ) async {
     final data = payload['data'] as Map<String, dynamic>;
     final targetId = data['target_id'] as String;
     final resolved = data['resolved'] as Map<String, dynamic>?;
@@ -38,8 +39,9 @@ final class UserCommandContext extends CommandContext {
 
     if (userJson == null) {
       throw StateError(
-          'Cannot build UserCommandContext: target user $targetId not '
-          'present in interaction.data.resolved.users');
+        'Cannot build UserCommandContext: target user $targetId not '
+        'present in interaction.data.resolved.users',
+      );
     }
 
     final raw = await marshaller.serializers.user.normalize(userJson);
@@ -64,8 +66,9 @@ final class UserCommandContext extends CommandContext {
       target: target,
       targetMember: targetMember,
       guild: guild,
-      channel:
-          channelId != null ? await datastore.channel.get(channelId, false) : null,
+      channel: channelId != null
+          ? await datastore.channel.get(channelId, false)
+          : null,
     );
   }
 }

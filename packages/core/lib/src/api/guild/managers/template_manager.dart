@@ -28,10 +28,7 @@ final class TemplateManager {
   /// ```dart
   /// final template = await guild.templates.create(name: 'My Template');
   /// ```
-  Future<GuildTemplate> create({
-    required String name,
-    String? description,
-  }) =>
+  Future<GuildTemplate> create({required String name, String? description}) =>
       _datastore.template.create(
         _guildId.value,
         name: name,
@@ -53,13 +50,12 @@ final class TemplateManager {
     String code, {
     String? name,
     String? description,
-  }) =>
-      _datastore.template.update(
-        _guildId.value,
-        code,
-        name: name,
-        description: description,
-      );
+  }) => _datastore.template.update(
+    _guildId.value,
+    code,
+    name: name,
+    description: description,
+  );
 
   /// Delete a template. Returns the deleted template.
   /// ```dart

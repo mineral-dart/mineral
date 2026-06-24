@@ -15,18 +15,17 @@ Map<String, dynamic> _textChannelPayload({
   int type = 0, // ChannelType.guildText
   String name = 'general',
   String guildId = '200000000000000001',
-}) =>
-    {
-      'id': id,
-      'type': type,
-      'name': name,
-      'position': 1,
-      'guild_id': guildId,
-      'parent_id': null,
-      'description': null,
-      'permission_overwrites': [],
-      'nsfw': false,
-    };
+}) => {
+  'id': id,
+  'type': type,
+  'name': name,
+  'position': 1,
+  'guild_id': guildId,
+  'parent_id': null,
+  'description': null,
+  'permission_overwrites': [],
+  'nsfw': false,
+};
 
 /// Public thread channel normalised payload.
 Map<String, dynamic> _threadPayload({
@@ -34,34 +33,33 @@ Map<String, dynamic> _threadPayload({
   int type = 11, // ChannelType.guildPublicThread
   String name = 'thread-name',
   String guildId = '200000000000000001',
-}) =>
-    {
-      'id': id,
-      'type': type,
-      'name': name,
-      'guild_id': guildId,
-      'parent_id': '100000000000000001',
-      'position': null,
-      'description': null,
-      'permission_overwrites': [],
-      'nsfw': false,
-      'last_message_id': null,
-      'flags': 0,
-      'rate_limit_per_user': 0,
-      'bitrate': 0,
-      'user_limit': 0,
-      'rtc_region': null,
-      'owner_id': '111000111000111000',
-      'thread_metadata': {
-        'archived': false,
-        'archive_timestamp': null,
-        'auto_archive_duration': 60,
-        'locked': false,
-      },
-      'message_count': 0,
-      'member_count': 0,
-      'total_message_sent': 0,
-    };
+}) => {
+  'id': id,
+  'type': type,
+  'name': name,
+  'guild_id': guildId,
+  'parent_id': '100000000000000001',
+  'position': null,
+  'description': null,
+  'permission_overwrites': [],
+  'nsfw': false,
+  'last_message_id': null,
+  'flags': 0,
+  'rate_limit_per_user': 0,
+  'bitrate': 0,
+  'user_limit': 0,
+  'rtc_region': null,
+  'owner_id': '111000111000111000',
+  'thread_metadata': {
+    'archived': false,
+    'archive_timestamp': null,
+    'auto_archive_duration': 60,
+    'locked': false,
+  },
+  'message_count': 0,
+  'member_count': 0,
+  'total_message_sent': 0,
+};
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
@@ -83,8 +81,7 @@ void main() {
     group('guildText (type 0)', () {
       test('serialize returns a GuildTextChannel', () async {
         final payload = _textChannelPayload(type: 0);
-        final channel =
-            await serializer.serialize(payload) as GuildTextChannel;
+        final channel = await serializer.serialize(payload) as GuildTextChannel;
 
         expect(channel.type, equals(ChannelType.guildText));
         expect(channel.id, equals(Snowflake('100000000000000001')));
@@ -113,7 +110,9 @@ void main() {
         expect(result['description'], equals('A test topic'));
 
         // cache should contain the entry
-        final cacheKey = FakeMarshaller().cacheKey.channel('100000000000000001');
+        final cacheKey = FakeMarshaller().cacheKey.channel(
+          '100000000000000001',
+        );
         expect(cache.store.containsKey(cacheKey), isTrue);
       });
 
@@ -132,15 +131,17 @@ void main() {
     // ── GuildVoiceChannel ────────────────────────────────────────────────
 
     group('guildVoice (type 2)', () {
-      test('serialize returns a GuildVoiceChannel with empty members list',
-          () async {
-        final payload = _textChannelPayload(type: 2);
-        final channel =
-            await serializer.serialize(payload) as GuildVoiceChannel;
+      test(
+        'serialize returns a GuildVoiceChannel with empty members list',
+        () async {
+          final payload = _textChannelPayload(type: 2);
+          final channel =
+              await serializer.serialize(payload) as GuildVoiceChannel;
 
-        expect(channel.type, equals(ChannelType.guildVoice));
-        expect(channel.members, isEmpty);
-      });
+          expect(channel.type, equals(ChannelType.guildVoice));
+          expect(channel.members, isEmpty);
+        },
+      );
 
       test('normalize caches voice channel payload', () async {
         final raw = {
@@ -155,14 +156,20 @@ void main() {
 
         await serializer.normalize(raw);
 
-        final cacheKey = FakeMarshaller().cacheKey.channel('100000000000000002');
+        final cacheKey = FakeMarshaller().cacheKey.channel(
+          '100000000000000002',
+        );
         expect(cache.store.containsKey(cacheKey), isTrue);
       });
 
       test('deserialize produces map with expected keys', () async {
         final payload = _textChannelPayload(
-            id: '100000000000000002', type: 2, name: 'voice-chat');
-        final channel = await serializer.serialize(payload) as GuildVoiceChannel;
+          id: '100000000000000002',
+          type: 2,
+          name: 'voice-chat',
+        );
+        final channel =
+            await serializer.serialize(payload) as GuildVoiceChannel;
         final result = await serializer.deserialize(channel);
 
         expect(result['id'], equals('100000000000000002'));
@@ -176,7 +183,10 @@ void main() {
     group('guildCategory (type 4)', () {
       test('serialize returns a GuildCategoryChannel', () async {
         final payload = _textChannelPayload(
-            id: '100000000000000003', type: 4, name: 'category');
+          id: '100000000000000003',
+          type: 4,
+          name: 'category',
+        );
         final channel =
             await serializer.serialize(payload) as GuildCategoryChannel;
 
@@ -199,7 +209,9 @@ void main() {
 
         await serializer.normalize(raw);
 
-        final cacheKey = FakeMarshaller().cacheKey.channel('100000000000000003');
+        final cacheKey = FakeMarshaller().cacheKey.channel(
+          '100000000000000003',
+        );
         expect(cache.store.containsKey(cacheKey), isTrue);
       });
     });
@@ -209,7 +221,10 @@ void main() {
     group('guildAnnouncement (type 5)', () {
       test('serialize returns a GuildAnnouncementChannel', () async {
         final payload = _textChannelPayload(
-            id: '100000000000000004', type: 5, name: 'announcements');
+          id: '100000000000000004',
+          type: 5,
+          name: 'announcements',
+        );
         final channel =
             await serializer.serialize(payload) as GuildAnnouncementChannel;
 
@@ -218,7 +233,10 @@ void main() {
 
       test('deserialize produces map with expected keys', () async {
         final payload = _textChannelPayload(
-            id: '100000000000000004', type: 5, name: 'announcements');
+          id: '100000000000000004',
+          type: 5,
+          name: 'announcements',
+        );
         final channel =
             await serializer.serialize(payload) as GuildAnnouncementChannel;
         final result = await serializer.deserialize(channel);
@@ -227,25 +245,27 @@ void main() {
         expect(result['type'], equals(5));
       });
 
-      test('normalize uses parent_id as category_id for announcement channels',
-          () async {
-        final raw = {
-          'id': '100000000000000004',
-          'type': 5,
-          'name': 'announcements',
-          'position': 1,
-          'guild_id': '200000000000000001',
-          'topic': null,
-          'nsfw': false,
-          'parent_id': '100000000000000003',
-          'permission_overwrites': [],
-        };
+      test(
+        'normalize uses parent_id as category_id for announcement channels',
+        () async {
+          final raw = {
+            'id': '100000000000000004',
+            'type': 5,
+            'name': 'announcements',
+            'position': 1,
+            'guild_id': '200000000000000001',
+            'topic': null,
+            'nsfw': false,
+            'parent_id': '100000000000000003',
+            'permission_overwrites': [],
+          };
 
-        final result = await serializer.normalize(raw);
+          final result = await serializer.normalize(raw);
 
-        // GuildAnnouncementChannelFactory maps parent_id → category_id
-        expect(result['category_id'], equals('100000000000000003'));
-      });
+          // GuildAnnouncementChannelFactory maps parent_id → category_id
+          expect(result['category_id'], equals('100000000000000003'));
+        },
+      );
     });
 
     // ── GuildForumChannel ────────────────────────────────────────────────
@@ -289,7 +309,9 @@ void main() {
 
         await serializer.normalize(raw);
 
-        final cacheKey = FakeMarshaller().cacheKey.channel('100000000000000005');
+        final cacheKey = FakeMarshaller().cacheKey.channel(
+          '100000000000000005',
+        );
         expect(cache.store.containsKey(cacheKey), isTrue);
       });
     });
@@ -299,7 +321,10 @@ void main() {
     group('guildStageVoice (type 13)', () {
       test('serialize returns a GuildStageChannel', () async {
         final payload = _textChannelPayload(
-            id: '100000000000000006', type: 13, name: 'stage');
+          id: '100000000000000006',
+          type: 13,
+          name: 'stage',
+        );
         final channel =
             await serializer.serialize(payload) as GuildStageChannel;
 
@@ -321,7 +346,9 @@ void main() {
 
         await serializer.normalize(raw);
 
-        final cacheKey = FakeMarshaller().cacheKey.channel('100000000000000006');
+        final cacheKey = FakeMarshaller().cacheKey.channel(
+          '100000000000000006',
+        );
         expect(cache.store.containsKey(cacheKey), isTrue);
       });
     });
@@ -338,15 +365,17 @@ void main() {
         expect(channel.name, equals('thread-name'));
       });
 
-      test('serialize exposes ThreadMetadata with archived=false, locked=false',
-          () async {
-        final payload = _threadPayload(type: 11);
-        final channel =
-            await serializer.serialize(payload) as PublicThreadChannel;
+      test(
+        'serialize exposes ThreadMetadata with archived=false, locked=false',
+        () async {
+          final payload = _threadPayload(type: 11);
+          final channel =
+              await serializer.serialize(payload) as PublicThreadChannel;
 
-        expect(channel.metadata.archived, isFalse);
-        expect(channel.metadata.locked, isFalse);
-      });
+          expect(channel.metadata.archived, isFalse);
+          expect(channel.metadata.locked, isFalse);
+        },
+      );
 
       test('normalize caches thread payload', () async {
         final raw = {
@@ -377,7 +406,9 @@ void main() {
 
         await serializer.normalize(raw);
 
-        final cacheKey = FakeMarshaller().cacheKey.channel('300000000000000001');
+        final cacheKey = FakeMarshaller().cacheKey.channel(
+          '300000000000000001',
+        );
         expect(cache.store.containsKey(cacheKey), isTrue);
       });
 
@@ -415,31 +446,36 @@ void main() {
     group('type-based dispatch', () {
       test('dispatches to GuildTextChannel for type 0', () async {
         final channel = await serializer.serialize(
-            _textChannelPayload(id: '1', type: 0));
+          _textChannelPayload(id: '1', type: 0),
+        );
         expect(channel, isA<GuildTextChannel>());
       });
 
       test('dispatches to GuildVoiceChannel for type 2', () async {
         final channel = await serializer.serialize(
-            _textChannelPayload(id: '2', type: 2));
+          _textChannelPayload(id: '2', type: 2),
+        );
         expect(channel, isA<GuildVoiceChannel>());
       });
 
       test('dispatches to GuildCategoryChannel for type 4', () async {
         final channel = await serializer.serialize(
-            _textChannelPayload(id: '3', type: 4));
+          _textChannelPayload(id: '3', type: 4),
+        );
         expect(channel, isA<GuildCategoryChannel>());
       });
 
       test('dispatches to GuildAnnouncementChannel for type 5', () async {
         final channel = await serializer.serialize(
-            _textChannelPayload(id: '4', type: 5));
+          _textChannelPayload(id: '4', type: 5),
+        );
         expect(channel, isA<GuildAnnouncementChannel>());
       });
 
       test('dispatches to GuildStageChannel for type 13', () async {
         final channel = await serializer.serialize(
-            _textChannelPayload(id: '5', type: 13));
+          _textChannelPayload(id: '5', type: 13),
+        );
         expect(channel, isA<GuildStageChannel>());
       });
     });

@@ -31,7 +31,8 @@ final class FakeMarshaller implements MarshallerContract {
     EntityContext? entityContext,
     DataStoreContract? dataStore,
   }) : logger = logger ?? FakeLogger() {
-    final ctx = entityContext ??
+    final ctx =
+        entityContext ??
         EntityContext(
           datastore: dataStore ?? _UnimplementedDataStore(),
           wss: FakeWebsocketOrchestrator(),
@@ -44,9 +45,9 @@ final class FakeMarshaller implements MarshallerContract {
 
 final class _UnimplementedDataStore implements DataStoreContract {
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(
-          'FakeMarshaller default datastore does not implement '
-          '${invocation.memberName}; pass a real DataStoreContract via '
-          'FakeMarshaller(dataStore: ...) if your test needs it.');
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError(
+    'FakeMarshaller default datastore does not implement '
+    '${invocation.memberName}; pass a real DataStoreContract via '
+    'FakeMarshaller(dataStore: ...) if your test needs it.',
+  );
 }

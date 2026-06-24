@@ -74,7 +74,8 @@ final class ClientBuilder {
   }
 
   ClientBuilder registerProvider<T extends ProviderContract>(
-      T Function(Client) provider) {
+    T Function(Client) provider,
+  ) {
     _providers.add(provider);
     return this;
   }
@@ -97,8 +98,8 @@ final class ClientBuilder {
     // of the default `[mineral]`. Only applies when the user hasn't
     // overridden the logger via `setLogger` — custom loggers are used as-is
     // to respect their own labelling conventions.
-    LoggerContract labelled(String label) => _logger ??
-        Logger(logLevel as LogLevel, dartEnv.value, label: label);
+    LoggerContract labelled(String label) =>
+        _logger ?? Logger(logLevel as LogLevel, dartEnv.value, label: label);
 
     final wssLogger = labelled('websocket');
     final httpLogger = labelled('http');
@@ -108,29 +109,39 @@ final class ClientBuilder {
     final token = env.get<String>(AppEnv.token, defaultValue: _token);
     final intent = env.get<int>(AppEnv.intent, defaultValue: _intent);
 
-    final httpVersion = env.get<int>(AppEnv.discordRestHttpVersion,
-        defaultValue: _discordRestHttpVersion);
+    final httpVersion = env.get<int>(
+      AppEnv.discordRestHttpVersion,
+      defaultValue: _discordRestHttpVersion,
+    );
 
-    final shardVersion = env.get<int>(AppEnv.discordWssVersion,
-        defaultValue: _discordWssVersion);
+    final shardVersion = env.get<int>(
+      AppEnv.discordWssVersion,
+      defaultValue: _discordWssVersion,
+    );
 
-    final wsEncodingStrategy =
-        env.get(AppEnv.discordWssEncoding, defaultValue: _wssEncoder);
+    final wsEncodingStrategy = env.get(
+      AppEnv.discordWssEncoding,
+      defaultValue: _wssEncoder,
+    );
 
     final http = ResilientHttpClient(
-        HttpClient(
-            config: HttpClientConfigImpl(
-                uri: Uri.parse('https://discord.com/api/v$httpVersion'),
-                headers: {
-              Header.userAgent('Mineral'),
-              Header.contentType('application/json'),
-            })));
+      HttpClient(
+        config: HttpClientConfigImpl(
+          uri: Uri.parse('https://discord.com/api/v$httpVersion'),
+          headers: {
+            Header.userAgent('Mineral'),
+            Header.contentType('application/json'),
+          },
+        ),
+      ),
+    );
 
     final shardConfig = ShardingConfig(
-        token: token,
-        intent: intent,
-        version: shardVersion,
-        encoding: wsEncodingStrategy.strategy(logger: wssLogger));
+      token: token,
+      intent: intent,
+      version: shardVersion,
+      encoding: wsEncodingStrategy.strategy(logger: wssLogger),
+    );
 
     final eventListener = EventListener();
     final providerManager = ProviderManager(logger: logger);
@@ -219,11 +230,16 @@ final class ClientBuilder {
       ..bind<DataStoreContract>(() => appState.dataStore)
       ..bind<CommandInteractionManagerContract>(() => appState.commandManager)
       ..bind<WebsocketOrchestratorContract>(() => appState.wss)
-      ..bind<InteractiveComponentManagerContract>(() => appState.interactiveComponent)
-      ..bindLazy<Bot>(() =>
-          runtimeState.bot ??
-          (throw StateError(
-              'Bot is not yet available — wait for the gateway READY event before resolving Bot from the container.')))
+      ..bind<InteractiveComponentManagerContract>(
+        () => appState.interactiveComponent,
+      )
+      ..bindLazy<Bot>(
+        () =>
+            runtimeState.bot ??
+            (throw StateError(
+              'Bot is not yet available — wait for the gateway READY event before resolving Bot from the container.',
+            )),
+      )
       ..require<LoggerContract>()
       ..require<HttpClientContract>()
       ..require<Kernel>()

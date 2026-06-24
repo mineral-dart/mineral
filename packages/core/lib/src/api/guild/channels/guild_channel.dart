@@ -33,8 +33,12 @@ abstract class GuildChannel implements Channel {
 
   /// Updates the channel.
   Future<void> update(ChannelBuilderContract builder, {String? reason}) =>
-      _dataStore.channel
-          .update(id.value, builder, guildId: guildId.value, reason: reason);
+      _dataStore.channel.update(
+        id.value,
+        builder,
+        guildId: guildId.value,
+        reason: reason,
+      );
 
   Future<void> setName(String name, {String? reason}) =>
       methods.setName(name, reason);

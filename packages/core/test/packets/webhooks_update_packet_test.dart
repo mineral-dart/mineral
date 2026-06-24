@@ -20,59 +20,55 @@ const _guildId = '123456789012345678';
 
 // ── Domain object builders ────────────────────────────────────────────────────
 
-GuildTextChannel _buildServerTextChannel(EntityContext ctx) =>
-    GuildTextChannel(
-      ChannelProperties(
-        ctx: ctx,
-        id: Snowflake.parse(_channelId),
-        type: ChannelType.guildText,
-        name: 'general',
-        description: null,
-        guildId: Snowflake.parse(_guildId),
-        categoryId: null,
-        position: null,
-        nsfw: false,
-        lastMessageId: null,
-        bitrate: null,
-        userLimit: null,
-        rateLimitPerUser: null,
-        recipients: [],
-        icon: null,
-        ownerId: null,
-        applicationId: null,
-        lastPinTimestamp: null,
-        rtcRegion: null,
-        videoQualityMode: null,
-        messageCount: null,
-        memberCount: null,
-        defaultAutoArchiveDuration: null,
-        permissions: [],
-        flags: null,
-        totalMessageSent: null,
-        available: null,
-        appliedTags: [],
-        defaultReactions: null,
-        defaultSortOrder: null,
-        defaultForumLayout: null,
-        threads: ThreadsManager(
-          Snowflake.parse(_guildId),
-          Snowflake.parse(_channelId),
-          ctx: ctx,
-        ),
-      ),
-    );
+GuildTextChannel _buildServerTextChannel(EntityContext ctx) => GuildTextChannel(
+  ChannelProperties(
+    ctx: ctx,
+    id: Snowflake.parse(_channelId),
+    type: ChannelType.guildText,
+    name: 'general',
+    description: null,
+    guildId: Snowflake.parse(_guildId),
+    categoryId: null,
+    position: null,
+    nsfw: false,
+    lastMessageId: null,
+    bitrate: null,
+    userLimit: null,
+    rateLimitPerUser: null,
+    recipients: [],
+    icon: null,
+    ownerId: null,
+    applicationId: null,
+    lastPinTimestamp: null,
+    rtcRegion: null,
+    videoQualityMode: null,
+    messageCount: null,
+    memberCount: null,
+    defaultAutoArchiveDuration: null,
+    permissions: [],
+    flags: null,
+    totalMessageSent: null,
+    available: null,
+    appliedTags: [],
+    defaultReactions: null,
+    defaultSortOrder: null,
+    defaultForumLayout: null,
+    threads: ThreadsManager(
+      Snowflake.parse(_guildId),
+      Snowflake.parse(_channelId),
+      ctx: ctx,
+    ),
+  ),
+);
 
 // ── Shard message factory ─────────────────────────────────────────────────────
 
 ShardMessage<dynamic> _buildShardMessage() => ShardMessage(
-      type: 'WEBHOOKS_UPDATE',
-      opCode: OpCode.dispatch,
-      sequence: 1,
-      payload: {
-        'guild_id': _guildId,
-        'channel_id': _channelId,
-      },
-    );
+  type: 'WEBHOOKS_UPDATE',
+  opCode: OpCode.dispatch,
+  sequence: 1,
+  payload: {'guild_id': _guildId, 'channel_id': _channelId},
+);
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -88,8 +84,7 @@ void main() {
 
     // ── guild branch ───────────────────────────────────────────────────────
 
-    group('dispatches guildWebhooksUpdate with resolved guild and channel',
-        () {
+    group('dispatches guildWebhooksUpdate with resolved guild and channel', () {
       late WebhooksUpdatePacket packet;
       late Guild guild;
       late GuildTextChannel channel;
@@ -110,10 +105,11 @@ void main() {
       test('dispatches Event.guildWebhooksUpdate', () async {
         Event? capturedEvent;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           capturedEvent = event;
         }
 
@@ -125,10 +121,11 @@ void main() {
       test('payload is GuildWebhooksUpdateArgs', () async {
         Object? capturedPayload;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           capturedPayload = payload;
         }
 
@@ -140,10 +137,11 @@ void main() {
       test('payload carries the resolved guild', () async {
         GuildWebhooksUpdateArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.guildWebhooksUpdate) {
             args = payload as GuildWebhooksUpdateArgs;
           }
@@ -159,10 +157,11 @@ void main() {
       test('payload carries the resolved channel', () async {
         GuildWebhooksUpdateArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.guildWebhooksUpdate) {
             args = payload as GuildWebhooksUpdateArgs;
           }

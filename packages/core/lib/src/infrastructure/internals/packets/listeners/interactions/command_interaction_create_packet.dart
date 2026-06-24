@@ -17,13 +17,18 @@ final class CommandInteractionCreatePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final type = InteractionType.values
-        .firstWhereOrNull((e) => e.value == message.payload['type']);
+    final type = InteractionType.values.firstWhereOrNull(
+      (e) => e.value == message.payload['type'],
+    );
 
     if (type == InteractionType.applicationCommand) {
-      await _commandManager.dispatcher.dispatch(message.payload as Map<String, dynamic>);
+      await _commandManager.dispatcher.dispatch(
+        message.payload as Map<String, dynamic>,
+      );
     } else if (type == InteractionType.applicationCommandAutocomplete) {
-      await _commandManager.handleAutocomplete(message.payload as Map<String, dynamic>);
+      await _commandManager.handleAutocomplete(
+        message.payload as Map<String, dynamic>,
+      );
     }
   }
 }

@@ -24,10 +24,12 @@ void main() {
 
       expect(
         bot.actions.sentMessages,
-        contains(isMessageSent(
-          channelId: WelcomeListener.welcomeChannelId,
-          content: 'hello bob, welcome to Mineral HQ!',
-        )),
+        contains(
+          isMessageSent(
+            channelId: WelcomeListener.welcomeChannelId,
+            content: 'hello bob, welcome to Mineral HQ!',
+          ),
+        ),
       );
       expect(bot.errors, isEmpty);
     });

@@ -7,8 +7,6 @@ final class PollQuestion {
   PollQuestion({required this.content, this.emoji});
 
   Map<String, dynamic> toJson() {
-    return {
-      'text': content,
-    };
+    return {'text': content};
   }
 }

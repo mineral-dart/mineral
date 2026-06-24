@@ -24,60 +24,60 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'id': '444555666',
-          'username': 'testuser',
-          'nick': null,
-          'global_name': 'TestUser',
-          'discriminator': '0',
-          'assets': {
-            'guild_id': '987654321',
-            'member_id': '444555666',
-            'avatar': null,
-            'avatar_decoration': null,
-            'banner': null,
-          },
-          'flags': 0,
-          'roles': ['111222333'],
-          'premium_since': null,
-          'public_flags': 64,
-          'is_bot': false,
-          'is_pending': false,
-          'timeout': null,
-          'mfa_enabled': false,
-          'locale': 'en-US',
-          'premium_type': null,
-          'joined_at': '2024-01-15T10:30:00.000Z',
-          'permissions': '8',
-          'accent_color': null,
-          'guild_id': '987654321',
-        };
+      'id': '444555666',
+      'username': 'testuser',
+      'nick': null,
+      'global_name': 'TestUser',
+      'discriminator': '0',
+      'assets': {
+        'guild_id': '987654321',
+        'member_id': '444555666',
+        'avatar': null,
+        'avatar_decoration': null,
+        'banner': null,
+      },
+      'flags': 0,
+      'roles': ['111222333'],
+      'premium_since': null,
+      'public_flags': 64,
+      'is_bot': false,
+      'is_pending': false,
+      'timeout': null,
+      'mfa_enabled': false,
+      'locale': 'en-US',
+      'premium_type': null,
+      'joined_at': '2024-01-15T10:30:00.000Z',
+      'permissions': '8',
+      'accent_color': null,
+      'guild_id': '987654321',
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'user': {
-            'id': '444555666',
-            'username': 'testuser',
-            'global_name': 'TestUser',
-            'discriminator': '0',
-            'avatar': null,
-            'avatar_decoration_data': null,
-            'public_flags': 64,
-            'bot': false,
-            'mfa_enabled': false,
-            'locale': 'en-US',
-            'premium_type': null,
-          },
-          'nick': null,
-          'banner': null,
-          'flags': 0,
-          'roles': ['111222333'],
-          'premium_since': null,
-          'pending': false,
-          'communication_disabled_until': null,
-          'joined_at': '2024-01-15T10:30:00.000Z',
-          'permissions': '8',
-          'accent_color': null,
-          'guild_id': '987654321',
-        };
+      'user': {
+        'id': '444555666',
+        'username': 'testuser',
+        'global_name': 'TestUser',
+        'discriminator': '0',
+        'avatar': null,
+        'avatar_decoration_data': null,
+        'public_flags': 64,
+        'bot': false,
+        'mfa_enabled': false,
+        'locale': 'en-US',
+        'premium_type': null,
+      },
+      'nick': null,
+      'banner': null,
+      'flags': 0,
+      'roles': ['111222333'],
+      'premium_since': null,
+      'pending': false,
+      'communication_disabled_until': null,
+      'joined_at': '2024-01-15T10:30:00.000Z',
+      'permissions': '8',
+      'accent_color': null,
+      'guild_id': '987654321',
+    };
 
     group('serialize()', () {
       test('maps all scalar fields correctly', () async {
@@ -128,8 +128,10 @@ void main() {
         final member = await serializer.serialize(normalizedPayload());
 
         expect(member.joinedAt, isA<DateTime>());
-        expect(member.joinedAt,
-            equals(DateTime.parse('2024-01-15T10:30:00.000Z')));
+        expect(
+          member.joinedAt,
+          equals(DateTime.parse('2024-01-15T10:30:00.000Z')),
+        );
       });
 
       test('defaults premiumType to none when null', () async {

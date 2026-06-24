@@ -7,4 +7,5 @@
 ///
 /// For the main bot-building API, use `package:mineral/mineral.dart`.
 library;
+
 export 'package:mineral/contracts.dart';

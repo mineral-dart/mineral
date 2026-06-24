@@ -12,18 +12,23 @@ final class GuildScheduledEventUserAddPacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   GuildScheduledEventUserAddPacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final guild = await _dataStore.guild
-        .get(message.payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      message.payload['guild_id'] as Object,
+      false,
+    );
 
-    final eventId =
-        Snowflake.parse(message.payload['guild_scheduled_event_id'] as Object);
+    final eventId = Snowflake.parse(
+      message.payload['guild_scheduled_event_id'] as Object,
+    );
 
-    final user = await _dataStore.user
-        .get(message.payload['user_id'] as Object, false);
+    final user = await _dataStore.user.get(
+      message.payload['user_id'] as Object,
+      false,
+    );
 
     if (user case User()) {
       dispatch<GuildScheduledEventUserAddArgs>(

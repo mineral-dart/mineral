@@ -15,22 +15,22 @@ void main() {
 
     /// A minimal raw Discord USER_UPDATE payload.
     Map<String, dynamic> rawPayload() => {
-          'id': '123456789',
-          'username': 'updated_user',
-          'discriminator': '0042',
-          'flags': 0,
-          'public_flags': 0,
-          'avatar': null,
-          'bot': false,
-          'system': false,
-          'mfa_enabled': false,
-          'locale': null,
-          'verified': false,
-          'email': null,
-          'premium_type': null,
-          'avatar_decoration_data': null,
-          'banner': null,
-        };
+      'id': '123456789',
+      'username': 'updated_user',
+      'discriminator': '0042',
+      'flags': 0,
+      'public_flags': 0,
+      'avatar': null,
+      'bot': false,
+      'system': false,
+      'mfa_enabled': false,
+      'locale': null,
+      'verified': false,
+      'email': null,
+      'premium_type': null,
+      'avatar_decoration_data': null,
+      'banner': null,
+    };
 
     ShardMessage<dynamic> buildMessage(Map<String, dynamic> payload) =>
         ShardMessage(
@@ -50,36 +50,40 @@ void main() {
       expect(packet.packetType.name, equals('USER_UPDATE'));
     });
 
-    test('dispatches Event.userUpdate with a correctly-deserialized after user',
-        () async {
-      Event? capturedEvent;
-      Object? capturedPayload;
+    test(
+      'dispatches Event.userUpdate with a correctly-deserialized after user',
+      () async {
+        Event? capturedEvent;
+        Object? capturedPayload;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        capturedEvent = event;
-        capturedPayload = payload;
-      }
+          bool Function(String?)? constraint,
+        }) {
+          capturedEvent = event;
+          capturedPayload = payload;
+        }
 
-      await packet.listen(buildMessage(rawPayload()), dispatch);
+        await packet.listen(buildMessage(rawPayload()), dispatch);
 
-      expect(capturedEvent, equals(Event.userUpdate));
+        expect(capturedEvent, equals(Event.userUpdate));
 
-      final args = capturedPayload as UserUpdateArgs;
-      expect(args.after.id, equals('123456789'));
-      expect(args.after.username, equals('updated_user'));
-      expect(args.after.discriminator, equals('0042'));
-    });
+        final args = capturedPayload as UserUpdateArgs;
+        expect(args.after.id, equals('123456789'));
+        expect(args.after.username, equals('updated_user'));
+        expect(args.after.discriminator, equals('0042'));
+      },
+    );
 
     test('before is null when user is not in cache', () async {
       UserUpdateArgs? capturedArgs;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedArgs = payload as UserUpdateArgs;
       }
 
@@ -116,10 +120,11 @@ void main() {
 
       UserUpdateArgs? capturedArgs;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedArgs = payload as UserUpdateArgs;
       }
 
@@ -132,10 +137,11 @@ void main() {
     });
 
     test('updates cache with new user data after dispatch', () async {
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(buildMessage(rawPayload()), dispatch);
 

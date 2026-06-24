@@ -61,8 +61,9 @@ final class AttachedFile implements MessageComponent {
     final response = await http.get(uri);
 
     // Extract filename from the URL or use a default
-    final name =
-        uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'file.txt';
+    final name = uri.pathSegments.isNotEmpty
+        ? uri.pathSegments.last
+        : 'file.txt';
 
     // Create a new MediaItem with the fetched bytes and attachment:// URL
     final media = MediaItem.fromNetwork(
@@ -111,17 +112,18 @@ final class AttachedFile implements MessageComponent {
     final response = await http.get(uri);
 
     // Create a MediaItem with the fetched bytes
-    final media = MediaItem.fromNetwork(
-      'attachment://$name',
-      spoiler: spoiler,
-      proxyUrl: proxyUrl,
-      height: height,
-      width: width,
-      contentType: contentType,
-      description: description,
-    )
-      ..bytes = response.bodyBytes
-      ..spoiler = spoiler;
+    final media =
+        MediaItem.fromNetwork(
+            'attachment://$name',
+            spoiler: spoiler,
+            proxyUrl: proxyUrl,
+            height: height,
+            width: width,
+            contentType: contentType,
+            description: description,
+          )
+          ..bytes = response.bodyBytes
+          ..spoiler = spoiler;
 
     return AttachedFile._(media);
   }

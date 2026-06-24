@@ -10,7 +10,9 @@ final class GuildVoiceChannelFactory
 
   @override
   Future<Map<String, dynamic>> normalize(
-      MarshallerContract marshaller, Map<String, dynamic> json) async {
+    MarshallerContract marshaller,
+    Map<String, dynamic> json,
+  ) async {
     final payload = {
       'id': json['id'],
       'type': json['type'],
@@ -28,18 +30,28 @@ final class GuildVoiceChannelFactory
   }
 
   @override
-  Future<GuildVoiceChannel> serialize(MarshallerContract marshaller,
-      EntityContext ctx, Map<String, dynamic> json) async {
-    final properties =
-        await ChannelProperties.serializeCache(marshaller, ctx, json);
-    final voices = await marshaller.cache!
-            .whereKeyStartsWith('voice_states/guild/${properties.guildId}') ??
+  Future<GuildVoiceChannel> serialize(
+    MarshallerContract marshaller,
+    EntityContext ctx,
+    Map<String, dynamic> json,
+  ) async {
+    final properties = await ChannelProperties.serializeCache(
+      marshaller,
+      ctx,
+      json,
+    );
+    final voices =
+        await marshaller.cache!.whereKeyStartsWith(
+          'voice_states/guild/${properties.guildId}',
+        ) ??
         {};
     final List<VoiceState> members = [];
 
     for (final voice in voices.values) {
       if (voice['channel_id'].toString() == properties.id.value) {
-        final voiceState = await marshaller.serializers.voice.serialize(voice as Map<String, dynamic>);
+        final voiceState = await marshaller.serializers.voice.serialize(
+          voice as Map<String, dynamic>,
+        );
         members.add(voiceState);
       }
     }
@@ -49,10 +61,15 @@ final class GuildVoiceChannelFactory
 
   @override
   Future<Map<String, dynamic>> deserialize(
-      MarshallerContract marshaller, GuildVoiceChannel channel) async {
-    final permissions = await Future.wait(channel.permissions.map(
+    MarshallerContract marshaller,
+    GuildVoiceChannel channel,
+  ) async {
+    final permissions = await Future.wait(
+      channel.permissions.map(
         (element) async => marshaller.serializers.channelPermissionOverwrite
-            .deserialize(element)));
+            .deserialize(element),
+      ),
+    );
 
     return {
       'id': channel.id.value,

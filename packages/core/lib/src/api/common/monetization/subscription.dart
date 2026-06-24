@@ -34,21 +34,17 @@ final class Subscription {
     return Subscription(
       id: Snowflake.parse(json['id']),
       userId: Snowflake.parse(json['user_id']),
-      skuIds: (json['sku_ids'] as List<dynamic>)
-          .map(Snowflake.parse)
-          .toList(),
+      skuIds: (json['sku_ids'] as List<dynamic>).map(Snowflake.parse).toList(),
       entitlementIds: (json['entitlement_ids'] as List<dynamic>)
           .map(Snowflake.parse)
           .toList(),
-      renewalSkuIds: rawRenewalSkuIds
-          ?.map(Snowflake.parse)
-          .toList(),
-      currentPeriodStart:
-          DateTime.parse(json['current_period_start'] as String),
+      renewalSkuIds: rawRenewalSkuIds?.map(Snowflake.parse).toList(),
+      currentPeriodStart: DateTime.parse(
+        json['current_period_start'] as String,
+      ),
       currentPeriodEnd: DateTime.parse(json['current_period_end'] as String),
       status: SubscriptionStatus.from(json['status'] as int),
-      canceledAt:
-          canceledAtRaw != null ? DateTime.parse(canceledAtRaw) : null,
+      canceledAt: canceledAtRaw != null ? DateTime.parse(canceledAtRaw) : null,
       country: json['country'] as String?,
     );
   }

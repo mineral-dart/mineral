@@ -42,8 +42,9 @@ final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
     final payload = message.payload as Map<String, dynamic>;
     final ctx = _ctx;
     final auditLogType = AuditLogType.values.firstWhere(
-        (element) => element.value == payload['action_type'],
-        orElse: () => AuditLogType.unknown);
+      (element) => element.value == payload['action_type'],
+      orElse: () => AuditLogType.unknown,
+    );
 
     final auditLog = await switch (auditLogType) {
       // Emoji
@@ -76,14 +77,20 @@ final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
       AuditLogType.memberKick => memberKickAuditLogHandler(payload, ctx),
       AuditLogType.memberPrune => memberPruneAuditLogHandler(payload, ctx),
       AuditLogType.memberBanAdd => memberBanAddAuditLogHandler(payload, ctx),
-      AuditLogType.memberBanRemove =>
-        memberBanRemoveAuditLogHandler(payload, ctx),
+      AuditLogType.memberBanRemove => memberBanRemoveAuditLogHandler(
+        payload,
+        ctx,
+      ),
       AuditLogType.memberUpdate => memberUpdateAuditLogHandler(payload, ctx),
-      AuditLogType.memberRoleUpdate =>
-        memberRoleUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.memberRoleUpdate => memberRoleUpdateAuditLogHandler(
+        payload,
+        ctx,
+      ),
       AuditLogType.memberMove => memberMoveAuditLogHandler(payload, ctx),
-      AuditLogType.memberDisconnect =>
-        memberDisconnectAuditLogHandler(payload, ctx),
+      AuditLogType.memberDisconnect => memberDisconnectAuditLogHandler(
+        payload,
+        ctx,
+      ),
       AuditLogType.botAdd => botAddAuditLogHandler(payload, ctx),
 
       // Invite
@@ -98,26 +105,40 @@ final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
 
       // Message
       AuditLogType.messageDelete => messageDeleteAuditLogHandler(payload, ctx),
-      AuditLogType.messageBulkDelete =>
-        messageBulkDeleteAuditLogHandler(payload, ctx),
+      AuditLogType.messageBulkDelete => messageBulkDeleteAuditLogHandler(
+        payload,
+        ctx,
+      ),
       AuditLogType.messagePin => messagePinAuditLogHandler(payload, ctx),
       AuditLogType.messageUnpin => messageUnpinAuditLogHandler(payload, ctx),
 
       // Integration
-      AuditLogType.integrationCreate =>
-        integrationCreateAuditLogHandler(payload, ctx),
-      AuditLogType.integrationUpdate =>
-        integrationUpdateAuditLogHandler(payload, ctx),
-      AuditLogType.integrationDelete =>
-        integrationDeleteAuditLogHandler(payload, ctx),
+      AuditLogType.integrationCreate => integrationCreateAuditLogHandler(
+        payload,
+        ctx,
+      ),
+      AuditLogType.integrationUpdate => integrationUpdateAuditLogHandler(
+        payload,
+        ctx,
+      ),
+      AuditLogType.integrationDelete => integrationDeleteAuditLogHandler(
+        payload,
+        ctx,
+      ),
 
       // Stage Instance
-      AuditLogType.stageInstanceCreate =>
-        stageInstanceCreateAuditLogHandler(payload, ctx),
-      AuditLogType.stageInstanceUpdate =>
-        stageInstanceUpdateAuditLogHandler(payload, ctx),
-      AuditLogType.stageInstanceDelete =>
-        stageInstanceDeleteAuditLogHandler(payload, ctx),
+      AuditLogType.stageInstanceCreate => stageInstanceCreateAuditLogHandler(
+        payload,
+        ctx,
+      ),
+      AuditLogType.stageInstanceUpdate => stageInstanceUpdateAuditLogHandler(
+        payload,
+        ctx,
+      ),
+      AuditLogType.stageInstanceDelete => stageInstanceDeleteAuditLogHandler(
+        payload,
+        ctx,
+      ),
 
       // Sticker
       AuditLogType.stickerCreate => stickerCreateAuditLogHandler(payload, ctx),
@@ -168,16 +189,24 @@ final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
         onboardingPromptUpdateAuditLogHandler(payload, ctx),
       AuditLogType.onboardingPromptDelete =>
         onboardingPromptDeleteAuditLogHandler(payload, ctx),
-      AuditLogType.onboardingCreate =>
-        onboardingCreateAuditLogHandler(payload, ctx),
-      AuditLogType.onboardingUpdate =>
-        onboardingUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.onboardingCreate => onboardingCreateAuditLogHandler(
+        payload,
+        ctx,
+      ),
+      AuditLogType.onboardingUpdate => onboardingUpdateAuditLogHandler(
+        payload,
+        ctx,
+      ),
 
       // Home Settings
-      AuditLogType.homeSettingsCreate =>
-        homeSettingsCreateAuditLogHandler(payload, ctx),
-      AuditLogType.homeSettingsUpdate =>
-        homeSettingsUpdateAuditLogHandler(payload, ctx),
+      AuditLogType.homeSettingsCreate => homeSettingsCreateAuditLogHandler(
+        payload,
+        ctx,
+      ),
+      AuditLogType.homeSettingsUpdate => homeSettingsUpdateAuditLogHandler(
+        payload,
+        ctx,
+      ),
       _ => unknownAuditLogHandler(payload, ctx),
     };
 

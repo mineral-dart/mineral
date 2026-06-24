@@ -2,10 +2,7 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
-enum TypingType {
-  guild,
-  private,
-}
+enum TypingType { guild, private }
 
 /// Represents a typing indicator in a channel.
 final class Typing {

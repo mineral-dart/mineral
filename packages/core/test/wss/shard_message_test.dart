@@ -114,10 +114,7 @@ void main() {
           'op': 0,
           't': 'GUILD_CREATE',
           's': 2,
-          'd': {
-            'id': '456',
-            'name': 'Test Guild',
-          },
+          'd': {'id': '456', 'name': 'Test Guild'},
         });
 
         expect(message.type, 'GUILD_CREATE');

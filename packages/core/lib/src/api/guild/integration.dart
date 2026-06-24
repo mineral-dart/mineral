@@ -101,12 +101,12 @@ final class Integration {
         : IntegrationExpireBehavior.values.firstWhere(
             (e) => e.value == expireBehaviorRaw,
             orElse: () => throw ArgumentError(
-                'Unknown IntegrationExpireBehavior value: $expireBehaviorRaw'),
+              'Unknown IntegrationExpireBehavior value: $expireBehaviorRaw',
+            ),
           );
 
     final userRaw = json['user'] as Map<String, dynamic>?;
-    final userId =
-        userRaw != null ? Snowflake.nullable(userRaw['id']) : null;
+    final userId = userRaw != null ? Snowflake.nullable(userRaw['id']) : null;
 
     final applicationRaw = json['application'] as Map<String, dynamic>?;
     final application = applicationRaw != null
@@ -114,8 +114,7 @@ final class Integration {
         : null;
 
     final syncedAtRaw = json['synced_at'] as String?;
-    final syncedAt =
-        syncedAtRaw != null ? DateTime.parse(syncedAtRaw) : null;
+    final syncedAt = syncedAtRaw != null ? DateTime.parse(syncedAtRaw) : null;
 
     final rawScopes = json['scopes'] as List<dynamic>?;
     final scopes = rawScopes?.cast<String>();
@@ -132,7 +131,8 @@ final class Integration {
       expireGracePeriod: json['expire_grace_period'] as int?,
       userId: userId,
       account: IntegrationAccount.fromJson(
-          Map<String, dynamic>.from(json['account'] as Map)),
+        Map<String, dynamic>.from(json['account'] as Map),
+      ),
       syncedAt: syncedAt,
       subscriberCount: json['subscriber_count'] as int?,
       revoked: json['revoked'] as bool?,

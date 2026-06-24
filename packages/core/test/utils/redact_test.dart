@@ -20,17 +20,20 @@ void main() {
       expect(out['safe'], 'kept');
     });
 
-    test('redacts the new additions (api_key, refresh_token, client_secret, webhook_url)', () {
-      final out = redactSensitiveFields({
-        'api_key': 'k',
-        'refresh_token': 'r',
-        'access_token': 'a',
-        'client_secret': 'cs',
-        'webhook_url': 'https://hook',
-        'private_key': 'pk',
-      });
-      expect(out.values, everyElement('***'));
-    });
+    test(
+      'redacts the new additions (api_key, refresh_token, client_secret, webhook_url)',
+      () {
+        final out = redactSensitiveFields({
+          'api_key': 'k',
+          'refresh_token': 'r',
+          'access_token': 'a',
+          'client_secret': 'cs',
+          'webhook_url': 'https://hook',
+          'private_key': 'pk',
+        });
+        expect(out.values, everyElement('***'));
+      },
+    );
 
     test('matches keys case-insensitively', () {
       final out = redactSensitiveFields({

@@ -16,13 +16,15 @@ final class GuildScheduledEventUpdatePacket implements ListenablePacket {
   GuildScheduledEventUpdatePacket({
     required MarshallerContract marshaller,
     required DataStoreContract dataStore,
-  })  : _marshaller = marshaller,
-        _dataStore = dataStore;
+  }) : _marshaller = marshaller,
+       _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final guild = await _dataStore.guild
-        .get(message.payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      message.payload['guild_id'] as Object,
+      false,
+    );
 
     // Retrieve the cached version as "before"
     final cacheKey = _marshaller.cacheKey.scheduledEvent(
@@ -35,10 +37,12 @@ final class GuildScheduledEventUpdatePacket implements ListenablePacket {
         : null;
 
     // Serialize the incoming payload as "after"
-    final rawAfter = await _marshaller.serializers.scheduledEvent
-        .normalize(message.payload as Map<String, dynamic>);
-    final after =
-        await _marshaller.serializers.scheduledEvent.serialize(rawAfter);
+    final rawAfter = await _marshaller.serializers.scheduledEvent.normalize(
+      message.payload as Map<String, dynamic>,
+    );
+    final after = await _marshaller.serializers.scheduledEvent.serialize(
+      rawAfter,
+    );
 
     dispatch<GuildScheduledEventUpdateArgs>(
       event: Event.guildScheduledEventUpdate,

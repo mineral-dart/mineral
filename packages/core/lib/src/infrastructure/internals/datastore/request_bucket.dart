@@ -7,8 +7,8 @@ import 'package:mineral/src/domains/services/datastore/request_bucket_contract.d
 import 'package:mineral/src/infrastructure/internals/datastore/rate_limit_registry.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/route_key.dart';
 
-typedef RequestAction<T> = Future<Response<T>> Function(
-    RequestContract request);
+typedef RequestAction<T> =
+    Future<Response<T>> Function(RequestContract request);
 
 enum QueueableRequestStatus { init, success, error, rateLimit, pending }
 
@@ -64,10 +64,12 @@ final class QueueableRequest<T> {
           completer.complete(response.body);
           // ignore: avoid_catching_errors, surface type mismatch as a proper HttpException
         } on TypeError catch (e) {
-          completer.completeError(HttpException(
-            'Response body type mismatch: expected $T, '
-            'got ${response.body.runtimeType}. $e',
-          ));
+          completer.completeError(
+            HttpException(
+              'Response body type mismatch: expected $T, '
+              'got ${response.body.runtimeType}. $e',
+            ),
+          );
         }
         return;
       }
@@ -79,8 +81,9 @@ final class QueueableRequest<T> {
         final seconds = retryAfter is num
             ? retryAfter.toDouble()
             : double.tryParse(retryAfter?.toString() ?? '') ?? 1.0;
-        final retryDelay =
-            Duration(milliseconds: (seconds * 1000).round() + 50);
+        final retryDelay = Duration(
+          milliseconds: (seconds * 1000).round() + 50,
+        );
 
         if (isGlobal) {
           bucket.registry.lockGlobal(retryDelay);
@@ -127,54 +130,95 @@ final class RequestBucket implements RequestBucketContract {
   final LoggerContract logger;
   final List<QueueableRequest> queue = [];
 
-  RequestBucket(this.client, {required this.logger, RateLimitRegistry? registry})
-      : registry = registry ?? RateLimitRegistry();
+  RequestBucket(
+    this.client, {
+    required this.logger,
+    RateLimitRegistry? registry,
+  }) : registry = registry ?? RateLimitRegistry();
 
   @override
-  Future<T> get<T>(RequestContract request,
-          {void Function(T)? onSuccess,
-          Exception Function(Response)? onError,
-          void Function(Duration)? onRateLimit}) =>
-      _send<T>('GET', request, client.get,
-          onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
+  Future<T> get<T>(
+    RequestContract request, {
+    void Function(T)? onSuccess,
+    Exception Function(Response)? onError,
+    void Function(Duration)? onRateLimit,
+  }) => _send<T>(
+    'GET',
+    request,
+    client.get,
+    onSuccess: onSuccess,
+    onError: onError,
+    onRateLimit: onRateLimit,
+  );
 
   @override
-  Future<T> post<T>(RequestContract request,
-          {void Function(T)? onSuccess,
-          Exception Function(Response)? onError,
-          void Function(Duration)? onRateLimit}) =>
-      _send<T>('POST', request, client.post,
-          onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
+  Future<T> post<T>(
+    RequestContract request, {
+    void Function(T)? onSuccess,
+    Exception Function(Response)? onError,
+    void Function(Duration)? onRateLimit,
+  }) => _send<T>(
+    'POST',
+    request,
+    client.post,
+    onSuccess: onSuccess,
+    onError: onError,
+    onRateLimit: onRateLimit,
+  );
 
   @override
-  Future<T> put<T>(RequestContract request,
-          {void Function(T)? onSuccess,
-          Exception Function(Response)? onError,
-          void Function(Duration)? onRateLimit}) =>
-      _send<T>('PUT', request, client.put,
-          onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
+  Future<T> put<T>(
+    RequestContract request, {
+    void Function(T)? onSuccess,
+    Exception Function(Response)? onError,
+    void Function(Duration)? onRateLimit,
+  }) => _send<T>(
+    'PUT',
+    request,
+    client.put,
+    onSuccess: onSuccess,
+    onError: onError,
+    onRateLimit: onRateLimit,
+  );
 
   @override
-  Future<T> patch<T>(RequestContract request,
-          {void Function(T)? onSuccess,
-          Exception Function(Response)? onError,
-          void Function(Duration)? onRateLimit}) =>
-      _send<T>('PATCH', request, client.patch,
-          onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
+  Future<T> patch<T>(
+    RequestContract request, {
+    void Function(T)? onSuccess,
+    Exception Function(Response)? onError,
+    void Function(Duration)? onRateLimit,
+  }) => _send<T>(
+    'PATCH',
+    request,
+    client.patch,
+    onSuccess: onSuccess,
+    onError: onError,
+    onRateLimit: onRateLimit,
+  );
 
   @override
-  Future<T> delete<T>(RequestContract request,
-          {void Function(T)? onSuccess,
-          Exception Function(Response)? onError,
-          void Function(Duration)? onRateLimit}) =>
-      _send<T>('DELETE', request, client.delete,
-          onSuccess: onSuccess, onError: onError, onRateLimit: onRateLimit);
+  Future<T> delete<T>(
+    RequestContract request, {
+    void Function(T)? onSuccess,
+    Exception Function(Response)? onError,
+    void Function(Duration)? onRateLimit,
+  }) => _send<T>(
+    'DELETE',
+    request,
+    client.delete,
+    onSuccess: onSuccess,
+    onError: onError,
+    onRateLimit: onRateLimit,
+  );
 
-  Future<T> _send<T>(String method, RequestContract request,
-      RequestAction<T> action,
-      {void Function(T)? onSuccess,
-      Exception Function(Response)? onError,
-      void Function(Duration)? onRateLimit}) async {
+  Future<T> _send<T>(
+    String method,
+    RequestContract request,
+    RequestAction<T> action, {
+    void Function(T)? onSuccess,
+    Exception Function(Response)? onError,
+    void Function(Duration)? onRateLimit,
+  }) async {
     final completer = Completer<T>();
     final queueable = QueueableRequest<T>(
       this,

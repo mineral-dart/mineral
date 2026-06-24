@@ -44,10 +44,10 @@ final class OnboardingPromptOption {
 
   factory OnboardingPromptOption.fromJson(Map<String, dynamic> json) {
     final emoji = json['emoji'] as Map<String, dynamic>?;
-    final rawChannelIds =
-        (json['channel_ids'] as List<dynamic>? ?? []).cast<String>();
-    final rawRoleIds =
-        (json['role_ids'] as List<dynamic>? ?? []).cast<String>();
+    final rawChannelIds = (json['channel_ids'] as List<dynamic>? ?? [])
+        .cast<String>();
+    final rawRoleIds = (json['role_ids'] as List<dynamic>? ?? [])
+        .cast<String>();
 
     return OnboardingPromptOption(
       id: Snowflake.parse(json['id']),
@@ -112,9 +112,8 @@ final class OnboardingPrompt {
   });
 
   factory OnboardingPrompt.fromJson(Map<String, dynamic> json) {
-    final rawOptions =
-        (json['options'] as List<dynamic>? ?? [])
-            .cast<Map<String, dynamic>>();
+    final rawOptions = (json['options'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
     final typeValue = json['type'] as int;
     return OnboardingPrompt(
       id: Snowflake.parse(json['id']),
@@ -170,11 +169,10 @@ final class Onboarding {
   });
 
   factory Onboarding.fromJson(Map<String, dynamic> json) {
-    final rawPrompts =
-        (json['prompts'] as List<dynamic>? ?? [])
-            .cast<Map<String, dynamic>>();
-    final rawChannelIds =
-        (json['default_channel_ids'] as List<dynamic>? ?? []).cast<String>();
+    final rawPrompts = (json['prompts'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
+    final rawChannelIds = (json['default_channel_ids'] as List<dynamic>? ?? [])
+        .cast<String>();
     final modeValue = json['mode'] as int;
     return Onboarding(
       guildId: Snowflake.parse(json['guild_id']),

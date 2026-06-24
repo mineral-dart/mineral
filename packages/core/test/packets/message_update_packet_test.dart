@@ -17,33 +17,27 @@ void main() {
 
     /// A minimal raw Discord MESSAGE_UPDATE payload for a guild (guild) message.
     Map<String, dynamic> rawServerPayload() => {
-          'id': '111222333444555666',
-          'channel_id': '777888999000111222',
-          'guild_id': '123456789012345678',
-          'author': {
-            'id': '987654321098765432',
-            'bot': false,
-          },
-          'content': 'edited content',
-          'embeds': <Map<String, dynamic>>[],
-          'timestamp': '2024-06-01T12:00:00.000Z',
-          'edited_timestamp': '2024-06-01T12:05:00.000Z',
-        };
+      'id': '111222333444555666',
+      'channel_id': '777888999000111222',
+      'guild_id': '123456789012345678',
+      'author': {'id': '987654321098765432', 'bot': false},
+      'content': 'edited content',
+      'embeds': <Map<String, dynamic>>[],
+      'timestamp': '2024-06-01T12:00:00.000Z',
+      'edited_timestamp': '2024-06-01T12:05:00.000Z',
+    };
 
     /// A minimal raw Discord MESSAGE_UPDATE payload for a private (DM) message.
     Map<String, dynamic> rawPrivatePayload() => {
-          'id': '111222333444555666',
-          'channel_id': '777888999000111222',
-          // no guild_id → private message
-          'author': {
-            'id': '987654321098765432',
-            'bot': false,
-          },
-          'content': 'edited DM content',
-          'embeds': <Map<String, dynamic>>[],
-          'timestamp': '2024-06-01T12:00:00.000Z',
-          'edited_timestamp': '2024-06-01T12:05:00.000Z',
-        };
+      'id': '111222333444555666',
+      'channel_id': '777888999000111222',
+      // no guild_id → private message
+      'author': {'id': '987654321098765432', 'bot': false},
+      'content': 'edited DM content',
+      'embeds': <Map<String, dynamic>>[],
+      'timestamp': '2024-06-01T12:00:00.000Z',
+      'edited_timestamp': '2024-06-01T12:05:00.000Z',
+    };
 
     ShardMessage<dynamic> buildMessage(Map<String, dynamic> payload) =>
         ShardMessage(
@@ -72,10 +66,11 @@ void main() {
       Event? capturedEvent;
       Object? capturedPayload;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
         capturedPayload = payload;
       }
@@ -93,10 +88,11 @@ void main() {
     test('before is null on cache miss (guild message)', () async {
       GuildMessageUpdateArgs? capturedArgs;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildMessageUpdate) {
           capturedArgs = payload as GuildMessageUpdateArgs;
         }
@@ -108,11 +104,12 @@ void main() {
       expect(capturedArgs!.before, isNull);
     });
 
-    test('before is populated when guild message is already in cache',
-        () async {
+    test('before is populated when guild message is already in cache', () async {
       // Pre-populate the cache with the old message state (normalized format).
-      final messageCacheKey = marshaller.cacheKey
-          .message('777888999000111222', '111222333444555666');
+      final messageCacheKey = marshaller.cacheKey.message(
+        '777888999000111222',
+        '111222333444555666',
+      );
       await cache.put(messageCacheKey, {
         'id': '111222333444555666',
         'author_id': '987654321098765432',
@@ -127,10 +124,11 @@ void main() {
 
       GuildMessageUpdateArgs? capturedArgs;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildMessageUpdate) {
           capturedArgs = payload as GuildMessageUpdateArgs;
         }
@@ -150,10 +148,11 @@ void main() {
       Event? capturedEvent;
       Object? capturedPayload;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
         capturedPayload = payload;
       }
@@ -171,10 +170,11 @@ void main() {
     test('before is null on cache miss (private message)', () async {
       PrivateMessageUpdateArgs? capturedArgs;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.privateMessageUpdate) {
           capturedArgs = payload as PrivateMessageUpdateArgs;
         }
@@ -186,53 +186,61 @@ void main() {
       expect(capturedArgs!.before, isNull);
     });
 
-    test('before is populated when private message is already in cache',
-        () async {
-      final messageCacheKey = marshaller.cacheKey
-          .message('777888999000111222', '111222333444555666');
-      await cache.put(messageCacheKey, {
-        'id': '111222333444555666',
-        'author_id': '987654321098765432',
-        'content': 'original DM content',
-        'embeds': <Map<String, dynamic>>[],
-        'channel_id': '777888999000111222',
-        'guild_id': null,
-        'author_is_bot': false,
-        'timestamp': '2024-06-01T12:00:00.000Z',
-        'edited_timestamp': null,
-      });
+    test(
+      'before is populated when private message is already in cache',
+      () async {
+        final messageCacheKey = marshaller.cacheKey.message(
+          '777888999000111222',
+          '111222333444555666',
+        );
+        await cache.put(messageCacheKey, {
+          'id': '111222333444555666',
+          'author_id': '987654321098765432',
+          'content': 'original DM content',
+          'embeds': <Map<String, dynamic>>[],
+          'channel_id': '777888999000111222',
+          'guild_id': null,
+          'author_is_bot': false,
+          'timestamp': '2024-06-01T12:00:00.000Z',
+          'edited_timestamp': null,
+        });
 
-      PrivateMessageUpdateArgs? capturedArgs;
+        PrivateMessageUpdateArgs? capturedArgs;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        if (event == Event.privateMessageUpdate) {
-          capturedArgs = payload as PrivateMessageUpdateArgs;
+          bool Function(String?)? constraint,
+        }) {
+          if (event == Event.privateMessageUpdate) {
+            capturedArgs = payload as PrivateMessageUpdateArgs;
+          }
         }
-      }
 
-      await packet.listen(buildMessage(rawPrivatePayload()), dispatch);
+        await packet.listen(buildMessage(rawPrivatePayload()), dispatch);
 
-      expect(capturedArgs, isNotNull);
-      expect(capturedArgs!.before, isNotNull);
-      expect(capturedArgs!.before!.content, equals('original DM content'));
-      expect(capturedArgs!.after.content, equals('edited DM content'));
-    });
+        expect(capturedArgs, isNotNull);
+        expect(capturedArgs!.before, isNotNull);
+        expect(capturedArgs!.before!.content, equals('original DM content'));
+        expect(capturedArgs!.after.content, equals('edited DM content'));
+      },
+    );
 
     // ── cache updated after dispatch ─────────────────────────────────────────
 
     test('cache is updated with new message data after dispatch', () async {
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(buildMessage(rawServerPayload()), dispatch);
 
-      final messageCacheKey = marshaller.cacheKey
-          .message('777888999000111222', '111222333444555666');
+      final messageCacheKey = marshaller.cacheKey.message(
+        '777888999000111222',
+        '111222333444555666',
+      );
       final cached = await cache.get(messageCacheKey);
 
       expect(cached, isNotNull);

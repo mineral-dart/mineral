@@ -23,7 +23,8 @@ final class MessageCommandBuilder implements CommandBuilder {
   MessageCommandBuilder setName(String name, {Translation? translation}) {
     if (name.isEmpty || name.length > 32) {
       throw CommandNameException(
-          'Message command name "$name" must be 1–32 characters long');
+        'Message command name "$name" must be 1–32 characters long',
+      );
     }
 
     this.name = name;
@@ -41,13 +42,15 @@ final class MessageCommandBuilder implements CommandBuilder {
   }
 
   MessageCommandBuilder setIntegrationTypes(
-      List<ApplicationIntegrationType> types) {
+    List<ApplicationIntegrationType> types,
+  ) {
     integrationTypes = types;
     return this;
   }
 
   MessageCommandBuilder setInteractionContexts(
-      List<InteractionContextType> contexts) {
+    List<InteractionContextType> contexts,
+  ) {
     interactionContexts = contexts;
     return this;
   }

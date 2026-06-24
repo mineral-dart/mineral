@@ -4,7 +4,7 @@ final class FakeShardingConfig implements ShardingConfigContract {
   final int _maxReconnectAttempts;
 
   FakeShardingConfig({int maxReconnectAttempts = 3})
-      : _maxReconnectAttempts = maxReconnectAttempts;
+    : _maxReconnectAttempts = maxReconnectAttempts;
 
   @override
   String get token => 'fake-token';

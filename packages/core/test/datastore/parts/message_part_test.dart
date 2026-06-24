@@ -49,26 +49,31 @@ void main() {
 
     group('crosspost', () {
       test(
-          'sends POST to /channels/:channelId/messages/:messageId/crosspost',
-          () async {
-        await message.crosspost(channelId, messageId);
+        'sends POST to /channels/:channelId/messages/:messageId/crosspost',
+        () async {
+          await message.crosspost(channelId, messageId);
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('POST'));
-        expect(http.calls.single.path,
-            equals('/channels/111/messages/222/crosspost'));
-      });
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('POST'));
+          expect(
+            http.calls.single.path,
+            equals('/channels/111/messages/222/crosspost'),
+          );
+        },
+      );
     });
 
     group('delete', () {
-      test('sends DELETE to /channels/:channelId/messages/:messageId',
-          () async {
-        await message.delete(channelId, messageId);
+      test(
+        'sends DELETE to /channels/:channelId/messages/:messageId',
+        () async {
+          await message.delete(channelId, messageId);
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('DELETE'));
-        expect(http.calls.single.path, equals('/channels/111/messages/222'));
-      });
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('DELETE'));
+          expect(http.calls.single.path, equals('/channels/111/messages/222'));
+        },
+      );
     });
   });
 }

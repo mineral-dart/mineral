@@ -25,8 +25,9 @@ final class ProviderManager implements ProviderManagerContract {
       try {
         await provider.ready();
       } on Exception catch (e) {
-        _logger
-            .error('Provider ${provider.runtimeType} failed to initialize: $e');
+        _logger.error(
+          'Provider ${provider.runtimeType} failed to initialize: $e',
+        );
         rethrow;
       }
     }

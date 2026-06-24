@@ -33,11 +33,11 @@ final class Client {
     required this.rest,
     required CommandInteractionManagerContract commandManager,
     CacheProviderContract? cache,
-  })  : events = EventBucket(kernel),
-        commands = CommandBucket(commandManager),
-        _commands = commandManager,
-        _cache = cache,
-        _kernel = kernel;
+  }) : events = EventBucket(kernel),
+       commands = CommandBucket(commandManager),
+       _commands = commandManager,
+       _cache = cache,
+       _kernel = kernel;
 
   void register<T>(Listenable Function() constructor) {
     final instance = constructor();
@@ -47,7 +47,10 @@ final class Client {
       final GlobalState state => _kernel.globalState.register<T>(state as T),
       final Provider provider => _kernel.providerManager.register(provider),
       final ListenableEvent event => _kernel.eventListener.listen(
-          event: event.event, handle: event.handler, customId: event.customId),
+        event: event.event,
+        handle: event.handler,
+        customId: event.customId,
+      ),
       final InteractiveComponent component =>
         _kernel.interactiveComponent.register(component),
       _ => throw UnimplementedError(),

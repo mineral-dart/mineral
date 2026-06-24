@@ -8,7 +8,7 @@ import 'package:mineral/src/infrastructure/internals/wss/websocket_isolate_messa
 typedef RequestQueueEntry = ({
   String uid,
   List<String> targetKeys,
-  Completer completer
+  Completer completer,
 });
 
 abstract class WebsocketOrchestratorContract {
@@ -32,7 +32,10 @@ abstract class WebsocketOrchestratorContract {
   void send(WebsocketIsolateMessageTransfert message);
 
   void setBotPresence(
-      List<BotActivity>? activity, StatusType? status, bool? afk);
+    List<BotActivity>? activity,
+    StatusType? status,
+    bool? afk,
+  );
 
   Future<Presence> getMemberPresence(String guildId, String id);
 

@@ -23,22 +23,22 @@ const _userId = '987654321098765432';
 // ── Payload builders ──────────────────────────────────────────────────────────
 
 Map<String, dynamic> _auditLogPayload(int actionType) => {
-      'id': '444555666777888999',
-      'guild_id': _guildId,
-      'target_id': _targetId,
-      'user_id': _userId,
-      'action_type': actionType,
-      'reason': 'Test reason',
-      'changes': <Map<String, dynamic>>[],
-      'options': null,
-    };
+  'id': '444555666777888999',
+  'guild_id': _guildId,
+  'target_id': _targetId,
+  'user_id': _userId,
+  'action_type': actionType,
+  'reason': 'Test reason',
+  'changes': <Map<String, dynamic>>[],
+  'options': null,
+};
 
 ShardMessage<dynamic> _msg(Map<String, dynamic> payload) => ShardMessage(
-      type: 'GUILD_AUDIT_LOG_ENTRY_CREATE',
-      opCode: OpCode.dispatch,
-      sequence: 1,
-      payload: payload,
-    );
+  type: 'GUILD_AUDIT_LOG_ENTRY_CREATE',
+  opCode: OpCode.dispatch,
+  sequence: 1,
+  payload: payload,
+);
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -63,30 +63,34 @@ void main() {
     expect(packet.packetType.name, equals('GUILD_AUDIT_LOG_ENTRY_CREATE'));
   });
 
-  test('dispatches Event.guildAuditLog for known action type (member kick)',
-      () async {
-    Event? capturedEvent;
+  test(
+    'dispatches Event.guildAuditLog for known action type (member kick)',
+    () async {
+      Event? capturedEvent;
 
-    void dispatch<T extends Object>(
-        {required Event event,
+      void dispatch<T extends Object>({
+        required Event event,
         required T payload,
-        bool Function(String?)? constraint}) {
-      capturedEvent = event;
-    }
+        bool Function(String?)? constraint,
+      }) {
+        capturedEvent = event;
+      }
 
-    // action_type 20 = MEMBER_KICK (does not require datastore)
-    await packet.listen(_msg(_auditLogPayload(20)), dispatch);
+      // action_type 20 = MEMBER_KICK (does not require datastore)
+      await packet.listen(_msg(_auditLogPayload(20)), dispatch);
 
-    expect(capturedEvent, equals(Event.guildAuditLog));
-  });
+      expect(capturedEvent, equals(Event.guildAuditLog));
+    },
+  );
 
   test('payload is GuildAuditLogArgs', () async {
     Object? capturedPayload;
 
-    void dispatch<T extends Object>(
-        {required Event event,
-        required T payload,
-        bool Function(String?)? constraint}) {
+    void dispatch<T extends Object>({
+      required Event event,
+      required T payload,
+      bool Function(String?)? constraint,
+    }) {
       capturedPayload = payload;
     }
 
@@ -101,10 +105,11 @@ void main() {
   test('dispatches for unknown action type with warn log', () async {
     bool dispatched = false;
 
-    void dispatch<T extends Object>(
-        {required Event event,
-        required T payload,
-        bool Function(String?)? constraint}) {
+    void dispatch<T extends Object>({
+      required Event event,
+      required T payload,
+      bool Function(String?)? constraint,
+    }) {
       dispatched = true;
     }
 

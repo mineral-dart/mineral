@@ -26,43 +26,44 @@ void main() {
     tearDown(() => restoreIoc());
 
     Map<String, dynamic> webhookResponse() => {
-          'id': '111111111111111111',
-          'type': 1,
-          'guild_id': '222222222222222222',
-          'channel_id': '333333333333333333',
-          'user': {'id': '444444444444444444'},
-          'name': 'My Webhook',
-          'avatar': null,
-          'token': 'secret-token',
-          'application_id': null,
-          'url':
-              'https://discord.com/api/webhooks/111111111111111111/secret-token',
-        };
+      'id': '111111111111111111',
+      'type': 1,
+      'guild_id': '222222222222222222',
+      'channel_id': '333333333333333333',
+      'user': {'id': '444444444444444444'},
+      'name': 'My Webhook',
+      'avatar': null,
+      'token': 'secret-token',
+      'application_id': null,
+      'url': 'https://discord.com/api/webhooks/111111111111111111/secret-token',
+    };
 
     Map<String, dynamic> messageResponse() => {
-          'id': '999999999999999999',
-          'channel_id': '333333333333333333',
-          'author': {'id': '444444444444444444'},
-          'content': 'hello',
-          'timestamp': '2024-01-01T00:00:00.000Z',
-          'edited_timestamp': null,
-          'tts': false,
-          'mention_everyone': false,
-          'mentions': <dynamic>[],
-          'mention_roles': <dynamic>[],
-          'attachments': <dynamic>[],
-          'embeds': <dynamic>[],
-          'pinned': false,
-          'type': 0,
-        };
+      'id': '999999999999999999',
+      'channel_id': '333333333333333333',
+      'author': {'id': '444444444444444444'},
+      'content': 'hello',
+      'timestamp': '2024-01-01T00:00:00.000Z',
+      'edited_timestamp': null,
+      'tts': false,
+      'mention_everyone': false,
+      'mentions': <dynamic>[],
+      'mention_roles': <dynamic>[],
+      'attachments': <dynamic>[],
+      'embeds': <dynamic>[],
+      'pinned': false,
+      'type': 0,
+    };
 
     void rebuildWith(List<Object> outcomes) {
       restoreIoc();
       http = FakeHttpClient(outcomes);
       dataStore = FakeDataStore(http);
       final marshaller = FakeMarshaller();
-      final iocResult =
-          createTestIoc(dataStore: dataStore, marshaller: marshaller);
+      final iocResult = createTestIoc(
+        dataStore: dataStore,
+        marshaller: marshaller,
+      );
       restoreIoc = iocResult.restore;
       webhook = WebhookPart(marshaller, dataStore);
     }
@@ -77,8 +78,10 @@ void main() {
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('GET'));
-        expect(http.calls.single.path,
-            equals('/channels/333333333333333333/webhooks'));
+        expect(
+          http.calls.single.path,
+          equals('/channels/333333333333333333/webhooks'),
+        );
         expect(result, hasLength(1));
       });
     });
@@ -93,16 +96,19 @@ void main() {
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('GET'));
-        expect(http.calls.single.path,
-            equals('/guilds/222222222222222222/webhooks'));
+        expect(
+          http.calls.single.path,
+          equals('/guilds/222222222222222222/webhooks'),
+        );
         expect(result, hasLength(1));
       });
     });
 
     group('get', () {
       test('sends GET to /webhooks/:id when not cached', () async {
-        rebuildWith(
-            [FakeResponse<Map<String, dynamic>>(200, webhookResponse())]);
+        rebuildWith([
+          FakeResponse<Map<String, dynamic>>(200, webhookResponse()),
+        ]);
 
         final result = await webhook.get('111111111111111111', false);
 
@@ -115,22 +121,26 @@ void main() {
 
     group('getWithToken', () {
       test('sends GET to /webhooks/:id/:token', () async {
-        rebuildWith(
-            [FakeResponse<Map<String, dynamic>>(200, webhookResponse())]);
+        rebuildWith([
+          FakeResponse<Map<String, dynamic>>(200, webhookResponse()),
+        ]);
 
         await webhook.getWithToken('111111111111111111', 'secret-token');
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('GET'));
-        expect(http.calls.single.path,
-            equals('/webhooks/111111111111111111/secret-token'));
+        expect(
+          http.calls.single.path,
+          equals('/webhooks/111111111111111111/secret-token'),
+        );
       });
     });
 
     group('create', () {
       test('sends POST to /channels/:channelId/webhooks', () async {
-        rebuildWith(
-            [FakeResponse<Map<String, dynamic>>(200, webhookResponse())]);
+        rebuildWith([
+          FakeResponse<Map<String, dynamic>>(200, webhookResponse()),
+        ]);
 
         final result = await webhook.create(
           channelId: '333333333333333333',
@@ -139,16 +149,19 @@ void main() {
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('POST'));
-        expect(http.calls.single.path,
-            equals('/channels/333333333333333333/webhooks'));
+        expect(
+          http.calls.single.path,
+          equals('/channels/333333333333333333/webhooks'),
+        );
         expect(result.name, equals('My Webhook'));
       });
     });
 
     group('update', () {
       test('sends PATCH to /webhooks/:id', () async {
-        rebuildWith(
-            [FakeResponse<Map<String, dynamic>>(200, webhookResponse())]);
+        rebuildWith([
+          FakeResponse<Map<String, dynamic>>(200, webhookResponse()),
+        ]);
 
         await webhook.update(id: '111111111111111111', name: 'New Name');
 
@@ -160,8 +173,9 @@ void main() {
 
     group('updateWithToken', () {
       test('sends PATCH to /webhooks/:id/:token', () async {
-        rebuildWith(
-            [FakeResponse<Map<String, dynamic>>(200, webhookResponse())]);
+        rebuildWith([
+          FakeResponse<Map<String, dynamic>>(200, webhookResponse()),
+        ]);
 
         await webhook.updateWithToken(
           id: '111111111111111111',
@@ -171,8 +185,10 @@ void main() {
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('PATCH'));
-        expect(http.calls.single.path,
-            equals('/webhooks/111111111111111111/secret-token'));
+        expect(
+          http.calls.single.path,
+          equals('/webhooks/111111111111111111/secret-token'),
+        );
       });
     });
 
@@ -195,93 +211,106 @@ void main() {
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('DELETE'));
-        expect(http.calls.single.path,
-            equals('/webhooks/111111111111111111/secret-token'));
+        expect(
+          http.calls.single.path,
+          equals('/webhooks/111111111111111111/secret-token'),
+        );
       });
     });
 
     group('execute', () {
-      test('sends POST to /webhooks/:id/:token and returns null when wait=false',
-          () async {
-        final builder = MessageBuilder()..addText('hello');
+      test(
+        'sends POST to /webhooks/:id/:token and returns null when wait=false',
+        () async {
+          final builder = MessageBuilder()..addText('hello');
 
-        final result = await webhook.execute(
-          id: '111111111111111111',
-          token: 'secret-token',
-          builder: builder,
-          wait: false,
-        );
+          final result = await webhook.execute(
+            id: '111111111111111111',
+            token: 'secret-token',
+            builder: builder,
+            wait: false,
+          );
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('POST'));
-        expect(http.calls.single.path,
-            equals('/webhooks/111111111111111111/secret-token'));
-        expect(result, isNull);
-      });
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('POST'));
+          expect(
+            http.calls.single.path,
+            equals('/webhooks/111111111111111111/secret-token'),
+          );
+          expect(result, isNull);
+        },
+      );
 
-      test('returns a Message when wait=true and response is not empty',
-          () async {
-        rebuildWith(
-            [FakeResponse<Map<String, dynamic>>(200, messageResponse())]);
-        final builder = MessageBuilder()..addText('hello');
+      test(
+        'returns a Message when wait=true and response is not empty',
+        () async {
+          rebuildWith([
+            FakeResponse<Map<String, dynamic>>(200, messageResponse()),
+          ]);
+          final builder = MessageBuilder()..addText('hello');
 
-        final result = await webhook.execute(
-          id: '111111111111111111',
-          token: 'secret-token',
-          builder: builder,
-        );
+          final result = await webhook.execute(
+            id: '111111111111111111',
+            token: 'secret-token',
+            builder: builder,
+          );
 
-        expect(result, isNotNull);
-      });
+          expect(result, isNotNull);
+        },
+      );
     });
 
     group('getMessage', () {
       test(
-          'sends GET to /webhooks/:id/:token/messages/:messageId and returns null on empty body',
-          () async {
-        final result = await webhook.getMessage(
-          id: '111111111111111111',
-          token: 'secret-token',
-          messageId: '999999999999999999',
-        );
+        'sends GET to /webhooks/:id/:token/messages/:messageId and returns null on empty body',
+        () async {
+          final result = await webhook.getMessage(
+            id: '111111111111111111',
+            token: 'secret-token',
+            messageId: '999999999999999999',
+          );
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('GET'));
-        expect(
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('GET'));
+          expect(
             http.calls.single.path,
             equals(
-                '/webhooks/111111111111111111/secret-token/messages/999999999999999999'));
-        expect(result, isNull);
-      });
+              '/webhooks/111111111111111111/secret-token/messages/999999999999999999',
+            ),
+          );
+          expect(result, isNull);
+        },
+      );
     });
 
     group('editMessage', () {
       test(
-          'sends PATCH to /webhooks/:id/:token/messages/:messageId and returns null on empty body',
-          () async {
-        final builder = MessageBuilder()..addText('edited');
+        'sends PATCH to /webhooks/:id/:token/messages/:messageId and returns null on empty body',
+        () async {
+          final builder = MessageBuilder()..addText('edited');
 
-        final result = await webhook.editMessage(
-          id: '111111111111111111',
-          token: 'secret-token',
-          messageId: '999999999999999999',
-          builder: builder,
-        );
+          final result = await webhook.editMessage(
+            id: '111111111111111111',
+            token: 'secret-token',
+            messageId: '999999999999999999',
+            builder: builder,
+          );
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('PATCH'));
-        expect(
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('PATCH'));
+          expect(
             http.calls.single.path,
             equals(
-                '/webhooks/111111111111111111/secret-token/messages/999999999999999999'));
-        expect(result, isNull);
-      });
+              '/webhooks/111111111111111111/secret-token/messages/999999999999999999',
+            ),
+          );
+          expect(result, isNull);
+        },
+      );
     });
 
     group('deleteMessage', () {
-      test(
-          'sends DELETE to /webhooks/:id/:token/messages/:messageId',
-          () async {
+      test('sends DELETE to /webhooks/:id/:token/messages/:messageId', () async {
         await webhook.deleteMessage(
           id: '111111111111111111',
           token: 'secret-token',
@@ -291,9 +320,11 @@ void main() {
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('DELETE'));
         expect(
-            http.calls.single.path,
-            equals(
-                '/webhooks/111111111111111111/secret-token/messages/999999999999999999'));
+          http.calls.single.path,
+          equals(
+            '/webhooks/111111111111111111/secret-token/messages/999999999999999999',
+          ),
+        );
       });
     });
 
@@ -307,8 +338,10 @@ void main() {
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('POST'));
-        expect(http.calls.single.path,
-            equals('/webhooks/111111111111111111/secret-token/github'));
+        expect(
+          http.calls.single.path,
+          equals('/webhooks/111111111111111111/secret-token/github'),
+        );
       });
     });
 
@@ -322,8 +355,10 @@ void main() {
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('POST'));
-        expect(http.calls.single.path,
-            equals('/webhooks/111111111111111111/secret-token/slack'));
+        expect(
+          http.calls.single.path,
+          equals('/webhooks/111111111111111111/secret-token/slack'),
+        );
       });
     });
   });

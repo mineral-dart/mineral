@@ -125,13 +125,12 @@ MockDataStore buildMockDs({
 EntityContext buildCtx({
   required DataStoreContract dataStore,
   WebsocketOrchestratorContract? wss,
-}) =>
-    EntityContext(
-      datastore: dataStore,
-      wss: wss ?? FakeWebsocketOrchestrator(),
-      logger: FakeLogger(),
-      runtimeState: RuntimeState(),
-    );
+}) => EntityContext(
+  datastore: dataStore,
+  wss: wss ?? FakeWebsocketOrchestrator(),
+  logger: FakeLogger(),
+  runtimeState: RuntimeState(),
+);
 
 // ── Part stubs ────────────────────────────────────────────────────────────────
 
@@ -169,24 +168,30 @@ final class FakeChannelPart implements ChannelPartContract {
 
   @override
   Future<Map<Snowflake, T>> fetch<T extends Channel>(
-          Object guildId, bool force) async =>
-      {};
+    Object guildId,
+    bool force,
+  ) async => {};
 
   @override
-  Future<T> create<T extends Channel>(Object? guildId,
-          ChannelBuilderContract builder,
-          {String? reason}) =>
-      throw UnimplementedError();
+  Future<T> create<T extends Channel>(
+    Object? guildId,
+    ChannelBuilderContract builder, {
+    String? reason,
+  }) => throw UnimplementedError();
 
   @override
   Future<PrivateChannel?> createPrivateChannel(
-          Object id, String recipientId) async =>
-      null;
+    Object id,
+    String recipientId,
+  ) async => null;
 
   @override
-  Future<T?> update<T extends Channel>(Object id, ChannelBuilderContract builder,
-          {Object? guildId, String? reason}) =>
-      throw UnimplementedError();
+  Future<T?> update<T extends Channel>(
+    Object id,
+    ChannelBuilderContract builder, {
+    Object? guildId,
+    String? reason,
+  }) => throw UnimplementedError();
 
   @override
   Future<void> delete(Object id, String? reason) async {}

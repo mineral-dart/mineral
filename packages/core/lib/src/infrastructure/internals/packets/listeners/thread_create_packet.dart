@@ -15,17 +15,23 @@ final class ThreadCreatePacket implements ListenablePacket {
   ThreadCreatePacket({
     required MarshallerContract marshaller,
     required DataStoreContract dataStore,
-  })  : _marshaller = marshaller,
-        _dataStore = dataStore;
+  }) : _marshaller = marshaller,
+       _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
 
-    final guild = await _dataStore.guild.get(payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      payload['guild_id'] as Object,
+      false,
+    );
     final threadRaw = await _marshaller.serializers.channels.normalize(payload);
     final thread = await _marshaller.serializers.channels.serialize(threadRaw);
 
-    dispatch<GuildThreadCreateArgs>(event: Event.guildThreadCreate, payload: (guild: guild, channel: thread as ThreadChannel));
+    dispatch<GuildThreadCreateArgs>(
+      event: Event.guildThreadCreate,
+      payload: (guild: guild, channel: thread as ThreadChannel),
+    );
   }
 }

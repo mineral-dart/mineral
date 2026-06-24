@@ -18,7 +18,8 @@ void main() {
       test('includes Content-Type application/json header', () {
         final request = Request.json(endpoint: '/test');
         final hasContentType = request.headers.any(
-            (h) => h.key == 'Content-Type' && h.value == 'application/json');
+          (h) => h.key == 'Content-Type' && h.value == 'application/json',
+        );
         expect(hasContentType, isTrue);
       });
 
@@ -34,9 +35,12 @@ void main() {
 
       test('stores custom headers', () {
         final request = Request.json(
-            endpoint: '/test', headers: {Header('X-Custom', 'val')});
-        final hasCustom =
-            request.headers.any((h) => h.key == 'X-Custom' && h.value == 'val');
+          endpoint: '/test',
+          headers: {Header('X-Custom', 'val')},
+        );
+        final hasCustom = request.headers.any(
+          (h) => h.key == 'X-Custom' && h.value == 'val',
+        );
         expect(hasCustom, isTrue);
       });
 
@@ -46,8 +50,10 @@ void main() {
       });
 
       test('stores query parameters', () {
-        final request =
-            Request.json(endpoint: '/test', queryParameters: {'limit': '10'});
+        final request = Request.json(
+          endpoint: '/test',
+          queryParameters: {'limit': '10'},
+        );
         expect(request.queryParameters['limit'], '10');
       });
 
@@ -66,7 +72,8 @@ void main() {
       test('includes Content-Type multipart/form-data header', () {
         final request = Request.formData(endpoint: '/test');
         final hasContentType = request.headers.any(
-            (h) => h.key == 'Content-Type' && h.value == 'multipart/form-data');
+          (h) => h.key == 'Content-Type' && h.value == 'multipart/form-data',
+        );
         expect(hasContentType, isTrue);
       });
 
@@ -83,8 +90,11 @@ void main() {
       });
 
       test('returns json request when files list is empty', () {
-        final request =
-            Request.auto(endpoint: '/test', body: {'a': 'b'}, files: []);
+        final request = Request.auto(
+          endpoint: '/test',
+          body: {'a': 'b'},
+          files: [],
+        );
         expect(request.type, RequestType.json);
       });
     });
@@ -111,8 +121,9 @@ void main() {
         final original = Request.json(endpoint: '/test');
         final copy = original.copyWith(headers: {Header('X-New', 'val')});
 
-        final hasNew =
-            copy.headers.any((h) => h.key == 'X-New' && h.value == 'val');
+        final hasNew = copy.headers.any(
+          (h) => h.key == 'X-New' && h.value == 'val',
+        );
         expect(hasNew, isTrue);
 
         // Original content-type should still be there
@@ -121,8 +132,10 @@ void main() {
       });
 
       test('merges query parameters', () {
-        final original =
-            Request.json(endpoint: '/test', queryParameters: {'a': '1'});
+        final original = Request.json(
+          endpoint: '/test',
+          queryParameters: {'a': '1'},
+        );
         final copy = original.copyWith(queryParameters: {'b': '2'});
 
         expect(copy.queryParameters['a'], '1');
@@ -131,7 +144,10 @@ void main() {
 
       test('preserves original values when not overridden', () {
         final original = Request.json(
-            endpoint: '/test', method: 'GET', body: {'key': 'val'});
+          endpoint: '/test',
+          method: 'GET',
+          body: {'key': 'val'},
+        );
         final copy = original.copyWith(method: 'POST');
 
         expect(copy.body, {'key': 'val'});

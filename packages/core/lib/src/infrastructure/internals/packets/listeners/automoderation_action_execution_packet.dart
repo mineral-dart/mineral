@@ -18,28 +18,40 @@ final class AutomoderationActionExecutionPacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   AutomoderationActionExecutionPacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
-    final guild =
-        await _dataStore.guild.get(payload['guild_id'] as String, false);
+    final guild = await _dataStore.guild.get(
+      payload['guild_id'] as String,
+      false,
+    );
     final member = await _dataStore.member.get(
-        payload['guild_id'] as String, payload['user_id'] as String, false);
+      payload['guild_id'] as String,
+      payload['user_id'] as String,
+      false,
+    );
 
     final triggerType = findInEnum(
-        TriggerType.values, payload['rule_trigger_type'],
-        orElse: TriggerType.unknown);
+      TriggerType.values,
+      payload['rule_trigger_type'],
+      orElse: TriggerType.unknown,
+    );
 
     final action = Action(
-        type: findInEnum(ActionType.values,
-            (payload['action'] as Map<String, dynamic>)['type'],
-            orElse: ActionType.unknown),
-        metadata: Helper.createOrNull(
-            field: payload['metadata'],
-            fn: () => ActionMetadata.fromJson(
-                payload['metadata'] as Map<String, dynamic>)));
+      type: findInEnum(
+        ActionType.values,
+        (payload['action'] as Map<String, dynamic>)['type'],
+        orElse: ActionType.unknown,
+      ),
+      metadata: Helper.createOrNull(
+        field: payload['metadata'],
+        fn: () => ActionMetadata.fromJson(
+          payload['metadata'] as Map<String, dynamic>,
+        ),
+      ),
+    );
 
     final ruleExecution = RuleExecution(
       ruleId: Snowflake.parse(payload['rule_id']),
@@ -55,6 +67,8 @@ final class AutomoderationActionExecutionPacket implements ListenablePacket {
     );
 
     dispatch<GuildRuleExecutionArgs>(
-        event: Event.guildRuleExecution, payload: (execution: ruleExecution));
+      event: Event.guildRuleExecution,
+      payload: (execution: ruleExecution),
+    );
   }
 }

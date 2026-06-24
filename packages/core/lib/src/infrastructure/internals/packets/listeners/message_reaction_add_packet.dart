@@ -12,24 +12,27 @@ final class MessageReactionAddPacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   MessageReactionAddPacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final raw =
-        await _marshaller.serializers.reaction.normalize(message.payload as Map<String, dynamic>);
+    final raw = await _marshaller.serializers.reaction.normalize(
+      message.payload as Map<String, dynamic>,
+    );
     final reaction = await _marshaller.serializers.reaction.serialize(raw);
 
     final guildId = Snowflake.nullable(message.payload['guild_id']);
     switch (guildId) {
       case String():
         dispatch<GuildMessageReactionAddArgs>(
-            event: Event.guildMessageReactionAdd,
-            payload: (reaction: reaction));
+          event: Event.guildMessageReactionAdd,
+          payload: (reaction: reaction),
+        );
       default:
         dispatch<PrivateMessageReactionAddArgs>(
-            event: Event.privateMessageReactionAdd,
-            payload: (reaction: reaction));
+          event: Event.privateMessageReactionAdd,
+          payload: (reaction: reaction),
+        );
     }
   }
 }

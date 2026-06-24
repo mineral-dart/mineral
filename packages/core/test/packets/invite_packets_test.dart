@@ -29,27 +29,27 @@ const _inviteCode = 'abc123xyz';
 // ── Payloads ──────────────────────────────────────────────────────────────────
 
 Map<String, dynamic> _createPayload() => {
-      'code': _inviteCode,
-      'guild_id': _guildId,
-      'channel_id': _channelId,
-      'inviter': {
-        'id': _inviterId,
-        'username': 'Inviter',
-        'discriminator': '0001',
-        'avatar': null,
-      },
-      'max_age': 86400,
-      'max_uses': 10,
-      'temporary': false,
-      'type': 0,
-      'created_at': '2024-06-01T12:00:00.000Z',
-    };
+  'code': _inviteCode,
+  'guild_id': _guildId,
+  'channel_id': _channelId,
+  'inviter': {
+    'id': _inviterId,
+    'username': 'Inviter',
+    'discriminator': '0001',
+    'avatar': null,
+  },
+  'max_age': 86400,
+  'max_uses': 10,
+  'temporary': false,
+  'type': 0,
+  'created_at': '2024-06-01T12:00:00.000Z',
+};
 
 Map<String, dynamic> _deletePayload() => {
-      'channel_id': _channelId,
-      'guild_id': _guildId,
-      'code': _inviteCode,
-    };
+  'channel_id': _channelId,
+  'guild_id': _guildId,
+  'code': _inviteCode,
+};
 
 ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
     ShardMessage(
@@ -74,7 +74,9 @@ void main() {
     channelDataStore = MockDataStore();
     final ctx = buildCtx(dataStore: channelDataStore, wss: wss);
     fakeChannel = _buildGuildTextChannel(ctx);
-    when(() => channelDataStore.channel).thenReturn(FakeChannelPart(fakeChannel));
+    when(
+      () => channelDataStore.channel,
+    ).thenReturn(FakeChannelPart(fakeChannel));
 
     marshaller = FakeMarshaller(
       cache: cache,
@@ -95,10 +97,11 @@ void main() {
       final packet = InviteCreatePacket(marshaller: marshaller);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -111,10 +114,11 @@ void main() {
       final packet = InviteCreatePacket(marshaller: marshaller);
       InviteCreateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.inviteCreate) {
           args = payload as InviteCreateArgs;
         }
@@ -141,10 +145,11 @@ void main() {
       final packet = InviteDeletePacket(dataStore: channelDataStore);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -157,10 +162,11 @@ void main() {
       final packet = InviteDeletePacket(dataStore: channelDataStore);
       InviteDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.inviteDelete) {
           args = payload as InviteDeleteArgs;
         }
@@ -178,43 +184,42 @@ void main() {
 // ── Domain helpers ────────────────────────────────────────────────────────────
 
 GuildTextChannel _buildGuildTextChannel(EntityContext ctx) => GuildTextChannel(
-      ChannelProperties(
-        ctx: ctx,
-        id: Snowflake.parse(_channelId),
-        type: ChannelType.guildText,
-        name: 'general',
-        description: null,
-        guildId: Snowflake.parse(_guildId),
-        categoryId: null,
-        position: null,
-        nsfw: false,
-        lastMessageId: null,
-        bitrate: null,
-        userLimit: null,
-        rateLimitPerUser: null,
-        recipients: [],
-        icon: null,
-        ownerId: null,
-        applicationId: null,
-        lastPinTimestamp: null,
-        rtcRegion: null,
-        videoQualityMode: null,
-        messageCount: null,
-        memberCount: null,
-        defaultAutoArchiveDuration: null,
-        permissions: [],
-        flags: null,
-        totalMessageSent: null,
-        available: null,
-        appliedTags: [],
-        defaultReactions: null,
-        defaultSortOrder: null,
-        defaultForumLayout: null,
-        threads: ThreadsManager(
-          Snowflake.parse(_guildId),
-          Snowflake.parse(_channelId),
-          ctx: ctx,
-        ),
-      ),
-    );
-
+  ChannelProperties(
+    ctx: ctx,
+    id: Snowflake.parse(_channelId),
+    type: ChannelType.guildText,
+    name: 'general',
+    description: null,
+    guildId: Snowflake.parse(_guildId),
+    categoryId: null,
+    position: null,
+    nsfw: false,
+    lastMessageId: null,
+    bitrate: null,
+    userLimit: null,
+    rateLimitPerUser: null,
+    recipients: [],
+    icon: null,
+    ownerId: null,
+    applicationId: null,
+    lastPinTimestamp: null,
+    rtcRegion: null,
+    videoQualityMode: null,
+    messageCount: null,
+    memberCount: null,
+    defaultAutoArchiveDuration: null,
+    permissions: [],
+    flags: null,
+    totalMessageSent: null,
+    available: null,
+    appliedTags: [],
+    defaultReactions: null,
+    defaultSortOrder: null,
+    defaultForumLayout: null,
+    threads: ThreadsManager(
+      Snowflake.parse(_guildId),
+      Snowflake.parse(_channelId),
+      ctx: ctx,
+    ),
+  ),
+);

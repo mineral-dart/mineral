@@ -7,11 +7,10 @@ void main() {
     test('stores event, payload, and constraint', () {
       bool constraint(String? id) => id == 'btn-1';
 
-      final params = InternalEventParams(
-        Event.ready,
-        (label: 'param1', value: 'param2'),
-        constraint,
-      );
+      final params = InternalEventParams(Event.ready, (
+        label: 'param1',
+        value: 'param2',
+      ), constraint);
 
       expect(params.event, Event.ready);
       final p = params.payload as ({String label, String value});
@@ -39,10 +38,13 @@ void main() {
 
     test('works with different event types', () {
       final readyParams = InternalEventParams(Event.ready, (bot: 'bot'), null);
-      final msgParams = InternalEventParams(
-          Event.guildMessageCreate, (message: 'msg'), null);
-      final voiceParams = InternalEventParams(
-          Event.voiceStateUpdate, (before: 'before', after: 'after'), null);
+      final msgParams = InternalEventParams(Event.guildMessageCreate, (
+        message: 'msg',
+      ), null);
+      final voiceParams = InternalEventParams(Event.voiceStateUpdate, (
+        before: 'before',
+        after: 'after',
+      ), null);
 
       expect(readyParams.event, Event.ready);
       expect(msgParams.event, Event.guildMessageCreate);

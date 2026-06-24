@@ -14,15 +14,19 @@ final class GuildRoleUpdatePacket implements ListenablePacket {
   GuildRoleUpdatePacket({
     required MarshallerContract marshaller,
     required DataStoreContract dataStore,
-  })  : _marshaller = marshaller,
-        _dataStore = dataStore;
+  }) : _marshaller = marshaller,
+       _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final guild =
-        await _dataStore.guild.get(message.payload['guild_id'] as Object, false);
-    final roleCacheKey = _marshaller.cacheKey
-        .guildRole(guild.id.value, (message.payload['role'] as Map<String, dynamic>)['id'] as Object);
+    final guild = await _dataStore.guild.get(
+      message.payload['guild_id'] as Object,
+      false,
+    );
+    final roleCacheKey = _marshaller.cacheKey.guildRole(
+      guild.id.value,
+      (message.payload['role'] as Map<String, dynamic>)['id'] as Object,
+    );
 
     final rawBefore = await _marshaller.cache?.get(roleCacheKey);
     final before = rawBefore != null
@@ -36,6 +40,9 @@ final class GuildRoleUpdatePacket implements ListenablePacket {
 
     final role = await _marshaller.serializers.role.serialize(rawRole);
 
-    dispatch<GuildRoleUpdateArgs>(event: Event.guildRoleUpdate, payload: (guild: guild, before: before, after: role));
+    dispatch<GuildRoleUpdateArgs>(
+      event: Event.guildRoleUpdate,
+      payload: (guild: guild, before: before, after: role),
+    );
   }
 }

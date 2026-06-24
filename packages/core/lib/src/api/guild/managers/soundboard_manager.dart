@@ -46,16 +46,15 @@ final class SoundboardManager {
     Object? emojiId,
     String? emojiName,
     String? reason,
-  }) =>
-      _datastore.soundboard.create(
-        _guildId.value,
-        name: name,
-        sound: sound,
-        volume: volume,
-        emojiId: emojiId,
-        emojiName: emojiName,
-        reason: reason,
-      );
+  }) => _datastore.soundboard.create(
+    _guildId.value,
+    name: name,
+    sound: sound,
+    volume: volume,
+    emojiId: emojiId,
+    emojiName: emojiName,
+    reason: reason,
+  );
 
   /// Update an existing soundboard sound.
   /// ```dart
@@ -68,16 +67,15 @@ final class SoundboardManager {
     Object? emojiId,
     String? emojiName,
     String? reason,
-  }) =>
-      _datastore.soundboard.update(
-        _guildId.value,
-        soundId,
-        name: name,
-        volume: volume,
-        emojiId: emojiId,
-        emojiName: emojiName,
-        reason: reason,
-      );
+  }) => _datastore.soundboard.update(
+    _guildId.value,
+    soundId,
+    name: name,
+    volume: volume,
+    emojiId: emojiId,
+    emojiName: emojiName,
+    reason: reason,
+  );
 
   /// Delete a soundboard sound.
   /// ```dart

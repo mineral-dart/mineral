@@ -14,7 +14,9 @@ final class ApplicationEmojiPart extends BasePart
   /// non-null [guildId] field, and we skip the cache-write path that
   /// [EmojiSerializer.normalize] would do (no caching for app emojis).
   Map<String, dynamic> _normalizePayload(
-      Map<String, dynamic> raw, String applicationId) {
+    Map<String, dynamic> raw,
+    String applicationId,
+  ) {
     return {
       'id': raw['id'],
       'name': raw['name'],
@@ -27,7 +29,9 @@ final class ApplicationEmojiPart extends BasePart
   }
 
   Future<Emoji> _buildEmoji(
-      Map<String, dynamic> raw, String applicationId) async {
+    Map<String, dynamic> raw,
+    String applicationId,
+  ) async {
     final normalized = _normalizePayload(raw, applicationId);
     return marshaller.serializers.emojis.serialize(normalized);
   }
@@ -35,14 +39,12 @@ final class ApplicationEmojiPart extends BasePart
   @override
   Future<Map<Snowflake, Emoji>> fetch(Object applicationId) async {
     final appId = Snowflake.parse(applicationId);
-    final req =
-        Request.json(endpoint: '/applications/$appId/emojis');
-    final result =
-        await dataStore.requestBucket.get<Map<String, dynamic>>(req);
+    final req = Request.json(endpoint: '/applications/$appId/emojis');
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     // Discord wraps application emojis in { "items": [...] }
-    final items =
-        (result['items'] as List<dynamic>).cast<Map<String, dynamic>>();
+    final items = (result['items'] as List<dynamic>)
+        .cast<Map<String, dynamic>>();
 
     final emojis = await items.map((element) async {
       return _buildEmoji(element, appId.value);
@@ -54,41 +56,40 @@ final class ApplicationEmojiPart extends BasePart
   @override
   Future<Emoji?> get(Object applicationId, Object emojiId) async {
     final appId = Snowflake.parse(applicationId);
-    final req =
-        Request.json(endpoint: '/applications/$appId/emojis/$emojiId');
-    final result =
-        await dataStore.requestBucket.get<Map<String, dynamic>>(req);
+    final req = Request.json(endpoint: '/applications/$appId/emojis/$emojiId');
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     return _buildEmoji(result, appId.value);
   }
 
   @override
-  Future<Emoji> create(
-      Object applicationId, String name, Image image) async {
+  Future<Emoji> create(Object applicationId, String name, Image image) async {
     final appId = Snowflake.parse(applicationId);
     final req = Request.json(
       endpoint: '/applications/$appId/emojis',
-      body: {
-        'name': name.replaceAll(' ', '_'),
-        'image': image.base64,
-      },
+      body: {'name': name.replaceAll(' ', '_'), 'image': image.base64},
     );
-    final result =
-        await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     return _buildEmoji(result, appId.value);
   }
 
   @override
   Future<Emoji?> update(
-      Object applicationId, Object emojiId, String name) async {
+    Object applicationId,
+    Object emojiId,
+    String name,
+  ) async {
     final appId = Snowflake.parse(applicationId);
     final req = Request.json(
       endpoint: '/applications/$appId/emojis/$emojiId',
       body: {'name': name.replaceAll(' ', '_')},
     );
-    final result =
-        await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
 
     return _buildEmoji(result, appId.value);
   }
@@ -96,8 +97,7 @@ final class ApplicationEmojiPart extends BasePart
   @override
   Future<void> delete(Object applicationId, Object emojiId) async {
     final appId = Snowflake.parse(applicationId);
-    final req = Request.json(
-        endpoint: '/applications/$appId/emojis/$emojiId');
+    final req = Request.json(endpoint: '/applications/$appId/emojis/$emojiId');
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 }

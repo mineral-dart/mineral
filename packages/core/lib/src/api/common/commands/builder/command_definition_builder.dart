@@ -22,7 +22,10 @@ final class CommandDefinitionBuilder implements CommandBuilder {
   final CommandDeclarationBuilder command = CommandDeclarationBuilder();
 
   String _extractDefaultValue(
-      String commandKey, String key, Map<String, dynamic> payload) {
+    String commandKey,
+    String key,
+    Map<String, dynamic> payload,
+  ) {
     final Map<String, dynamic>? elements =
         payload[key] as Map<String, dynamic>?;
     if (elements == null) {
@@ -34,11 +37,14 @@ final class CommandDefinitionBuilder implements CommandBuilder {
     }
 
     throw InvalidCommandException(
-        'Missing "$key.$_defaultIdentifier" key under $commandKey struct');
+      'Missing "$key.$_defaultIdentifier" key under $commandKey struct',
+    );
   }
 
   Map<Lang, String> _extractTranslations(
-      String key, Map<String, dynamic> payload) {
+    String key,
+    Map<String, dynamic> payload,
+  ) {
     final Map<String, dynamic>? elements =
         payload[key] as Map<String, dynamic>?;
     if (elements == null) {
@@ -48,9 +54,11 @@ final class CommandDefinitionBuilder implements CommandBuilder {
     return elements.entries
         .whereNot((element) => element.key == _defaultIdentifier)
         .fold({}, (acc, element) {
-      final lang = Lang.values.firstWhere((lang) => lang.uid == element.key);
-      return {...acc, lang: element.value as String};
-    });
+          final lang = Lang.values.firstWhere(
+            (lang) => lang.uid == element.key,
+          );
+          return {...acc, lang: element.value as String};
+        });
   }
 
   void _declareGroups(Map<String, dynamic> content) {
@@ -59,21 +67,33 @@ final class CommandDefinitionBuilder implements CommandBuilder {
 
     for (final element in groupList.entries) {
       final elementValue = element.value as Map<String, dynamic>;
-      final String defaultName =
-          _extractDefaultValue(element.key, 'name', elementValue);
-      final String defaultDescription =
-          _extractDefaultValue(element.key, 'description', elementValue);
+      final String defaultName = _extractDefaultValue(
+        element.key,
+        'name',
+        elementValue,
+      );
+      final String defaultDescription = _extractDefaultValue(
+        element.key,
+        'description',
+        elementValue,
+      );
 
       final nameTranslations = _extractTranslations('name', elementValue);
-      final descriptionTranslations =
-          _extractTranslations('description', elementValue);
+      final descriptionTranslations = _extractTranslations(
+        'description',
+        elementValue,
+      );
 
       command.createGroup((group) {
         return group
-          ..setName(defaultName,
-              translation: Translation({'name': nameTranslations}))
-          ..setDescription(defaultDescription,
-              translation: Translation({'name': descriptionTranslations}));
+          ..setName(
+            defaultName,
+            translation: Translation({'name': nameTranslations}),
+          )
+          ..setDescription(
+            defaultDescription,
+            translation: Translation({'name': descriptionTranslations}),
+          );
       });
     }
   }
@@ -81,60 +101,100 @@ final class CommandDefinitionBuilder implements CommandBuilder {
   List<CommandOption> _declareOptions(MapEntry<String, dynamic> element) {
     final elementValue = element.value as Map<String, dynamic>;
     final options = List<Map<String, dynamic>>.from(
-        elementValue['options'] as Iterable<dynamic>? ?? []);
+      elementValue['options'] as Iterable<dynamic>? ?? [],
+    );
 
     return options.fold([], (acc, Map<String, dynamic> element) {
       final String name = _extractDefaultValue('option', 'name', element);
-      final String description =
-          _extractDefaultValue('option', 'description', element);
+      final String description = _extractDefaultValue(
+        'option',
+        'description',
+        element,
+      );
       final bool required = element['required'] as bool? ?? false;
 
       final option = switch (element['type']) {
         final String value when value == 'string' => Option.string(
-            name: name, description: description, required: required),
+          name: name,
+          description: description,
+          required: required,
+        ),
         final String value when value == 'integer' => Option.integer(
-            name: name, description: description, required: required),
+          name: name,
+          description: description,
+          required: required,
+        ),
         final String value when value == 'double' => Option.double(
-            name: name, description: description, required: required),
+          name: name,
+          description: description,
+          required: required,
+        ),
         final String value when value == 'string' => Option.boolean(
-            name: name, description: description, required: required),
-        final String value when value == 'user' =>
-          Option.user(name: name, description: description, required: required),
+          name: name,
+          description: description,
+          required: required,
+        ),
+        final String value when value == 'user' => Option.user(
+          name: name,
+          description: description,
+          required: required,
+        ),
         final String value when value == 'channel' => Option.channel(
-            name: name, description: description, required: required),
-        final String value when value == 'role' =>
-          Option.role(name: name, description: description, required: required),
+          name: name,
+          description: description,
+          required: required,
+        ),
+        final String value when value == 'role' => Option.role(
+          name: name,
+          description: description,
+          required: required,
+        ),
         final String value when value == 'mention' => Option.mentionable(
-            name: name, description: description, required: required),
+          name: name,
+          description: description,
+          required: required,
+        ),
         final String value when value == 'choice.string' => ChoiceOption.string(
-            name: name,
-            description: description,
-            required: required,
-            choices: List.from(element['choices'] as Iterable<dynamic>? ?? [])
-                .map((element) => Choice<String>(
-                    (element as Map<String, dynamic>)['name'] as String,
-                    element['value'] as String))
-                .toList()),
+          name: name,
+          description: description,
+          required: required,
+          choices: List.from(element['choices'] as Iterable<dynamic>? ?? [])
+              .map(
+                (element) => Choice<String>(
+                  (element as Map<String, dynamic>)['name'] as String,
+                  element['value'] as String,
+                ),
+              )
+              .toList(),
+        ),
         final String value when value == 'choice.integer' =>
           ChoiceOption.integer(
-              name: name,
-              description: description,
-              required: required,
-              choices: List.from(element['choices'] as Iterable<dynamic>? ?? [])
-                  .map((element) => Choice(
-                      (element as Map<String, dynamic>)['name'] as String,
-                      int.parse(element['value'] as String)))
-                  .toList()),
-        final String value when value == 'choice.double' => ChoiceOption.double(
             name: name,
             description: description,
             required: required,
             choices: List.from(element['choices'] as Iterable<dynamic>? ?? [])
-                .map((element) => Choice(
+                .map(
+                  (element) => Choice(
                     (element as Map<String, dynamic>)['name'] as String,
-                    double.parse(element['value'] as String)))
-                .toList()),
-        _ => throw InvalidCommandException('Unknown option type')
+                    int.parse(element['value'] as String),
+                  ),
+                )
+                .toList(),
+          ),
+        final String value when value == 'choice.double' => ChoiceOption.double(
+          name: name,
+          description: description,
+          required: required,
+          choices: List.from(element['choices'] as Iterable<dynamic>? ?? [])
+              .map(
+                (element) => Choice(
+                  (element as Map<String, dynamic>)['name'] as String,
+                  double.parse(element['value'] as String),
+                ),
+              )
+              .toList(),
+        ),
+        _ => throw InvalidCommandException('Unknown option type'),
       };
 
       return [...acc, option];
@@ -148,49 +208,70 @@ final class CommandDefinitionBuilder implements CommandBuilder {
     for (final element in commandList.entries) {
       if (element.key.contains('.')) {
         final elementValue = element.value as Map<String, dynamic>;
-        final String defaultName =
-            _extractDefaultValue(element.key, 'name', elementValue);
-        final String defaultDescription =
-            _extractDefaultValue(element.key, 'description', elementValue);
+        final String defaultName = _extractDefaultValue(
+          element.key,
+          'name',
+          elementValue,
+        );
+        final String defaultDescription = _extractDefaultValue(
+          element.key,
+          'description',
+          elementValue,
+        );
 
         final nameTranslations = _extractTranslations('name', elementValue);
-        final descriptionTranslations =
-            _extractTranslations('description', elementValue);
+        final descriptionTranslations = _extractTranslations(
+          'description',
+          elementValue,
+        );
 
         if (elementValue['group'] case final String group) {
-          final currentGroup = command.groups
-              .firstWhere((element) => element.name == group)
-            ..addSubCommand((command) {
-              command
-                ..setName(defaultName,
-                    translation: Translation({'name': nameTranslations}))
-                ..setDescription(defaultDescription,
-                    translation:
-                        Translation({'description': descriptionTranslations}));
+          final currentGroup =
+              command.groups.firstWhere((element) => element.name == group)
+                ..addSubCommand((command) {
+                  command
+                    ..setName(
+                      defaultName,
+                      translation: Translation({'name': nameTranslations}),
+                    )
+                    ..setDescription(
+                      defaultDescription,
+                      translation: Translation({
+                        'description': descriptionTranslations,
+                      }),
+                    );
 
-              command.options.addAll(_declareOptions(element));
-            });
+                  command.options.addAll(_declareOptions(element));
+                });
 
           final int currentGroupIndex = command.groups.indexOf(currentGroup);
-          final int currentSubCommandIndex =
-              currentGroup.commands.indexOf(currentGroup.commands.last);
+          final int currentSubCommandIndex = currentGroup.commands.indexOf(
+            currentGroup.commands.last,
+          );
           _commandMapper[element.key] = () => command
-              .groups[currentGroupIndex].commands[currentSubCommandIndex];
+              .groups[currentGroupIndex]
+              .commands[currentSubCommandIndex];
         } else {
           command.addSubCommand((command) {
             command
-              ..setName(defaultName,
-                  translation: Translation({'name': nameTranslations}))
-              ..setDescription(defaultDescription,
-                  translation:
-                      Translation({'description': descriptionTranslations}));
+              ..setName(
+                defaultName,
+                translation: Translation({'name': nameTranslations}),
+              )
+              ..setDescription(
+                defaultDescription,
+                translation: Translation({
+                  'description': descriptionTranslations,
+                }),
+              );
 
             command.options.addAll(_declareOptions(element));
           });
-          final currentSubCommandIndex =
-              command.subCommands.indexOf(command.subCommands.last);
-          _commandMapper[element.key] =
-              () => command.subCommands[currentSubCommandIndex];
+          final currentSubCommandIndex = command.subCommands.indexOf(
+            command.subCommands.last,
+          );
+          _commandMapper[element.key] = () =>
+              command.subCommands[currentSubCommandIndex];
         }
       }
     }
@@ -203,21 +284,32 @@ final class CommandDefinitionBuilder implements CommandBuilder {
     for (final element in commandList.entries) {
       if (!element.key.contains('.')) {
         final elementValue = element.value as Map<String, dynamic>;
-        final String defaultName =
-            _extractDefaultValue(element.key, 'name', elementValue);
-        final String defaultDescription =
-            _extractDefaultValue(element.key, 'description', elementValue);
+        final String defaultName = _extractDefaultValue(
+          element.key,
+          'name',
+          elementValue,
+        );
+        final String defaultDescription = _extractDefaultValue(
+          element.key,
+          'description',
+          elementValue,
+        );
 
         final nameTranslations = _extractTranslations('name', elementValue);
-        final descriptionTranslations =
-            _extractTranslations('description', elementValue);
+        final descriptionTranslations = _extractTranslations(
+          'description',
+          elementValue,
+        );
 
         command
-          ..setName(defaultName,
-              translation: Translation({'name': nameTranslations}))
-          ..setDescription(defaultDescription,
-              translation:
-                  Translation({'description': descriptionTranslations}));
+          ..setName(
+            defaultName,
+            translation: Translation({'name': nameTranslations}),
+          )
+          ..setDescription(
+            defaultDescription,
+            translation: Translation({'description': descriptionTranslations}),
+          );
 
         command.options.addAll(_declareOptions(element));
 
@@ -227,14 +319,16 @@ final class CommandDefinitionBuilder implements CommandBuilder {
   }
 
   void context<T>(String key, Function(T) fn) {
-    final command =
-        _commandMapper.entries.firstWhere((element) => element.key == key);
+    final command = _commandMapper.entries.firstWhere(
+      (element) => element.key == key,
+    );
     fn(command.value() as T);
   }
 
   void setHandler<T extends CommandContext>(String key, CommandHandler<T> fn) {
-    final command =
-        _commandMapper.entries.firstWhere((element) => element.key == key);
+    final command = _commandMapper.entries.firstWhere(
+      (element) => element.key == key,
+    );
 
     switch (command.value()) {
       case final SubCommandBuilder command:
@@ -248,7 +342,7 @@ final class CommandDefinitionBuilder implements CommandBuilder {
     final String stringContent = file.readAsStringSync();
     final content = switch (placeholder) {
       PlaceholderContract(:final apply) => apply(stringContent),
-      _ => stringContent
+      _ => stringContent,
     };
 
     final payload = switch (file.path) {
@@ -258,7 +352,7 @@ final class CommandDefinitionBuilder implements CommandBuilder {
         loadYaml(content).toMap() as Map<String, dynamic>,
       final String path when path.contains('.yml') =>
         loadYaml(content).toMap() as Map<String, dynamic>,
-      _ => throw InvalidCommandException('File type not supported')
+      _ => throw InvalidCommandException('File type not supported'),
     };
 
     _declareCommand(payload);

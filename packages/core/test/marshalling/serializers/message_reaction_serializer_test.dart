@@ -18,32 +18,24 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'guild_id': '987654321',
-          'channel_id': '111222333',
-          'author_id': '444555666',
-          'message_id': '777888999',
-          'emoji': {
-            'id': '100200300',
-            'name': 'thumbsup',
-            'animated': true,
-          },
-          'is_burst': false,
-          'type': 0,
-        };
+      'guild_id': '987654321',
+      'channel_id': '111222333',
+      'author_id': '444555666',
+      'message_id': '777888999',
+      'emoji': {'id': '100200300', 'name': 'thumbsup', 'animated': true},
+      'is_burst': false,
+      'type': 0,
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'guild_id': '987654321',
-          'channel_id': '111222333',
-          'user_id': '444555666',
-          'message_id': '777888999',
-          'emoji': {
-            'id': '100200300',
-            'name': 'thumbsup',
-            'animated': true,
-          },
-          'burst': false,
-          'type': 0,
-        };
+      'guild_id': '987654321',
+      'channel_id': '111222333',
+      'user_id': '444555666',
+      'message_id': '777888999',
+      'emoji': {'id': '100200300', 'name': 'thumbsup', 'animated': true},
+      'burst': false,
+      'type': 0,
+    };
 
     group('serialize()', () {
       test('maps all fields correctly', () async {

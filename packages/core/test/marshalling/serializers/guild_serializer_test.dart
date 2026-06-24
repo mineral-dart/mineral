@@ -22,75 +22,75 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'id': '987654321',
-          'name': 'Test Guild',
-          'description': 'A test guild',
-          'application_id': null,
-          'owner_id': '444555666',
-          'icon': null,
-          'splash': null,
-          'banner': null,
-          'discovery_splash': null,
-          'permissions': null,
-          'afk_timeout': 300,
-          'widget_enabled': false,
-          'vanity_url_code': null,
-          'max_video_channel_users': 25,
-          'settings': {
-            'explicit_content_filter': 0,
-            'verification_level': 1,
-            'default_message_notifications': 0,
-            'features': ['COMMUNITY'],
-            'mfa_level': 0,
-            'system_channel_flags': 0,
-            'premium_tier': 0,
-            'premium_subscription_count': 0,
-            'premium_progress_bar_enabled': false,
-            'preferred_locale': 'en-US',
-            'nsfw_level': 0,
-          },
-          'channel_settings': {
-            'afk_channel_id': null,
-            'system_channel_id': '111222333',
-            'rules_channel_id': null,
-            'public_updates_channel_id': null,
-            'safety_alerts_channel_id': null,
-          },
-        };
+      'id': '987654321',
+      'name': 'Test Guild',
+      'description': 'A test guild',
+      'application_id': null,
+      'owner_id': '444555666',
+      'icon': null,
+      'splash': null,
+      'banner': null,
+      'discovery_splash': null,
+      'permissions': null,
+      'afk_timeout': 300,
+      'widget_enabled': false,
+      'vanity_url_code': null,
+      'max_video_channel_users': 25,
+      'settings': {
+        'explicit_content_filter': 0,
+        'verification_level': 1,
+        'default_message_notifications': 0,
+        'features': ['COMMUNITY'],
+        'mfa_level': 0,
+        'system_channel_flags': 0,
+        'premium_tier': 0,
+        'premium_subscription_count': 0,
+        'premium_progress_bar_enabled': false,
+        'preferred_locale': 'en-US',
+        'nsfw_level': 0,
+      },
+      'channel_settings': {
+        'afk_channel_id': null,
+        'system_channel_id': '111222333',
+        'rules_channel_id': null,
+        'public_updates_channel_id': null,
+        'safety_alerts_channel_id': null,
+      },
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'id': '987654321',
-          'name': 'Test Guild',
-          'description': 'A test guild',
-          'application_id': null,
-          'owner_id': '444555666',
-          'icon': null,
-          'icon_hash': null,
-          'splash': null,
-          'discovery_splash': null,
-          'banner': null,
-          'permissions': null,
-          'afk_timeout': 300,
-          'widget_enabled': false,
-          'explicit_content_filter': 0,
-          'verification_level': 1,
-          'default_message_notifications': 0,
-          'features': ['COMMUNITY'],
-          'mfa_level': 0,
-          'system_channel_flags': 0,
-          'vanity_url_code': null,
-          'premium_tier': 0,
-          'premium_subscription_count': 0,
-          'premium_progress_bar_enabled': false,
-          'preferred_locale': 'en-US',
-          'max_video_channel_users': 25,
-          'nsfw_level': 0,
-          'afk_channel_id': null,
-          'system_channel_id': '111222333',
-          'rules_channel_id': null,
-          'public_updates_channel_id': null,
-          'safety_alerts_channel_id': null,
-        };
+      'id': '987654321',
+      'name': 'Test Guild',
+      'description': 'A test guild',
+      'application_id': null,
+      'owner_id': '444555666',
+      'icon': null,
+      'icon_hash': null,
+      'splash': null,
+      'discovery_splash': null,
+      'banner': null,
+      'permissions': null,
+      'afk_timeout': 300,
+      'widget_enabled': false,
+      'explicit_content_filter': 0,
+      'verification_level': 1,
+      'default_message_notifications': 0,
+      'features': ['COMMUNITY'],
+      'mfa_level': 0,
+      'system_channel_flags': 0,
+      'vanity_url_code': null,
+      'premium_tier': 0,
+      'premium_subscription_count': 0,
+      'premium_progress_bar_enabled': false,
+      'preferred_locale': 'en-US',
+      'max_video_channel_users': 25,
+      'nsfw_level': 0,
+      'afk_channel_id': null,
+      'system_channel_id': '111222333',
+      'rules_channel_id': null,
+      'public_updates_channel_id': null,
+      'safety_alerts_channel_id': null,
+    };
 
     group('serialize()', () {
       test('maps scalar fields correctly', () async {
@@ -144,8 +144,10 @@ void main() {
         final result = await serializer.deserialize(guild);
 
         expect(result['channel_settings'], isA<Map>());
-        expect(result['channel_settings']['system_channel_id'],
-            equals('111222333'));
+        expect(
+          result['channel_settings']['system_channel_id'],
+          equals('111222333'),
+        );
       });
 
       test('produces assets sub-map', () async {
@@ -177,8 +179,10 @@ void main() {
         final result = await serializer.normalize(rawDiscordPayload());
 
         expect(result['channel_settings'], isA<Map>());
-        expect(result['channel_settings']['system_channel_id'],
-            equals('111222333'));
+        expect(
+          result['channel_settings']['system_channel_id'],
+          equals('111222333'),
+        );
       });
 
       test('groups assets into sub-map', () async {

@@ -12,7 +12,7 @@ final class VoiceChannelEffectSendPacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   VoiceChannelEffectSendPacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -23,8 +23,10 @@ final class VoiceChannelEffectSendPacket implements ListenablePacket {
     final userId = payload['user_id'] as String;
 
     final guild = await _dataStore.guild.get(guildId, false);
-    final channel =
-        await _dataStore.channel.get<GuildChannel>(channelId, false);
+    final channel = await _dataStore.channel.get<GuildChannel>(
+      channelId,
+      false,
+    );
     final member = await _dataStore.member.get(guildId, userId, false);
 
     if (channel == null || member == null) {
@@ -43,11 +45,11 @@ final class VoiceChannelEffectSendPacket implements ListenablePacket {
     final animationTypeRaw = payload['animation_type'] as int?;
     final VoiceChannelEffectAnimationType? animationType =
         animationTypeRaw != null
-            ? VoiceChannelEffectAnimationType.values.firstWhere(
-                (e) => e.value == animationTypeRaw,
-                orElse: () => VoiceChannelEffectAnimationType.basic,
-              )
-            : null;
+        ? VoiceChannelEffectAnimationType.values.firstWhere(
+            (e) => e.value == animationTypeRaw,
+            orElse: () => VoiceChannelEffectAnimationType.basic,
+          )
+        : null;
 
     final animationId = payload['animation_id'] as int?;
 
@@ -59,16 +61,17 @@ final class VoiceChannelEffectSendPacket implements ListenablePacket {
     final soundVolume = payload['sound_volume'] as double?;
 
     dispatch<GuildVoiceChannelEffectSendArgs>(
-        event: Event.guildVoiceChannelEffectSend,
-        payload: (
-          guild: guild,
-          channel: channel,
-          member: member,
-          emoji: emoji,
-          animationType: animationType,
-          animationId: animationId,
-          soundId: soundId,
-          soundVolume: soundVolume,
-        ));
+      event: Event.guildVoiceChannelEffectSend,
+      payload: (
+        guild: guild,
+        channel: channel,
+        member: member,
+        emoji: emoji,
+        animationType: animationType,
+        animationId: animationId,
+        soundId: soundId,
+        soundVolume: soundVolume,
+      ),
+    );
   }
 }

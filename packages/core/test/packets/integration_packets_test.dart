@@ -25,63 +25,63 @@ const _userId = '444555666777888999';
 // ── Shard message factories ───────────────────────────────────────────────────
 
 ShardMessage<dynamic> _buildGuildIntegrationsUpdateMessage() => ShardMessage(
-      type: 'GUILD_INTEGRATIONS_UPDATE',
-      opCode: OpCode.dispatch,
-      sequence: 1,
-      payload: {'guild_id': _guildId},
-    );
+  type: 'GUILD_INTEGRATIONS_UPDATE',
+  opCode: OpCode.dispatch,
+  sequence: 1,
+  payload: {'guild_id': _guildId},
+);
 
 Map<String, dynamic> _integrationPayload({bool withApplicationId = false}) => {
-      'id': _integrationId,
-      'name': 'Test Integration',
-      'type': 'twitch',
-      'enabled': true,
-      'syncing': false,
-      'role_id': _roleId,
-      'enable_emoticons': true,
-      'expire_behavior': 0,
-      'expire_grace_period': 7,
-      'user': {'id': _userId, 'username': 'testuser', 'discriminator': '0000'},
-      'account': {'id': 'acc-123', 'name': 'TwitchAccount'},
-      'synced_at': '2024-01-15T12:00:00.000Z',
-      'subscriber_count': 42,
-      'revoked': false,
-      'application': {
-        'id': _applicationId,
-        'name': 'TestApp',
-        'description': 'A test app',
-      },
-      'scopes': ['bot', 'applications.commands'],
-      'guild_id': _guildId,
-      if (withApplicationId) 'application_id': _applicationId,
-    };
+  'id': _integrationId,
+  'name': 'Test Integration',
+  'type': 'twitch',
+  'enabled': true,
+  'syncing': false,
+  'role_id': _roleId,
+  'enable_emoticons': true,
+  'expire_behavior': 0,
+  'expire_grace_period': 7,
+  'user': {'id': _userId, 'username': 'testuser', 'discriminator': '0000'},
+  'account': {'id': 'acc-123', 'name': 'TwitchAccount'},
+  'synced_at': '2024-01-15T12:00:00.000Z',
+  'subscriber_count': 42,
+  'revoked': false,
+  'application': {
+    'id': _applicationId,
+    'name': 'TestApp',
+    'description': 'A test app',
+  },
+  'scopes': ['bot', 'applications.commands'],
+  'guild_id': _guildId,
+  if (withApplicationId) 'application_id': _applicationId,
+};
 
 ShardMessage<dynamic> _buildIntegrationCreateMessage() => ShardMessage(
-      type: 'INTEGRATION_CREATE',
-      opCode: OpCode.dispatch,
-      sequence: 2,
-      payload: _integrationPayload(),
-    );
+  type: 'INTEGRATION_CREATE',
+  opCode: OpCode.dispatch,
+  sequence: 2,
+  payload: _integrationPayload(),
+);
 
 ShardMessage<dynamic> _buildIntegrationUpdateMessage() => ShardMessage(
-      type: 'INTEGRATION_UPDATE',
-      opCode: OpCode.dispatch,
-      sequence: 3,
-      payload: _integrationPayload(),
-    );
+  type: 'INTEGRATION_UPDATE',
+  opCode: OpCode.dispatch,
+  sequence: 3,
+  payload: _integrationPayload(),
+);
 
-ShardMessage<dynamic> _buildIntegrationDeleteMessage(
-        {bool withApplicationId = false}) =>
-    ShardMessage(
-      type: 'INTEGRATION_DELETE',
-      opCode: OpCode.dispatch,
-      sequence: 4,
-      payload: {
-        'id': _integrationId,
-        'guild_id': _guildId,
-        if (withApplicationId) 'application_id': _applicationId,
-      },
-    );
+ShardMessage<dynamic> _buildIntegrationDeleteMessage({
+  bool withApplicationId = false,
+}) => ShardMessage(
+  type: 'INTEGRATION_DELETE',
+  opCode: OpCode.dispatch,
+  sequence: 4,
+  payload: {
+    'id': _integrationId,
+    'guild_id': _guildId,
+    if (withApplicationId) 'application_id': _applicationId,
+  },
+);
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -121,7 +121,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -129,10 +132,11 @@ void main() {
       final packet = GuildIntegrationsUpdatePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -145,10 +149,11 @@ void main() {
       final packet = GuildIntegrationsUpdatePacket(dataStore: ds);
       GuildIntegrationsUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildIntegrationsUpdate) {
           args = payload as GuildIntegrationsUpdateArgs;
         }
@@ -169,7 +174,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -177,10 +185,11 @@ void main() {
       final packet = IntegrationCreatePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -193,10 +202,11 @@ void main() {
       final packet = IntegrationCreatePacket(dataStore: ds);
       GuildIntegrationCreateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildIntegrationCreate) {
           args = payload as GuildIntegrationCreateArgs;
         }
@@ -229,7 +239,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -237,10 +250,11 @@ void main() {
       final packet = IntegrationUpdatePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -253,10 +267,11 @@ void main() {
       final packet = IntegrationUpdatePacket(dataStore: ds);
       GuildIntegrationUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildIntegrationUpdate) {
           args = payload as GuildIntegrationUpdateArgs;
         }
@@ -285,7 +300,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -293,10 +311,11 @@ void main() {
       final packet = IntegrationDeletePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -305,43 +324,49 @@ void main() {
       expect(capturedEvent, equals(Event.guildIntegrationDelete));
     });
 
-    test('payload carries guild and integrationId, applicationId is null',
-        () async {
-      final packet = IntegrationDeletePacket(dataStore: ds);
-      GuildIntegrationDeleteArgs? args;
+    test(
+      'payload carries guild and integrationId, applicationId is null',
+      () async {
+        final packet = IntegrationDeletePacket(dataStore: ds);
+        GuildIntegrationDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        if (event == Event.guildIntegrationDelete) {
-          args = payload as GuildIntegrationDeleteArgs;
+          bool Function(String?)? constraint,
+        }) {
+          if (event == Event.guildIntegrationDelete) {
+            args = payload as GuildIntegrationDeleteArgs;
+          }
         }
-      }
 
-      await packet.listen(_buildIntegrationDeleteMessage(), dispatch);
+        await packet.listen(_buildIntegrationDeleteMessage(), dispatch);
 
-      expect(args, isNotNull);
-      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
-      expect(args!.integrationId, equals(Snowflake.parse(_integrationId)));
-      expect(args!.applicationId, isNull);
-    });
+        expect(args, isNotNull);
+        expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
+        expect(args!.integrationId, equals(Snowflake.parse(_integrationId)));
+        expect(args!.applicationId, isNull);
+      },
+    );
 
     test('payload carries applicationId when present', () async {
       final packet = IntegrationDeletePacket(dataStore: ds);
       GuildIntegrationDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildIntegrationDelete) {
           args = payload as GuildIntegrationDeleteArgs;
         }
       }
 
       await packet.listen(
-          _buildIntegrationDeleteMessage(withApplicationId: true), dispatch);
+        _buildIntegrationDeleteMessage(withApplicationId: true),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.integrationId, equals(Snowflake.parse(_integrationId)));

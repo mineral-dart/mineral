@@ -13,18 +13,23 @@ final class ChannelDeletePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   ChannelDeletePacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final rawChannel =
-        await _marshaller.serializers.channels.normalize(message.payload as Map<String, dynamic>);
-    final channel =
-        await _marshaller.serializers.channels.serialize(rawChannel);
+    final rawChannel = await _marshaller.serializers.channels.normalize(
+      message.payload as Map<String, dynamic>,
+    );
+    final channel = await _marshaller.serializers.channels.serialize(
+      rawChannel,
+    );
 
     final channelCacheKey = _marshaller.cacheKey.channel(channel.id.value);
     await _marshaller.cache.invalidate(channelCacheKey);
 
-    dispatch<GuildChannelDeleteArgs>(event: Event.guildChannelDelete, payload: (channel: channel as GuildChannel));
+    dispatch<GuildChannelDeleteArgs>(
+      event: Event.guildChannelDelete,
+      payload: (channel: channel as GuildChannel),
+    );
   }
 }

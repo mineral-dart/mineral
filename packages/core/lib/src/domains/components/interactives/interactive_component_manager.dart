@@ -42,7 +42,11 @@ final class InteractiveComponentManager
 
   @override
   T get<T extends InteractiveComponent>(String customId) =>
-      _components.values.firstWhere((e) => e.customId == customId,
-          orElse: () => throw InvalidComponentException(
-              'Component "$customId" not found')) as T;
+      _components.values.firstWhere(
+            (e) => e.customId == customId,
+            orElse: () => throw InvalidComponentException(
+              'Component "$customId" not found',
+            ),
+          )
+          as T;
 }

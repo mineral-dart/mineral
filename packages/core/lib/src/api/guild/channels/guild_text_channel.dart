@@ -18,8 +18,11 @@ final class GuildTextChannel extends GuildChannel {
   late final GuildCategoryChannel? category;
 
   GuildTextChannel(this.properties) {
-    methods = ChannelMethods(properties.guildId!, properties.id,
-        ctx: properties.ctx);
+    methods = ChannelMethods(
+      properties.guildId!,
+      properties.id,
+      ctx: properties.ctx,
+    );
     messages = MessageManager(properties.id, ctx: properties.ctx);
   }
 
@@ -35,13 +38,15 @@ final class GuildTextChannel extends GuildChannel {
   Future<void> setRateLimitPerUser(Duration value, {String? reason}) =>
       methods.setRateLimitPerUser(value, reason);
 
-  Future<void> setDefaultAutoArchiveDuration(Duration value,
-          {String? reason}) =>
-      methods.setDefaultAutoArchiveDuration(value, reason);
+  Future<void> setDefaultAutoArchiveDuration(
+    Duration value, {
+    String? reason,
+  }) => methods.setDefaultAutoArchiveDuration(value, reason);
 
-  Future<void> setDefaultThreadRateLimitPerUser(Duration value,
-          {String? reason}) =>
-      methods.setDefaultThreadRateLimitPerUser(value, reason);
+  Future<void> setDefaultThreadRateLimitPerUser(
+    Duration value, {
+    String? reason,
+  }) => methods.setDefaultThreadRateLimitPerUser(value, reason);
 
   Future<T> send<T extends Message>(MessageBuilder builder) =>
       methods.send(guildId: properties.guildId, builder: builder);

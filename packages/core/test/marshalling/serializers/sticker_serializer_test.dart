@@ -20,32 +20,32 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'id': '111222333',
-          'name': 'cool_sticker',
-          'type': 2,
-          'available': true,
-          'pack_id': 'pack_001',
-          'description': 'A cool sticker',
-          'tags': 'cool,fun',
-          'asset': null,
-          'format_type': 1,
-          'sort_value': 5,
-          'guild_id': '987654321',
-        };
+      'id': '111222333',
+      'name': 'cool_sticker',
+      'type': 2,
+      'available': true,
+      'pack_id': 'pack_001',
+      'description': 'A cool sticker',
+      'tags': 'cool,fun',
+      'asset': null,
+      'format_type': 1,
+      'sort_value': 5,
+      'guild_id': '987654321',
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'id': '111222333',
-          'name': 'cool_sticker',
-          'type': 2,
-          'available': true,
-          'pack_id': 'pack_001',
-          'description': 'A cool sticker',
-          'tags': 'cool,fun',
-          'asset': null,
-          'format_type': 1,
-          'sort_value': 5,
-          'guild_id': '987654321',
-        };
+      'id': '111222333',
+      'name': 'cool_sticker',
+      'type': 2,
+      'available': true,
+      'pack_id': 'pack_001',
+      'description': 'A cool sticker',
+      'tags': 'cool,fun',
+      'asset': null,
+      'format_type': 1,
+      'sort_value': 5,
+      'guild_id': '987654321',
+    };
 
     group('serialize()', () {
       test('maps all fields correctly', () {

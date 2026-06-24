@@ -17,7 +17,8 @@ final class ShardNetworkError implements ShardNetworkErrorContract {
   /// Nothing is thrown — the error is fully handled here.
   void _handleFatal(FatalGatewayException e) {
     shard.logger.error(
-        'Fatal gateway error: ${e.message} (${e.code}). Cannot reconnect.');
+      'Fatal gateway error: ${e.message} (${e.code}). Cannot reconnect.',
+    );
     shard.authentication.cancelHeartbeat();
     unawaited(shard.client.disconnect());
     unawaited(shard.wss.onFatalDisconnect?.call() ?? Future<void>.value());
@@ -64,15 +65,17 @@ final class ShardNetworkError implements ShardNetworkErrorContract {
         case DisconnectAction.resume:
           logger.trace('Attempting to resume session');
           unawaited(
-            Future.sync(() => shard.authentication.resume())
-                .catchError(_onReconnectError),
+            Future.sync(
+              () => shard.authentication.resume(),
+            ).catchError(_onReconnectError),
           );
         case DisconnectAction.reconnect:
           logger.trace('Attempting full reconnect');
           shard.authentication.invalidateSession();
           unawaited(
-            Future.sync(() => shard.authentication.reconnect())
-                .catchError(_onReconnectError),
+            Future.sync(
+              () => shard.authentication.reconnect(),
+            ).catchError(_onReconnectError),
           );
         case DisconnectAction.fatal:
           _handleFatal(FatalGatewayException(error.message, error.code));
@@ -81,11 +84,13 @@ final class ShardNetworkError implements ShardNetworkErrorContract {
     }
 
     logger.warn(
-        'WebSocket closed with unknown code: $payload. Attempting reconnect.');
+      'WebSocket closed with unknown code: $payload. Attempting reconnect.',
+    );
     shard.authentication.invalidateSession();
     unawaited(
-      Future.sync(() => shard.authentication.reconnect())
-          .catchError(_onReconnectError),
+      Future.sync(
+        () => shard.authentication.reconnect(),
+      ).catchError(_onReconnectError),
     );
   }
 }

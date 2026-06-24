@@ -17,8 +17,12 @@ abstract class AuditLogActionContract {
   Snowflake guildId;
   Snowflake? userId;
 
-  AuditLogActionContract(this.type, this.guildId, this.userId,
-      {required this.ctx});
+  AuditLogActionContract(
+    this.type,
+    this.guildId,
+    this.userId, {
+    required this.ctx,
+  });
 
   Future<Guild> resolveServer() => _datastore.guild.get(guildId.value, true);
 }

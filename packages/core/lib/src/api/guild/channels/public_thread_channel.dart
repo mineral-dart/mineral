@@ -43,8 +43,11 @@ class PublicThreadChannel extends GuildChannel implements ThreadChannel {
   Snowflake? get parentId => properties.categoryId;
 
   PublicThreadChannel(this.properties, this.metadata) {
-    methods = ChannelMethods(properties.guildId!, properties.id,
-        ctx: properties.ctx);
+    methods = ChannelMethods(
+      properties.guildId!,
+      properties.id,
+      ctx: properties.ctx,
+    );
     messages = MessageManager(properties.id, ctx: properties.ctx);
   }
 
@@ -60,13 +63,15 @@ class PublicThreadChannel extends GuildChannel implements ThreadChannel {
   Future<void> setRateLimitPerUser(Duration value, {String? reason}) =>
       methods.setRateLimitPerUser(value, reason);
 
-  Future<void> setDefaultAutoArchiveDuration(Duration value,
-          {String? reason}) =>
-      methods.setDefaultAutoArchiveDuration(value, reason);
+  Future<void> setDefaultAutoArchiveDuration(
+    Duration value, {
+    String? reason,
+  }) => methods.setDefaultAutoArchiveDuration(value, reason);
 
-  Future<void> setDefaultThreadRateLimitPerUser(Duration value,
-          {String? reason}) =>
-      methods.setDefaultThreadRateLimitPerUser(value, reason);
+  Future<void> setDefaultThreadRateLimitPerUser(
+    Duration value, {
+    String? reason,
+  }) => methods.setDefaultThreadRateLimitPerUser(value, reason);
 
   Future<User> resolveOwner() async {
     final user = await _datastore.user.get(ownerId.value, false);

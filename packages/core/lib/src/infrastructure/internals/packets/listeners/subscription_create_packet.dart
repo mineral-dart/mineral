@@ -10,8 +10,9 @@ final class SubscriptionCreatePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final subscription =
-        Subscription.fromJson(message.payload as Map<String, dynamic>);
+    final subscription = Subscription.fromJson(
+      message.payload as Map<String, dynamic>,
+    );
 
     dispatch<SubscriptionCreateArgs>(
       event: Event.subscriptionCreate,

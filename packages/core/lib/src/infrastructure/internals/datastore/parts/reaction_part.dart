@@ -13,12 +13,17 @@ final class ReactionPart extends BasePart implements ReactionPartContract {
 
   @override
   Future<Map<Snowflake, User>> getUsersForEmoji(
-      Object channelId, Object messageId, PartialEmoji emoji) async {
+    Object channelId,
+    Object messageId,
+    PartialEmoji emoji,
+  ) async {
     final value = _encodeEmoji(emoji);
 
     final req = Request.json(
-        endpoint: '/channels/$channelId/messages/$messageId/reactions/$value');
-    final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
+      endpoint: '/channels/$channelId/messages/$messageId/reactions/$value',
+    );
+    final result = await dataStore.requestBucket
+        .get<List<Map<String, dynamic>>>(req);
 
     final users = await result.map((element) async {
       final raw = await marshaller.serializers.user.normalize(element);
@@ -30,47 +35,63 @@ final class ReactionPart extends BasePart implements ReactionPartContract {
 
   @override
   Future<void> add(
-      Object channelId, Object messageId, PartialEmoji emoji) async {
+    Object channelId,
+    Object messageId,
+    PartialEmoji emoji,
+  ) async {
     final value = _encodeEmoji(emoji);
     final req = Request.json(
-        endpoint:
-            '/channels/$channelId/messages/$messageId/reactions/$value/@me');
+      endpoint: '/channels/$channelId/messages/$messageId/reactions/$value/@me',
+    );
     await dataStore.requestBucket.put<Map<String, dynamic>>(req);
   }
 
   @override
   Future<void> remove(
-      Object channelId, Object messageId, PartialEmoji emoji) async {
+    Object channelId,
+    Object messageId,
+    PartialEmoji emoji,
+  ) async {
     final value = _encodeEmoji(emoji);
     final req = Request.json(
-        endpoint:
-            '/channels/$channelId/messages/$messageId/reactions/$value/@me');
+      endpoint: '/channels/$channelId/messages/$messageId/reactions/$value/@me',
+    );
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
   Future<void> removeAll(Object channelId, Object messageId) {
     final req = Request.json(
-        endpoint: '/channels/$channelId/messages/$messageId/reactions');
+      endpoint: '/channels/$channelId/messages/$messageId/reactions',
+    );
     return dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
   Future<void> removeForEmoji(
-      Object channelId, Object messageId, PartialEmoji emoji) {
+    Object channelId,
+    Object messageId,
+    PartialEmoji emoji,
+  ) {
     final value = _encodeEmoji(emoji);
     final req = Request.json(
-        endpoint: '/channels/$channelId/messages/$messageId/reactions/$value');
+      endpoint: '/channels/$channelId/messages/$messageId/reactions/$value',
+    );
     return dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
-  Future<void> removeForUser(Object userId, Object channelId, Object messageId,
-      PartialEmoji emoji) async {
+  Future<void> removeForUser(
+    Object userId,
+    Object channelId,
+    Object messageId,
+    PartialEmoji emoji,
+  ) async {
     final value = _encodeEmoji(emoji);
     final req = Request.json(
-        endpoint:
-            '/channels/$channelId/messages/$messageId/reactions/$value/$userId');
+      endpoint:
+          '/channels/$channelId/messages/$messageId/reactions/$value/$userId',
+    );
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 }

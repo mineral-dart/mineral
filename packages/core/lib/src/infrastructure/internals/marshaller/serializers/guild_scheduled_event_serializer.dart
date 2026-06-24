@@ -36,8 +36,10 @@ final class GuildScheduledEventSerializer
       'image': json['image'],
     };
 
-    final cacheKey = _marshaller.cacheKey
-        .scheduledEvent(json['guild_id'] as String, json['id'] as String);
+    final cacheKey = _marshaller.cacheKey.scheduledEvent(
+      json['guild_id'] as String,
+      json['id'] as String,
+    );
     await _marshaller.cache?.put(cacheKey, payload);
 
     return payload;
@@ -59,21 +61,24 @@ final class GuildScheduledEventSerializer
           : null,
       name: json['name'] as String,
       description: json['description'] as String?,
-      scheduledStartTime: DateTime.parse(json['scheduled_start_time'] as String),
+      scheduledStartTime: DateTime.parse(
+        json['scheduled_start_time'] as String,
+      ),
       scheduledEndTime: json['scheduled_end_time'] != null
           ? DateTime.parse(json['scheduled_end_time'] as String)
           : null,
-      privacyLevel:
-          GuildScheduledEventPrivacyLevel.of(json['privacy_level'] as int),
+      privacyLevel: GuildScheduledEventPrivacyLevel.of(
+        json['privacy_level'] as int,
+      ),
       status: GuildScheduledEventStatus.of(json['status'] as int),
-      entityType:
-          GuildScheduledEventEntityType.of(json['entity_type'] as int),
+      entityType: GuildScheduledEventEntityType.of(json['entity_type'] as int),
       entityId: json['entity_id'] != null
           ? Snowflake.parse(json['entity_id'])
           : null,
       entityMetadata: entityMetadata != null
           ? GuildScheduledEventEntityMetadata(
-              location: entityMetadata['location'] as String?)
+              location: entityMetadata['location'] as String?,
+            )
           : null,
       userCount: json['user_count'] as int?,
       image: json['image'] as String?,

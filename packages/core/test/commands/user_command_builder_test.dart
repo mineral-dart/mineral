@@ -14,18 +14,24 @@ void main() {
     });
 
     test('toJson throws when name is missing', () {
-      expect(() => UserCommandBuilder().toJson(),
-          throwsA(isA<MissingPropertyException>()));
+      expect(
+        () => UserCommandBuilder().toJson(),
+        throwsA(isA<MissingPropertyException>()),
+      );
     });
 
     test('setName throws when name is empty', () {
-      expect(() => UserCommandBuilder().setName(''),
-          throwsA(isA<CommandNameException>()));
+      expect(
+        () => UserCommandBuilder().setName(''),
+        throwsA(isA<CommandNameException>()),
+      );
     });
 
     test('setName throws when name exceeds 32 characters', () {
-      expect(() => UserCommandBuilder().setName('A' * 33),
-          throwsA(isA<CommandNameException>()));
+      expect(
+        () => UserCommandBuilder().setName('A' * 33),
+        throwsA(isA<CommandNameException>()),
+      );
     });
 
     test('setName accepts spaces and mixed case (unlike chat_input)', () {

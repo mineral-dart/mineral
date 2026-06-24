@@ -37,8 +37,9 @@ final class GuildAsset {
   /// ```
   Future<void> setIcon(File icon, {String? reason}) async {
     final iconAsset = ImageAsset.makeAsset(icon);
-    await _datastore.guild
-        .update(guildId.value, {'icon': iconAsset.makeUrl()}, reason);
+    await _datastore.guild.update(guildId.value, {
+      'icon': iconAsset.makeUrl(),
+    }, reason);
   }
 
   /// Set the guild's banner.
@@ -48,8 +49,9 @@ final class GuildAsset {
   /// ```
   Future<void> setBanner(File banner, {String? reason}) async {
     final bannerAsset = ImageAsset.makeAsset(banner);
-    await _datastore.guild
-        .update(guildId.value, {'banner': bannerAsset.makeUrl()}, reason);
+    await _datastore.guild.update(guildId.value, {
+      'banner': bannerAsset.makeUrl(),
+    }, reason);
   }
 
   /// Set the guild's splash.
@@ -59,8 +61,9 @@ final class GuildAsset {
   /// ```
   Future<void> setSplash(File splash, {String? reason}) async {
     final splashAsset = ImageAsset.makeAsset(splash);
-    await _datastore.guild
-        .update(guildId.value, {'splash': splashAsset.makeUrl()}, reason);
+    await _datastore.guild.update(guildId.value, {
+      'splash': splashAsset.makeUrl(),
+    }, reason);
   }
 
   /// Set the guild's discovery splash.
@@ -68,10 +71,13 @@ final class GuildAsset {
   /// ```dart
   /// await guild.assets.setDiscoverySplash(File('discovery_splash.png'), reason: 'Testing');
   /// ```
-  Future<void> setDiscoverySplash(File discoverySplash,
-      {String? reason}) async {
+  Future<void> setDiscoverySplash(
+    File discoverySplash, {
+    String? reason,
+  }) async {
     final discoverySplashAsset = ImageAsset.makeAsset(discoverySplash);
-    await _datastore.guild.update(guildId.value,
-        {'discovery_splash': discoverySplashAsset.makeUrl()}, reason);
+    await _datastore.guild.update(guildId.value, {
+      'discovery_splash': discoverySplashAsset.makeUrl(),
+    }, reason);
   }
 }

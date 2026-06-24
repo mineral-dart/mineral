@@ -18,28 +18,28 @@ void main() {
     });
 
     Map<String, dynamic> serializePayload() => {
-          'message_id': '777888999',
-          'question_text': 'What is your favorite color?',
-          'answers': [
-            {'text': 'Red', 'emoji': null},
-            {'text': 'Blue', 'emoji': null},
-          ],
-          'expiry': null,
-          'allow_multiselect': false,
-          'layout_type': 1,
-        };
+      'message_id': '777888999',
+      'question_text': 'What is your favorite color?',
+      'answers': [
+        {'text': 'Red', 'emoji': null},
+        {'text': 'Blue', 'emoji': null},
+      ],
+      'expiry': null,
+      'allow_multiselect': false,
+      'layout_type': 1,
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'message_id': '777888999',
-          'question': {'text': 'What is your favorite color?'},
-          'answers': [
-            {'text': 'Red'},
-            {'text': 'Blue'},
-          ],
-          'expiry': null,
-          'allow_multiselect': false,
-          'layout_type': 1,
-        };
+      'message_id': '777888999',
+      'question': {'text': 'What is your favorite color?'},
+      'answers': [
+        {'text': 'Red'},
+        {'text': 'Blue'},
+      ],
+      'expiry': null,
+      'allow_multiselect': false,
+      'layout_type': 1,
+    };
 
     group('serialize()', () {
       test('maps question correctly', () {
@@ -98,7 +98,9 @@ void main() {
 
         expect(result['question'], isA<Map>());
         expect(
-            result['question']['text'], equals('What is your favorite color?'));
+          result['question']['text'],
+          equals('What is your favorite color?'),
+        );
       });
 
       test('answers are serialized as list', () {

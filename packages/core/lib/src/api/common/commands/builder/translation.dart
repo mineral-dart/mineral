@@ -30,15 +30,21 @@ final class Translation {
       _ => throw InvalidCommandException('File type not supported'),
     };
 
-    final Map<String, dynamic> translations = (content['commands'] as Map<String, dynamic>)[key] as Map<String, dynamic>;
+    final Map<String, dynamic> translations =
+        (content['commands'] as Map<String, dynamic>)[key]
+            as Map<String, dynamic>;
 
     for (final translation in translations.entries) {
       final Map<Lang, String> map = {};
 
-      for (final MapEntry element in (translation.value as Map<dynamic, dynamic>).entries) {
-        final lang = Lang.values.firstWhere((lang) => lang.uid == element.key,
-            orElse: () => throw InvalidCommandException(
-                'Lang "${element.key}" does not exist in the available languages'));
+      for (final MapEntry element
+          in (translation.value as Map<dynamic, dynamic>).entries) {
+        final lang = Lang.values.firstWhere(
+          (lang) => lang.uid == element.key,
+          orElse: () => throw InvalidCommandException(
+            'Lang "${element.key}" does not exist in the available languages',
+          ),
+        );
 
         map.putIfAbsent(lang, () => element.value as String);
       }

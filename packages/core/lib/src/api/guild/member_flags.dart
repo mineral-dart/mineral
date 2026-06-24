@@ -24,10 +24,11 @@ final class MemberFlagsManager {
   /// ```
   Future<void> allowBypassVerification({String? reason}) =>
       _memberMethods.update(
-          guildId: guild.id.value,
-          memberId: member.id.value,
-          payload: {'flags': MemberFlag.bypassedVerification.value},
-          reason: reason);
+        guildId: guild.id.value,
+        memberId: member.id.value,
+        payload: {'flags': MemberFlag.bypassedVerification.value},
+        reason: reason,
+      );
 
   /// Disallow the member to bypass verification.
   ///
@@ -38,12 +39,11 @@ final class MemberFlagsManager {
     final currentFlags = _flags.fold(0, (acc, element) => acc + element.value);
 
     return _memberMethods.update(
-        guildId: guild.id.value,
-        memberId: member.id.value,
-        payload: {
-          'flags': currentFlags - MemberFlag.bypassedVerification.value
-        },
-        reason: reason);
+      guildId: guild.id.value,
+      memberId: member.id.value,
+      payload: {'flags': currentFlags - MemberFlag.bypassedVerification.value},
+      reason: reason,
+    );
   }
 
   /// Sync the member's flags.
@@ -55,9 +55,10 @@ final class MemberFlagsManager {
     final currentFlags = flags.fold(0, (acc, element) => acc + element.value);
 
     return _memberMethods.update(
-        guildId: guild.id.value,
-        memberId: member.id.value,
-        payload: {'flags': currentFlags},
-        reason: reason);
+      guildId: guild.id.value,
+      memberId: member.id.value,
+      payload: {'flags': currentFlags},
+      reason: reason,
+    );
   }
 }

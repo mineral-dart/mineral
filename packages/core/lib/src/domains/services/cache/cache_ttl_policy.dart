@@ -46,8 +46,10 @@ final class CacheTtlPolicy {
   /// (users / invites = 1 h) so unlisted families cannot grow without bound.
   static const _conservativeFallback = Duration(hours: 1);
 
-  static const _defaults =
-      CacheTtlPolicy._(_defaultRules, _conservativeFallback);
+  static const _defaults = CacheTtlPolicy._(
+    _defaultRules,
+    _conservativeFallback,
+  );
 }
 
 const _defaultRules = <_Rule>[
@@ -76,8 +78,8 @@ final class _Rule {
 
   factory _Rule._fromPattern(String pattern, Duration? ttl) =>
       pattern.startsWith('/')
-          ? _Rule._segment(pattern, ttl)
-          : _Rule._prefix(pattern, ttl);
+      ? _Rule._segment(pattern, ttl)
+      : _Rule._prefix(pattern, ttl);
 
   final String pattern;
   final Duration? ttl;

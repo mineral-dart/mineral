@@ -37,8 +37,11 @@ final class GuildSelectContext extends SelectContextBase {
       return null;
     }
 
-    return _datastore.message
-        .get<GuildMessage>(guildId.value, messageId!.value, force);
+    return _datastore.message.get<GuildMessage>(
+      guildId.value,
+      messageId!.value,
+      force,
+    );
   }
 
   Future<T?> resolveChannel<T extends Channel>({bool force = false}) async {
@@ -53,18 +56,25 @@ final class GuildSelectContext extends SelectContextBase {
       _datastore.guild.get(guildId.value, force);
 
   static Future<GuildSelectContext> fromMap(
-      DataStoreContract datastore,
-      EntityContext ctx,
-      Map<String, dynamic> payload) async {
+    DataStoreContract datastore,
+    EntityContext ctx,
+    Map<String, dynamic> payload,
+  ) async {
     return GuildSelectContext(
       ctx: ctx,
-      customId: (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
+      customId:
+          (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
       id: Snowflake.parse(payload['id']),
       applicationId: Snowflake.parse(payload['application_id']),
       token: payload['token'] as String,
       version: payload['version'] as int,
-      messageId: Snowflake.parse((payload['message'] as Map<String, dynamic>)['id']),
-      memberId: Snowflake.parse(((payload['member'] as Map<String, dynamic>)['user'] as Map<String, dynamic>)['id']),
+      messageId: Snowflake.parse(
+        (payload['message'] as Map<String, dynamic>)['id'],
+      ),
+      memberId: Snowflake.parse(
+        ((payload['member'] as Map<String, dynamic>)['user']
+            as Map<String, dynamic>)['id'],
+      ),
       guildId: Snowflake.parse(payload['guild_id']),
       channelId: Snowflake.parse(payload['channel_id']),
     );

@@ -54,13 +54,11 @@ final class WelcomeScreen {
   });
 
   factory WelcomeScreen.fromJson(Map<String, dynamic> json) {
-    final rawChannels =
-        (json['welcome_channels'] as List<dynamic>? ?? [])
-            .cast<Map<String, dynamic>>();
+    final rawChannels = (json['welcome_channels'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
     return WelcomeScreen(
       description: json['description'] as String?,
-      welcomeChannels:
-          rawChannels.map(WelcomeChannel.fromJson).toList(),
+      welcomeChannels: rawChannels.map(WelcomeChannel.fromJson).toList(),
     );
   }
 }

@@ -1,8 +1,4 @@
-enum DisconnectAction {
-  resume,
-  reconnect,
-  fatal,
-}
+enum DisconnectAction { resume, reconnect, fatal }
 
 enum ShardDisconnectError {
   // Standard WebSocket close codes -> reconnect
@@ -26,7 +22,10 @@ enum ShardDisconnectError {
   decodeError(4002, 'Decode error', DisconnectAction.resume),
   notAuthenticated(4003, 'Not authenticated', DisconnectAction.resume),
   alreadyAuthenticated(
-      4005, 'Already authenticated', DisconnectAction.reconnect),
+    4005,
+    'Already authenticated',
+    DisconnectAction.reconnect,
+  ),
   invalidSequence(4007, 'Invalid sequence', DisconnectAction.resume),
   rateLimited(4008, 'Rate limited', DisconnectAction.resume),
   sessionTimeout(4009, 'Session timed out', DisconnectAction.resume),

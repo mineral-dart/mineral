@@ -23,7 +23,9 @@ final class TypingPacket implements ListenablePacket {
       guildId: Snowflake.nullable(payload['guild_id']),
       channelId: Snowflake.parse(payload['channel_id']),
       userId: Snowflake.parse(payload['user_id']),
-      timestamp: DateTime.fromMillisecondsSinceEpoch(payload['timestamp'] as int),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(
+        payload['timestamp'] as int,
+      ),
     );
 
     dispatch<TypingArgs>(event: Event.typing, payload: (typing: typing));

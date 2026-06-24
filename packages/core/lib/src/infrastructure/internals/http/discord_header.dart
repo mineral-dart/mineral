@@ -14,5 +14,5 @@ final class DiscordHeader implements Header {
   DiscordHeader.authorization(String value) : this('Authorization', value);
   DiscordHeader.userAgent(String value) : this('User-Agent', value);
   DiscordHeader.auditLogReason(String? value)
-      : this('X-Audit-Log-Reason', Uri.encodeComponent(value ?? ''));
+    : this('X-Audit-Log-Reason', Uri.encodeComponent(value ?? ''));
 }

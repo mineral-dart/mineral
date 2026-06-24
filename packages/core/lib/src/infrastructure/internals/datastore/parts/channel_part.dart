@@ -9,10 +9,13 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
 
   @override
   Future<Map<Snowflake, T>> fetch<T extends Channel>(
-      Object guildId, bool force) async {
+    Object guildId,
+    bool force,
+  ) async {
     final parsedGuildId = Snowflake.parse(guildId);
     final req = Request.json(endpoint: '/guilds/$parsedGuildId/channels');
-    final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
+    final result = await dataStore.requestBucket
+        .get<List<Map<String, dynamic>>>(req);
 
     final channels = await result.map((element) async {
       final raw = await marshaller.serializers.channels.normalize(element);
@@ -22,7 +25,8 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     return channels.asMap().map((_, value) {
       if (value is! T) {
         throw SerializationException(
-            'Expected $T but got ${value.runtimeType}');
+          'Expected $T but got ${value.runtimeType}',
+        );
       }
       return MapEntry(value.id, value);
     });
@@ -34,11 +38,13 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     final String key = marshaller.cacheKey.channel(channelId.value);
     final cachedChannel = await marshaller.cache?.get(key);
     if (!force && cachedChannel != null) {
-      final serialized =
-          await marshaller.serializers.channels.serialize(cachedChannel);
+      final serialized = await marshaller.serializers.channels.serialize(
+        cachedChannel,
+      );
       if (serialized is! T) {
         throw SerializationException(
-            'Expected $T but got ${serialized.runtimeType}');
+          'Expected $T but got ${serialized.runtimeType}',
+        );
       }
 
       return serialized;
@@ -51,7 +57,8 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     final serialized = await marshaller.serializers.channels.serialize(raw);
     if (serialized is! T) {
       throw SerializationException(
-          'Expected $T but got ${serialized.runtimeType}');
+        'Expected $T but got ${serialized.runtimeType}',
+      );
     }
 
     return serialized;
@@ -59,15 +66,20 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
 
   @override
   Future<T> create<T extends Channel>(
-      Object? guildId, ChannelBuilderContract builder,
-      {String? reason}) async {
+    Object? guildId,
+    ChannelBuilderContract builder, {
+    String? reason,
+  }) async {
     final parsedGuildId = guildId != null ? Snowflake.parse(guildId) : null;
     final req = Request.json(
-        endpoint: '/guilds/$parsedGuildId/channels',
-        body: builder.build(),
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/guilds/$parsedGuildId/channels',
+      body: builder.build(),
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
-    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
@@ -76,7 +88,8 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     });
     if (serialized is! T) {
       throw SerializationException(
-          'Expected $T but got ${serialized.runtimeType}');
+        'Expected $T but got ${serialized.runtimeType}',
+      );
     }
 
     return serialized;
@@ -84,12 +97,18 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
 
   @override
   Future<PrivateChannel> createPrivateChannel(
-      Object id, Object recipientId) async {
+    Object id,
+    Object recipientId,
+  ) async {
     final userId = Snowflake.parse(recipientId);
     final req = Request.json(
-        endpoint: '/users/@me/channels', body: {'recipient_id': userId});
+      endpoint: '/users/@me/channels',
+      body: {'recipient_id': userId},
+    );
 
-    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.channels.normalize(result);
     final channel = await marshaller.serializers.channels.serialize(raw);
@@ -99,16 +118,22 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
 
   @override
   Future<T?> update<T extends Channel>(
-      Object id, ChannelBuilderContract builder,
-      {Object? guildId, String? reason}) async {
+    Object id,
+    ChannelBuilderContract builder, {
+    Object? guildId,
+    String? reason,
+  }) async {
     final channelId = Snowflake.parse(id);
     final parsedGuildId = guildId != null ? Snowflake.parse(guildId) : null;
     final req = Request.json(
-        endpoint: '/channels/$channelId',
-        body: builder.build(),
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/channels/$channelId',
+      body: builder.build(),
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
-    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
@@ -117,7 +142,8 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     });
     if (serialized is! T) {
       throw SerializationException(
-          'Expected $T but got ${serialized.runtimeType}');
+        'Expected $T but got ${serialized.runtimeType}',
+      );
     }
 
     return serialized;
@@ -127,8 +153,9 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
   Future<void> delete(Object id, String? reason) async {
     final channelId = Snowflake.parse(id);
     final req = Request.json(
-        endpoint: '/channels/$channelId',
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/channels/$channelId',
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }

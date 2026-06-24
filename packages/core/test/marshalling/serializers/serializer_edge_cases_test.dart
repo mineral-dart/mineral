@@ -100,10 +100,7 @@ void main() {
 
     group('normalize() with minimal valid payload', () {
       test('does not crash with only id and channel_id', () async {
-        final payload = {
-          'id': '111222333',
-          'channel_id': '444555666',
-        };
+        final payload = {'id': '111222333', 'channel_id': '444555666'};
 
         final result = await serializer.normalize(payload);
 
@@ -118,10 +115,7 @@ void main() {
       });
 
       test('defaults embeds to empty list in minimal payload', () async {
-        final payload = {
-          'id': '111222333',
-          'channel_id': '444555666',
-        };
+        final payload = {'id': '111222333', 'channel_id': '444555666'};
 
         final result = await serializer.normalize(payload);
 
@@ -130,10 +124,7 @@ void main() {
       });
 
       test('writes to cache with minimal payload', () async {
-        final payload = {
-          'id': '111222333',
-          'channel_id': '444555666',
-        };
+        final payload = {'id': '111222333', 'channel_id': '444555666'};
 
         await serializer.normalize(payload);
 
@@ -157,48 +148,51 @@ void main() {
 
     group('normalize() with null inviter (vanity invites)', () {
       test(
-          'crashes when inviter is null due to voiceState requiring non-nullable args',
-          () async {
-        // BUG: cacheKey.voiceState() expects (Object, Object) but receives
-        // null for inviter?['id']. This causes a TypeError at runtime.
-        // Vanity invites from the Discord API can have inviter: null.
-        final payload = {
-          'channel_id': '111222333',
-          'code': 'vanity-url',
-          'created_at': '2024-06-01T12:00:00.000Z',
-          'expires_at': null,
-          'guild_id': '987654321',
-          'inviter': null,
-          'max_age': 0,
-          'max_uses': 0,
-          'temporary': false,
-          'type': 0,
-        };
+        'crashes when inviter is null due to voiceState requiring non-nullable args',
+        () async {
+          // BUG: cacheKey.voiceState() expects (Object, Object) but receives
+          // null for inviter?['id']. This causes a TypeError at runtime.
+          // Vanity invites from the Discord API can have inviter: null.
+          final payload = {
+            'channel_id': '111222333',
+            'code': 'vanity-url',
+            'created_at': '2024-06-01T12:00:00.000Z',
+            'expires_at': null,
+            'guild_id': '987654321',
+            'inviter': null,
+            'max_age': 0,
+            'max_uses': 0,
+            'temporary': false,
+            'type': 0,
+          };
 
-        expect(
-          () => serializer.normalize(payload),
-          throwsA(isA<TypeError>()),
-        );
-      });
+          expect(
+            () => serializer.normalize(payload),
+            throwsA(isA<TypeError>()),
+          );
+        },
+      );
     });
 
     group('normalize() with missing optional fields', () {
-      test('crashes when inviter is absent due to voiceState null arg',
-          () async {
-        // BUG: Same root cause as the null inviter test above.
-        // When inviter key is missing, inviter?['id'] is null,
-        // which is passed to cacheKey.voiceState().
-        final payload = {
-          'code': 'abc123',
-          'guild_id': '987654321',
-          'type': 0,
-        };
+      test(
+        'crashes when inviter is absent due to voiceState null arg',
+        () async {
+          // BUG: Same root cause as the null inviter test above.
+          // When inviter key is missing, inviter?['id'] is null,
+          // which is passed to cacheKey.voiceState().
+          final payload = {
+            'code': 'abc123',
+            'guild_id': '987654321',
+            'type': 0,
+          };
 
-        expect(
-          () => serializer.normalize(payload),
-          throwsA(isA<TypeError>()),
-        );
-      });
+          expect(
+            () => serializer.normalize(payload),
+            throwsA(isA<TypeError>()),
+          );
+        },
+      );
 
       test('handles null expires_at gracefully', () async {
         final payload = {
@@ -258,11 +252,7 @@ void main() {
           'channel_id': '111222333',
           'author_id': '444555666',
           'message_id': '777888999',
-          'emoji': {
-            'id': null,
-            'name': '\u{1F44D}',
-            'animated': false,
-          },
+          'emoji': {'id': null, 'name': '\u{1F44D}', 'animated': false},
           'is_burst': false,
           'type': 0,
         };

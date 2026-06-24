@@ -12,12 +12,14 @@ final class IntegrationDeletePacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   IntegrationDeletePacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final guild = await _dataStore.guild
-        .get(message.payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      message.payload['guild_id'] as Object,
+      false,
+    );
 
     final integrationId = Snowflake.parse(message.payload['id']);
     final applicationId = Snowflake.nullable(message.payload['application_id']);
@@ -27,7 +29,7 @@ final class IntegrationDeletePacket implements ListenablePacket {
       payload: (
         guild: guild,
         integrationId: integrationId,
-        applicationId: applicationId
+        applicationId: applicationId,
       ),
     );
   }

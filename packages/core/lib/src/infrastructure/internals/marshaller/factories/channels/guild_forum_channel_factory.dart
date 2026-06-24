@@ -16,7 +16,9 @@ final class GuildForumChannelFactory
 
   @override
   Future<Map<String, dynamic>> normalize(
-      MarshallerContract marshaller, Map<String, dynamic> json) async {
+    MarshallerContract marshaller,
+    Map<String, dynamic> json,
+  ) async {
     final payload = {
       'id': json['id'],
       'type': json['type'],
@@ -35,30 +37,48 @@ final class GuildForumChannelFactory
   }
 
   @override
-  Future<GuildForumChannel> serialize(MarshallerContract marshaller,
-      EntityContext ctx, Map<String, dynamic> json) async {
-    final properties =
-        await ChannelProperties.serializeCache(marshaller, ctx, json);
+  Future<GuildForumChannel> serialize(
+    MarshallerContract marshaller,
+    EntityContext ctx,
+    Map<String, dynamic> json,
+  ) async {
+    final properties = await ChannelProperties.serializeCache(
+      marshaller,
+      ctx,
+      json,
+    );
     return GuildForumChannel(
       properties,
       sortOrder: Helper.createOrNull(
-          field: json['default_sort_order'],
-          fn: () => findInEnum(SortOrderType.values, json['default_sort_order'],
-              orElse: SortOrderType.unknown)),
+        field: json['default_sort_order'],
+        fn: () => findInEnum(
+          SortOrderType.values,
+          json['default_sort_order'],
+          orElse: SortOrderType.unknown,
+        ),
+      ),
       layoutType: Helper.createOrNull(
-          field: json['default_forum_layout'],
-          fn: () => findInEnum(
-              ForumLayoutType.values, json['default_forum_layout'],
-              orElse: ForumLayoutType.unknown)),
+        field: json['default_forum_layout'],
+        fn: () => findInEnum(
+          ForumLayoutType.values,
+          json['default_forum_layout'],
+          orElse: ForumLayoutType.unknown,
+        ),
+      ),
     );
   }
 
   @override
   Future<Map<String, dynamic>> deserialize(
-      MarshallerContract marshaller, GuildForumChannel channel) async {
-    final permissions = await Future.wait(channel.permissions.map(
+    MarshallerContract marshaller,
+    GuildForumChannel channel,
+  ) async {
+    final permissions = await Future.wait(
+      channel.permissions.map(
         (element) async => marshaller.serializers.channelPermissionOverwrite
-            .deserialize(element)));
+            .deserialize(element),
+      ),
+    );
 
     return {
       'id': channel.id.value,

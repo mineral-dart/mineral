@@ -104,15 +104,17 @@ void main() {
         expect(msg['d'], equals(42));
       });
 
-      test('sends heartbeat with null sequence when no events received',
-          () async {
-        await auth.heartbeat();
+      test(
+        'sends heartbeat with null sequence when no events received',
+        () async {
+          await auth.heartbeat();
 
-        expect(fakeClient.sentMessages, hasLength(1));
-        final msg = _decodeMessage(fakeClient.sentMessages.first);
-        expect(msg['op'], equals(1));
-        expect(msg['d'], isNull);
-      });
+          expect(fakeClient.sentMessages, hasLength(1));
+          final msg = _decodeMessage(fakeClient.sentMessages.first);
+          expect(msg['op'], equals(1));
+          expect(msg['d'], isNull);
+        },
+      );
 
       test('increments attempts on each call', () async {
         expect(auth.attempts, equals(0));

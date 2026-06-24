@@ -13,8 +13,9 @@ final class InvitePart extends BasePart implements InvitePartContract {
 
     final cachedInvite = await marshaller.cache?.get(key);
     if (!force && cachedInvite != null) {
-      final invite =
-          await marshaller.serializers.invite.serialize(cachedInvite);
+      final invite = await marshaller.serializers.invite.serialize(
+        cachedInvite,
+      );
 
       return invite;
     }
@@ -30,10 +31,10 @@ final class InvitePart extends BasePart implements InvitePartContract {
 
   @override
   Future<InviteMetadata?> getExtrasMetadata(String code, bool force) async {
-    final req = Request.json(endpoint: '/invites/$code', queryParameters: {
-      'with_counts': 'true',
-      'with_expiration': 'true',
-    });
+    final req = Request.json(
+      endpoint: '/invites/$code',
+      queryParameters: {'with_counts': 'true', 'with_expiration': 'true'},
+    );
 
     final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
@@ -74,7 +75,9 @@ final class InvitePart extends BasePart implements InvitePartContract {
       headers: {DiscordHeader.auditLogReason(reason)},
     );
 
-    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.invite.normalize(result);
     return marshaller.serializers.invite.serialize(raw);
@@ -83,8 +86,9 @@ final class InvitePart extends BasePart implements InvitePartContract {
   @override
   Future<void> delete(String code, String? reason) async {
     final req = Request.json(
-        endpoint: '/invites/$code',
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/invites/$code',
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }

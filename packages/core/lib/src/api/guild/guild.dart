@@ -61,8 +61,9 @@ final class Guild {
   /// await guild.setDescription('New Guild Description', reason: 'Testing');
   /// ```
   Future<void> setDescription(String description, {String? reason}) async {
-    await _datastore.guild
-        .update(id.value, {'description': description}, reason);
+    await _datastore.guild.update(id.value, {
+      'description': description,
+    }, reason);
   }
 
   /// Set the default message notifications for the guild.
@@ -70,10 +71,13 @@ final class Guild {
   /// ```dart
   /// await guild.setDefaultMessageNotifications(DefaultMessageNotification.allMessages, reason: 'Testing');
   /// ```
-  Future<void> setDefaultMessageNotifications(DefaultMessageNotification value,
-      {String? reason}) async {
-    await _datastore.guild.update(
-        id.value, {'default_message_notifications': value.value}, reason);
+  Future<void> setDefaultMessageNotifications(
+    DefaultMessageNotification value, {
+    String? reason,
+  }) async {
+    await _datastore.guild.update(id.value, {
+      'default_message_notifications': value.value,
+    }, reason);
   }
 
   /// Set the explicit content filter for the guild.
@@ -81,10 +85,13 @@ final class Guild {
   /// ```dart
   /// await guild.setExplicitContentFilter(ExplicitContentFilter.disabled, reason: 'Testing');
   /// ```
-  Future<void> setExplicitContentFilter(ExplicitContentFilter value,
-      {String? reason}) async {
-    await _datastore.guild
-        .update(id.value, {'explicit_content_filter': value.value}, reason);
+  Future<void> setExplicitContentFilter(
+    ExplicitContentFilter value, {
+    String? reason,
+  }) async {
+    await _datastore.guild.update(id.value, {
+      'explicit_content_filter': value.value,
+    }, reason);
   }
 
   /// Set the guild's afk timeout.
@@ -102,8 +109,9 @@ final class Guild {
   /// await guild.enablePremiumProgressBar(true, reason: 'Testing');
   /// ```
   Future<void> enablePremiumProgressBar(bool value, {String? reason}) async {
-    await _datastore.guild
-        .update(id.value, {'premium_progress_bar_enabled': value}, reason);
+    await _datastore.guild.update(id.value, {
+      'premium_progress_bar_enabled': value,
+    }, reason);
   }
 
   /// Set the guild's safety alerts channel.
@@ -111,10 +119,13 @@ final class Guild {
   /// ```dart
   /// await guild.setSafetyAlertsChannel('1091121140090535956', reason: 'Testing');
   /// ```
-  Future<void> setSafetyAlertsChannel(String? channelId,
-      {String? reason}) async {
-    await _datastore.guild
-        .update(id.value, {'safety_alerts_channel_id': channelId}, reason);
+  Future<void> setSafetyAlertsChannel(
+    String? channelId, {
+    String? reason,
+  }) async {
+    await _datastore.guild.update(id.value, {
+      'safety_alerts_channel_id': channelId,
+    }, reason);
   }
 
   /// Set the guild's preferred locale.
@@ -123,8 +134,9 @@ final class Guild {
   /// await guild.setPreferredLocale('en-US', reason: 'Testing');
   /// ```
   Future<void> setPreferredLocale(String value, {String? reason}) async {
-    await _datastore.guild
-        .update(id.value, {'preferred_locale': value}, reason);
+    await _datastore.guild.update(id.value, {
+      'preferred_locale': value,
+    }, reason);
   }
 
   /// Set the guild's vanity url code.
@@ -133,8 +145,7 @@ final class Guild {
   /// await guild.setVanityUrlCode('new-vanity-url', reason: 'Testing');
   /// ```
   Future<void> setVanityUrlCode(String value, {String? reason}) async {
-    await _datastore.guild
-        .update(id.value, {'vanity_url_code': value}, reason);
+    await _datastore.guild.update(id.value, {'vanity_url_code': value}, reason);
   }
 
   /// Resolve the guild owner's name.
@@ -171,8 +182,7 @@ final class Guild {
     String? description,
     String? reason,
   }) {
-    final channelsJson =
-        welcomeChannels?.map((c) => c.toJson()).toList();
+    final channelsJson = welcomeChannels?.map((c) => c.toJson()).toList();
     return _datastore.welcomeScreen.update(
       id.value,
       enabled: enabled,
@@ -187,8 +197,7 @@ final class Guild {
   /// ```dart
   /// final onboarding = await guild.fetchOnboarding();
   /// ```
-  Future<Onboarding> fetchOnboarding() =>
-      _datastore.onboarding.fetch(id.value);
+  Future<Onboarding> fetchOnboarding() => _datastore.onboarding.fetch(id.value);
 
   /// Update the guild onboarding configuration.
   ///

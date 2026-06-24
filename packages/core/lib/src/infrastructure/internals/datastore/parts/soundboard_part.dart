@@ -10,22 +10,21 @@ final class SoundboardPart extends BasePart implements SoundboardPartContract {
   @override
   Future<List<SoundboardSound>> fetchDefault() async {
     final req = Request.json(endpoint: '/soundboard-default-sounds');
-    final result =
-        await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
+    final result = await dataStore.requestBucket
+        .get<List<Map<String, dynamic>>>(req);
     return result.map(SoundboardSound.fromJson).toList();
   }
 
   @override
-  Future<Map<Snowflake, SoundboardSound>> fetchForServer(
-      Object guildId) async {
+  Future<Map<Snowflake, SoundboardSound>> fetchForServer(Object guildId) async {
     final parsedGuildId = Snowflake.parse(guildId);
-    final req =
-        Request.json(endpoint: '/guilds/$parsedGuildId/soundboard-sounds');
-    final result =
-        await dataStore.requestBucket.get<Map<String, dynamic>>(req);
+    final req = Request.json(
+      endpoint: '/guilds/$parsedGuildId/soundboard-sounds',
+    );
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
-    final items =
-        (result['items'] as List<dynamic>).cast<Map<String, dynamic>>();
+    final items = (result['items'] as List<dynamic>)
+        .cast<Map<String, dynamic>>();
     final sounds = items.map(SoundboardSound.fromJson).toList();
     return {for (final s in sounds) s.soundId: s};
   }
@@ -34,10 +33,10 @@ final class SoundboardPart extends BasePart implements SoundboardPartContract {
   Future<SoundboardSound> get(Object guildId, Object soundId) async {
     final parsedGuildId = Snowflake.parse(guildId);
     final id = Snowflake.parse(soundId);
-    final req =
-        Request.json(endpoint: '/guilds/$parsedGuildId/soundboard-sounds/$id');
-    final result =
-        await dataStore.requestBucket.get<Map<String, dynamic>>(req);
+    final req = Request.json(
+      endpoint: '/guilds/$parsedGuildId/soundboard-sounds/$id',
+    );
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
     return SoundboardSound.fromJson(result);
   }
 
@@ -65,8 +64,9 @@ final class SoundboardPart extends BasePart implements SoundboardPartContract {
       body: body,
       headers: {DiscordHeader.auditLogReason(reason)},
     );
-    final result =
-        await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
     return SoundboardSound.fromJson(result);
   }
 
@@ -94,17 +94,14 @@ final class SoundboardPart extends BasePart implements SoundboardPartContract {
       body: body,
       headers: {DiscordHeader.auditLogReason(reason)},
     );
-    final result =
-        await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
     return SoundboardSound.fromJson(result);
   }
 
   @override
-  Future<void> delete(
-    Object guildId,
-    Object soundId, {
-    String? reason,
-  }) async {
+  Future<void> delete(Object guildId, Object soundId, {String? reason}) async {
     final parsedGuildId = Snowflake.parse(guildId);
     final id = Snowflake.parse(soundId);
     final req = Request.json(

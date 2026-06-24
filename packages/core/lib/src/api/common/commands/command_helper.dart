@@ -12,7 +12,9 @@ final class CommandHelper {
   );
 
   Map<String, String>? extractTranslations(
-      String key, Translation translations) {
+    String key,
+    Translation translations,
+  ) {
     if (translations.translations[key] case final Map<Lang, String> elements) {
       return elements.entries.fold({}, (acc, element) {
         return {...?acc, element.key.uid: element.value};

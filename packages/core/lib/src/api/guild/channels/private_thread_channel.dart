@@ -66,10 +66,10 @@ class PrivateThreadChannel extends GuildChannel implements ThreadChannel {
     required this.flags,
     required this.ownerId,
     required List<ChannelPermissionOverwrite> permissions,
-  })  : _id = id,
-        _name = name,
-        _guildId = guildId,
-        _permissions = permissions {
+  }) : _id = id,
+       _name = name,
+       _guildId = guildId,
+       _permissions = permissions {
     methods = ChannelMethods(null, id, ctx: ctx);
     messages = MessageManager(id, ctx: ctx);
   }
@@ -86,13 +86,15 @@ class PrivateThreadChannel extends GuildChannel implements ThreadChannel {
   Future<void> setRateLimitPerUser(Duration value, {String? reason}) =>
       methods.setRateLimitPerUser(value, reason);
 
-  Future<void> setDefaultAutoArchiveDuration(Duration value,
-          {String? reason}) =>
-      methods.setDefaultAutoArchiveDuration(value, reason);
+  Future<void> setDefaultAutoArchiveDuration(
+    Duration value, {
+    String? reason,
+  }) => methods.setDefaultAutoArchiveDuration(value, reason);
 
-  Future<void> setDefaultThreadRateLimitPerUser(Duration value,
-          {String? reason}) =>
-      methods.setDefaultThreadRateLimitPerUser(value, reason);
+  Future<void> setDefaultThreadRateLimitPerUser(
+    Duration value, {
+    String? reason,
+  }) => methods.setDefaultThreadRateLimitPerUser(value, reason);
 
   Future<void> send(MessageBuilder builder) =>
       methods.send(guildId: guildId, builder: builder);

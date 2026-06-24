@@ -19,20 +19,25 @@ final class WebsocketIsolateMessageTransfert {
   final Completer? completer;
 
   WebsocketIsolateMessageTransfert(
-      this.type, this.payload, this.uid, this.targetKeys, this.completer);
+    this.type,
+    this.payload,
+    this.uid,
+    this.targetKeys,
+    this.completer,
+  );
 
   const WebsocketIsolateMessageTransfert.send(this.payload)
-      : type = MessageTransfertType.send,
-        uid = null,
-        targetKeys = const [],
-        completer = null;
+    : type = MessageTransfertType.send,
+      uid = null,
+      targetKeys = const [],
+      completer = null;
 
-  const WebsocketIsolateMessageTransfert.request(
-      {required this.uid,
-      this.payload,
-      this.targetKeys = const [],
-      this.completer})
-      : type = MessageTransfertType.request;
+  const WebsocketIsolateMessageTransfert.request({
+    required this.uid,
+    this.payload,
+    this.targetKeys = const [],
+    this.completer,
+  }) : type = MessageTransfertType.request;
 
   factory WebsocketIsolateMessageTransfert.fromJson(Map<String, dynamic> json) {
     return WebsocketIsolateMessageTransfert(

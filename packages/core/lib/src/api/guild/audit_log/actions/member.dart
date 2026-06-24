@@ -22,8 +22,11 @@ final class MemberKickAuditLog extends AuditLog {
       return null;
     }
 
-    final member =
-        await _datastore.member.get(guildId.value, memberId!.value, force);
+    final member = await _datastore.member.get(
+      guildId.value,
+      memberId!.value,
+      force,
+    );
     return member;
   }
 }
@@ -59,8 +62,11 @@ final class MemberBanAddAuditLog extends AuditLog {
     if (memberId == null) {
       return null;
     }
-    final member =
-        await _datastore.member.get(guildId.value, memberId!.value, force);
+    final member = await _datastore.member.get(
+      guildId.value,
+      memberId!.value,
+      force,
+    );
     return member;
   }
 }
@@ -82,8 +88,11 @@ final class MemberBanRemoveAuditLog extends AuditLog {
       return null;
     }
 
-    final member =
-        await _datastore.member.get(guildId.value, memberId!.value, force);
+    final member = await _datastore.member.get(
+      guildId.value,
+      memberId!.value,
+      force,
+    );
     return member;
   }
 }
@@ -107,8 +116,11 @@ final class MemberUpdateAuditLog extends AuditLog {
       return null;
     }
 
-    final member =
-        await _datastore.member.get(guildId.value, memberId!.value, force);
+    final member = await _datastore.member.get(
+      guildId.value,
+      memberId!.value,
+      force,
+    );
     return member;
   }
 }
@@ -132,8 +144,11 @@ final class MemberRoleUpdateAuditLog extends AuditLog {
       return null;
     }
 
-    final member =
-        await _datastore.member.get(guildId.value, memberId!.value, force);
+    final member = await _datastore.member.get(
+      guildId.value,
+      memberId!.value,
+      force,
+    );
     return member;
   }
 }
@@ -157,8 +172,11 @@ final class MemberMoveAuditLog extends AuditLog {
       return null;
     }
 
-    final member =
-        await _datastore.member.get(guildId.value, memberId!.value, force);
+    final member = await _datastore.member.get(
+      guildId.value,
+      memberId!.value,
+      force,
+    );
     return member;
   }
 
@@ -189,8 +207,11 @@ final class MemberDisconnectAuditLog extends AuditLog {
       return null;
     }
 
-    final member =
-        await _datastore.member.get(guildId.value, memberId!.value, force);
+    final member = await _datastore.member.get(
+      guildId.value,
+      memberId!.value,
+      force,
+    );
     return member;
   }
 }
@@ -212,8 +233,11 @@ final class BotAddAuditLog extends AuditLog {
       return null;
     }
 
-    final member =
-        await _datastore.member.get(guildId.value, botId!.value, force);
+    final member = await _datastore.member.get(
+      guildId.value,
+      botId!.value,
+      force,
+    );
     return member;
   }
 }

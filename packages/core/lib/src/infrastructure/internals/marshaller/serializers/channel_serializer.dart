@@ -37,8 +37,9 @@ final class ChannelSerializer<T extends Channel?>
 
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {
-    final channelFactory = _factories
-        .firstWhereOrNull((element) => element.type.value == json['type']);
+    final channelFactory = _factories.firstWhereOrNull(
+      (element) => element.type.value == json['type'],
+    );
     if (channelFactory == null) {
       _marshaller.logger.warn('Channel type not found ${json['type']}');
       return json;
@@ -50,9 +51,11 @@ final class ChannelSerializer<T extends Channel?>
   @override
   Future<T> serialize(Map<String, dynamic> json) {
     final channelFactory = _factories.firstWhere(
-        (element) => element.type.value == json['type'],
-        orElse: () => _factories
-            .firstWhere((element) => element.type == ChannelType.unknown));
+      (element) => element.type.value == json['type'],
+      orElse: () => _factories.firstWhere(
+        (element) => element.type == ChannelType.unknown,
+      ),
+    );
 
     if (channelFactory case UnknownChannelFactory()) {
       _marshaller.logger.warn('Channel type not found ${json['type']}');
@@ -63,8 +66,9 @@ final class ChannelSerializer<T extends Channel?>
 
   @override
   Future<Map<String, dynamic>> deserialize(Channel? channel) async {
-    final channelFactory =
-        _factories.firstWhereOrNull((element) => element.type == channel?.type);
+    final channelFactory = _factories.firstWhereOrNull(
+      (element) => element.type == channel?.type,
+    );
     if (channelFactory != null) {
       return channelFactory.deserialize(_marshaller, channel!);
     }

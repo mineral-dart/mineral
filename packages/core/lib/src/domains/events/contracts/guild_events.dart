@@ -13,7 +13,8 @@ abstract class GuildAuditLogEvent extends BaseListenableEvent {
   Event get event => Event.guildAuditLog;
 
   @override
-  Function get handler => (GuildAuditLogArgs p) => handle(p.audit);
+  Function get handler =>
+      (GuildAuditLogArgs p) => handle(p.audit);
 
   FutureOr<void> handle(AuditLog audit);
 }
@@ -25,7 +26,8 @@ abstract class GuildBanAddEvent extends BaseListenableEvent {
   Event get event => Event.guildBanAdd;
 
   @override
-  Function get handler => (GuildBanAddArgs p) => handle(p.user, p.guild);
+  Function get handler =>
+      (GuildBanAddArgs p) => handle(p.user, p.guild);
 
   FutureOr<void> handle(User user, Guild guild);
 }
@@ -37,7 +39,8 @@ abstract class GuildBanRemoveEvent extends BaseListenableEvent {
   Event get event => Event.guildBanRemove;
 
   @override
-  Function get handler => (GuildBanRemoveArgs p) => handle(p.user, p.guild);
+  Function get handler =>
+      (GuildBanRemoveArgs p) => handle(p.user, p.guild);
 
   FutureOr<void> handle(User user, Guild guild);
 }
@@ -49,7 +52,8 @@ abstract class GuildButtonClickEvent extends BaseListenableEvent {
   Event get event => Event.guildButtonClick;
 
   @override
-  Function get handler => (GuildButtonClickArgs p) => handle(p.ctx);
+  Function get handler =>
+      (GuildButtonClickArgs p) => handle(p.ctx);
 
   FutureOr<void> handle(GuildButtonContext ctx);
 }
@@ -61,7 +65,8 @@ abstract class GuildChannelCreateEvent extends BaseListenableEvent {
   Event get event => Event.guildChannelCreate;
 
   @override
-  Function get handler => (GuildChannelCreateArgs p) => handle(p.channel);
+  Function get handler =>
+      (GuildChannelCreateArgs p) => handle(p.channel);
 
   FutureOr<void> handle(GuildChannel channel);
 }
@@ -73,7 +78,8 @@ abstract class GuildChannelDeleteEvent extends BaseListenableEvent {
   Event get event => Event.guildChannelDelete;
 
   @override
-  Function get handler => (GuildChannelDeleteArgs p) => handle(p.channel);
+  Function get handler =>
+      (GuildChannelDeleteArgs p) => handle(p.channel);
 
   FutureOr<void> handle(GuildChannel? channel);
 }
@@ -111,7 +117,8 @@ abstract class GuildCreateEvent extends BaseListenableEvent {
   Event get event => Event.guildCreate;
 
   @override
-  Function get handler => (GuildCreateArgs p) => handle(p.guild);
+  Function get handler =>
+      (GuildCreateArgs p) => handle(p.guild);
 
   FutureOr<void> handle(Guild guild);
 }
@@ -123,7 +130,8 @@ abstract class GuildDeleteEvent extends BaseListenableEvent {
   Event get event => Event.guildDelete;
 
   @override
-  Function get handler => (GuildDeleteArgs p) => handle(p.guild);
+  Function get handler =>
+      (GuildDeleteArgs p) => handle(p.guild);
 
   FutureOr<void> handle(Guild? guild);
 }
@@ -135,7 +143,8 @@ abstract class GuildUpdateEvent extends BaseListenableEvent {
   Event get event => Event.guildUpdate;
 
   @override
-  Function get handler => (GuildUpdateArgs p) => handle(p.before, p.after);
+  Function get handler =>
+      (GuildUpdateArgs p) => handle(p.before, p.after);
 
   FutureOr<void> handle(Guild? before, Guild after);
 }
@@ -155,7 +164,7 @@ abstract class GuildEmojisUpdateEvent extends BaseListenableEvent {
 
 typedef GuildStickersUpdateArgs = ({
   Guild guild,
-  Map<Snowflake, Sticker> stickers
+  Map<Snowflake, Sticker> stickers,
 });
 
 abstract class GuildStickersUpdateEvent extends BaseListenableEvent {
@@ -176,7 +185,8 @@ abstract class GuildMemberAddEvent extends BaseListenableEvent {
   Event get event => Event.guildMemberAdd;
 
   @override
-  Function get handler => (GuildMemberAddArgs p) => handle(p.member, p.guild);
+  Function get handler =>
+      (GuildMemberAddArgs p) => handle(p.member, p.guild);
 
   FutureOr<void> handle(Member member, Guild guild);
 }
@@ -227,7 +237,8 @@ abstract class GuildMessageCreateEvent extends BaseListenableEvent {
   Event get event => Event.guildMessageCreate;
 
   @override
-  Function get handler => (GuildMessageCreateArgs p) => handle(p.message);
+  Function get handler =>
+      (GuildMessageCreateArgs p) => handle(p.message);
 
   FutureOr<void> handle(GuildMessage message);
 }
@@ -257,11 +268,16 @@ abstract class GuildMessageDeleteEvent extends BaseListenableEvent {
   Event get event => Event.guildMessageDelete;
 
   @override
-  Function get handler => (GuildMessageDeleteArgs p) =>
-      handle(p.guild, p.channel, p.messageId, p.message);
+  Function get handler =>
+      (GuildMessageDeleteArgs p) =>
+          handle(p.guild, p.channel, p.messageId, p.message);
 
-  FutureOr<void> handle(Guild guild, GuildChannel channel,
-      Snowflake messageId, Message? message);
+  FutureOr<void> handle(
+    Guild guild,
+    GuildChannel channel,
+    Snowflake messageId,
+    Message? message,
+  );
 }
 
 typedef GuildMessageDeleteBulkArgs = ({
@@ -276,11 +292,16 @@ abstract class GuildMessageDeleteBulkEvent extends BaseListenableEvent {
   Event get event => Event.guildMessageDeleteBulk;
 
   @override
-  Function get handler => (GuildMessageDeleteBulkArgs p) =>
-      handle(p.guild, p.channel, p.messageIds, p.messages);
+  Function get handler =>
+      (GuildMessageDeleteBulkArgs p) =>
+          handle(p.guild, p.channel, p.messageIds, p.messages);
 
-  FutureOr<void> handle(Guild guild, GuildChannel channel,
-      List<Snowflake> messageIds, Map<Snowflake, Message> messages);
+  FutureOr<void> handle(
+    Guild guild,
+    GuildChannel channel,
+    List<Snowflake> messageIds,
+    Map<Snowflake, Message> messages,
+  );
 }
 
 typedef GuildMessageReactionAddArgs = ({MessageReaction reaction});
@@ -312,7 +333,7 @@ abstract class GuildMessageReactionRemoveEvent extends BaseListenableEvent {
 typedef GuildMessageReactionRemoveAllArgs = ({
   Guild guild,
   GuildTextChannel channel,
-  Message message
+  Message message,
 });
 
 abstract class GuildMessageReactionRemoveAllEvent extends BaseListenableEvent {
@@ -320,18 +341,18 @@ abstract class GuildMessageReactionRemoveAllEvent extends BaseListenableEvent {
   Event get event => Event.guildMessageReactionRemoveAll;
 
   @override
-  Function get handler => (GuildMessageReactionRemoveAllArgs p) =>
-      handle(p.guild, p.channel, p.message);
+  Function get handler =>
+      (GuildMessageReactionRemoveAllArgs p) =>
+          handle(p.guild, p.channel, p.message);
 
-  FutureOr<void> handle(
-      Guild guild, GuildTextChannel channel, Message message);
+  FutureOr<void> handle(Guild guild, GuildTextChannel channel, Message message);
 }
 
 typedef GuildMessageReactionRemoveEmojiArgs = ({
   Guild guild,
   GuildTextChannel channel,
   Message message,
-  PartialEmoji emoji
+  PartialEmoji emoji,
 });
 
 abstract class GuildMessageReactionRemoveEmojiEvent
@@ -340,11 +361,16 @@ abstract class GuildMessageReactionRemoveEmojiEvent
   Event get event => Event.guildMessageReactionRemoveEmoji;
 
   @override
-  Function get handler => (GuildMessageReactionRemoveEmojiArgs p) =>
-      handle(p.guild, p.channel, p.message, p.emoji);
+  Function get handler =>
+      (GuildMessageReactionRemoveEmojiArgs p) =>
+          handle(p.guild, p.channel, p.message, p.emoji);
 
   FutureOr<void> handle(
-      Guild guild, GuildTextChannel channel, Message message, PartialEmoji emoji);
+    Guild guild,
+    GuildTextChannel channel,
+    Message message,
+    PartialEmoji emoji,
+  );
 }
 
 typedef GuildModalSubmitArgs<T> = ({GuildModalContext ctx, T data});
@@ -354,7 +380,8 @@ abstract class GuildModalSubmitEvent<T> extends BaseListenableEvent {
   Event get event => Event.guildModalSubmit;
 
   @override
-  Function get handler => (GuildModalSubmitArgs<T> p) => handle(p.ctx, p.data);
+  Function get handler =>
+      (GuildModalSubmitArgs<T> p) => handle(p.ctx, p.data);
 
   FutureOr<void> handle(GuildModalContext ctx, T data);
 }
@@ -366,15 +393,13 @@ abstract class GuildPollVoteAddEvent extends BaseListenableEvent {
   Event get event => Event.guildPollVoteAdd;
 
   @override
-  Function get handler => (GuildPollVoteAddArgs p) => handle(p.answer, p.user);
+  Function get handler =>
+      (GuildPollVoteAddArgs p) => handle(p.answer, p.user);
 
   FutureOr<void> handle(PollAnswerVote<Message> answer, User user);
 }
 
-typedef GuildPollVoteRemoveArgs = ({
-  PollAnswerVote<Message> answer,
-  User user
-});
+typedef GuildPollVoteRemoveArgs = ({PollAnswerVote<Message> answer, User user});
 
 abstract class GuildPollVoteRemoveEvent extends BaseListenableEvent {
   @override
@@ -407,7 +432,8 @@ abstract class GuildRolesCreateEvent extends BaseListenableEvent {
   Event get event => Event.guildRoleCreate;
 
   @override
-  Function get handler => (GuildRoleCreateArgs p) => handle(p.guild, p.role);
+  Function get handler =>
+      (GuildRoleCreateArgs p) => handle(p.guild, p.role);
 
   FutureOr<void> handle(Guild guild, Role role);
 }
@@ -419,7 +445,8 @@ abstract class GuildRolesDeleteEvent extends BaseListenableEvent {
   Event get event => Event.guildRoleDelete;
 
   @override
-  Function get handler => (GuildRoleDeleteArgs p) => handle(p.guild, p.role);
+  Function get handler =>
+      (GuildRoleDeleteArgs p) => handle(p.guild, p.role);
 
   FutureOr<void> handle(Guild guild, Role? role);
 }
@@ -444,7 +471,8 @@ abstract class GuildRuleCreateEvent extends BaseListenableEvent {
   Event get event => Event.guildRuleCreate;
 
   @override
-  Function get handler => (GuildRuleCreateArgs p) => handle(p.rule);
+  Function get handler =>
+      (GuildRuleCreateArgs p) => handle(p.rule);
 
   FutureOr<void> handle(AutoModerationRule rule);
 }
@@ -456,7 +484,8 @@ abstract class GuildRuleDeleteEvent extends BaseListenableEvent {
   Event get event => Event.guildRuleDelete;
 
   @override
-  Function get handler => (GuildRuleDeleteArgs p) => handle(p.rule);
+  Function get handler =>
+      (GuildRuleDeleteArgs p) => handle(p.rule);
 
   FutureOr<void> handle(AutoModerationRule rule);
 }
@@ -468,14 +497,15 @@ abstract class GuildRuleExecutionEvent extends BaseListenableEvent {
   Event get event => Event.guildRuleExecution;
 
   @override
-  Function get handler => (GuildRuleExecutionArgs p) => handle(p.execution);
+  Function get handler =>
+      (GuildRuleExecutionArgs p) => handle(p.execution);
 
   FutureOr<void> handle(RuleExecution execution);
 }
 
 typedef GuildRuleUpdateArgs = ({
   AutoModerationRule? before,
-  AutoModerationRule after
+  AutoModerationRule after,
 });
 
 abstract class GuildRuleUpdateEvent extends BaseListenableEvent {
@@ -483,14 +513,15 @@ abstract class GuildRuleUpdateEvent extends BaseListenableEvent {
   Event get event => Event.guildRuleUpdate;
 
   @override
-  Function get handler => (GuildRuleUpdateArgs p) => handle(p.before, p.after);
+  Function get handler =>
+      (GuildRuleUpdateArgs p) => handle(p.before, p.after);
 
   FutureOr<void> handle(AutoModerationRule? before, AutoModerationRule after);
 }
 
 typedef GuildChannelSelectArgs = ({
   GuildSelectContext ctx,
-  List<GuildChannel> channels
+  List<GuildChannel> channels,
 });
 
 abstract class GuildChannelSelectEvent extends BaseListenableEvent {
@@ -506,7 +537,7 @@ abstract class GuildChannelSelectEvent extends BaseListenableEvent {
 
 typedef GuildMemberSelectArgs = ({
   GuildSelectContext ctx,
-  List<Member> members
+  List<Member> members,
 });
 
 abstract class GuildMemberSelectEvent extends BaseListenableEvent {
@@ -522,7 +553,7 @@ abstract class GuildMemberSelectEvent extends BaseListenableEvent {
 
 typedef GuildMentionableSelectArgs = ({
   GuildSelectContext ctx,
-  List<dynamic> mentionables
+  List<dynamic> mentionables,
 });
 
 abstract class GuildMentionableSelectEvent extends BaseListenableEvent {
@@ -543,7 +574,8 @@ abstract class GuildRoleSelectEvent extends BaseListenableEvent {
   Event get event => Event.guildRoleSelect;
 
   @override
-  Function get handler => (GuildRoleSelectArgs p) => handle(p.ctx, p.roles);
+  Function get handler =>
+      (GuildRoleSelectArgs p) => handle(p.ctx, p.roles);
 
   FutureOr<void> handle(GuildSelectContext ctx, List<Role> roles);
 }
@@ -555,7 +587,8 @@ abstract class GuildTextSelectEvent extends BaseListenableEvent {
   Event get event => Event.guildTextSelect;
 
   @override
-  Function get handler => (GuildTextSelectArgs p) => handle(p.ctx, p.values);
+  Function get handler =>
+      (GuildTextSelectArgs p) => handle(p.ctx, p.values);
 
   FutureOr<void> handle(GuildSelectContext ctx, List<String> values);
 }
@@ -586,10 +619,7 @@ abstract class GuildThreadDeleteEvent extends BaseListenableEvent {
   FutureOr<void> handle(ThreadChannel? thread, Guild guild);
 }
 
-typedef GuildThreadListSyncArgs = ({
-  List<ThreadChannel> threads,
-  Guild guild
-});
+typedef GuildThreadListSyncArgs = ({List<ThreadChannel> threads, Guild guild});
 
 abstract class GuildThreadListSyncEvent extends BaseListenableEvent {
   @override
@@ -605,7 +635,7 @@ abstract class GuildThreadListSyncEvent extends BaseListenableEvent {
 typedef GuildThreadMemberArgs = ({
   ThreadChannel thread,
   Guild guild,
-  Member member
+  Member member,
 });
 
 abstract class GuildThreadMemberAddEvent extends BaseListenableEvent {
@@ -657,7 +687,7 @@ abstract class GuildWebhooksUpdateEvent extends BaseListenableEvent {
 typedef GuildThreadUpdateArgs = ({
   Guild guild,
   ThreadChannel? before,
-  ThreadChannel after
+  ThreadChannel after,
 });
 
 abstract class GuildThreadUpdateEvent extends BaseListenableEvent {
@@ -669,12 +699,15 @@ abstract class GuildThreadUpdateEvent extends BaseListenableEvent {
       (GuildThreadUpdateArgs p) => handle(p.guild, p.before, p.after);
 
   FutureOr<void> handle(
-      Guild guild, ThreadChannel? before, ThreadChannel after);
+    Guild guild,
+    ThreadChannel? before,
+    ThreadChannel after,
+  );
 }
 
 typedef GuildApplicationCommandPermissionsUpdateArgs = ({
   Guild guild,
-  GuildApplicationCommandPermissions permissions
+  GuildApplicationCommandPermissions permissions,
 });
 
 abstract class GuildApplicationCommandPermissionsUpdateEvent
@@ -688,7 +721,9 @@ abstract class GuildApplicationCommandPermissionsUpdateEvent
           handle(p.guild, p.permissions);
 
   FutureOr<void> handle(
-      Guild guild, GuildApplicationCommandPermissions permissions);
+    Guild guild,
+    GuildApplicationCommandPermissions permissions,
+  );
 }
 
 typedef GuildIntegrationsUpdateArgs = ({Guild guild});
@@ -733,7 +768,7 @@ abstract class GuildIntegrationUpdateEvent extends BaseListenableEvent {
 typedef GuildIntegrationDeleteArgs = ({
   Guild guild,
   Snowflake integrationId,
-  Snowflake? applicationId
+  Snowflake? applicationId,
 });
 
 abstract class GuildIntegrationDeleteEvent extends BaseListenableEvent {
@@ -741,16 +776,20 @@ abstract class GuildIntegrationDeleteEvent extends BaseListenableEvent {
   Event get event => Event.guildIntegrationDelete;
 
   @override
-  Function get handler => (GuildIntegrationDeleteArgs p) =>
-      handle(p.guild, p.integrationId, p.applicationId);
+  Function get handler =>
+      (GuildIntegrationDeleteArgs p) =>
+          handle(p.guild, p.integrationId, p.applicationId);
 
   FutureOr<void> handle(
-      Guild guild, Snowflake integrationId, Snowflake? applicationId);
+    Guild guild,
+    Snowflake integrationId,
+    Snowflake? applicationId,
+  );
 }
 
 typedef GuildScheduledEventCreateArgs = ({
   Guild guild,
-  GuildScheduledEvent event
+  GuildScheduledEvent event,
 });
 
 abstract class GuildScheduledEventCreateEvent extends BaseListenableEvent {
@@ -758,8 +797,8 @@ abstract class GuildScheduledEventCreateEvent extends BaseListenableEvent {
   Event get event => Event.guildScheduledEventCreate;
 
   @override
-  Function get handler => (GuildScheduledEventCreateArgs p) =>
-      handle(p.guild, p.event);
+  Function get handler =>
+      (GuildScheduledEventCreateArgs p) => handle(p.guild, p.event);
 
   FutureOr<void> handle(Guild guild, GuildScheduledEvent event);
 }
@@ -767,7 +806,7 @@ abstract class GuildScheduledEventCreateEvent extends BaseListenableEvent {
 typedef GuildScheduledEventUpdateArgs = ({
   Guild guild,
   GuildScheduledEvent? before,
-  GuildScheduledEvent after
+  GuildScheduledEvent after,
 });
 
 abstract class GuildScheduledEventUpdateEvent extends BaseListenableEvent {
@@ -775,16 +814,19 @@ abstract class GuildScheduledEventUpdateEvent extends BaseListenableEvent {
   Event get event => Event.guildScheduledEventUpdate;
 
   @override
-  Function get handler => (GuildScheduledEventUpdateArgs p) =>
-      handle(p.guild, p.before, p.after);
+  Function get handler =>
+      (GuildScheduledEventUpdateArgs p) => handle(p.guild, p.before, p.after);
 
   FutureOr<void> handle(
-      Guild guild, GuildScheduledEvent? before, GuildScheduledEvent after);
+    Guild guild,
+    GuildScheduledEvent? before,
+    GuildScheduledEvent after,
+  );
 }
 
 typedef GuildScheduledEventDeleteArgs = ({
   Guild guild,
-  GuildScheduledEvent event
+  GuildScheduledEvent event,
 });
 
 abstract class GuildScheduledEventDeleteEvent extends BaseListenableEvent {
@@ -792,8 +834,8 @@ abstract class GuildScheduledEventDeleteEvent extends BaseListenableEvent {
   Event get event => Event.guildScheduledEventDelete;
 
   @override
-  Function get handler => (GuildScheduledEventDeleteArgs p) =>
-      handle(p.guild, p.event);
+  Function get handler =>
+      (GuildScheduledEventDeleteArgs p) => handle(p.guild, p.event);
 
   FutureOr<void> handle(Guild guild, GuildScheduledEvent event);
 }
@@ -801,7 +843,7 @@ abstract class GuildScheduledEventDeleteEvent extends BaseListenableEvent {
 typedef GuildScheduledEventUserAddArgs = ({
   Guild guild,
   Snowflake eventId,
-  User user
+  User user,
 });
 
 abstract class GuildScheduledEventUserAddEvent extends BaseListenableEvent {
@@ -809,8 +851,8 @@ abstract class GuildScheduledEventUserAddEvent extends BaseListenableEvent {
   Event get event => Event.guildScheduledEventUserAdd;
 
   @override
-  Function get handler => (GuildScheduledEventUserAddArgs p) =>
-      handle(p.guild, p.eventId, p.user);
+  Function get handler =>
+      (GuildScheduledEventUserAddArgs p) => handle(p.guild, p.eventId, p.user);
 
   FutureOr<void> handle(Guild guild, Snowflake eventId, User user);
 }
@@ -818,7 +860,7 @@ abstract class GuildScheduledEventUserAddEvent extends BaseListenableEvent {
 typedef GuildScheduledEventUserRemoveArgs = ({
   Guild guild,
   Snowflake eventId,
-  User user
+  User user,
 });
 
 abstract class GuildScheduledEventUserRemoveEvent extends BaseListenableEvent {
@@ -826,8 +868,9 @@ abstract class GuildScheduledEventUserRemoveEvent extends BaseListenableEvent {
   Event get event => Event.guildScheduledEventUserRemove;
 
   @override
-  Function get handler => (GuildScheduledEventUserRemoveArgs p) =>
-      handle(p.guild, p.eventId, p.user);
+  Function get handler =>
+      (GuildScheduledEventUserRemoveArgs p) =>
+          handle(p.guild, p.eventId, p.user);
 
   FutureOr<void> handle(Guild guild, Snowflake eventId, User user);
 }
@@ -848,7 +891,8 @@ abstract class GuildVoiceChannelEffectSendEvent extends BaseListenableEvent {
   Event get event => Event.guildVoiceChannelEffectSend;
 
   @override
-  Function get handler => (GuildVoiceChannelEffectSendArgs p) => handle(
+  Function get handler =>
+      (GuildVoiceChannelEffectSendArgs p) => handle(
         p.guild,
         p.channel,
         p.member,
@@ -871,82 +915,67 @@ abstract class GuildVoiceChannelEffectSendEvent extends BaseListenableEvent {
   );
 }
 
-typedef GuildStageInstanceCreateArgs = ({
-  Guild guild,
-  StageInstance instance
-});
+typedef GuildStageInstanceCreateArgs = ({Guild guild, StageInstance instance});
 
 abstract class GuildStageInstanceCreateEvent extends BaseListenableEvent {
   @override
   Event get event => Event.guildStageInstanceCreate;
 
   @override
-  Function get handler => (GuildStageInstanceCreateArgs p) =>
-      handle(p.guild, p.instance);
+  Function get handler =>
+      (GuildStageInstanceCreateArgs p) => handle(p.guild, p.instance);
 
   FutureOr<void> handle(Guild guild, StageInstance instance);
 }
 
-typedef GuildStageInstanceUpdateArgs = ({
-  Guild guild,
-  StageInstance instance
-});
+typedef GuildStageInstanceUpdateArgs = ({Guild guild, StageInstance instance});
 
 abstract class GuildStageInstanceUpdateEvent extends BaseListenableEvent {
   @override
   Event get event => Event.guildStageInstanceUpdate;
 
   @override
-  Function get handler => (GuildStageInstanceUpdateArgs p) =>
-      handle(p.guild, p.instance);
+  Function get handler =>
+      (GuildStageInstanceUpdateArgs p) => handle(p.guild, p.instance);
 
   FutureOr<void> handle(Guild guild, StageInstance instance);
 }
 
-typedef GuildStageInstanceDeleteArgs = ({
-  Guild guild,
-  StageInstance instance
-});
+typedef GuildStageInstanceDeleteArgs = ({Guild guild, StageInstance instance});
 
 abstract class GuildStageInstanceDeleteEvent extends BaseListenableEvent {
   @override
   Event get event => Event.guildStageInstanceDelete;
 
   @override
-  Function get handler => (GuildStageInstanceDeleteArgs p) =>
-      handle(p.guild, p.instance);
+  Function get handler =>
+      (GuildStageInstanceDeleteArgs p) => handle(p.guild, p.instance);
 
   FutureOr<void> handle(Guild guild, StageInstance instance);
 }
 
-typedef GuildSoundboardSoundCreateArgs = ({
-  Guild guild,
-  SoundboardSound sound
-});
+typedef GuildSoundboardSoundCreateArgs = ({Guild guild, SoundboardSound sound});
 
 abstract class GuildSoundboardSoundCreateEvent extends BaseListenableEvent {
   @override
   Event get event => Event.guildSoundboardSoundCreate;
 
   @override
-  Function get handler => (GuildSoundboardSoundCreateArgs p) =>
-      handle(p.guild, p.sound);
+  Function get handler =>
+      (GuildSoundboardSoundCreateArgs p) => handle(p.guild, p.sound);
 
   FutureOr<void> handle(Guild guild, SoundboardSound sound);
 }
 
-typedef GuildSoundboardSoundUpdateArgs = ({
-  Guild guild,
-  SoundboardSound sound
-});
+typedef GuildSoundboardSoundUpdateArgs = ({Guild guild, SoundboardSound sound});
 
 abstract class GuildSoundboardSoundUpdateEvent extends BaseListenableEvent {
   @override
   Event get event => Event.guildSoundboardSoundUpdate;
 
   @override
-  Function get handler => (GuildSoundboardSoundUpdateArgs p) =>
-      handle(p.guild, p.sound);
+  Function get handler =>
+      (GuildSoundboardSoundUpdateArgs p) => handle(p.guild, p.sound);
 
   FutureOr<void> handle(Guild guild, SoundboardSound sound);
 }
@@ -958,15 +987,15 @@ abstract class GuildSoundboardSoundDeleteEvent extends BaseListenableEvent {
   Event get event => Event.guildSoundboardSoundDelete;
 
   @override
-  Function get handler => (GuildSoundboardSoundDeleteArgs p) =>
-      handle(p.guild, p.soundId);
+  Function get handler =>
+      (GuildSoundboardSoundDeleteArgs p) => handle(p.guild, p.soundId);
 
   FutureOr<void> handle(Guild guild, Snowflake soundId);
 }
 
 typedef GuildSoundboardSoundsUpdateArgs = ({
   Guild guild,
-  List<SoundboardSound> sounds
+  List<SoundboardSound> sounds,
 });
 
 abstract class GuildSoundboardSoundsUpdateEvent extends BaseListenableEvent {
@@ -974,15 +1003,15 @@ abstract class GuildSoundboardSoundsUpdateEvent extends BaseListenableEvent {
   Event get event => Event.guildSoundboardSoundsUpdate;
 
   @override
-  Function get handler => (GuildSoundboardSoundsUpdateArgs p) =>
-      handle(p.guild, p.sounds);
+  Function get handler =>
+      (GuildSoundboardSoundsUpdateArgs p) => handle(p.guild, p.sounds);
 
   FutureOr<void> handle(Guild guild, List<SoundboardSound> sounds);
 }
 
 typedef GuildSoundboardSoundsArgs = ({
   Guild guild,
-  List<SoundboardSound> sounds
+  List<SoundboardSound> sounds,
 });
 
 abstract class GuildSoundboardSoundsEvent extends BaseListenableEvent {

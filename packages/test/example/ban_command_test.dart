@@ -61,10 +61,12 @@ void main() {
       expect(bot.actions.bans, isEmpty);
       expect(
         bot.actions.interactionReplies,
-        contains(isInteractionReplied(
-          content: 'You are not allowed to run this command.',
-          ephemeral: true,
-        )),
+        contains(
+          isInteractionReplied(
+            content: 'You are not allowed to run this command.',
+            ephemeral: true,
+          ),
+        ),
       );
     });
 
@@ -79,10 +81,9 @@ void main() {
       expect(bot.actions.bans, isEmpty);
       expect(
         bot.actions.interactionReplies,
-        contains(isInteractionReplied(
-          content: 'Invalid arguments.',
-          ephemeral: true,
-        )),
+        contains(
+          isInteractionReplied(content: 'Invalid arguments.', ephemeral: true),
+        ),
       );
     });
   });

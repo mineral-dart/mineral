@@ -27,18 +27,18 @@ const _channelId = '777888999000111222';
 // ── Minimal channel payload (guild text channel, type=0) ─────────────────────
 
 Map<String, dynamic> _guildTextChannelPayload() => {
-      'id': _channelId,
-      'type': 0, // GUILD_TEXT
-      'guild_id': _guildId,
-      'name': 'general',
-      'position': 1,
-      'permission_overwrites': <Map<String, dynamic>>[],
-      'nsfw': false,
-      'topic': null,
-      'last_message_id': null,
-      'parent_id': null,
-      'rate_limit_per_user': 0,
-    };
+  'id': _channelId,
+  'type': 0, // GUILD_TEXT
+  'guild_id': _guildId,
+  'name': 'general',
+  'position': 1,
+  'permission_overwrites': <Map<String, dynamic>>[],
+  'nsfw': false,
+  'topic': null,
+  'last_message_id': null,
+  'parent_id': null,
+  'rate_limit_per_user': 0,
+};
 
 ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
     ShardMessage(
@@ -81,46 +81,61 @@ void main() {
 
   group('ChannelCreatePacket', () {
     test('packetType is PacketType.channelCreate', () {
-      final packet =
-          ChannelCreatePacket(logger: logger, marshaller: marshaller);
+      final packet = ChannelCreatePacket(
+        logger: logger,
+        marshaller: marshaller,
+      );
       expect(packet.packetType, equals(PacketType.channelCreate));
       expect(packet.packetType.name, equals('CHANNEL_CREATE'));
     });
 
-    test('dispatches Event.guildChannelCreate for guild text channel', () async {
-      final packet =
-          ChannelCreatePacket(logger: logger, marshaller: marshaller);
-      Event? capturedEvent;
+    test(
+      'dispatches Event.guildChannelCreate for guild text channel',
+      () async {
+        final packet = ChannelCreatePacket(
+          logger: logger,
+          marshaller: marshaller,
+        );
+        Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        capturedEvent = event;
-      }
+          bool Function(String?)? constraint,
+        }) {
+          capturedEvent = event;
+        }
 
-      await packet.listen(
-          _msg('CHANNEL_CREATE', _guildTextChannelPayload()), dispatch);
+        await packet.listen(
+          _msg('CHANNEL_CREATE', _guildTextChannelPayload()),
+          dispatch,
+        );
 
-      expect(capturedEvent, equals(Event.guildChannelCreate));
-    });
+        expect(capturedEvent, equals(Event.guildChannelCreate));
+      },
+    );
 
     test('payload is GuildChannelCreateArgs with correct channel', () async {
-      final packet =
-          ChannelCreatePacket(logger: logger, marshaller: marshaller);
+      final packet = ChannelCreatePacket(
+        logger: logger,
+        marshaller: marshaller,
+      );
       GuildChannelCreateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildChannelCreate) {
           args = payload as GuildChannelCreateArgs;
         }
       }
 
       await packet.listen(
-          _msg('CHANNEL_CREATE', _guildTextChannelPayload()), dispatch);
+        _msg('CHANNEL_CREATE', _guildTextChannelPayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.channel.id, equals(Snowflake.parse(_channelId)));
@@ -128,16 +143,21 @@ void main() {
     });
 
     test('channel is cached after dispatch', () async {
-      final packet =
-          ChannelCreatePacket(logger: logger, marshaller: marshaller);
+      final packet = ChannelCreatePacket(
+        logger: logger,
+        marshaller: marshaller,
+      );
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(
-          _msg('CHANNEL_CREATE', _guildTextChannelPayload()), dispatch);
+        _msg('CHANNEL_CREATE', _guildTextChannelPayload()),
+        dispatch,
+      );
 
       final channelCacheKey = marshaller.cacheKey.channel(_channelId);
       final cached = await cache.get(channelCacheKey);
@@ -149,46 +169,58 @@ void main() {
 
   group('ChannelUpdatePacket', () {
     test('packetType is PacketType.channelUpdate', () {
-      final packet =
-          ChannelUpdatePacket(logger: logger, marshaller: marshaller);
+      final packet = ChannelUpdatePacket(
+        logger: logger,
+        marshaller: marshaller,
+      );
       expect(packet.packetType, equals(PacketType.channelUpdate));
       expect(packet.packetType.name, equals('CHANNEL_UPDATE'));
     });
 
     test('dispatches Event.guildChannelUpdate', () async {
-      final packet =
-          ChannelUpdatePacket(logger: logger, marshaller: marshaller);
+      final packet = ChannelUpdatePacket(
+        logger: logger,
+        marshaller: marshaller,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('CHANNEL_UPDATE', _guildTextChannelPayload()), dispatch);
+        _msg('CHANNEL_UPDATE', _guildTextChannelPayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildChannelUpdate));
     });
 
     test('before is null when channel not in cache', () async {
-      final packet =
-          ChannelUpdatePacket(logger: logger, marshaller: marshaller);
+      final packet = ChannelUpdatePacket(
+        logger: logger,
+        marshaller: marshaller,
+      );
       GuildChannelUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildChannelUpdate) {
           args = payload as GuildChannelUpdateArgs;
         }
       }
 
       await packet.listen(
-          _msg('CHANNEL_UPDATE', _guildTextChannelPayload()), dispatch);
+        _msg('CHANNEL_UPDATE', _guildTextChannelPayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.before, isNull);
@@ -197,25 +229,30 @@ void main() {
 
     test('before is populated when channel is in cache', () async {
       // Pre-seed cache with normalized channel data.
-      final normalized = await marshaller.serializers.channels
-          .normalize(_guildTextChannelPayload()..['name'] = 'old-name');
+      final normalized = await marshaller.serializers.channels.normalize(
+        _guildTextChannelPayload()..['name'] = 'old-name',
+      );
       await cache.put(_channelId, normalized);
 
-      final packet =
-          ChannelUpdatePacket(logger: logger, marshaller: marshaller);
+      final packet = ChannelUpdatePacket(
+        logger: logger,
+        marshaller: marshaller,
+      );
       GuildChannelUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildChannelUpdate) {
           args = payload as GuildChannelUpdateArgs;
         }
       }
 
-      final updatedPayload = Map<String, dynamic>.from(_guildTextChannelPayload())
-        ..['name'] = 'new-name';
+      final updatedPayload = Map<String, dynamic>.from(
+        _guildTextChannelPayload(),
+      )..['name'] = 'new-name';
 
       await packet.listen(_msg('CHANNEL_UPDATE', updatedPayload), dispatch);
 
@@ -238,15 +275,18 @@ void main() {
       final packet = ChannelDeletePacket(marshaller: marshaller);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('CHANNEL_DELETE', _guildTextChannelPayload()), dispatch);
+        _msg('CHANNEL_DELETE', _guildTextChannelPayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildChannelDelete));
     });
@@ -257,13 +297,16 @@ void main() {
 
       final packet = ChannelDeletePacket(marshaller: marshaller);
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(
-          _msg('CHANNEL_DELETE', _guildTextChannelPayload()), dispatch);
+        _msg('CHANNEL_DELETE', _guildTextChannelPayload()),
+        dispatch,
+      );
 
       final cached = await cache.get(channelCacheKey);
       expect(cached, isNull);
@@ -273,17 +316,20 @@ void main() {
       final packet = ChannelDeletePacket(marshaller: marshaller);
       GuildChannelDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildChannelDelete) {
           args = payload as GuildChannelDeleteArgs;
         }
       }
 
       await packet.listen(
-          _msg('CHANNEL_DELETE', _guildTextChannelPayload()), dispatch);
+        _msg('CHANNEL_DELETE', _guildTextChannelPayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.channel?.id, equals(Snowflake.parse(_channelId)));
@@ -304,53 +350,63 @@ void main() {
 
     test('packetType is PacketType.channelPinsUpdate', () {
       final packet = ChannelPinsUpdatePacket(
-          logger: logger, dataStore: dataStore);
+        logger: logger,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.channelPinsUpdate));
       expect(packet.packetType.name, equals('CHANNEL_PINS_UPDATE'));
     });
 
     test('dispatches Event.guildChannelPinsUpdate for guild channel', () async {
       final packet = ChannelPinsUpdatePacket(
-          logger: logger, dataStore: dataStore);
+        logger: logger,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('CHANNEL_PINS_UPDATE', {
-            'channel_id': _channelId,
-            'guild_id': _guildId,
-          }),
-          dispatch);
+        _msg('CHANNEL_PINS_UPDATE', {
+          'channel_id': _channelId,
+          'guild_id': _guildId,
+        }),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildChannelPinsUpdate));
     });
 
     test('payload carries guild and channel for guild branch', () async {
       final packet = ChannelPinsUpdatePacket(
-          logger: logger, dataStore: dataStore);
+        logger: logger,
+        dataStore: dataStore,
+      );
       GuildChannelPinsUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildChannelPinsUpdate) {
           args = payload as GuildChannelPinsUpdateArgs;
         }
       }
 
       await packet.listen(
-          _msg('CHANNEL_PINS_UPDATE', {
-            'channel_id': _channelId,
-            'guild_id': _guildId,
-          }),
-          dispatch);
+        _msg('CHANNEL_PINS_UPDATE', {
+          'channel_id': _channelId,
+          'guild_id': _guildId,
+        }),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
@@ -362,43 +418,42 @@ void main() {
 // ── Domain helpers ────────────────────────────────────────────────────────────
 
 GuildTextChannel _buildGuildTextChannel(EntityContext ctx) => GuildTextChannel(
-      ChannelProperties(
-        ctx: ctx,
-        id: Snowflake.parse(_channelId),
-        type: ChannelType.guildText,
-        name: 'general',
-        description: null,
-        guildId: Snowflake.parse(_guildId),
-        categoryId: null,
-        position: null,
-        nsfw: false,
-        lastMessageId: null,
-        bitrate: null,
-        userLimit: null,
-        rateLimitPerUser: null,
-        recipients: [],
-        icon: null,
-        ownerId: null,
-        applicationId: null,
-        lastPinTimestamp: null,
-        rtcRegion: null,
-        videoQualityMode: null,
-        messageCount: null,
-        memberCount: null,
-        defaultAutoArchiveDuration: null,
-        permissions: [],
-        flags: null,
-        totalMessageSent: null,
-        available: null,
-        appliedTags: [],
-        defaultReactions: null,
-        defaultSortOrder: null,
-        defaultForumLayout: null,
-        threads: ThreadsManager(
-          Snowflake.parse(_guildId),
-          Snowflake.parse(_channelId),
-          ctx: ctx,
-        ),
-      ),
-    );
-
+  ChannelProperties(
+    ctx: ctx,
+    id: Snowflake.parse(_channelId),
+    type: ChannelType.guildText,
+    name: 'general',
+    description: null,
+    guildId: Snowflake.parse(_guildId),
+    categoryId: null,
+    position: null,
+    nsfw: false,
+    lastMessageId: null,
+    bitrate: null,
+    userLimit: null,
+    rateLimitPerUser: null,
+    recipients: [],
+    icon: null,
+    ownerId: null,
+    applicationId: null,
+    lastPinTimestamp: null,
+    rtcRegion: null,
+    videoQualityMode: null,
+    messageCount: null,
+    memberCount: null,
+    defaultAutoArchiveDuration: null,
+    permissions: [],
+    flags: null,
+    totalMessageSent: null,
+    available: null,
+    appliedTags: [],
+    defaultReactions: null,
+    defaultSortOrder: null,
+    defaultForumLayout: null,
+    threads: ThreadsManager(
+      Snowflake.parse(_guildId),
+      Snowflake.parse(_channelId),
+      ctx: ctx,
+    ),
+  ),
+);

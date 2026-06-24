@@ -19,8 +19,11 @@ final class GuildModalContext extends ComponentContextBase
     required this.member,
   });
 
-  static Future<GuildModalContext> fromMap(DataStoreContract datastore,
-      EntityContext ctx, Map<String, dynamic> payload) async {
+  static Future<GuildModalContext> fromMap(
+    DataStoreContract datastore,
+    EntityContext ctx,
+    Map<String, dynamic> payload,
+  ) async {
     final data = payload['data'] as Map<String, dynamic>;
     final memberMap = payload['member'] as Map<String, dynamic>;
     final memberUser = memberMap['user'] as Map<String, dynamic>;

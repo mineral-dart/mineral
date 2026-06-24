@@ -36,55 +36,72 @@ void main() {
       });
 
       test('accepts unicode Hindi characters', () {
-        expect(() => helper.verifyName('\u0915\u092E\u093E\u0902\u0921'),
-            returnsNormally);
+        expect(
+          () => helper.verifyName('\u0915\u092E\u093E\u0902\u0921'),
+          returnsNormally,
+        );
       });
 
       test('accepts unicode Thai characters', () {
-        expect(() => helper.verifyName('\u0E04\u0E33\u0E2A\u0E31\u0E48\u0E07'),
-            returnsNormally);
+        expect(
+          () => helper.verifyName('\u0E04\u0E33\u0E2A\u0E31\u0E48\u0E07'),
+          returnsNormally,
+        );
       });
 
       test('rejects names with spaces', () {
-        expect(() => helper.verifyName('my command'),
-            throwsA(isA<CommandNameException>()));
+        expect(
+          () => helper.verifyName('my command'),
+          throwsA(isA<CommandNameException>()),
+        );
       });
 
       test('rejects empty names', () {
         expect(
-            () => helper.verifyName(''), throwsA(isA<CommandNameException>()));
+          () => helper.verifyName(''),
+          throwsA(isA<CommandNameException>()),
+        );
       });
 
       test('rejects names longer than 32 characters', () {
         final name = 'a' * 33;
-        expect(() => helper.verifyName(name),
-            throwsA(isA<CommandNameException>()));
+        expect(
+          () => helper.verifyName(name),
+          throwsA(isA<CommandNameException>()),
+        );
       });
 
       test('rejects names with special characters', () {
-        expect(() => helper.verifyName('hello!'),
-            throwsA(isA<CommandNameException>()));
-        expect(() => helper.verifyName('cmd@name'),
-            throwsA(isA<CommandNameException>()));
-        expect(() => helper.verifyName('test#1'),
-            throwsA(isA<CommandNameException>()));
-        expect(() => helper.verifyName('a+b'),
-            throwsA(isA<CommandNameException>()));
+        expect(
+          () => helper.verifyName('hello!'),
+          throwsA(isA<CommandNameException>()),
+        );
+        expect(
+          () => helper.verifyName('cmd@name'),
+          throwsA(isA<CommandNameException>()),
+        );
+        expect(
+          () => helper.verifyName('test#1'),
+          throwsA(isA<CommandNameException>()),
+        );
+        expect(
+          () => helper.verifyName('a+b'),
+          throwsA(isA<CommandNameException>()),
+        );
       });
 
       test('rejects names with dots', () {
-        expect(() => helper.verifyName('cmd.name'),
-            throwsA(isA<CommandNameException>()));
+        expect(
+          () => helper.verifyName('cmd.name'),
+          throwsA(isA<CommandNameException>()),
+        );
       });
     });
 
     group('extractTranslations', () {
       test('extracts translations for matching key', () {
         final translation = Translation({
-          'name': {
-            Lang.fr: 'commande',
-            Lang.enUS: 'command',
-          },
+          'name': {Lang.fr: 'commande', Lang.enUS: 'command'},
         });
 
         final result = helper.extractTranslations('name', translation);
@@ -96,9 +113,7 @@ void main() {
 
       test('returns null for non-matching key', () {
         final translation = Translation({
-          'name': {
-            Lang.fr: 'commande',
-          },
+          'name': {Lang.fr: 'commande'},
         });
 
         final result = helper.extractTranslations('description', translation);

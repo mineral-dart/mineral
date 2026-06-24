@@ -12,13 +12,15 @@ final class GuildSoundboardSoundDeletePacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   GuildSoundboardSoundDeletePacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
-    final guild =
-        await _dataStore.guild.get(payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      payload['guild_id'] as Object,
+      false,
+    );
     final soundId = Snowflake.parse(payload['sound_id'] as Object);
 
     dispatch<GuildSoundboardSoundDeleteArgs>(

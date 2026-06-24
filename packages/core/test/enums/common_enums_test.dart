@@ -31,10 +31,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(ComponentType.values, 999),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(ComponentType.values, 999), throwsArgumentError);
     });
   });
 
@@ -56,10 +53,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(TextInputStyle.values, 99),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(TextInputStyle.values, 99), throwsArgumentError);
     });
   });
 
@@ -85,10 +79,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(ButtonType.values, 99),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(ButtonType.values, 99), throwsArgumentError);
     });
   });
 
@@ -100,20 +91,31 @@ void main() {
     test('known values resolve correctly', () {
       expect(findInEnum(CommandOptionType.values, 3), CommandOptionType.string);
       expect(
-          findInEnum(CommandOptionType.values, 4), CommandOptionType.integer);
+        findInEnum(CommandOptionType.values, 4),
+        CommandOptionType.integer,
+      );
       expect(
-          findInEnum(CommandOptionType.values, 5), CommandOptionType.boolean);
+        findInEnum(CommandOptionType.values, 5),
+        CommandOptionType.boolean,
+      );
       expect(findInEnum(CommandOptionType.values, 6), CommandOptionType.user);
       expect(
-          findInEnum(CommandOptionType.values, 7), CommandOptionType.channel);
-      expect(findInEnum(CommandOptionType.values, 11),
-          CommandOptionType.attachment);
+        findInEnum(CommandOptionType.values, 7),
+        CommandOptionType.channel,
+      );
+      expect(
+        findInEnum(CommandOptionType.values, 11),
+        CommandOptionType.attachment,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
       expect(
-        findInEnum(CommandOptionType.values, 99,
-            orElse: CommandOptionType.unknown),
+        findInEnum(
+          CommandOptionType.values,
+          99,
+          orElse: CommandOptionType.unknown,
+        ),
         CommandOptionType.unknown,
       );
     });
@@ -144,10 +146,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(CommandType.values, 99),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(CommandType.values, 99), throwsArgumentError);
     });
   });
 
@@ -160,8 +159,10 @@ void main() {
       expect(findInEnum(MessageType.values, 0), MessageType.initial);
       expect(findInEnum(MessageType.values, 7), MessageType.userJoin);
       expect(findInEnum(MessageType.values, 19), MessageType.reply);
-      expect(findInEnum(MessageType.values, 32),
-          MessageType.guildApplicationPremiumSubscription);
+      expect(
+        findInEnum(MessageType.values, 32),
+        MessageType.guildApplicationPremiumSubscription,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
@@ -172,10 +173,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(MessageType.values, 999),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(MessageType.values, 999), throwsArgumentError);
     });
   });
 
@@ -196,10 +194,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(PollLayout.values, 99),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(PollLayout.values, 99), throwsArgumentError);
     });
   });
 
@@ -223,10 +218,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(PremiumTier.values, 99),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(PremiumTier.values, 99), throwsArgumentError);
     });
   });
 
@@ -248,10 +240,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(VideoQuality.values, 99),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(VideoQuality.values, 99), throwsArgumentError);
     });
   });
 }

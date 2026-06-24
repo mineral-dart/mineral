@@ -11,14 +11,18 @@ final class InviteCreatePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   InviteCreatePacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final normalized =
-        await _marshaller.serializers.invite.normalize(message.payload as Map<String, dynamic>);
+    final normalized = await _marshaller.serializers.invite.normalize(
+      message.payload as Map<String, dynamic>,
+    );
     final invite = await _marshaller.serializers.invite.serialize(normalized);
 
-    dispatch<InviteCreateArgs>(event: Event.inviteCreate, payload: (invite: invite));
+    dispatch<InviteCreateArgs>(
+      event: Event.inviteCreate,
+      payload: (invite: invite),
+    );
   }
 }

@@ -47,11 +47,11 @@ final class CommandSimulationBuilder {
   }
 
   Future<void> dispatch() => _bot.simulateCommand(
-        _name,
-        options: _options,
-        invokedBy: _user ?? UserBuilder().build(),
-        in_: _guild,
-      );
+    _name,
+    options: _options,
+    invokedBy: _user ?? UserBuilder().build(),
+    in_: _guild,
+  );
 
   Future<void> expectReply({Object? content, bool? ephemeral}) async {
     await dispatch();
@@ -90,10 +90,10 @@ final class ButtonSimulationBuilder {
   }
 
   Future<void> dispatch() => _bot.simulateButton(
-        _customId,
-        clickedBy: _user ?? UserBuilder().build(),
-        in_: _guild,
-      );
+    _customId,
+    clickedBy: _user ?? UserBuilder().build(),
+    in_: _guild,
+  );
 
   Future<void> expectModal({Object? customId, Object? title}) async {
     await dispatch();
@@ -138,11 +138,11 @@ final class ModalSimulationBuilder {
   }
 
   Future<void> dispatch() => _bot.simulateModalSubmit(
-        _customId,
-        fields: _fields,
-        submittedBy: _user ?? UserBuilder().build(),
-        in_: _guild,
-      );
+    _customId,
+    fields: _fields,
+    submittedBy: _user ?? UserBuilder().build(),
+    in_: _guild,
+  );
 
   Future<void> expectReply({Object? content, bool? ephemeral}) async {
     await dispatch();
@@ -166,9 +166,9 @@ final class MemberJoinSimulationBuilder {
   }
 
   Future<void> dispatch() => _bot.simulateMemberJoin(
-        member: _member ?? MemberBuilder().ofGuild(_guild).build(),
-        guild: _guild,
-      );
+    member: _member ?? MemberBuilder().ofGuild(_guild).build(),
+    guild: _guild,
+  );
 
   Future<void> expectRoleAssigned({Object? memberId, Object? roleId}) async {
     await dispatch();

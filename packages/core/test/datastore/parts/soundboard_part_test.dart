@@ -22,17 +22,16 @@ Map<String, dynamic> _soundPayload({
   String? guildId,
   bool available = true,
   Map<String, dynamic>? user,
-}) =>
-    {
-      'sound_id': id ?? _soundId,
-      'name': name,
-      'volume': volume,
-      if (emojiId != null) 'emoji_id': emojiId,
-      if (emojiName != null) 'emoji_name': emojiName,
-      if (guildId != null) 'guild_id': guildId,
-      'available': available,
-      if (user != null) 'user': user,
-    };
+}) => {
+  'sound_id': id ?? _soundId,
+  'name': name,
+  'volume': volume,
+  if (emojiId != null) 'emoji_id': emojiId,
+  if (emojiName != null) 'emoji_name': emojiName,
+  if (guildId != null) 'guild_id': guildId,
+  'available': available,
+  if (user != null) 'user': user,
+};
 
 (SoundboardPart, void Function() restore) _buildPart(FakeHttpClient client) {
   final ds = FakeDataStore(client);
@@ -58,8 +57,7 @@ void main() {
     group('fetchDefault()', () {
       test('sends GET to /soundboard-default-sounds', () async {
         final client = FakeHttpClient([
-          FakeResponse<List<Map<String, dynamic>>>(
-              200, [_soundPayload()]),
+          FakeResponse<List<Map<String, dynamic>>>(200, [_soundPayload()]),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -68,14 +66,15 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/soundboard-default-sounds'));
+        expect(client.calls.single.path, equals('/soundboard-default-sounds'));
       });
 
       test('returns a list of SoundboardSounds', () async {
         final client = FakeHttpClient([
-          FakeResponse<List<Map<String, dynamic>>>(200,
-              [_soundPayload(name: 'Boom'), _soundPayload(id: _soundId2, name: 'Zap')]),
+          FakeResponse<List<Map<String, dynamic>>>(200, [
+            _soundPayload(name: 'Boom'),
+            _soundPayload(id: _soundId2, name: 'Zap'),
+          ]),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -93,8 +92,9 @@ void main() {
     group('fetchForServer()', () {
       test('sends GET to /guilds/:guildId/soundboard-sounds', () async {
         final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(
-              200, {'items': <Map<String, dynamic>>[]}),
+          FakeResponse<Map<String, dynamic>>(200, {
+            'items': <Map<String, dynamic>>[],
+          }),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -103,8 +103,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/soundboard-sounds'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/soundboard-sounds'),
+        );
       });
 
       test('unwraps the items wrapper', () async {
@@ -113,7 +115,7 @@ void main() {
             'items': [
               _soundPayload(id: _soundId, name: 'Alpha'),
               _soundPayload(id: _soundId2, name: 'Beta'),
-            ]
+            ],
           }),
         ]);
         final (p, restore) = _buildPart(client);
@@ -131,7 +133,7 @@ void main() {
       test('keys map by soundId', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(200, {
-            'items': [_soundPayload(id: _soundId)]
+            'items': [_soundPayload(id: _soundId)],
           }),
         ]);
         final (p, restore) = _buildPart(client);
@@ -147,26 +149,32 @@ void main() {
     // ── get ───────────────────────────────────────────────────────────────────
 
     group('get()', () {
-      test('sends GET to /guilds/:guildId/soundboard-sounds/:soundId',
-          () async {
-        final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(200, _soundPayload()),
-        ]);
-        final (p, restore) = _buildPart(client);
+      test(
+        'sends GET to /guilds/:guildId/soundboard-sounds/:soundId',
+        () async {
+          final client = FakeHttpClient([
+            FakeResponse<Map<String, dynamic>>(200, _soundPayload()),
+          ]);
+          final (p, restore) = _buildPart(client);
 
-        await p.get(_guildId, _soundId);
-        restore();
+          await p.get(_guildId, _soundId);
+          restore();
 
-        expect(client.calls, hasLength(1));
-        expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/soundboard-sounds/$_soundId'));
-      });
+          expect(client.calls, hasLength(1));
+          expect(client.calls.single.method, equals('GET'));
+          expect(
+            client.calls.single.path,
+            equals('/guilds/$_guildId/soundboard-sounds/$_soundId'),
+          );
+        },
+      );
 
       test('returns a correctly parsed SoundboardSound', () async {
         final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(200,
-              _soundPayload(name: 'Test Sound', volume: 0.5, guildId: _guildId)),
+          FakeResponse<Map<String, dynamic>>(
+            200,
+            _soundPayload(name: 'Test Sound', volume: 0.5, guildId: _guildId),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -182,8 +190,10 @@ void main() {
       test('parses optional user id from nested user object', () async {
         const userId = '555666777888999000';
         final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(200,
-              _soundPayload(user: {'id': userId, 'username': 'alice'})),
+          FakeResponse<Map<String, dynamic>>(
+            200,
+            _soundPayload(user: {'id': userId, 'username': 'alice'}),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -200,29 +210,41 @@ void main() {
       test('sends POST to /guilds/:guildId/soundboard-sounds', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _soundPayload(guildId: _guildId)),
+            200,
+            _soundPayload(guildId: _guildId),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
-        await p.create(_guildId,
-            name: 'NewSound', sound: 'data:audio/mp3;base64,abc');
+        await p.create(
+          _guildId,
+          name: 'NewSound',
+          sound: 'data:audio/mp3;base64,abc',
+        );
         restore();
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('POST'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/soundboard-sounds'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/soundboard-sounds'),
+        );
       });
 
       test('sends required fields name and sound', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _soundPayload(guildId: _guildId)),
+            200,
+            _soundPayload(guildId: _guildId),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
-        await p.create(_guildId,
-            name: 'MySound', sound: 'data:audio/mp3;base64,xyz');
+        await p.create(
+          _guildId,
+          name: 'MySound',
+          sound: 'data:audio/mp3;base64,xyz',
+        );
         restore();
 
         final body = client.requests.single.body as Map<String, dynamic>;
@@ -233,12 +255,17 @@ void main() {
       test('sends only required fields when optionals absent', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _soundPayload(guildId: _guildId)),
+            200,
+            _soundPayload(guildId: _guildId),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
-        await p.create(_guildId,
-            name: 'Minimal', sound: 'data:audio/mp3;base64,abc');
+        await p.create(
+          _guildId,
+          name: 'Minimal',
+          sound: 'data:audio/mp3;base64,abc',
+        );
         restore();
 
         final body = client.requests.single.body as Map<String, dynamic>;
@@ -250,12 +277,18 @@ void main() {
       test('sends volume when provided', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _soundPayload(volume: 0.75, guildId: _guildId)),
+            200,
+            _soundPayload(volume: 0.75, guildId: _guildId),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
-        await p.create(_guildId,
-            name: 'S', sound: 'data:audio/mp3;base64,abc', volume: 0.75);
+        await p.create(
+          _guildId,
+          name: 'S',
+          sound: 'data:audio/mp3;base64,abc',
+          volume: 0.75,
+        );
         restore();
 
         final body = client.requests.single.body as Map<String, dynamic>;
@@ -265,12 +298,18 @@ void main() {
       test('sends emojiName when provided', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _soundPayload(emojiName: '🎵', guildId: _guildId)),
+            200,
+            _soundPayload(emojiName: '🎵', guildId: _guildId),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
-        await p.create(_guildId,
-            name: 'S', sound: 'data:audio/mp3;base64,abc', emojiName: '🎵');
+        await p.create(
+          _guildId,
+          name: 'S',
+          sound: 'data:audio/mp3;base64,abc',
+          emojiName: '🎵',
+        );
         restore();
 
         final body = client.requests.single.body as Map<String, dynamic>;
@@ -280,12 +319,18 @@ void main() {
       test('sends audit log reason header when reason provided', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _soundPayload(guildId: _guildId)),
+            200,
+            _soundPayload(guildId: _guildId),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
-        await p.create(_guildId,
-            name: 'S', sound: 'data:audio/mp3;base64,abc', reason: 'custom reason');
+        await p.create(
+          _guildId,
+          name: 'S',
+          sound: 'data:audio/mp3;base64,abc',
+          reason: 'custom reason',
+        );
         restore();
 
         final headers = client.requests.single.headers;
@@ -300,21 +345,25 @@ void main() {
     // ── update ────────────────────────────────────────────────────────────────
 
     group('update()', () {
-      test('sends PATCH to /guilds/:guildId/soundboard-sounds/:soundId',
-          () async {
-        final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(200, _soundPayload()),
-        ]);
-        final (p, restore) = _buildPart(client);
+      test(
+        'sends PATCH to /guilds/:guildId/soundboard-sounds/:soundId',
+        () async {
+          final client = FakeHttpClient([
+            FakeResponse<Map<String, dynamic>>(200, _soundPayload()),
+          ]);
+          final (p, restore) = _buildPart(client);
 
-        await p.update(_guildId, _soundId, name: 'Updated');
-        restore();
+          await p.update(_guildId, _soundId, name: 'Updated');
+          restore();
 
-        expect(client.calls, hasLength(1));
-        expect(client.calls.single.method, equals('PATCH'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/soundboard-sounds/$_soundId'));
-      });
+          expect(client.calls, hasLength(1));
+          expect(client.calls.single.method, equals('PATCH'));
+          expect(
+            client.calls.single.path,
+            equals('/guilds/$_guildId/soundboard-sounds/$_soundId'),
+          );
+        },
+      );
 
       test('sends only provided fields - name only', () async {
         final client = FakeHttpClient([
@@ -368,26 +417,26 @@ void main() {
     // ── delete ────────────────────────────────────────────────────────────────
 
     group('delete()', () {
-      test('sends DELETE to /guilds/:guildId/soundboard-sounds/:soundId',
-          () async {
-        final client = FakeHttpClient([
-          FakeResponse<void>(204, null),
-        ]);
-        final (p, restore) = _buildPart(client);
+      test(
+        'sends DELETE to /guilds/:guildId/soundboard-sounds/:soundId',
+        () async {
+          final client = FakeHttpClient([FakeResponse<void>(204, null)]);
+          final (p, restore) = _buildPart(client);
 
-        await p.delete(_guildId, _soundId);
-        restore();
+          await p.delete(_guildId, _soundId);
+          restore();
 
-        expect(client.calls, hasLength(1));
-        expect(client.calls.single.method, equals('DELETE'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/soundboard-sounds/$_soundId'));
-      });
+          expect(client.calls, hasLength(1));
+          expect(client.calls.single.method, equals('DELETE'));
+          expect(
+            client.calls.single.path,
+            equals('/guilds/$_guildId/soundboard-sounds/$_soundId'),
+          );
+        },
+      );
 
       test('sends audit log reason header when reason provided', () async {
-        final client = FakeHttpClient([
-          FakeResponse<void>(204, null),
-        ]);
+        final client = FakeHttpClient([FakeResponse<void>(204, null)]);
         final (p, restore) = _buildPart(client);
 
         await p.delete(_guildId, _soundId, reason: 'removal');
@@ -402,9 +451,7 @@ void main() {
       });
 
       test('completes without error when no reason provided', () async {
-        final client = FakeHttpClient([
-          FakeResponse<void>(204, null),
-        ]);
+        final client = FakeHttpClient([FakeResponse<void>(204, null)]);
         final (p, restore) = _buildPart(client);
 
         await expectLater(p.delete(_guildId, _soundId), completes);
@@ -416,25 +463,25 @@ void main() {
 
     group('sendToChannel()', () {
       test(
-          'sends POST to /channels/:channelId/send-soundboard-sound', () async {
-        final client = FakeHttpClient([
-          FakeResponse<void>(204, null),
-        ]);
-        final (p, restore) = _buildPart(client);
+        'sends POST to /channels/:channelId/send-soundboard-sound',
+        () async {
+          final client = FakeHttpClient([FakeResponse<void>(204, null)]);
+          final (p, restore) = _buildPart(client);
 
-        await p.sendToChannel(_channelId, soundId: _soundId);
-        restore();
+          await p.sendToChannel(_channelId, soundId: _soundId);
+          restore();
 
-        expect(client.calls, hasLength(1));
-        expect(client.calls.single.method, equals('POST'));
-        expect(client.calls.single.path,
-            equals('/channels/$_channelId/send-soundboard-sound'));
-      });
+          expect(client.calls, hasLength(1));
+          expect(client.calls.single.method, equals('POST'));
+          expect(
+            client.calls.single.path,
+            equals('/channels/$_channelId/send-soundboard-sound'),
+          );
+        },
+      );
 
       test('sends sound_id in body', () async {
-        final client = FakeHttpClient([
-          FakeResponse<void>(204, null),
-        ]);
+        final client = FakeHttpClient([FakeResponse<void>(204, null)]);
         final (p, restore) = _buildPart(client);
 
         await p.sendToChannel(_channelId, soundId: _soundId);
@@ -445,13 +492,14 @@ void main() {
       });
 
       test('sends source_guild_id when provided', () async {
-        final client = FakeHttpClient([
-          FakeResponse<void>(204, null),
-        ]);
+        final client = FakeHttpClient([FakeResponse<void>(204, null)]);
         final (p, restore) = _buildPart(client);
 
-        await p.sendToChannel(_channelId,
-            soundId: _soundId, sourceGuildId: _guildId);
+        await p.sendToChannel(
+          _channelId,
+          soundId: _soundId,
+          sourceGuildId: _guildId,
+        );
         restore();
 
         final body = client.requests.single.body as Map<String, dynamic>;
@@ -460,9 +508,7 @@ void main() {
       });
 
       test('omits source_guild_id when not provided', () async {
-        final client = FakeHttpClient([
-          FakeResponse<void>(204, null),
-        ]);
+        final client = FakeHttpClient([FakeResponse<void>(204, null)]);
         final (p, restore) = _buildPart(client);
 
         await p.sendToChannel(_channelId, soundId: _soundId);

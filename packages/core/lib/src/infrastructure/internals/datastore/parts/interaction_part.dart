@@ -9,8 +9,12 @@ final class InteractionPart extends BasePart
   InteractionPart(super.marshaller, super.dataStore);
 
   @override
-  Future<void> replyInteraction(Snowflake id, String token,
-      MessageBuilder builder, bool ephemeral) async {
+  Future<void> replyInteraction(
+    Snowflake id,
+    String token,
+    MessageBuilder builder,
+    bool ephemeral,
+  ) async {
     final (components, files) = makeAttachmentFromBuilder(builder);
 
     int flags = MessageFlagType.isComponentV2.value;
@@ -22,7 +26,7 @@ final class InteractionPart extends BasePart
       endpoint: '/interactions/$id/$token/callback',
       body: {
         'type': InteractionCallbackType.channelMessageWithSource.value,
-        'data': {'flags': flags, 'components': components}
+        'data': {'flags': flags, 'components': components},
       },
       files: files,
     );
@@ -31,8 +35,12 @@ final class InteractionPart extends BasePart
   }
 
   @override
-  Future<void> editInteraction(Snowflake id, String token,
-      MessageBuilder builder, bool ephemeral) async {
+  Future<void> editInteraction(
+    Snowflake id,
+    String token,
+    MessageBuilder builder,
+    bool ephemeral,
+  ) async {
     final (components, files) = makeAttachmentFromBuilder(builder);
 
     int flags = MessageFlagType.isComponentV2.value;
@@ -51,19 +59,23 @@ final class InteractionPart extends BasePart
 
   @override
   Future<void> deleteInteraction(Snowflake id, String token) async {
-    final req =
-        Request.json(endpoint: '/webhooks/$id/$token/messages/@original');
+    final req = Request.json(
+      endpoint: '/webhooks/$id/$token/messages/@original',
+    );
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
   Future<void> noReplyInteraction(
-      Snowflake id, String token, bool ephemeral) async {
+    Snowflake id,
+    String token,
+    bool ephemeral,
+  ) async {
     final req = Request.json(
       endpoint: '/webhooks/$id/$token/messages/@original',
       body: {
         'type': InteractionCallbackType.deferredUpdateMessage.value,
-        'data': {if (ephemeral) 'flags': MessageFlagType.ephemeral.value}
+        'data': {if (ephemeral) 'flags': MessageFlagType.ephemeral.value},
       },
     );
 
@@ -71,8 +83,12 @@ final class InteractionPart extends BasePart
   }
 
   @override
-  Future<void> createFollowup(Snowflake id, String token,
-      MessageBuilder builder, bool ephemeral) async {
+  Future<void> createFollowup(
+    Snowflake id,
+    String token,
+    MessageBuilder builder,
+    bool ephemeral,
+  ) async {
     final (components, files) = makeAttachmentFromBuilder(builder);
 
     int flags = MessageFlagType.isComponentV2.value;
@@ -84,7 +100,7 @@ final class InteractionPart extends BasePart
       endpoint: '/webhooks/$id/$token',
       body: {
         'type': InteractionCallbackType.channelMessageWithSource.value,
-        'data': {'flags': flags, 'components': components}
+        'data': {'flags': flags, 'components': components},
       },
       files: files,
     );
@@ -93,8 +109,13 @@ final class InteractionPart extends BasePart
   }
 
   @override
-  Future<void> editFollowup(Snowflake botId, String token, Snowflake messageId,
-      MessageBuilder builder, bool ephemeral) async {
+  Future<void> editFollowup(
+    Snowflake botId,
+    String token,
+    Snowflake messageId,
+    MessageBuilder builder,
+    bool ephemeral,
+  ) async {
     final (components, files) = makeAttachmentFromBuilder(builder);
 
     int flags = MessageFlagType.isComponentV2.value;
@@ -117,7 +138,7 @@ final class InteractionPart extends BasePart
       endpoint: '/webhooks/$id/$token',
       body: {
         'type': InteractionCallbackType.deferredUpdateMessage.value,
-        'data': {'flags': MessageFlagType.ephemeral.value}
+        'data': {'flags': MessageFlagType.ephemeral.value},
       },
     );
 
@@ -126,23 +147,25 @@ final class InteractionPart extends BasePart
 
   @override
   Future<void> deleteFollowup(
-      Snowflake botId, String token, Snowflake messageId) async {
-    final req =
-        Request.json(endpoint: '/webhooks/$botId/$token/messages/$messageId');
+    Snowflake botId,
+    String token,
+    Snowflake messageId,
+  ) async {
+    final req = Request.json(
+      endpoint: '/webhooks/$botId/$token/messages/$messageId',
+    );
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
 
   @override
-  Future<void> sendModal(
-    Snowflake id,
-    String token,
-    ModalBuilder modal,
-  ) async {
-    final req =
-        Request.json(endpoint: '/interactions/$id/$token/callback', body: {
-      'type': InteractionCallbackType.modal.value,
-      'data': modal.build(),
-    });
+  Future<void> sendModal(Snowflake id, String token, ModalBuilder modal) async {
+    final req = Request.json(
+      endpoint: '/interactions/$id/$token/callback',
+      body: {
+        'type': InteractionCallbackType.modal.value,
+        'data': modal.build(),
+      },
+    );
 
     await dataStore.requestBucket.post<Map<String, dynamic>>(req);
   }
@@ -153,15 +176,18 @@ final class InteractionPart extends BasePart
     String token,
     List<Choice> choices,
   ) async {
-    final req =
-        Request.json(endpoint: '/interactions/$id/$token/callback', body: {
-      'type': InteractionCallbackType.applicationCommandAutocompleteResult.value,
-      'data': {
-        'choices': choices
-            .map((c) => {'name': c.name, 'value': c.value})
-            .toList(),
+    final req = Request.json(
+      endpoint: '/interactions/$id/$token/callback',
+      body: {
+        'type':
+            InteractionCallbackType.applicationCommandAutocompleteResult.value,
+        'data': {
+          'choices': choices
+              .map((c) => {'name': c.name, 'value': c.value})
+              .toList(),
+        },
       },
-    });
+    );
 
     await dataStore.requestBucket.post<Map<String, dynamic>>(req);
   }

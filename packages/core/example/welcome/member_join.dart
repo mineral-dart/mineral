@@ -11,14 +11,15 @@ final class MemberJoin extends GuildMemberAddEvent {
 
     final displayName = member.nickname ?? member.globalName ?? member.username;
 
-    final message = MessageBuilder.text(
-      '👋 Welcome to **${guild.name}**, $displayName!',
-    )
-      ..addButton(Button.primary(
-        'welcome:${member.id.value}',
-        label: 'Say hello',
-        emoji: PartialEmoji.fromUnicode('🎉'),
-      ));
+    final message =
+        MessageBuilder.text('👋 Welcome to **${guild.name}**, $displayName!')
+          ..addButton(
+            Button.primary(
+              'welcome:${member.id.value}',
+              label: 'Say hello',
+              emoji: PartialEmoji.fromUnicode('🎉'),
+            ),
+          );
 
     await systemChannel.send(message);
   }

@@ -47,10 +47,14 @@ void main() {
       );
       final after = DateTime.now();
 
-      expect(message.createdAt.isAfter(before.subtract(Duration(seconds: 1))),
-          isTrue);
       expect(
-          message.createdAt.isBefore(after.add(Duration(seconds: 1))), isTrue);
+        message.createdAt.isAfter(before.subtract(Duration(seconds: 1))),
+        isTrue,
+      );
+      expect(
+        message.createdAt.isBefore(after.add(Duration(seconds: 1))),
+        isTrue,
+      );
     });
   });
 }

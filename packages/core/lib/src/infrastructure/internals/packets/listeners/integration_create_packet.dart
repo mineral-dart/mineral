@@ -12,15 +12,18 @@ final class IntegrationCreatePacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   IntegrationCreatePacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final guild = await _dataStore.guild
-        .get(message.payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      message.payload['guild_id'] as Object,
+      false,
+    );
 
     final integration = Integration.fromJson(
-        Map<String, dynamic>.from(message.payload as Map));
+      Map<String, dynamic>.from(message.payload as Map),
+    );
 
     dispatch<GuildIntegrationCreateArgs>(
       event: Event.guildIntegrationCreate,

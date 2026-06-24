@@ -19,30 +19,32 @@ final class GuildMemberChunkPacket implements ListenablePacket {
     required MarshallerContract marshaller,
     required DataStoreContract dataStore,
     required WebsocketOrchestratorContract wss,
-  })  : _marshaller = marshaller,
-        _dataStore = dataStore,
-        _wss = wss;
+  }) : _marshaller = marshaller,
+       _dataStore = dataStore,
+       _wss = wss;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
-    final guild =
-        await _dataStore.guild.get(payload['guild_id'] as String, false);
+    final guild = await _dataStore.guild.get(
+      payload['guild_id'] as String,
+      false,
+    );
 
-    final members =
-        await List.from(payload['members'] as Iterable<dynamic>).map((element) async {
-      final raw = await _marshaller.serializers.member.normalize({
-        ...(element as Map<String, dynamic>),
-        'guild_id': guild.id.value,
-      });
+    final members = await List.from(payload['members'] as Iterable<dynamic>)
+        .map((element) async {
+          final raw = await _marshaller.serializers.member.normalize({
+            ...(element as Map<String, dynamic>),
+            'guild_id': guild.id.value,
+          });
 
-      return _marshaller.serializers.member.serialize(raw);
-    }).wait;
+          return _marshaller.serializers.member.serialize(raw);
+        })
+        .wait;
 
-    final presences =
-        List<Map<String, dynamic>>.from(payload['presences'] as Iterable<dynamic>)
-            .map(Presence.fromJson)
-            .toList();
+    final presences = List<Map<String, dynamic>>.from(
+      payload['presences'] as Iterable<dynamic>,
+    ).map(Presence.fromJson).toList();
 
     final resolver = _wss.findInRequestQueue(payload['nonce'] as String);
     if (resolver != null && !resolver.completer.isCompleted) {
@@ -58,13 +60,18 @@ final class GuildMemberChunkPacket implements ListenablePacket {
 
       if (resolver.targetKeys.contains('members') &&
           resolver.targetKeys.contains('presences')) {
-        resolver.completer
-            .complete({'members': members, 'presences': presences});
+        resolver.completer.complete({
+          'members': members,
+          'presences': presences,
+        });
       }
 
       _wss.removeFromRequestQueue(resolver);
     }
 
-    dispatch<GuildMemberChunkArgs>(event: Event.guildMemberChunk, payload: (guild: guild, members: members));
+    dispatch<GuildMemberChunkArgs>(
+      event: Event.guildMemberChunk,
+      payload: (guild: guild, members: members),
+    );
   }
 }

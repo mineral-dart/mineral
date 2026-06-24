@@ -29,7 +29,8 @@ final class _NoopHttpClient implements HttpClientContract {
   @override
   Future<Response<T>> patch<T>(RequestContract r) => throw UnimplementedError();
   @override
-  Future<Response<T>> delete<T>(RequestContract r) => throw UnimplementedError();
+  Future<Response<T>> delete<T>(RequestContract r) =>
+      throw UnimplementedError();
   @override
   Future<Response<T>> send<T>(RequestContract r) => throw UnimplementedError();
 }
@@ -125,7 +126,10 @@ void main() {
         final outside = _entry('outside');
         orchestrator.addToRequestQueue(_entry('inside'));
 
-        expect(() => orchestrator.removeFromRequestQueue(outside), returnsNormally);
+        expect(
+          () => orchestrator.removeFromRequestQueue(outside),
+          returnsNormally,
+        );
         expect(orchestrator.requestQueue, hasLength(1));
       });
     });

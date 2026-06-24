@@ -21,16 +21,10 @@ final class ShardMessageBuilder<OpCodeEnum extends OpCode> {
   dynamic get _resolvedPayload => _payload ?? _rawPayload;
 
   Map<String, dynamic> toJson() {
-    return {
-      'op': _code!.value,
-      'd': _resolvedPayload,
-    };
+    return {'op': _code!.value, 'd': _resolvedPayload};
   }
 
   String build() {
-    return jsonEncode({
-      'op': _code!.value,
-      'd': _resolvedPayload,
-    });
+    return jsonEncode({'op': _code!.value, 'd': _resolvedPayload});
   }
 }

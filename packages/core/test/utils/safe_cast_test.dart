@@ -13,11 +13,13 @@ void main() {
     test('throws SerializationException when type mismatches', () {
       expect(
         () => safeCast<String>(42, context: 'test field'),
-        throwsA(isA<SerializationException>().having(
-          (e) => e.message,
-          'message',
-          contains('test field'),
-        )),
+        throwsA(
+          isA<SerializationException>().having(
+            (e) => e.message,
+            'message',
+            contains('test field'),
+          ),
+        ),
       );
     });
 

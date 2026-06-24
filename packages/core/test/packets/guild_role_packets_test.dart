@@ -23,17 +23,17 @@ const _roleId = '111222333444555666';
 // ── Minimal role payload ──────────────────────────────────────────────────────
 
 Map<String, dynamic> _rolePayload() => {
-      'id': _roleId,
-      'name': 'TestRole',
-      'color': 0,
-      'hoist': false,
-      'position': 1,
-      'permissions': '0',
-      'managed': false,
-      'mentionable': true,
-      'flags': 0,
-      'guild_id': _guildId,
-    };
+  'id': _roleId,
+  'name': 'TestRole',
+  'color': 0,
+  'hoist': false,
+  'position': 1,
+  'permissions': '0',
+  'managed': false,
+  'mentionable': true,
+  'flags': 0,
+  'guild_id': _guildId,
+};
 
 ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
     ShardMessage(
@@ -73,48 +73,64 @@ void main() {
 
   group('GuildRoleCreatePacket', () {
     test('packetType is PacketType.guildRoleCreate', () {
-      final packet =
-          GuildRoleCreatePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleCreatePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.guildRoleCreate));
       expect(packet.packetType.name, equals('GUILD_ROLE_CREATE'));
     });
 
     test('dispatches Event.guildRoleCreate', () async {
-      final packet =
-          GuildRoleCreatePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleCreatePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('GUILD_ROLE_CREATE', {'guild_id': _guildId, 'role': _rolePayload()}),
-          dispatch);
+        _msg('GUILD_ROLE_CREATE', {
+          'guild_id': _guildId,
+          'role': _rolePayload(),
+        }),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildRoleCreate));
     });
 
     test('payload carries guild and role', () async {
-      final packet =
-          GuildRoleCreatePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleCreatePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildRoleCreateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildRoleCreate) {
           args = payload as GuildRoleCreateArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_ROLE_CREATE', {'guild_id': _guildId, 'role': _rolePayload()}),
-          dispatch);
+        _msg('GUILD_ROLE_CREATE', {
+          'guild_id': _guildId,
+          'role': _rolePayload(),
+        }),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
@@ -127,48 +143,64 @@ void main() {
 
   group('GuildRoleUpdatePacket', () {
     test('packetType is PacketType.guildRoleUpdate', () {
-      final packet =
-          GuildRoleUpdatePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleUpdatePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.guildRoleUpdate));
       expect(packet.packetType.name, equals('GUILD_ROLE_UPDATE'));
     });
 
     test('dispatches Event.guildRoleUpdate', () async {
-      final packet =
-          GuildRoleUpdatePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleUpdatePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('GUILD_ROLE_UPDATE', {'guild_id': _guildId, 'role': _rolePayload()}),
-          dispatch);
+        _msg('GUILD_ROLE_UPDATE', {
+          'guild_id': _guildId,
+          'role': _rolePayload(),
+        }),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildRoleUpdate));
     });
 
     test('before is null when role not in cache', () async {
-      final packet =
-          GuildRoleUpdatePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleUpdatePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildRoleUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildRoleUpdate) {
           args = payload as GuildRoleUpdateArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_ROLE_UPDATE', {'guild_id': _guildId, 'role': _rolePayload()}),
-          dispatch);
+        _msg('GUILD_ROLE_UPDATE', {
+          'guild_id': _guildId,
+          'role': _rolePayload(),
+        }),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.before, isNull);
@@ -182,14 +214,17 @@ void main() {
         ..['name'] = 'OldRoleName';
       await cache.put(roleCacheKey, oldRole);
 
-      final packet =
-          GuildRoleUpdatePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleUpdatePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildRoleUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildRoleUpdate) {
           args = payload as GuildRoleUpdateArgs;
         }
@@ -199,8 +234,9 @@ void main() {
         ..['name'] = 'NewRoleName';
 
       await packet.listen(
-          _msg('GUILD_ROLE_UPDATE', {'guild_id': _guildId, 'role': updatedRole}),
-          dispatch);
+        _msg('GUILD_ROLE_UPDATE', {'guild_id': _guildId, 'role': updatedRole}),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.before, isNotNull);
@@ -213,27 +249,33 @@ void main() {
 
   group('GuildRoleDeletePacket', () {
     test('packetType is PacketType.guildRoleDelete', () {
-      final packet =
-          GuildRoleDeletePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleDeletePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.guildRoleDelete));
       expect(packet.packetType.name, equals('GUILD_ROLE_DELETE'));
     });
 
     test('dispatches Event.guildRoleDelete', () async {
-      final packet =
-          GuildRoleDeletePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleDeletePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('GUILD_ROLE_DELETE', {'guild_id': _guildId, 'role_id': _roleId}),
-          dispatch);
+        _msg('GUILD_ROLE_DELETE', {'guild_id': _guildId, 'role_id': _roleId}),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildRoleDelete));
     });
@@ -242,17 +284,21 @@ void main() {
       final roleCacheKey = marshaller.cacheKey.guildRole(_guildId, _roleId);
       await cache.put(roleCacheKey, _rolePayload());
 
-      final packet =
-          GuildRoleDeletePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleDeletePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(
-          _msg('GUILD_ROLE_DELETE', {'guild_id': _guildId, 'role_id': _roleId}),
-          dispatch);
+        _msg('GUILD_ROLE_DELETE', {'guild_id': _guildId, 'role_id': _roleId}),
+        dispatch,
+      );
 
       final cached = await cache.get(roleCacheKey);
       expect(cached, isNull);
@@ -262,22 +308,26 @@ void main() {
       final roleCacheKey = marshaller.cacheKey.guildRole(_guildId, _roleId);
       await cache.put(roleCacheKey, _rolePayload());
 
-      final packet =
-          GuildRoleDeletePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleDeletePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildRoleDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildRoleDelete) {
           args = payload as GuildRoleDeleteArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_ROLE_DELETE', {'guild_id': _guildId, 'role_id': _roleId}),
-          dispatch);
+        _msg('GUILD_ROLE_DELETE', {'guild_id': _guildId, 'role_id': _roleId}),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
@@ -285,26 +335,29 @@ void main() {
     });
 
     test('role is null in payload on cache miss', () async {
-      final packet =
-          GuildRoleDeletePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildRoleDeletePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildRoleDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildRoleDelete) {
           args = payload as GuildRoleDeleteArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_ROLE_DELETE', {'guild_id': _guildId, 'role_id': _roleId}),
-          dispatch);
+        _msg('GUILD_ROLE_DELETE', {'guild_id': _guildId, 'role_id': _roleId}),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.role, isNull);
     });
   });
 }
-

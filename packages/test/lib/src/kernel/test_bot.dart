@@ -81,8 +81,7 @@ final class TestBot {
   Future<void> simulateMemberJoin({
     required TestMember member,
     required TestGuild guild,
-  }) =>
-      _simulator.simulateMemberJoin(member, guild);
+  }) => _simulator.simulateMemberJoin(member, guild);
 
   Future<void> simulateCommand(
     String name, {
@@ -90,25 +89,23 @@ final class TestBot {
     Map<String, Object?> options = const {},
     // ignore: non_constant_identifier_names
     TestGuild? in_,
-  }) =>
-      _simulator.simulateCommand(
-        name: name,
-        options: options,
-        invokedBy: invokedBy,
-        guild: in_,
-      );
+  }) => _simulator.simulateCommand(
+    name: name,
+    options: options,
+    invokedBy: invokedBy,
+    guild: in_,
+  );
 
   Future<void> simulateButton(
     String customId, {
     required TestUser clickedBy,
     // ignore: non_constant_identifier_names
     TestGuild? in_,
-  }) =>
-      _simulator.simulateButton(
-        customId: customId,
-        clickedBy: clickedBy,
-        guild: in_,
-      );
+  }) => _simulator.simulateButton(
+    customId: customId,
+    clickedBy: clickedBy,
+    guild: in_,
+  );
 
   Future<void> simulateModalSubmit(
     String customId, {
@@ -116,13 +113,12 @@ final class TestBot {
     Map<String, String> fields = const {},
     // ignore: non_constant_identifier_names
     TestGuild? in_,
-  }) =>
-      _simulator.simulateModalSubmit(
-        customId: customId,
-        fields: fields,
-        submittedBy: submittedBy,
-        guild: in_,
-      );
+  }) => _simulator.simulateModalSubmit(
+    customId: customId,
+    fields: fields,
+    submittedBy: submittedBy,
+    guild: in_,
+  );
 
   /// Tears down the kernel and restores the previous global IoC container.
   Future<void> dispose() => _kernel.dispose();

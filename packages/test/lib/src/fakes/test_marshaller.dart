@@ -36,7 +36,7 @@ final class TestMarshaller implements MarshallerContract {
   /// the [DataStore] needs the marshaller to construct itself. Call
   /// [bindSerializers] once the context can be built.
   TestMarshaller.unbound({LoggerContract? logger, this.cache})
-      : logger = logger ?? FakeLogger();
+    : logger = logger ?? FakeLogger();
 
   /// Closes the cyclic Marshaller / DataStore / EntityContext loop in
   /// test fixtures. Mirrors the pattern used by `composeDataLayer` in

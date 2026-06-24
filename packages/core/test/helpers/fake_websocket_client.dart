@@ -11,8 +11,9 @@ final class FakeInterceptor implements Interceptor {
       [];
   @override
   final List<
-      FutureOr<WebsocketRequestedMessage> Function(
-          WebsocketRequestedMessage)> request = [];
+    FutureOr<WebsocketRequestedMessage> Function(WebsocketRequestedMessage)
+  >
+  request = [];
 }
 
 final class FakeWebsocketClient implements WebsocketClient {

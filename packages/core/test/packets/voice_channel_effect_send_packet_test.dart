@@ -26,45 +26,45 @@ const _soundId = '111222333444555666';
 // ── Domain object builders ────────────────────────────────────────────────────
 
 GuildVoiceChannel _buildVoiceChannel(EntityContext ctx) => GuildVoiceChannel(
-      ChannelProperties(
-        ctx: ctx,
-        id: Snowflake.parse(_channelId),
-        type: ChannelType.guildVoice,
-        name: 'general-voice',
-        description: null,
-        guildId: Snowflake.parse(_guildId),
-        categoryId: null,
-        position: null,
-        nsfw: false,
-        lastMessageId: null,
-        bitrate: null,
-        userLimit: null,
-        rateLimitPerUser: null,
-        recipients: [],
-        icon: null,
-        ownerId: null,
-        applicationId: null,
-        lastPinTimestamp: null,
-        rtcRegion: null,
-        videoQualityMode: null,
-        messageCount: null,
-        memberCount: null,
-        defaultAutoArchiveDuration: null,
-        permissions: [],
-        flags: null,
-        totalMessageSent: null,
-        available: null,
-        appliedTags: [],
-        defaultReactions: null,
-        defaultSortOrder: null,
-        defaultForumLayout: null,
-        threads: ThreadsManager(
-          Snowflake.parse(_guildId),
-          Snowflake.parse(_channelId),
-          ctx: ctx,
-        ),
-      ),
-    );
+  ChannelProperties(
+    ctx: ctx,
+    id: Snowflake.parse(_channelId),
+    type: ChannelType.guildVoice,
+    name: 'general-voice',
+    description: null,
+    guildId: Snowflake.parse(_guildId),
+    categoryId: null,
+    position: null,
+    nsfw: false,
+    lastMessageId: null,
+    bitrate: null,
+    userLimit: null,
+    rateLimitPerUser: null,
+    recipients: [],
+    icon: null,
+    ownerId: null,
+    applicationId: null,
+    lastPinTimestamp: null,
+    rtcRegion: null,
+    videoQualityMode: null,
+    messageCount: null,
+    memberCount: null,
+    defaultAutoArchiveDuration: null,
+    permissions: [],
+    flags: null,
+    totalMessageSent: null,
+    available: null,
+    appliedTags: [],
+    defaultReactions: null,
+    defaultSortOrder: null,
+    defaultForumLayout: null,
+    threads: ThreadsManager(
+      Snowflake.parse(_guildId),
+      Snowflake.parse(_channelId),
+      ctx: ctx,
+    ),
+  ),
+);
 
 Member _buildMember(EntityContext ctx) {
   final memberId = Snowflake.parse(_userId);
@@ -76,11 +76,7 @@ Member _buildMember(EntityContext ctx) {
     nickname: null,
     globalName: null,
     discriminator: null,
-    assets: MemberAssets(
-      avatar: null,
-      avatarDecoration: null,
-      banner: null,
-    ),
+    assets: MemberAssets(avatar: null, avatarDecoration: null, banner: null),
     flags: MemberFlagsManager([], ctx: ctx),
     premiumSince: null,
     publicFlags: null,
@@ -163,10 +159,11 @@ void main() {
         Event? capturedEvent;
         Object? capturedPayload;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           capturedEvent = event;
           capturedPayload = payload;
         }
@@ -184,46 +181,53 @@ void main() {
         expect(capturedPayload, isA<GuildVoiceChannelEffectSendArgs>());
       });
 
-      test('payload carries emoji, animationType=premium, animationId', () async {
-        GuildVoiceChannelEffectSendArgs? args;
+      test(
+        'payload carries emoji, animationType=premium, animationId',
+        () async {
+          GuildVoiceChannelEffectSendArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
+          void dispatch<T extends Object>({
+            required Event event,
             required T payload,
-            bool Function(String?)? constraint}) {
-          if (event == Event.guildVoiceChannelEffectSend) {
-            args = payload as GuildVoiceChannelEffectSendArgs;
+            bool Function(String?)? constraint,
+          }) {
+            if (event == Event.guildVoiceChannelEffectSend) {
+              args = payload as GuildVoiceChannelEffectSendArgs;
+            }
           }
-        }
 
-        await packet.listen(
-          _shardMessage({
-            'emoji': {'id': _emojiId, 'name': 'cool_emoji', 'animated': true},
-            'animation_type': 0,
-            'animation_id': 42,
-          }),
-          dispatch,
-        );
+          await packet.listen(
+            _shardMessage({
+              'emoji': {'id': _emojiId, 'name': 'cool_emoji', 'animated': true},
+              'animation_type': 0,
+              'animation_id': 42,
+            }),
+            dispatch,
+          );
 
-        expect(args, isNotNull);
-        expect(args!.emoji, isNotNull);
-        expect(args!.emoji!.name, equals('cool_emoji'));
-        expect(args!.emoji!.id, equals(Snowflake.parse(_emojiId)));
-        expect(args!.emoji!.animated, isTrue);
-        expect(args!.animationType,
-            equals(VoiceChannelEffectAnimationType.premium));
-        expect(args!.animationId, equals(42));
-        expect(args!.soundId, isNull);
-        expect(args!.soundVolume, isNull);
-      });
+          expect(args, isNotNull);
+          expect(args!.emoji, isNotNull);
+          expect(args!.emoji!.name, equals('cool_emoji'));
+          expect(args!.emoji!.id, equals(Snowflake.parse(_emojiId)));
+          expect(args!.emoji!.animated, isTrue);
+          expect(
+            args!.animationType,
+            equals(VoiceChannelEffectAnimationType.premium),
+          );
+          expect(args!.animationId, equals(42));
+          expect(args!.soundId, isNull);
+          expect(args!.soundVolume, isNull);
+        },
+      );
 
       test('payload carries unicode emoji and basic animationType', () async {
         GuildVoiceChannelEffectSendArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.guildVoiceChannelEffectSend) {
             args = payload as GuildVoiceChannelEffectSendArgs;
           }
@@ -241,17 +245,20 @@ void main() {
         expect(args, isNotNull);
         expect(args!.emoji!.name, equals('🔥'));
         expect(args!.emoji!.id, isNull);
-        expect(args!.animationType,
-            equals(VoiceChannelEffectAnimationType.basic));
+        expect(
+          args!.animationType,
+          equals(VoiceChannelEffectAnimationType.basic),
+        );
       });
 
       test('channel is GuildVoiceChannel (GuildChannel subtype)', () async {
         GuildVoiceChannelEffectSendArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.guildVoiceChannelEffectSend) {
             args = payload as GuildVoiceChannelEffectSendArgs;
           }
@@ -281,34 +288,34 @@ void main() {
         packet = VoiceChannelEffectSendPacket(dataStore: _buildWiredDs());
       });
 
-      test('dispatches Event.guildVoiceChannelEffectSend with sound payload',
-          () async {
-        GuildVoiceChannelEffectSendArgs? args;
+      test(
+        'dispatches Event.guildVoiceChannelEffectSend with sound payload',
+        () async {
+          GuildVoiceChannelEffectSendArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
+          void dispatch<T extends Object>({
+            required Event event,
             required T payload,
-            bool Function(String?)? constraint}) {
-          if (event == Event.guildVoiceChannelEffectSend) {
-            args = payload as GuildVoiceChannelEffectSendArgs;
+            bool Function(String?)? constraint,
+          }) {
+            if (event == Event.guildVoiceChannelEffectSend) {
+              args = payload as GuildVoiceChannelEffectSendArgs;
+            }
           }
-        }
 
-        await packet.listen(
-          _shardMessage({
-            'sound_id': _soundId,
-            'sound_volume': 0.5,
-          }),
-          dispatch,
-        );
+          await packet.listen(
+            _shardMessage({'sound_id': _soundId, 'sound_volume': 0.5}),
+            dispatch,
+          );
 
-        expect(args, isNotNull);
-        expect(args!.soundId, equals(Snowflake.parse(_soundId)));
-        expect(args!.soundVolume, equals(0.5));
-        expect(args!.emoji, isNull);
-        expect(args!.animationType, isNull);
-        expect(args!.animationId, isNull);
-      });
+          expect(args, isNotNull);
+          expect(args!.soundId, equals(Snowflake.parse(_soundId)));
+          expect(args!.soundVolume, equals(0.5));
+          expect(args!.emoji, isNull);
+          expect(args!.animationType, isNull);
+          expect(args!.animationId, isNull);
+        },
+      );
     });
 
     // ── null/absent optional fields ─────────────────────────────────────────
@@ -323,10 +330,11 @@ void main() {
       test('all optional fields null when absent from payload', () async {
         GuildVoiceChannelEffectSendArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.guildVoiceChannelEffectSend) {
             args = payload as GuildVoiceChannelEffectSendArgs;
           }

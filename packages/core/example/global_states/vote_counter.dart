@@ -1,6 +1,7 @@
 import 'package:mineral/api.dart';
 
-abstract interface class VoteCounterContract implements GlobalState<Map<String, int>> {
+abstract interface class VoteCounterContract
+    implements GlobalState<Map<String, int>> {
   void voteYes();
   void voteNo();
 }

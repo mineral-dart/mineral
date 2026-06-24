@@ -22,60 +22,68 @@ void main() {
       dispatcher.dispose();
     });
 
-    test('delivers events to correct listeners across multiple event types',
-        () async {
-      final readyPayloads = <Object>[];
-      final memberAddPayloads = <Object>[];
-      final messagePayloads = <Object>[];
+    test(
+      'delivers events to correct listeners across multiple event types',
+      () async {
+        final readyPayloads = <Object>[];
+        final memberAddPayloads = <Object>[];
+        final messagePayloads = <Object>[];
 
-      dispatcher
-          .controllerFor(Event.ready)
-          .stream
-          .listen((e) => readyPayloads.add(e.payload));
+        dispatcher
+            .controllerFor(Event.ready)
+            .stream
+            .listen((e) => readyPayloads.add(e.payload));
 
-      dispatcher
-          .controllerFor(Event.guildMemberAdd)
-          .stream
-          .listen((e) => memberAddPayloads.add(e.payload));
+        dispatcher
+            .controllerFor(Event.guildMemberAdd)
+            .stream
+            .listen((e) => memberAddPayloads.add(e.payload));
 
-      dispatcher
-          .controllerFor(Event.guildMessageCreate)
-          .stream
-          .listen((e) => messagePayloads.add(e.payload));
+        dispatcher
+            .controllerFor(Event.guildMessageCreate)
+            .stream
+            .listen((e) => messagePayloads.add(e.payload));
 
-      dispatcher
-        ..dispatch(event: Event.ready, payload: (bot: 'bot-instance'))
-        ..dispatch(
+        dispatcher
+          ..dispatch(event: Event.ready, payload: (bot: 'bot-instance'))
+          ..dispatch(
             event: Event.guildMemberAdd,
-            payload: (guild: 'guild-1', member: 'user-42'))
-        ..dispatch(
+            payload: (guild: 'guild-1', member: 'user-42'),
+          )
+          ..dispatch(
             event: Event.guildMessageCreate,
-            payload: (channel: 'channel-5', text: 'hello'))
-        ..dispatch(event: Event.ready, payload: (bot: 'bot-reconnect'))
-        ..dispatch(
+            payload: (channel: 'channel-5', text: 'hello'),
+          )
+          ..dispatch(event: Event.ready, payload: (bot: 'bot-reconnect'))
+          ..dispatch(
             event: Event.guildMessageCreate,
-            payload: (channel: 'channel-5', text: 'world'));
+            payload: (channel: 'channel-5', text: 'world'),
+          );
 
-      await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(Duration(milliseconds: 50));
 
-      expect(readyPayloads, hasLength(2));
-      expect((readyPayloads[0] as ({String bot})).bot, 'bot-instance');
-      expect((readyPayloads[1] as ({String bot})).bot, 'bot-reconnect');
+        expect(readyPayloads, hasLength(2));
+        expect((readyPayloads[0] as ({String bot})).bot, 'bot-instance');
+        expect((readyPayloads[1] as ({String bot})).bot, 'bot-reconnect');
 
-      expect(memberAddPayloads, hasLength(1));
-      final ma = memberAddPayloads[0] as ({String guild, String member});
-      expect(ma.guild, 'guild-1');
-      expect(ma.member, 'user-42');
+        expect(memberAddPayloads, hasLength(1));
+        final ma = memberAddPayloads[0] as ({String guild, String member});
+        expect(ma.guild, 'guild-1');
+        expect(ma.member, 'user-42');
 
-      expect(messagePayloads, hasLength(2));
-    });
+        expect(messagePayloads, hasLength(2));
+      },
+    );
 
     test('passes payload accurately through the dispatch chain', () async {
       final captured = <InternalEventParams>[];
 
       dispatcher.controllerFor(Event.guildUpdate).stream.listen(captured.add);
 
-      final complexPayload = (before: 'before-state', after: {'name': 'My Guild', 'id': 123});
+      final complexPayload = (
+        before: 'before-state',
+        after: {'name': 'My Guild', 'id': 123},
+      );
       dispatcher.dispatch(event: Event.guildUpdate, payload: complexPayload);
 
       await Future.delayed(Duration(milliseconds: 50));
@@ -87,63 +95,73 @@ void main() {
       expect(p.after['id'], 123);
     });
 
-    test('customId constraints work independently across event types',
-        () async {
-      final buttonClicks = <String>[];
-      final modalSubmits = <String>[];
+    test(
+      'customId constraints work independently across event types',
+      () async {
+        final buttonClicks = <String>[];
+        final modalSubmits = <String>[];
 
-      // Button listener filtered to 'btn-confirm'
-      dispatcher.controllerFor(Event.guildButtonClick).stream.where((e) {
-        return switch (e.constraint) {
-          final bool Function(String?) constraint => constraint('btn-confirm'),
-          _ => true
-        };
-      }).listen((e) => buttonClicks.add(e.payload as String));
+        // Button listener filtered to 'btn-confirm'
+        dispatcher
+            .controllerFor(Event.guildButtonClick)
+            .stream
+            .where((e) {
+              return switch (e.constraint) {
+                final bool Function(String?) constraint => constraint(
+                  'btn-confirm',
+                ),
+                _ => true,
+              };
+            })
+            .listen((e) => buttonClicks.add(e.payload as String));
 
-      // Modal listener filtered to 'modal-settings'
-      dispatcher.controllerFor(Event.guildModalSubmit).stream.where((e) {
-        return switch (e.constraint) {
-          final bool Function(String?) constraint =>
-            constraint('modal-settings'),
-          _ => true
-        };
-      }).listen((e) => modalSubmits.add(e.payload as String));
+        // Modal listener filtered to 'modal-settings'
+        dispatcher
+            .controllerFor(Event.guildModalSubmit)
+            .stream
+            .where((e) {
+              return switch (e.constraint) {
+                final bool Function(String?) constraint => constraint(
+                  'modal-settings',
+                ),
+                _ => true,
+              };
+            })
+            .listen((e) => modalSubmits.add(e.payload as String));
 
-      // Dispatch button and modal events with various constraints
-      dispatcher
-        ..dispatch(
-          event: Event.guildButtonClick,
-          payload: 'click-1',
-          constraint: (id) => id == 'btn-confirm',
-        )
-        ..dispatch(
-          event: Event.guildButtonClick,
-          payload: 'click-2',
-          constraint: (id) => id == 'btn-cancel',
-        )
-        ..dispatch(
-          event: Event.guildButtonClick,
-          payload: 'click-3',
-        )
-        ..dispatch(
-          event: Event.guildModalSubmit,
-          payload: 'submit-1',
-          constraint: (id) => id == 'modal-settings',
-        )
-        ..dispatch(
-          event: Event.guildModalSubmit,
-          payload: 'submit-2',
-          constraint: (id) => id == 'modal-profile',
-        );
+        // Dispatch button and modal events with various constraints
+        dispatcher
+          ..dispatch(
+            event: Event.guildButtonClick,
+            payload: 'click-1',
+            constraint: (id) => id == 'btn-confirm',
+          )
+          ..dispatch(
+            event: Event.guildButtonClick,
+            payload: 'click-2',
+            constraint: (id) => id == 'btn-cancel',
+          )
+          ..dispatch(event: Event.guildButtonClick, payload: 'click-3')
+          ..dispatch(
+            event: Event.guildModalSubmit,
+            payload: 'submit-1',
+            constraint: (id) => id == 'modal-settings',
+          )
+          ..dispatch(
+            event: Event.guildModalSubmit,
+            payload: 'submit-2',
+            constraint: (id) => id == 'modal-profile',
+          );
 
-      await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(Duration(milliseconds: 50));
 
-      // Button: click-1 (matched) and click-3 (no constraint = pass-through)
-      expect(buttonClicks, ['click-1', 'click-3']);
+        // Button: click-1 (matched) and click-3 (no constraint = pass-through)
+        expect(buttonClicks, ['click-1', 'click-3']);
 
-      // Modal: only submit-1 matched
-      expect(modalSubmits, ['submit-1']);
-    });
+        // Modal: only submit-1 matched
+        expect(modalSubmits, ['submit-1']);
+      },
+    );
 
     test('multiple dispatch cycles deliver events correctly', () async {
       final allReceived = <String>[];
@@ -180,8 +198,14 @@ void main() {
         ..dispatch(event: Event.guildMemberRemove, payload: 'user-1');
 
       await Future.delayed(Duration(milliseconds: 50));
-      expect(allReceived,
-          ['user-1', 'user-2', 'user-3', 'user-4', 'user-5', 'removed:user-1']);
+      expect(allReceived, [
+        'user-1',
+        'user-2',
+        'user-3',
+        'user-4',
+        'user-5',
+        'removed:user-1',
+      ]);
     });
 
     test('disposing the dispatcher stops all event delivery', () async {
@@ -228,8 +252,9 @@ void main() {
 
       final controller = dispatcher.controllerFor(Event.guildMessageCreate);
 
-      final sub1 =
-          controller.stream.listen((e) => listener1.add(e.payload as String));
+      final sub1 = controller.stream.listen(
+        (e) => listener1.add(e.payload as String),
+      );
       controller.stream.listen((e) => listener2.add(e.payload as String));
 
       // Both receive first dispatch
@@ -250,31 +275,33 @@ void main() {
       expect(listener2, ['msg-1', 'msg-2']);
     });
 
-    test('subscribe, receive, unsubscribe, dispatch again verifies no delivery',
-        () async {
-      final received = <String>[];
+    test(
+      'subscribe, receive, unsubscribe, dispatch again verifies no delivery',
+      () async {
+        final received = <String>[];
 
-      final sub = dispatcher
-          .controllerFor(Event.guildBanAdd)
-          .stream
-          .listen((e) => received.add(e.payload as String));
+        final sub = dispatcher
+            .controllerFor(Event.guildBanAdd)
+            .stream
+            .listen((e) => received.add(e.payload as String));
 
-      // Step 1: dispatch and confirm receipt
-      dispatcher.dispatch(event: Event.guildBanAdd, payload: 'ban-user-1');
-      await Future.delayed(Duration(milliseconds: 50));
-      expect(received, ['ban-user-1']);
+        // Step 1: dispatch and confirm receipt
+        dispatcher.dispatch(event: Event.guildBanAdd, payload: 'ban-user-1');
+        await Future.delayed(Duration(milliseconds: 50));
+        expect(received, ['ban-user-1']);
 
-      // Step 2: unsubscribe
-      await sub.cancel();
+        // Step 2: unsubscribe
+        await sub.cancel();
 
-      // Step 3: dispatch again
-      dispatcher.dispatch(event: Event.guildBanAdd, payload: 'ban-user-2');
-      await Future.delayed(Duration(milliseconds: 50));
+        // Step 3: dispatch again
+        dispatcher.dispatch(event: Event.guildBanAdd, payload: 'ban-user-2');
+        await Future.delayed(Duration(milliseconds: 50));
 
-      // Step 4: verify no new delivery
-      expect(received, hasLength(1));
-      expect(received, ['ban-user-1']);
-    });
+        // Step 4: verify no new delivery
+        expect(received, hasLength(1));
+        expect(received, ['ban-user-1']);
+      },
+    );
 
     test('dispatch to event with no listeners is a silent no-op', () async {
       // No listener registered for guildDelete

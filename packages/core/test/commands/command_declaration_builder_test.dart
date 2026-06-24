@@ -34,16 +34,15 @@ void main() {
       });
 
       test('throws on invalid name', () {
-        expect(() => builder.setName('invalid name'),
-            throwsA(isA<CommandNameException>()));
+        expect(
+          () => builder.setName('invalid name'),
+          throwsA(isA<CommandNameException>()),
+        );
       });
 
       test('stores name localizations with translation', () {
         final translation = Translation({
-          'name': {
-            Lang.fr: 'ping',
-            Lang.de: 'ping',
-          },
+          'name': {Lang.fr: 'ping', Lang.de: 'ping'},
         });
 
         builder.setName('ping', translation: translation);
@@ -77,7 +76,8 @@ void main() {
     group('addOption', () {
       test('adds option to list', () {
         builder.addOption(
-            Option.string(name: 'target', description: 'The target'));
+          Option.string(name: 'target', description: 'The target'),
+        );
         expect(builder.options.length, 1);
         expect(builder.options.first.name, 'target');
       });
@@ -91,7 +91,8 @@ void main() {
 
       test('returns self for chaining', () {
         final result = builder.addOption(
-            Option.string(name: 'target', description: 'The target'));
+          Option.string(name: 'target', description: 'The target'),
+        );
         expect(result, same(builder));
       });
     });
@@ -175,8 +176,13 @@ void main() {
         builder
           ..setName('ban')
           ..setDescription('Ban a user')
-          ..addOption(Option.user(
-              name: 'target', description: 'User to ban', required: true))
+          ..addOption(
+            Option.user(
+              name: 'target',
+              description: 'User to ban',
+              required: true,
+            ),
+          )
           ..addOption(Option.string(name: 'reason', description: 'Reason'))
           ..setHandle((ctx, options) {});
 
@@ -238,9 +244,7 @@ void main() {
 
       test('includes name localizations when set', () {
         final translation = Translation({
-          'name': {
-            Lang.fr: 'ping',
-          },
+          'name': {Lang.fr: 'ping'},
         });
 
         builder
@@ -256,9 +260,7 @@ void main() {
 
       test('includes description localizations when set', () {
         final translation = Translation({
-          'description': {
-            Lang.fr: 'Pong !',
-          },
+          'description': {Lang.fr: 'Pong !'},
         });
 
         builder
@@ -276,14 +278,18 @@ void main() {
         builder.setDescription('test');
 
         expect(
-            () => builder.toJson(), throwsA(isA<MissingPropertyException>()));
+          () => builder.toJson(),
+          throwsA(isA<MissingPropertyException>()),
+        );
       });
 
       test('throws MissingPropertyException when description is null', () {
         builder.setName('test');
 
         expect(
-            () => builder.toJson(), throwsA(isA<MissingPropertyException>()));
+          () => builder.toJson(),
+          throwsA(isA<MissingPropertyException>()),
+        );
       });
     });
 
@@ -304,7 +310,10 @@ void main() {
 
       test('returns handlers for subcommands with dotted names', () {
         FutureOr<void> banHandler(CommandContext ctx, CommandOptions options) {}
-        FutureOr<void> kickHandler(CommandContext ctx, CommandOptions options) {}
+        FutureOr<void> kickHandler(
+          CommandContext ctx,
+          CommandOptions options,
+        ) {}
 
         builder
           ..setName('mod')
@@ -361,7 +370,8 @@ void main() {
           ..setName('ban')
           ..setDescription('Ban user')
           ..addOption(
-              Option.user(name: 'target', description: 'User', required: true))
+            Option.user(name: 'target', description: 'User', required: true),
+          )
           ..addOption(Option.string(name: 'reason', description: 'Reason'))
           ..setHandle((ctx, options) {});
 
@@ -384,8 +394,10 @@ void main() {
               ..setDescription('Ban');
           });
 
-        expect(() => builder.reduceHandlers('mod'),
-            throwsA(isA<MissingMethodException>()));
+        expect(
+          () => builder.reduceHandlers('mod'),
+          throwsA(isA<MissingMethodException>()),
+        );
       });
     });
   });

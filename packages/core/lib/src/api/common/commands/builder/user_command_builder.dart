@@ -23,7 +23,8 @@ final class UserCommandBuilder implements CommandBuilder {
   UserCommandBuilder setName(String name, {Translation? translation}) {
     if (name.isEmpty || name.length > 32) {
       throw CommandNameException(
-          'User command name "$name" must be 1–32 characters long');
+        'User command name "$name" must be 1–32 characters long',
+      );
     }
 
     this.name = name;
@@ -41,13 +42,15 @@ final class UserCommandBuilder implements CommandBuilder {
   }
 
   UserCommandBuilder setIntegrationTypes(
-      List<ApplicationIntegrationType> types) {
+    List<ApplicationIntegrationType> types,
+  ) {
     integrationTypes = types;
     return this;
   }
 
   UserCommandBuilder setInteractionContexts(
-      List<InteractionContextType> contexts) {
+    List<InteractionContextType> contexts,
+  ) {
     interactionContexts = contexts;
     return this;
   }

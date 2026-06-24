@@ -24,15 +24,14 @@ const _userId = '999888777666555444';
 // ── Payloads ──────────────────────────────────────────────────────────────────
 
 Map<String, dynamic> _reactionPayload({bool includeGuild = true}) => {
-      'user_id': _userId,
-      'channel_id': _channelId,
-      'message_id': _messageId,
-      if (includeGuild) 'guild_id': _guildId,
-      'emoji': {'id': null, 'name': '👍', 'animated': false},
-      'burst': false,
-      'type': 0, // NORMAL
-    };
-
+  'user_id': _userId,
+  'channel_id': _channelId,
+  'message_id': _messageId,
+  if (includeGuild) 'guild_id': _guildId,
+  'emoji': {'id': null, 'name': '👍', 'animated': false},
+  'burst': false,
+  'type': 0, // NORMAL
+};
 
 ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
     ShardMessage(
@@ -62,62 +61,74 @@ void main() {
       expect(packet.packetType.name, equals('MESSAGE_REACTION_ADD'));
     });
 
-    test('dispatches Event.guildMessageReactionAdd for guild reaction', () async {
-      final packet = MessageReactionAddPacket(marshaller: marshaller);
-      Event? capturedEvent;
+    test(
+      'dispatches Event.guildMessageReactionAdd for guild reaction',
+      () async {
+        final packet = MessageReactionAddPacket(marshaller: marshaller);
+        Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        capturedEvent = event;
-      }
+          bool Function(String?)? constraint,
+        }) {
+          capturedEvent = event;
+        }
 
-      await packet.listen(
+        await packet.listen(
           _msg('MESSAGE_REACTION_ADD', _reactionPayload(includeGuild: true)),
-          dispatch);
+          dispatch,
+        );
 
-      expect(capturedEvent, equals(Event.guildMessageReactionAdd));
-    });
+        expect(capturedEvent, equals(Event.guildMessageReactionAdd));
+      },
+    );
 
     test('payload is GuildMessageReactionAddArgs with reaction', () async {
       final packet = MessageReactionAddPacket(marshaller: marshaller);
       GuildMessageReactionAddArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildMessageReactionAdd) {
           args = payload as GuildMessageReactionAddArgs;
         }
       }
 
       await packet.listen(
-          _msg('MESSAGE_REACTION_ADD', _reactionPayload(includeGuild: true)),
-          dispatch);
+        _msg('MESSAGE_REACTION_ADD', _reactionPayload(includeGuild: true)),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.reaction, isA<MessageReaction>());
     });
 
-    test('dispatches Event.privateMessageReactionAdd for DM reaction', () async {
-      final packet = MessageReactionAddPacket(marshaller: marshaller);
-      Event? capturedEvent;
+    test(
+      'dispatches Event.privateMessageReactionAdd for DM reaction',
+      () async {
+        final packet = MessageReactionAddPacket(marshaller: marshaller);
+        Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        capturedEvent = event;
-      }
+          bool Function(String?)? constraint,
+        }) {
+          capturedEvent = event;
+        }
 
-      await packet.listen(
+        await packet.listen(
           _msg('MESSAGE_REACTION_ADD', _reactionPayload(includeGuild: false)),
-          dispatch);
+          dispatch,
+        );
 
-      expect(capturedEvent, equals(Event.privateMessageReactionAdd));
-    });
+        expect(capturedEvent, equals(Event.privateMessageReactionAdd));
+      },
+    );
   });
 
   // ── MESSAGE_REACTION_REMOVE ────────────────────────────────────────────────
@@ -129,42 +140,53 @@ void main() {
       expect(packet.packetType.name, equals('MESSAGE_REACTION_REMOVE'));
     });
 
-    test('dispatches Event.guildMessageReactionRemove for guild reaction',
-        () async {
-      final packet = MessageReactionRemovePacket(marshaller: marshaller);
-      Event? capturedEvent;
+    test(
+      'dispatches Event.guildMessageReactionRemove for guild reaction',
+      () async {
+        final packet = MessageReactionRemovePacket(marshaller: marshaller);
+        Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        capturedEvent = event;
-      }
+          bool Function(String?)? constraint,
+        }) {
+          capturedEvent = event;
+        }
 
-      await packet.listen(
+        await packet.listen(
           _msg('MESSAGE_REACTION_REMOVE', _reactionPayload(includeGuild: true)),
-          dispatch);
+          dispatch,
+        );
 
-      expect(capturedEvent, equals(Event.guildMessageReactionRemove));
-    });
+        expect(capturedEvent, equals(Event.guildMessageReactionRemove));
+      },
+    );
 
-    test('dispatches Event.privateMessageReactionRemove for DM reaction',
-        () async {
-      final packet = MessageReactionRemovePacket(marshaller: marshaller);
-      Event? capturedEvent;
+    test(
+      'dispatches Event.privateMessageReactionRemove for DM reaction',
+      () async {
+        final packet = MessageReactionRemovePacket(marshaller: marshaller);
+        Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        capturedEvent = event;
-      }
+          bool Function(String?)? constraint,
+        }) {
+          capturedEvent = event;
+        }
 
-      await packet.listen(
-          _msg('MESSAGE_REACTION_REMOVE', _reactionPayload(includeGuild: false)),
-          dispatch);
+        await packet.listen(
+          _msg(
+            'MESSAGE_REACTION_REMOVE',
+            _reactionPayload(includeGuild: false),
+          ),
+          dispatch,
+        );
 
-      expect(capturedEvent, equals(Event.privateMessageReactionRemove));
-    });
+        expect(capturedEvent, equals(Event.privateMessageReactionRemove));
+      },
+    );
   });
 }

@@ -26,16 +26,17 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
     required DataStoreContract dataStore,
     required InteractiveComponentManagerContract interactiveComponent,
     required EntityContext entityContext,
-  })  : _logger = logger,
-        _marshaller = marshaller,
-        _dataStore = dataStore,
-        _interactiveComponentManager = interactiveComponent,
-        _entityContext = entityContext;
+  }) : _logger = logger,
+       _marshaller = marshaller,
+       _dataStore = dataStore,
+       _interactiveComponentManager = interactiveComponent,
+       _entityContext = entityContext;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final type = InteractionType.values
-        .firstWhereOrNull((e) => e.value == message.payload['type']);
+    final type = InteractionType.values.firstWhereOrNull(
+      (e) => e.value == message.payload['type'],
+    );
 
     final payload = message.payload as Map<String, dynamic>;
     if (type == InteractionType.modal) {
@@ -58,38 +59,45 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
 
         if (component.containsKey('values')) {
           // Detect type by customId naming convention (user_select, role_select, channel_select)
-          final values = List<String>.from(component['values'] as Iterable<dynamic>? ?? []);
+          final values = List<String>.from(
+            component['values'] as Iterable<dynamic>? ?? [],
+          );
           if (customId.contains('user_select')) {
             // Resolve User instances
             if (guildId != null) {
               // Resolve to Members in guild context (match native select behavior)
-              parameters[customId] = await Future.wait(values
-                  .map((id) => _dataStore.member.get(guildId, id, false)));
+              parameters[customId] = await Future.wait(
+                values.map((id) => _dataStore.member.get(guildId, id, false)),
+              );
             } else {
               parameters[customId] = await Future.wait(
-                  values.map((id) => _dataStore.user.get(id, false)));
+                values.map((id) => _dataStore.user.get(id, false)),
+              );
             }
           } else if (customId.contains('role_select')) {
             parameters[customId] = await Future.wait(
-              values.map(
-                (id) => _dataStore.role.get(guildId!, id, false),
-              ),
+              values.map((id) => _dataStore.role.get(guildId!, id, false)),
             );
           } else if (customId.contains('mentionable_select')) {
             final List<dynamic> mentionables = [];
             final resolvedMap = resolved as Map<String, dynamic>?;
             for (final id in values) {
-              final isUser = resolvedMap != null &&
+              final isUser =
+                  resolvedMap != null &&
                   resolvedMap['users'] != null &&
                   (resolvedMap['users'] as Map<String, dynamic>)[id] != null;
-              final isRole = resolvedMap != null &&
+              final isRole =
+                  resolvedMap != null &&
                   resolvedMap['roles'] != null &&
                   (resolvedMap['roles'] as Map<String, dynamic>)[id] != null;
 
               if (isUser) {
                 if (guildId != null) {
-                  final member =
-                      await _dataStore.member.get(guildId, id, false);
+                  final member = await _dataStore.member.get(
+                    guildId,
+                    id,
+                    false,
+                  );
                   if (member != null) {
                     mentionables.add(member);
                   }
@@ -110,7 +118,8 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
           } else if (customId.contains('channel_select')) {
             // Resolve Channel instances
             parameters[customId] = await Future.wait(
-                values.map((id) => _dataStore.channel.get(id, false)));
+              values.map((id) => _dataStore.channel.get(id, false)),
+            );
           } else {
             // Default: just pass IDs
             parameters[customId] = values;
@@ -123,31 +132,39 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
       final event = switch (interactionContext) {
         InteractionContextType.guild => Event.guildModalSubmit,
         InteractionContextType.privateChannel => Event.privateModalSubmit,
-        _ => null
+        _ => null,
       };
 
       final ctx = await switch (interactionContext) {
-        InteractionContextType.guild =>
-          GuildModalContext.fromMap(_dataStore, _entityContext, payload),
-        InteractionContextType.privateChannel =>
-          PrivateModalContext.fromMap(_marshaller, _entityContext, payload),
-        _ => null
+        InteractionContextType.guild => GuildModalContext.fromMap(
+          _dataStore,
+          _entityContext,
+          payload,
+        ),
+        InteractionContextType.privateChannel => PrivateModalContext.fromMap(
+          _marshaller,
+          _entityContext,
+          payload,
+        ),
+        _ => null,
       };
 
       if ([event, ctx].contains(null)) {
         _logger.warn(
-            'Interaction context ${message.payload['context']} not found');
+          'Interaction context ${message.payload['context']} not found',
+        );
         return;
       }
 
       // dispatch type varies at runtime
       dispatch(
-          event: event!,
-          payload: (ctx: ctx, data: parameters),
-          constraint: (String? customId) => switch (customId) {
-                final String value => value == ctx!.customId,
-                _ => true
-              });
+        event: event!,
+        payload: (ctx: ctx, data: parameters),
+        constraint: (String? customId) => switch (customId) {
+          final String value => value == ctx!.customId,
+          _ => true,
+        },
+      );
 
       _interactiveComponentManager.dispatch(ctx!.customId, [ctx, parameters]);
     }

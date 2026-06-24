@@ -63,10 +63,11 @@ final class _FakeHttpClient implements HttpClientContract {
 final class _FakeEventDispatcher implements EventDispatcherContract {
   @override
   @override
-  void dispatch<T extends Object>(
-      {required Event event,
-      required T payload,
-      bool Function(String?)? constraint}) {}
+  void dispatch<T extends Object>({
+    required Event event,
+    required T payload,
+    bool Function(String?)? constraint,
+  }) {}
   @override
   void dispose() {}
 }
@@ -84,11 +85,11 @@ final class _FakeEventListener implements EventListenerContract {
   void Function(Event event, Object error, StackTrace stackTrace)? onEventError;
 
   @override
-  StreamSubscription listen<T extends Function>(
-          {required Event event,
-          required T handle,
-          required String? customId}) =>
-      throw UnimplementedError();
+  StreamSubscription listen<T extends Function>({
+    required Event event,
+    required T handle,
+    required String? customId,
+  }) => throw UnimplementedError();
 
   @override
   void unsubscribe(StreamSubscription subscription) {}
@@ -99,8 +100,10 @@ final class _FakeEventListener implements EventListenerContract {
 
 final class _FakePacketDispatcherContract implements PacketDispatcherContract {
   @override
-  void listen(PacketTypeContract packet,
-      Function(ShardMessage, DispatchEvent) listener) {}
+  void listen(
+    PacketTypeContract packet,
+    Function(ShardMessage, DispatchEvent) listener,
+  ) {}
   @override
   void dispatch(dynamic payload) {}
   @override
@@ -134,8 +137,11 @@ final class _FakeInteractiveComponentManager
       throw UnimplementedError();
 }
 
-Kernel _buildFakeKernel(_FakeEventListener eventListener, LoggerContract logger,
-    RuntimeState runtimeState) {
+Kernel _buildFakeKernel(
+  _FakeEventListener eventListener,
+  LoggerContract logger,
+  RuntimeState runtimeState,
+) {
   return Kernel(
     logger: logger,
     httpClient: _FakeHttpClient(),
@@ -182,41 +188,47 @@ void main() {
     });
 
     group('async listener awaiting', () {
-      test('awaits async listener before the next microtask resolves',
-          () async {
-        bool handled = false;
-        final fakePacket = _FakePacket();
+      test(
+        'awaits async listener before the next microtask resolves',
+        () async {
+          bool handled = false;
+          final fakePacket = _FakePacket();
 
-        Future<void> slowListener(
-            ShardMessage msg, DispatchEvent dispatch) async {
-          await Future.delayed(const Duration(milliseconds: 50));
-          handled = true;
-        }
+          Future<void> slowListener(
+            ShardMessage msg,
+            DispatchEvent dispatch,
+          ) async {
+            await Future.delayed(const Duration(milliseconds: 50));
+            handled = true;
+          }
 
-        final fakeMessage = ShardMessage(
-          type: 'MESSAGE_CREATE',
-          opCode: OpCode.dispatch,
-          sequence: 1,
-          payload: <String, dynamic>{},
-        );
+          final fakeMessage = ShardMessage(
+            type: 'MESSAGE_CREATE',
+            opCode: OpCode.dispatch,
+            sequence: 1,
+            payload: <String, dynamic>{},
+          );
 
-        dispatcher
-          ..listen(fakePacket, slowListener)
-          ..dispatch(fakeMessage);
+          dispatcher
+            ..listen(fakePacket, slowListener)
+            ..dispatch(fakeMessage);
 
-        // Without await on Function.apply, handled would still become true
-        // eventually (fire-and-forget), but this verifies the async work
-        // completes within the expected time frame.
-        await Future.delayed(const Duration(milliseconds: 100));
-        expect(handled, isTrue);
-      });
+          // Without await on Function.apply, handled would still become true
+          // eventually (fire-and-forget), but this verifies the async work
+          // completes within the expected time frame.
+          await Future.delayed(const Duration(milliseconds: 100));
+          expect(handled, isTrue);
+        },
+      );
 
       test('listener is invoked with the shard message', () async {
         ShardMessage? receivedMessage;
         final fakePacket = _FakePacket();
 
         Future<void> captureListener(
-            ShardMessage msg, DispatchEvent dispatch) async {
+          ShardMessage msg,
+          DispatchEvent dispatch,
+        ) async {
           receivedMessage = msg;
         }
 
@@ -233,8 +245,10 @@ void main() {
 
         await Future.delayed(const Duration(milliseconds: 20));
         expect(receivedMessage, isNotNull);
-        expect((receivedMessage!.payload as Map<String, dynamic>)['content'],
-            equals('hello'));
+        expect(
+          (receivedMessage!.payload as Map<String, dynamic>)['content'],
+          equals('hello'),
+        );
       });
 
       test('dispatch to unknown packet type does nothing', () async {

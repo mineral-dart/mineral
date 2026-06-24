@@ -72,8 +72,7 @@ enum PacketType implements PacketTypeContract {
 
   webhooksUpdate('WEBHOOKS_UPDATE'),
 
-  applicationCommandPermissionsUpdate(
-      'APPLICATION_COMMAND_PERMISSIONS_UPDATE'),
+  applicationCommandPermissionsUpdate('APPLICATION_COMMAND_PERMISSIONS_UPDATE'),
 
   guildIntegrationsUpdate('GUILD_INTEGRATIONS_UPDATE'),
   integrationCreate('INTEGRATION_CREATE'),

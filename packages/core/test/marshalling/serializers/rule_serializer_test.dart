@@ -21,50 +21,50 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'id': '100200300',
-          'guildId': '987654321',
-          'name': 'No Profanity',
-          'creatorId': '444555666',
-          'eventType': 1,
-          'triggerType': 1,
-          'triggerMetadata': {
-            'keyword_filter': ['badword'],
-            'regex_patterns': <String>[],
-            'presets': <int>[],
-            'allow_list': <String>[],
-            'mention_total_limit': null,
-            'mention_raid_protection_enabled': null,
-          },
-          'actions': [
-            {'type': 1},
-          ],
-          'enabled': true,
-          'exemptRoles': ['111222333'],
-          'exemptChannels': ['444555666'],
-        };
+      'id': '100200300',
+      'guildId': '987654321',
+      'name': 'No Profanity',
+      'creatorId': '444555666',
+      'eventType': 1,
+      'triggerType': 1,
+      'triggerMetadata': {
+        'keyword_filter': ['badword'],
+        'regex_patterns': <String>[],
+        'presets': <int>[],
+        'allow_list': <String>[],
+        'mention_total_limit': null,
+        'mention_raid_protection_enabled': null,
+      },
+      'actions': [
+        {'type': 1},
+      ],
+      'enabled': true,
+      'exemptRoles': ['111222333'],
+      'exemptChannels': ['444555666'],
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'id': '100200300',
-          'guild_id': '987654321',
-          'name': 'No Profanity',
-          'creator_id': '444555666',
-          'event_type': 1,
-          'trigger_type': 1,
-          'trigger_metadata': {
-            'keyword_filter': ['badword'],
-            'regex_patterns': <String>[],
-            'presets': <int>[],
-            'allow_list': <String>[],
-            'mention_total_limit': null,
-            'mention_raid_protection_enabled': null,
-          },
-          'actions': [
-            {'type': 1},
-          ],
-          'enabled': true,
-          'exempt_roles': ['111222333'],
-          'exempt_channels': ['444555666'],
-        };
+      'id': '100200300',
+      'guild_id': '987654321',
+      'name': 'No Profanity',
+      'creator_id': '444555666',
+      'event_type': 1,
+      'trigger_type': 1,
+      'trigger_metadata': {
+        'keyword_filter': ['badword'],
+        'regex_patterns': <String>[],
+        'presets': <int>[],
+        'allow_list': <String>[],
+        'mention_total_limit': null,
+        'mention_raid_protection_enabled': null,
+      },
+      'actions': [
+        {'type': 1},
+      ],
+      'enabled': true,
+      'exempt_roles': ['111222333'],
+      'exempt_channels': ['444555666'],
+    };
 
     group('serialize()', () {
       test('maps all fields correctly', () async {
@@ -126,8 +126,10 @@ void main() {
         final result = serializer.deserialize(rule);
 
         expect(result['name'], equals('No Profanity'));
-        expect(result['event_type'],
-            equals(AutoModerationEventType.messageSend.value));
+        expect(
+          result['event_type'],
+          equals(AutoModerationEventType.messageSend.value),
+        );
         expect(result['trigger_type'], equals(TriggerType.keyword.value));
         expect(result['enabled'], isTrue);
       });
@@ -138,7 +140,9 @@ void main() {
 
         expect(result['trigger_metadata'], isA<Map>());
         expect(
-            result['trigger_metadata']['keyword_filter'], contains('badword'));
+          result['trigger_metadata']['keyword_filter'],
+          contains('badword'),
+        );
       });
 
       test('actions are serialized as list of maps', () async {
@@ -147,8 +151,10 @@ void main() {
 
         expect(result['actions'], isA<List>());
         expect(result['actions'], hasLength(1));
-        expect(result['actions'].first['type'],
-            equals(ActionType.blockMessage.value));
+        expect(
+          result['actions'].first['type'],
+          equals(ActionType.blockMessage.value),
+        );
       });
     });
 

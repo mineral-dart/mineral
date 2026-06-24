@@ -14,11 +14,11 @@ abstract interface class ChannelThreadManager {
   Future<Map<Snowflake, PrivateThreadChannel>> fetchPrivateArchived();
 
   Future<T> createWithoutMessage<T extends ThreadChannel>(
-      ThreadChannelBuilder builder);
+    ThreadChannelBuilder builder,
+  );
 }
 
-final class ThreadsManager
-    implements GuildThreadManager, ChannelThreadManager {
+final class ThreadsManager implements GuildThreadManager, ChannelThreadManager {
   final EntityContext _ctx;
   DataStoreContract get _datastore => _ctx.datastore;
 
@@ -26,7 +26,7 @@ final class ThreadsManager
   final Snowflake? _channelId;
 
   ThreadsManager(this._guildId, this._channelId, {required EntityContext ctx})
-      : _ctx = ctx;
+    : _ctx = ctx;
 
   @override
   Future<ThreadResult> fetchActives() =>
@@ -42,7 +42,10 @@ final class ThreadsManager
 
   @override
   Future<T> createWithoutMessage<T extends ThreadChannel>(
-          ThreadChannelBuilder builder) =>
-      _datastore.thread.createWithoutMessage<T>(
-          _guildId!.value, _channelId!.value, builder);
+    ThreadChannelBuilder builder,
+  ) => _datastore.thread.createWithoutMessage<T>(
+    _guildId!.value,
+    _channelId!.value,
+    builder,
+  );
 }

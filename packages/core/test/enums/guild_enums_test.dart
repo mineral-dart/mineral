@@ -18,16 +18,23 @@ void main() {
     });
 
     test('known values resolve correctly', () {
-      expect(findInEnum(DefaultMessageNotification.values, 0),
-          DefaultMessageNotification.allMessages);
-      expect(findInEnum(DefaultMessageNotification.values, 1),
-          DefaultMessageNotification.onlyMentions);
+      expect(
+        findInEnum(DefaultMessageNotification.values, 0),
+        DefaultMessageNotification.allMessages,
+      );
+      expect(
+        findInEnum(DefaultMessageNotification.values, 1),
+        DefaultMessageNotification.onlyMentions,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
       expect(
-        findInEnum(DefaultMessageNotification.values, 99,
-            orElse: DefaultMessageNotification.unknown),
+        findInEnum(
+          DefaultMessageNotification.values,
+          99,
+          orElse: DefaultMessageNotification.unknown,
+        ),
         DefaultMessageNotification.unknown,
       );
     });
@@ -46,18 +53,27 @@ void main() {
     });
 
     test('known values resolve correctly', () {
-      expect(findInEnum(ExplicitContentFilter.values, 0),
-          ExplicitContentFilter.disabled);
-      expect(findInEnum(ExplicitContentFilter.values, 1),
-          ExplicitContentFilter.membersWithoutRoles);
-      expect(findInEnum(ExplicitContentFilter.values, 2),
-          ExplicitContentFilter.allMembers);
+      expect(
+        findInEnum(ExplicitContentFilter.values, 0),
+        ExplicitContentFilter.disabled,
+      );
+      expect(
+        findInEnum(ExplicitContentFilter.values, 1),
+        ExplicitContentFilter.membersWithoutRoles,
+      );
+      expect(
+        findInEnum(ExplicitContentFilter.values, 2),
+        ExplicitContentFilter.allMembers,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
       expect(
-        findInEnum(ExplicitContentFilter.values, 99,
-            orElse: ExplicitContentFilter.unknown),
+        findInEnum(
+          ExplicitContentFilter.values,
+          99,
+          orElse: ExplicitContentFilter.unknown,
+        ),
         ExplicitContentFilter.unknown,
       );
     });
@@ -79,7 +95,9 @@ void main() {
       expect(findInEnum(ForumLayoutType.values, 0), ForumLayoutType.notSet);
       expect(findInEnum(ForumLayoutType.values, 1), ForumLayoutType.listView);
       expect(
-          findInEnum(ForumLayoutType.values, 2), ForumLayoutType.galleryView);
+        findInEnum(ForumLayoutType.values, 2),
+        ForumLayoutType.galleryView,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
@@ -90,10 +108,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(ForumLayoutType.values, 99),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(ForumLayoutType.values, 99), throwsArgumentError);
     });
   });
 
@@ -104,12 +119,18 @@ void main() {
 
     test('known values resolve correctly', () {
       expect(findInEnum(MemberFlag.values, 1 << 0), MemberFlag.didRejoin);
-      expect(findInEnum(MemberFlag.values, 1 << 1),
-          MemberFlag.completedOnboarding);
-      expect(findInEnum(MemberFlag.values, 1 << 2),
-          MemberFlag.bypassedVerification);
       expect(
-          findInEnum(MemberFlag.values, 1 << 3), MemberFlag.startedOnboarding);
+        findInEnum(MemberFlag.values, 1 << 1),
+        MemberFlag.completedOnboarding,
+      );
+      expect(
+        findInEnum(MemberFlag.values, 1 << 2),
+        MemberFlag.bypassedVerification,
+      );
+      expect(
+        findInEnum(MemberFlag.values, 1 << 3),
+        MemberFlag.startedOnboarding,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
@@ -120,10 +141,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(MemberFlag.values, 999),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(MemberFlag.values, 999), throwsArgumentError);
     });
   });
 
@@ -145,10 +163,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(MfaLevel.values, 99),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(MfaLevel.values, 99), throwsArgumentError);
     });
   });
 
@@ -172,10 +187,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(NsfwLevel.values, 99),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(NsfwLevel.values, 99), throwsArgumentError);
     });
   });
 
@@ -197,10 +209,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(SortOrderType.values, 99),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(SortOrderType.values, 99), throwsArgumentError);
     });
   });
 
@@ -210,26 +219,39 @@ void main() {
     });
 
     test('known values resolve correctly', () {
-      expect(findInEnum(SystemChannelFlag.values, 1 << 0),
-          SystemChannelFlag.suppressJoinNotifications);
-      expect(findInEnum(SystemChannelFlag.values, 1 << 1),
-          SystemChannelFlag.suppressPremiumSubscriptions);
-      expect(findInEnum(SystemChannelFlag.values, 1 << 2),
-          SystemChannelFlag.suppressGuildReminderNotifications);
-      expect(findInEnum(SystemChannelFlag.values, 1 << 3),
-          SystemChannelFlag.suppressJoinNotificationReplies);
-      expect(findInEnum(SystemChannelFlag.values, 1 << 4),
-          SystemChannelFlag.suppressRoleSubscriptionPurchaseNotifications);
       expect(
-          findInEnum(SystemChannelFlag.values, 1 << 5),
-          SystemChannelFlag
-              .suppressRoleSubscriptionPurchaseNotificationReplies);
+        findInEnum(SystemChannelFlag.values, 1 << 0),
+        SystemChannelFlag.suppressJoinNotifications,
+      );
+      expect(
+        findInEnum(SystemChannelFlag.values, 1 << 1),
+        SystemChannelFlag.suppressPremiumSubscriptions,
+      );
+      expect(
+        findInEnum(SystemChannelFlag.values, 1 << 2),
+        SystemChannelFlag.suppressGuildReminderNotifications,
+      );
+      expect(
+        findInEnum(SystemChannelFlag.values, 1 << 3),
+        SystemChannelFlag.suppressJoinNotificationReplies,
+      );
+      expect(
+        findInEnum(SystemChannelFlag.values, 1 << 4),
+        SystemChannelFlag.suppressRoleSubscriptionPurchaseNotifications,
+      );
+      expect(
+        findInEnum(SystemChannelFlag.values, 1 << 5),
+        SystemChannelFlag.suppressRoleSubscriptionPurchaseNotificationReplies,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
       expect(
-        findInEnum(SystemChannelFlag.values, 999,
-            orElse: SystemChannelFlag.unknown),
+        findInEnum(
+          SystemChannelFlag.values,
+          999,
+          orElse: SystemChannelFlag.unknown,
+        ),
         SystemChannelFlag.unknown,
       );
     });
@@ -253,13 +275,18 @@ void main() {
       expect(findInEnum(VerificationLevel.values, 2), VerificationLevel.medium);
       expect(findInEnum(VerificationLevel.values, 3), VerificationLevel.high);
       expect(
-          findInEnum(VerificationLevel.values, 4), VerificationLevel.veryHigh);
+        findInEnum(VerificationLevel.values, 4),
+        VerificationLevel.veryHigh,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
       expect(
-        findInEnum(VerificationLevel.values, 99,
-            orElse: VerificationLevel.unknown),
+        findInEnum(
+          VerificationLevel.values,
+          99,
+          orElse: VerificationLevel.unknown,
+        ),
         VerificationLevel.unknown,
       );
     });
@@ -282,8 +309,10 @@ void main() {
       expect(findInEnum(AuditLogType.values, 10), AuditLogType.channelCreate);
       expect(findInEnum(AuditLogType.values, 20), AuditLogType.memberKick);
       expect(findInEnum(AuditLogType.values, 72), AuditLogType.messageDelete);
-      expect(findInEnum(AuditLogType.values, 191),
-          AuditLogType.homeSettingsUpdate);
+      expect(
+        findInEnum(AuditLogType.values, 191),
+        AuditLogType.homeSettingsUpdate,
+      );
     });
 
     test('unknown value with orElse returns unknown', () {
@@ -294,10 +323,7 @@ void main() {
     });
 
     test('unknown value without orElse throws ArgumentError', () {
-      expect(
-        () => findInEnum(AuditLogType.values, 999),
-        throwsArgumentError,
-      );
+      expect(() => findInEnum(AuditLogType.values, 999), throwsArgumentError);
     });
   });
 }

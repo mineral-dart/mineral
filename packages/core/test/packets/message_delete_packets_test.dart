@@ -29,16 +29,16 @@ const _messageId2 = '222333444555666777';
 // ── Payloads ──────────────────────────────────────────────────────────────────
 
 Map<String, dynamic> _deletePayload({bool includeGuild = true}) => {
-      'id': _messageId,
-      'channel_id': _channelId,
-      if (includeGuild) 'guild_id': _guildId,
-    };
+  'id': _messageId,
+  'channel_id': _channelId,
+  if (includeGuild) 'guild_id': _guildId,
+};
 
 Map<String, dynamic> _deleteBulkPayload() => {
-      'ids': [_messageId, _messageId2],
-      'channel_id': _channelId,
-      'guild_id': _guildId,
-    };
+  'ids': [_messageId, _messageId2],
+  'channel_id': _channelId,
+  'guild_id': _guildId,
+};
 
 ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
     ShardMessage(
@@ -80,77 +80,98 @@ void main() {
 
   group('MessageDeletePacket', () {
     test('packetType is PacketType.messageDelete', () {
-      final packet =
-          MessageDeletePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = MessageDeletePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.messageDelete));
       expect(packet.packetType.name, equals('MESSAGE_DELETE'));
     });
 
     test('dispatches Event.guildMessageDelete for guild message', () async {
-      final packet =
-          MessageDeletePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = MessageDeletePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('MESSAGE_DELETE', _deletePayload(includeGuild: true)), dispatch);
+        _msg('MESSAGE_DELETE', _deletePayload(includeGuild: true)),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildMessageDelete));
     });
 
-    test('payload carries guild, channel and messageId for guild delete',
-        () async {
-      final packet =
-          MessageDeletePacket(marshaller: marshaller, dataStore: dataStore);
-      GuildMessageDeleteArgs? args;
+    test(
+      'payload carries guild, channel and messageId for guild delete',
+      () async {
+        final packet = MessageDeletePacket(
+          marshaller: marshaller,
+          dataStore: dataStore,
+        );
+        GuildMessageDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        if (event == Event.guildMessageDelete) {
-          args = payload as GuildMessageDeleteArgs;
+          bool Function(String?)? constraint,
+        }) {
+          if (event == Event.guildMessageDelete) {
+            args = payload as GuildMessageDeleteArgs;
+          }
         }
-      }
 
-      await packet.listen(
-          _msg('MESSAGE_DELETE', _deletePayload(includeGuild: true)), dispatch);
+        await packet.listen(
+          _msg('MESSAGE_DELETE', _deletePayload(includeGuild: true)),
+          dispatch,
+        );
 
-      expect(args, isNotNull);
-      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
-      expect(args!.channel.id, equals(Snowflake.parse(_channelId)));
-      expect(args!.messageId, equals(Snowflake.parse(_messageId)));
-    });
+        expect(args, isNotNull);
+        expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
+        expect(args!.channel.id, equals(Snowflake.parse(_channelId)));
+        expect(args!.messageId, equals(Snowflake.parse(_messageId)));
+      },
+    );
 
     test('message is null in payload on cache miss', () async {
-      final packet =
-          MessageDeletePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = MessageDeletePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildMessageDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildMessageDelete) {
           args = payload as GuildMessageDeleteArgs;
         }
       }
 
       await packet.listen(
-          _msg('MESSAGE_DELETE', _deletePayload(includeGuild: true)), dispatch);
+        _msg('MESSAGE_DELETE', _deletePayload(includeGuild: true)),
+        dispatch,
+      );
 
       expect(args!.message, isNull);
     });
 
     test('message is invalidated from cache on delete', () async {
-      final messageCacheKey =
-          marshaller.cacheKey.message(_channelId, _messageId);
+      final messageCacheKey = marshaller.cacheKey.message(
+        _channelId,
+        _messageId,
+      );
       await cache.put(messageCacheKey, {
         'id': _messageId,
         'content': 'old content',
@@ -163,16 +184,21 @@ void main() {
         'edited_timestamp': null,
       });
 
-      final packet =
-          MessageDeletePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = MessageDeletePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(
-          _msg('MESSAGE_DELETE', _deletePayload(includeGuild: true)), dispatch);
+        _msg('MESSAGE_DELETE', _deletePayload(includeGuild: true)),
+        dispatch,
+      );
 
       final cached = await cache.get(messageCacheKey);
       expect(cached, isNull);
@@ -183,46 +209,58 @@ void main() {
 
   group('MessageDeleteBulkPacket', () {
     test('packetType is PacketType.messageDeleteBulk', () {
-      final packet =
-          MessageDeleteBulkPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = MessageDeleteBulkPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.messageDeleteBulk));
       expect(packet.packetType.name, equals('MESSAGE_DELETE_BULK'));
     });
 
     test('dispatches Event.guildMessageDeleteBulk', () async {
-      final packet =
-          MessageDeleteBulkPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = MessageDeleteBulkPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('MESSAGE_DELETE_BULK', _deleteBulkPayload()), dispatch);
+        _msg('MESSAGE_DELETE_BULK', _deleteBulkPayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildMessageDeleteBulk));
     });
 
     test('payload carries correct number of messageIds', () async {
-      final packet =
-          MessageDeleteBulkPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = MessageDeleteBulkPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildMessageDeleteBulkArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildMessageDeleteBulk) {
           args = payload as GuildMessageDeleteBulkArgs;
         }
       }
 
       await packet.listen(
-          _msg('MESSAGE_DELETE_BULK', _deleteBulkPayload()), dispatch);
+        _msg('MESSAGE_DELETE_BULK', _deleteBulkPayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
@@ -231,24 +269,28 @@ void main() {
     });
 
     test('does not dispatch when no guild_id in payload', () async {
-      final packet =
-          MessageDeleteBulkPacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = MessageDeleteBulkPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       bool dispatched = false;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         dispatched = true;
       }
 
       // No guild_id → should be silently dropped.
       await packet.listen(
-          _msg('MESSAGE_DELETE_BULK', {
-            'ids': [_messageId],
-            'channel_id': _channelId,
-          }),
-          dispatch);
+        _msg('MESSAGE_DELETE_BULK', {
+          'ids': [_messageId],
+          'channel_id': _channelId,
+        }),
+        dispatch,
+      );
 
       expect(dispatched, isFalse);
     });
@@ -258,43 +300,42 @@ void main() {
 // ── Domain helpers ────────────────────────────────────────────────────────────
 
 GuildTextChannel _buildGuildTextChannel(EntityContext ctx) => GuildTextChannel(
-      ChannelProperties(
-        ctx: ctx,
-        id: Snowflake.parse(_channelId),
-        type: ChannelType.guildText,
-        name: 'general',
-        description: null,
-        guildId: Snowflake.parse(_guildId),
-        categoryId: null,
-        position: null,
-        nsfw: false,
-        lastMessageId: null,
-        bitrate: null,
-        userLimit: null,
-        rateLimitPerUser: null,
-        recipients: [],
-        icon: null,
-        ownerId: null,
-        applicationId: null,
-        lastPinTimestamp: null,
-        rtcRegion: null,
-        videoQualityMode: null,
-        messageCount: null,
-        memberCount: null,
-        defaultAutoArchiveDuration: null,
-        permissions: [],
-        flags: null,
-        totalMessageSent: null,
-        available: null,
-        appliedTags: [],
-        defaultReactions: null,
-        defaultSortOrder: null,
-        defaultForumLayout: null,
-        threads: ThreadsManager(
-          Snowflake.parse(_guildId),
-          Snowflake.parse(_channelId),
-          ctx: ctx,
-        ),
-      ),
-    );
-
+  ChannelProperties(
+    ctx: ctx,
+    id: Snowflake.parse(_channelId),
+    type: ChannelType.guildText,
+    name: 'general',
+    description: null,
+    guildId: Snowflake.parse(_guildId),
+    categoryId: null,
+    position: null,
+    nsfw: false,
+    lastMessageId: null,
+    bitrate: null,
+    userLimit: null,
+    rateLimitPerUser: null,
+    recipients: [],
+    icon: null,
+    ownerId: null,
+    applicationId: null,
+    lastPinTimestamp: null,
+    rtcRegion: null,
+    videoQualityMode: null,
+    messageCount: null,
+    memberCount: null,
+    defaultAutoArchiveDuration: null,
+    permissions: [],
+    flags: null,
+    totalMessageSent: null,
+    available: null,
+    appliedTags: [],
+    defaultReactions: null,
+    defaultSortOrder: null,
+    defaultForumLayout: null,
+    threads: ThreadsManager(
+      Snowflake.parse(_guildId),
+      Snowflake.parse(_channelId),
+      ctx: ctx,
+    ),
+  ),
+);

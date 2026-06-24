@@ -48,8 +48,9 @@ void main() {
           .listen((e) => receivedPayloads.add(e.payload));
 
       dispatcher.dispatch(
-          event: Event.guildMemberAdd,
-          payload: (guild: 'guild1', member: 'member1'));
+        event: Event.guildMemberAdd,
+        payload: (guild: 'guild1', member: 'member1'),
+      );
 
       await Future.delayed(Duration(milliseconds: 50));
 
@@ -62,12 +63,16 @@ void main() {
     test('constraint filters on customId', () async {
       final received = <InternalEventParams>[];
 
-      dispatcher.controllerFor(Event.guildButtonClick).stream.where((e) {
-        return switch (e.constraint) {
-          final bool Function(String?) constraint => constraint('btn-save'),
-          _ => true
-        };
-      }).listen(received.add);
+      dispatcher
+          .controllerFor(Event.guildButtonClick)
+          .stream
+          .where((e) {
+            return switch (e.constraint) {
+              final bool Function(String?) constraint => constraint('btn-save'),
+              _ => true,
+            };
+          })
+          .listen(received.add);
 
       // This one matches the constraint
       dispatcher
@@ -83,10 +88,7 @@ void main() {
           constraint: (id) => id == 'btn-delete',
         )
         // This one has no constraint (should pass)
-        ..dispatch(
-          event: Event.guildButtonClick,
-          payload: 'ctx3',
-        );
+        ..dispatch(event: Event.guildButtonClick, payload: 'ctx3');
 
       await Future.delayed(Duration(milliseconds: 50));
 
@@ -127,30 +129,32 @@ void main() {
       expect(results[1].event, Event.ready);
     });
 
-    test('different listeners on different events receive only their events',
-        () async {
-      final readyFuture = dispatcher
-          .controllerFor(Event.ready)
-          .stream
-          .take(2)
-          .toList();
+    test(
+      'different listeners on different events receive only their events',
+      () async {
+        final readyFuture = dispatcher
+            .controllerFor(Event.ready)
+            .stream
+            .take(2)
+            .toList();
 
-      final messageFuture = dispatcher
-          .controllerFor(Event.guildMessageCreate)
-          .stream
-          .first;
+        final messageFuture = dispatcher
+            .controllerFor(Event.guildMessageCreate)
+            .stream
+            .first;
 
-      dispatcher
-        ..dispatch(event: Event.ready, payload: 'bot')
-        ..dispatch(event: Event.guildMessageCreate, payload: 'msg')
-        ..dispatch(event: Event.ready, payload: 'bot');
+        dispatcher
+          ..dispatch(event: Event.ready, payload: 'bot')
+          ..dispatch(event: Event.guildMessageCreate, payload: 'msg')
+          ..dispatch(event: Event.ready, payload: 'bot');
 
-      final readyEvents = await readyFuture;
-      final messageEvent = await messageFuture;
+        final readyEvents = await readyFuture;
+        final messageEvent = await messageFuture;
 
-      expect(readyEvents, hasLength(2));
-      expect(readyEvents.every((e) => e.event == Event.ready), isTrue);
-      expect(messageEvent.event, Event.guildMessageCreate);
-    });
+        expect(readyEvents, hasLength(2));
+        expect(readyEvents.every((e) => e.event == Event.ready), isTrue);
+        expect(messageEvent.event, Event.guildMessageCreate);
+      },
+    );
   });
 }

@@ -3,7 +3,7 @@ import 'package:mineral/api.dart';
 
 typedef AttachmentResult = (
   List<Map<String, dynamic>>,
-  List<http.MultipartFile>
+  List<http.MultipartFile>,
 );
 
 AttachmentResult makeAttachmentFromBuilder(MessageBuilder builder) {
@@ -56,10 +56,7 @@ http.MultipartFile? _prepareAsset(dynamic payload, int filesLength) {
     );
 
     payload['url'] = 'attachment://$filename';
-    payload['file'] = {
-      'url': 'attachment://$filename',
-      'name': filename,
-    };
+    payload['file'] = {'url': 'attachment://$filename', 'name': filename};
     payload['bytes'] = null;
 
     return multipartFile;

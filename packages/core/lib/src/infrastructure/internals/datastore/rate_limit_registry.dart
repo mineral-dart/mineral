@@ -15,8 +15,7 @@ final class BucketState {
     required this.resetAt,
   });
 
-  bool get isExhausted =>
-      remaining <= 0 && resetAt.isAfter(DateTime.now());
+  bool get isExhausted => remaining <= 0 && resetAt.isAfter(DateTime.now());
 
   Duration get timeUntilReset {
     final delta = resetAt.difference(DateTime.now());
@@ -142,8 +141,9 @@ class _RateLimitHeaders {
         case 'x-ratelimit-reset-after':
           final seconds = double.tryParse(header.value);
           if (seconds != null) {
-            resetAt = DateTime.now()
-                .add(Duration(milliseconds: (seconds * 1000).round()));
+            resetAt = DateTime.now().add(
+              Duration(milliseconds: (seconds * 1000).round()),
+            );
           }
       }
     }

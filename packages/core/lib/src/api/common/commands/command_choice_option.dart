@@ -20,8 +20,14 @@ final class ChoiceOption implements CommandOption {
 
   final List<Choice> choices;
 
-  const ChoiceOption._(this.name, this.description, this.type, this.isRequired,
-      this.channelTypes, this.choices);
+  const ChoiceOption._(
+    this.name,
+    this.description,
+    this.type,
+    this.isRequired,
+    this.channelTypes,
+    this.choices,
+  );
 
   @override
   Map<String, dynamic> toJson() {
@@ -30,34 +36,53 @@ final class ChoiceOption implements CommandOption {
       'description': description,
       'type': type.value,
       'required': isRequired,
-      'choices':
-          choices.map((e) => {'name': e.name, 'value': e.value}).toList(),
+      'choices': choices
+          .map((e) => {'name': e.name, 'value': e.value})
+          .toList(),
     };
   }
 
-  factory ChoiceOption.string(
-          {required String name,
-          required String description,
-          required List<Choice<String>> choices,
-          bool required = false}) =>
-      ChoiceOption._(
-          name, description, CommandOptionType.string, required, null, choices);
+  factory ChoiceOption.string({
+    required String name,
+    required String description,
+    required List<Choice<String>> choices,
+    bool required = false,
+  }) => ChoiceOption._(
+    name,
+    description,
+    CommandOptionType.string,
+    required,
+    null,
+    choices,
+  );
 
-  factory ChoiceOption.integer(
-          {required String name,
-          required String description,
-          required List<Choice<int>> choices,
-          bool required = false}) =>
-      ChoiceOption._(name, description, CommandOptionType.integer, required,
-          null, choices);
+  factory ChoiceOption.integer({
+    required String name,
+    required String description,
+    required List<Choice<int>> choices,
+    bool required = false,
+  }) => ChoiceOption._(
+    name,
+    description,
+    CommandOptionType.integer,
+    required,
+    null,
+    choices,
+  );
 
-  factory ChoiceOption.double(
-          {required String name,
-          required String description,
-          required List<Choice<double>> choices,
-          bool required = false}) =>
-      ChoiceOption._(
-          name, description, CommandOptionType.double, required, null, choices);
+  factory ChoiceOption.double({
+    required String name,
+    required String description,
+    required List<Choice<double>> choices,
+    bool required = false,
+  }) => ChoiceOption._(
+    name,
+    description,
+    CommandOptionType.double,
+    required,
+    null,
+    choices,
+  );
 }
 
 final class Choice<T> {

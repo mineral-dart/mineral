@@ -14,7 +14,9 @@ final class GuildAnnouncementChannelFactory
 
   @override
   Future<Map<String, dynamic>> normalize(
-      MarshallerContract marshaller, Map<String, dynamic> json) async {
+    MarshallerContract marshaller,
+    Map<String, dynamic> json,
+  ) async {
     final payload = {
       'id': json['id'],
       'type': json['type'],
@@ -34,19 +36,30 @@ final class GuildAnnouncementChannelFactory
   }
 
   @override
-  Future<GuildAnnouncementChannel> serialize(MarshallerContract marshaller,
-      EntityContext ctx, Map<String, dynamic> json) async {
-    final properties =
-        await ChannelProperties.serializeCache(marshaller, ctx, json);
+  Future<GuildAnnouncementChannel> serialize(
+    MarshallerContract marshaller,
+    EntityContext ctx,
+    Map<String, dynamic> json,
+  ) async {
+    final properties = await ChannelProperties.serializeCache(
+      marshaller,
+      ctx,
+      json,
+    );
     return GuildAnnouncementChannel(properties);
   }
 
   @override
   Future<Map<String, dynamic>> deserialize(
-      MarshallerContract marshaller, GuildAnnouncementChannel channel) async {
-    final permissions = await Future.wait(channel.permissions.map(
+    MarshallerContract marshaller,
+    GuildAnnouncementChannel channel,
+  ) async {
+    final permissions = await Future.wait(
+      channel.permissions.map(
         (element) async => marshaller.serializers.channelPermissionOverwrite
-            .deserialize(element)));
+            .deserialize(element),
+      ),
+    );
 
     return {
       'id': channel.id.value,

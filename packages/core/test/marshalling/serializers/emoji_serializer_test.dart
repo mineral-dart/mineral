@@ -22,29 +22,30 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayloadWithoutRoles() => {
-          'id': '100200300',
-          'name': 'thumbsup',
-          'managed': false,
-          'available': true,
-          'animated': false,
-          'roles': <String>[],
-          'guild_id': '987654321',
-        };
+      'id': '100200300',
+      'name': 'thumbsup',
+      'managed': false,
+      'available': true,
+      'animated': false,
+      'roles': <String>[],
+      'guild_id': '987654321',
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'id': '100200300',
-          'name': 'thumbsup',
-          'managed': false,
-          'available': true,
-          'animated': false,
-          'roles': null,
-          'guild_id': '987654321',
-        };
+      'id': '100200300',
+      'name': 'thumbsup',
+      'managed': false,
+      'available': true,
+      'animated': false,
+      'roles': null,
+      'guild_id': '987654321',
+    };
 
     group('serialize()', () {
       test('creates Emoji without roles when roles is empty', () async {
-        final emoji =
-            await serializer.serialize(normalizedPayloadWithoutRoles());
+        final emoji = await serializer.serialize(
+          normalizedPayloadWithoutRoles(),
+        );
 
         expect(emoji, isA<Emoji>());
         expect(emoji.id, equals(Snowflake('100200300')));
@@ -81,8 +82,9 @@ void main() {
 
     group('deserialize()', () {
       test('produces map with expected keys', () async {
-        final emoji =
-            await serializer.serialize(normalizedPayloadWithoutRoles());
+        final emoji = await serializer.serialize(
+          normalizedPayloadWithoutRoles(),
+        );
         final result = serializer.deserialize(emoji);
 
         expect(result['id'], equals(Snowflake('100200300').value));

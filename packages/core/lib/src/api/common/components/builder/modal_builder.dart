@@ -226,11 +226,7 @@ final class ModalBuilder {
     String? description,
   }) {
     _components.add(
-      Label(
-        label: label,
-        component: menu,
-        description: description,
-      ),
+      Label(label: label, component: menu, description: description),
     );
   }
 
@@ -327,11 +323,7 @@ final class ModalBuilder {
     );
 
     _components.add(
-      Label(
-        label: label,
-        component: textInput,
-        description: description,
-      ),
+      Label(label: label, component: textInput, description: description),
     );
   }
 

@@ -9,7 +9,7 @@ enum EntitlementType implements EnhancedEnum<int> {
   const EntitlementType(this.value);
 
   static EntitlementType from(int value) => EntitlementType.values.firstWhere(
-        (e) => e.value == value,
-        orElse: () => throw ArgumentError('Unknown EntitlementType value: $value'),
-      );
+    (e) => e.value == value,
+    orElse: () => throw ArgumentError('Unknown EntitlementType value: $value'),
+  );
 }

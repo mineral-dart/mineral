@@ -11,22 +11,26 @@ final class GuildUpdatePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   GuildUpdatePacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final guildCacheKey =
-        _marshaller.cacheKey.guild(message.payload['id'] as Object);
+    final guildCacheKey = _marshaller.cacheKey.guild(
+      message.payload['id'] as Object,
+    );
     final rawServer = await _marshaller.cache?.get(guildCacheKey);
     final before = rawServer != null
         ? await _marshaller.serializers.guild.serialize(rawServer)
         : null;
 
-    final rawAfter = await _marshaller.serializers.guild
-        .normalize(message.payload as Map<String, dynamic>);
+    final rawAfter = await _marshaller.serializers.guild.normalize(
+      message.payload as Map<String, dynamic>,
+    );
     final after = await _marshaller.serializers.guild.serialize(rawAfter);
 
     dispatch<GuildUpdateArgs>(
-        event: Event.guildUpdate, payload: (before: before, after: after));
+      event: Event.guildUpdate,
+      payload: (before: before, after: after),
+    );
   }
 }

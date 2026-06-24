@@ -21,25 +21,24 @@ Map<String, dynamic> _templatePayload({
   String updatedAt = '2024-06-01T00:00:00+00:00',
   String sourceGuildId = _guildId,
   bool? isDirty,
-}) =>
-    {
-      'code': code,
-      'name': name,
-      'description': description,
-      'usage_count': usageCount,
-      'creator_id': creatorId,
-      'creator': {
-        'id': creatorId,
-        'username': 'SomeUser',
-        'discriminator': '0000',
-        'global_name': null,
-      },
-      'created_at': createdAt,
-      'updated_at': updatedAt,
-      'source_guild_id': sourceGuildId,
-      'serialized_source_guild': {'name': 'Test Guild'},
-      if (isDirty != null) 'is_dirty': isDirty,
-    };
+}) => {
+  'code': code,
+  'name': name,
+  'description': description,
+  'usage_count': usageCount,
+  'creator_id': creatorId,
+  'creator': {
+    'id': creatorId,
+    'username': 'SomeUser',
+    'discriminator': '0000',
+    'global_name': null,
+  },
+  'created_at': createdAt,
+  'updated_at': updatedAt,
+  'source_guild_id': sourceGuildId,
+  'serialized_source_guild': {'name': 'Test Guild'},
+  if (isDirty != null) 'is_dirty': isDirty,
+};
 
 (TemplatePart, void Function() restore) _buildPart(FakeHttpClient client) {
   final ds = FakeDataStore(client);
@@ -74,8 +73,7 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/templates'));
+        expect(client.calls.single.path, equals('/guilds/$_guildId/templates'));
       });
 
       test('returns Map keyed by template code', () async {
@@ -118,8 +116,9 @@ void main() {
 
       test('parses isDirty when present', () async {
         final client = FakeHttpClient([
-          FakeResponse<List<Map<String, dynamic>>>(
-              200, [_templatePayload(isDirty: true)]),
+          FakeResponse<List<Map<String, dynamic>>>(200, [
+            _templatePayload(isDirty: true),
+          ]),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -131,8 +130,9 @@ void main() {
 
       test('parses nullable description', () async {
         final client = FakeHttpClient([
-          FakeResponse<List<Map<String, dynamic>>>(
-              200, [_templatePayload(description: null)]),
+          FakeResponse<List<Map<String, dynamic>>>(200, [
+            _templatePayload(description: null),
+          ]),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -169,8 +169,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/guilds/templates/$_templateCode'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/templates/$_templateCode'),
+        );
       });
 
       test('returns parsed GuildTemplate', () async {
@@ -201,8 +203,7 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('POST'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/templates'));
+        expect(client.calls.single.path, equals('/guilds/$_guildId/templates'));
       });
 
       test('returns parsed GuildTemplate', () async {
@@ -221,12 +222,17 @@ void main() {
       test('includes description when provided', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _templatePayload(description: 'Custom desc')),
+            200,
+            _templatePayload(description: 'Custom desc'),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
-        final t = await p.create(_guildId,
-            name: 'My Template', description: 'Custom desc');
+        final t = await p.create(
+          _guildId,
+          name: 'My Template',
+          description: 'Custom desc',
+        );
         restore();
 
         expect(t.description, equals('Custom desc'));
@@ -247,8 +253,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('PUT'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/templates/$_templateCode'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/templates/$_templateCode'),
+        );
       });
 
       test('returns parsed GuildTemplate', () async {
@@ -279,14 +287,18 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('PATCH'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/templates/$_templateCode'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/templates/$_templateCode'),
+        );
       });
 
       test('returns parsed GuildTemplate', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _templatePayload(name: 'New Name')),
+            200,
+            _templatePayload(name: 'New Name'),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -329,8 +341,12 @@ void main() {
         ]);
         final (p, restore) = _buildPart(client);
 
-        await p.update(_guildId, _templateCode,
-            name: 'New Name', description: 'New desc');
+        await p.update(
+          _guildId,
+          _templateCode,
+          name: 'New Name',
+          description: 'New desc',
+        );
         restore();
 
         expect(client.calls, hasLength(1));
@@ -352,8 +368,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('DELETE'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/templates/$_templateCode'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/templates/$_templateCode'),
+        );
       });
 
       test('returns the deleted GuildTemplate', () async {

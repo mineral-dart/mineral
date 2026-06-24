@@ -11,38 +11,41 @@ void main() {
       final label = Label(label: 'Your Name', component: input);
 
       expect(
-          label.toJson(),
-          equals({
-            'type': ComponentType.label.value,
-            'label': 'Your Name',
-            'description': null,
-            'component': {
-              'type': ComponentType.textInput.value,
-              'custom_id': 'name_input',
-              'style': 1,
-            },
-          }));
+        label.toJson(),
+        equals({
+          'type': ComponentType.label.value,
+          'label': 'Your Name',
+          'description': null,
+          'component': {
+            'type': ComponentType.textInput.value,
+            'custom_id': 'name_input',
+            'style': 1,
+          },
+        }),
+      );
     });
 
     test('generates valid Discord API JSON with description', () {
       final input = TextInput('email', style: TextInputStyle.short);
       final label = Label(
-          label: 'Email',
-          component: input,
-          description: 'We will not share your email');
+        label: 'Email',
+        component: input,
+        description: 'We will not share your email',
+      );
 
       expect(
-          label.toJson(),
-          equals({
-            'type': ComponentType.label.value,
-            'label': 'Email',
-            'description': 'We will not share your email',
-            'component': {
-              'type': ComponentType.textInput.value,
-              'custom_id': 'email',
-              'style': 1,
-            },
-          }));
+        label.toJson(),
+        equals({
+          'type': ComponentType.label.value,
+          'label': 'Email',
+          'description': 'We will not share your email',
+          'component': {
+            'type': ComponentType.textInput.value,
+            'custom_id': 'email',
+            'style': 1,
+          },
+        }),
+      );
     });
 
     test('generates valid Discord API JSON with SelectMenu', () {
@@ -52,24 +55,25 @@ void main() {
       final label = Label(label: 'Select Role', component: menu);
 
       expect(
-          label.toJson(),
-          equals({
-            'type': ComponentType.label.value,
-            'label': 'Select Role',
-            'description': null,
-            'component': {
-              'type': ComponentType.textSelectMenu.value,
-              'custom_id': 'role_select',
-              'options': [
-                {
-                  'label': 'Admin',
-                  'value': 'admin',
-                  'description': null,
-                  'default': false,
-                },
-              ],
-            },
-          }));
+        label.toJson(),
+        equals({
+          'type': ComponentType.label.value,
+          'label': 'Select Role',
+          'description': null,
+          'component': {
+            'type': ComponentType.textSelectMenu.value,
+            'custom_id': 'role_select',
+            'options': [
+              {
+                'label': 'Admin',
+                'value': 'admin',
+                'description': null,
+                'default': false,
+              },
+            ],
+          },
+        }),
+      );
     });
   });
 }

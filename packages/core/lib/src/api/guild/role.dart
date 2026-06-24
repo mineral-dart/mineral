@@ -115,13 +115,14 @@ final class Role {
   ///   color: Color.blue_400,
   ///   reason: 'Testing');
   /// ```
-  Future<void> update(
-      {String? name,
-      Color? color,
-      bool? hoist,
-      String? emoji,
-      bool? mentionable,
-      String? reason}) async {
+  Future<void> update({
+    String? name,
+    Color? color,
+    bool? hoist,
+    String? emoji,
+    bool? mentionable,
+    String? reason,
+  }) async {
     await _datastore.role.update(
       id: id.value,
       guildId: guildId.value,
@@ -141,8 +142,11 @@ final class Role {
   /// ```dart
   /// await role.delete(reason: 'Testing');
   /// ```
-  Future<void> delete({String? reason}) => _datastore.role
-      .delete(id: id.value, guildId: guildId.value, reason: reason);
+  Future<void> delete({String? reason}) => _datastore.role.delete(
+    id: id.value,
+    guildId: guildId.value,
+    reason: reason,
+  );
 
   /// Get the guild this role belongs to.
   /// ```dart
