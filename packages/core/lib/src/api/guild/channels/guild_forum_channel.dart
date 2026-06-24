@@ -23,9 +23,15 @@ final class GuildForumChannel extends GuildChannel {
 
   late final GuildCategoryChannel? category;
 
-  GuildForumChannel(this.properties,
-      {required this.sortOrder, required this.layoutType}) {
-    methods = ChannelMethods(properties.guildId!, properties.id,
-        ctx: properties.ctx);
+  GuildForumChannel(
+    this.properties, {
+    required this.sortOrder,
+    required this.layoutType,
+  }) {
+    methods = ChannelMethods(
+      properties.guildId!,
+      properties.id,
+      ctx: properties.ctx,
+    );
   }
 }

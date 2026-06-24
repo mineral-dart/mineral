@@ -8,22 +8,24 @@ import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
 final class ApplicationCommandPermissionsUpdatePacket
     implements ListenablePacket {
   @override
-  PacketType get packetType =>
-      PacketType.applicationCommandPermissionsUpdate;
+  PacketType get packetType => PacketType.applicationCommandPermissionsUpdate;
 
   final DataStoreContract _dataStore;
 
-  ApplicationCommandPermissionsUpdatePacket(
-      {required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+  ApplicationCommandPermissionsUpdatePacket({
+    required DataStoreContract dataStore,
+  }) : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final guild = await _dataStore.guild
-        .get(message.payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      message.payload['guild_id'] as Object,
+      false,
+    );
 
     final permissions = GuildApplicationCommandPermissions.fromJson(
-        Map<String, dynamic>.from(message.payload as Map));
+      Map<String, dynamic>.from(message.payload as Map),
+    );
 
     dispatch<GuildApplicationCommandPermissionsUpdateArgs>(
       event: Event.guildApplicationCommandPermissionsUpdate,

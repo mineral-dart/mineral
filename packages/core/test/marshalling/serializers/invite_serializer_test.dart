@@ -22,30 +22,30 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'channelId': '111222333',
-          'code': 'abc123',
-          'createdAt': '2024-01-15T10:30:00.000Z',
-          'expiresAt': '2024-01-16T10:30:00.000Z',
-          'guildId': '987654321',
-          'inviterId': '444555666',
-          'maxAge': 86400,
-          'maxUses': 10,
-          'temporary': false,
-          'type': 0,
-        };
+      'channelId': '111222333',
+      'code': 'abc123',
+      'createdAt': '2024-01-15T10:30:00.000Z',
+      'expiresAt': '2024-01-16T10:30:00.000Z',
+      'guildId': '987654321',
+      'inviterId': '444555666',
+      'maxAge': 86400,
+      'maxUses': 10,
+      'temporary': false,
+      'type': 0,
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'channel_id': '111222333',
-          'code': 'abc123',
-          'created_at': '2024-01-15T10:30:00.000Z',
-          'expires_at': '2024-01-16T10:30:00.000Z',
-          'guild_id': '987654321',
-          'inviter': {'id': '444555666'},
-          'max_age': 86400,
-          'max_uses': 10,
-          'temporary': false,
-          'type': 0,
-        };
+      'channel_id': '111222333',
+      'code': 'abc123',
+      'created_at': '2024-01-15T10:30:00.000Z',
+      'expires_at': '2024-01-16T10:30:00.000Z',
+      'guild_id': '987654321',
+      'inviter': {'id': '444555666'},
+      'max_age': 86400,
+      'max_uses': 10,
+      'temporary': false,
+      'type': 0,
+    };
 
     group('serialize()', () {
       test('maps all fields correctly', () async {
@@ -60,8 +60,10 @@ void main() {
         expect(invite.maxAge, equals(Duration(seconds: 86400)));
         expect(invite.maxUses, equals(10));
         expect(invite.isTemporary, isFalse);
-        expect(invite.createdAt,
-            equals(DateTime.parse('2024-01-15T10:30:00.000Z')));
+        expect(
+          invite.createdAt,
+          equals(DateTime.parse('2024-01-15T10:30:00.000Z')),
+        );
       });
 
       test('handles nullable expiresAt', () async {
@@ -75,8 +77,10 @@ void main() {
         final invite = await serializer.serialize(normalizedPayload());
 
         expect(invite.expiresAt, isA<DateTime>());
-        expect(invite.expiresAt,
-            equals(DateTime.parse('2024-01-16T10:30:00.000Z')));
+        expect(
+          invite.expiresAt,
+          equals(DateTime.parse('2024-01-16T10:30:00.000Z')),
+        );
       });
     });
 

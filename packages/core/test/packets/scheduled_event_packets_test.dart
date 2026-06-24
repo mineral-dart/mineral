@@ -43,11 +43,7 @@ User _buildUser(MockDataStore ds) {
     flags: null,
     premiumType: null,
     publicFlags: null,
-    assets: UserAssets(
-      avatar: null,
-      avatarDecoration: null,
-      banner: null,
-    ),
+    assets: UserAssets(avatar: null, avatarDecoration: null, banner: null),
     createdAt: null,
     presence: null,
   );
@@ -56,65 +52,65 @@ User _buildUser(MockDataStore ds) {
 // ── Scheduled event payload ───────────────────────────────────────────────────
 
 Map<String, dynamic> _scheduledEventPayload() => {
-      'id': _eventId,
-      'guild_id': _guildId,
-      'channel_id': _channelId,
-      'creator_id': null,
-      'name': 'Test Event',
-      'description': 'A test event',
-      'scheduled_start_time': '2026-07-01T10:00:00.000Z',
-      'scheduled_end_time': '2026-07-01T12:00:00.000Z',
-      'privacy_level': 2,
-      'status': 1,
-      'entity_type': 2,
-      'entity_id': null,
-      'entity_metadata': null,
-      'user_count': null,
-      'image': null,
-    };
+  'id': _eventId,
+  'guild_id': _guildId,
+  'channel_id': _channelId,
+  'creator_id': null,
+  'name': 'Test Event',
+  'description': 'A test event',
+  'scheduled_start_time': '2026-07-01T10:00:00.000Z',
+  'scheduled_end_time': '2026-07-01T12:00:00.000Z',
+  'privacy_level': 2,
+  'status': 1,
+  'entity_type': 2,
+  'entity_id': null,
+  'entity_metadata': null,
+  'user_count': null,
+  'image': null,
+};
 
 ShardMessage<dynamic> _buildCreateMessage() => ShardMessage(
-      type: 'GUILD_SCHEDULED_EVENT_CREATE',
-      opCode: OpCode.dispatch,
-      sequence: 1,
-      payload: _scheduledEventPayload(),
-    );
+  type: 'GUILD_SCHEDULED_EVENT_CREATE',
+  opCode: OpCode.dispatch,
+  sequence: 1,
+  payload: _scheduledEventPayload(),
+);
 
 ShardMessage<dynamic> _buildUpdateMessage() => ShardMessage(
-      type: 'GUILD_SCHEDULED_EVENT_UPDATE',
-      opCode: OpCode.dispatch,
-      sequence: 2,
-      payload: _scheduledEventPayload(),
-    );
+  type: 'GUILD_SCHEDULED_EVENT_UPDATE',
+  opCode: OpCode.dispatch,
+  sequence: 2,
+  payload: _scheduledEventPayload(),
+);
 
 ShardMessage<dynamic> _buildDeleteMessage() => ShardMessage(
-      type: 'GUILD_SCHEDULED_EVENT_DELETE',
-      opCode: OpCode.dispatch,
-      sequence: 3,
-      payload: _scheduledEventPayload(),
-    );
+  type: 'GUILD_SCHEDULED_EVENT_DELETE',
+  opCode: OpCode.dispatch,
+  sequence: 3,
+  payload: _scheduledEventPayload(),
+);
 
 ShardMessage<dynamic> _buildUserAddMessage() => ShardMessage(
-      type: 'GUILD_SCHEDULED_EVENT_USER_ADD',
-      opCode: OpCode.dispatch,
-      sequence: 4,
-      payload: {
-        'guild_id': _guildId,
-        'guild_scheduled_event_id': _eventId,
-        'user_id': _userId,
-      },
-    );
+  type: 'GUILD_SCHEDULED_EVENT_USER_ADD',
+  opCode: OpCode.dispatch,
+  sequence: 4,
+  payload: {
+    'guild_id': _guildId,
+    'guild_scheduled_event_id': _eventId,
+    'user_id': _userId,
+  },
+);
 
 ShardMessage<dynamic> _buildUserRemoveMessage() => ShardMessage(
-      type: 'GUILD_SCHEDULED_EVENT_USER_REMOVE',
-      opCode: OpCode.dispatch,
-      sequence: 5,
-      payload: {
-        'guild_id': _guildId,
-        'guild_scheduled_event_id': _eventId,
-        'user_id': _userId,
-      },
-    );
+  type: 'GUILD_SCHEDULED_EVENT_USER_REMOVE',
+  opCode: OpCode.dispatch,
+  sequence: 5,
+  payload: {
+    'guild_id': _guildId,
+    'guild_scheduled_event_id': _eventId,
+    'user_id': _userId,
+  },
+);
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -153,9 +149,7 @@ void main() {
     });
 
     test('GuildScheduledEventUserAddPacket has correct packetType', () {
-      final packet = GuildScheduledEventUserAddPacket(
-        dataStore: buildMockDs(),
-      );
+      final packet = GuildScheduledEventUserAddPacket(dataStore: buildMockDs());
       expect(packet.packetType, equals(PacketType.guildScheduledEventUserAdd));
       expect(packet.packetType.name, equals('GUILD_SCHEDULED_EVENT_USER_ADD'));
     });
@@ -165,9 +159,13 @@ void main() {
         dataStore: buildMockDs(),
       );
       expect(
-          packet.packetType, equals(PacketType.guildScheduledEventUserRemove));
-      expect(packet.packetType.name,
-          equals('GUILD_SCHEDULED_EVENT_USER_REMOVE'));
+        packet.packetType,
+        equals(PacketType.guildScheduledEventUserRemove),
+      );
+      expect(
+        packet.packetType.name,
+        equals('GUILD_SCHEDULED_EVENT_USER_REMOVE'),
+      );
     });
   });
 
@@ -179,22 +177,31 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
       marshaller = FakeMarshaller(
-        entityContext: buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+        entityContext: buildCtx(
+          dataStore: ds,
+          wss: FakeWebsocketOrchestrator(),
+        ),
       );
     });
 
     test('dispatches Event.guildScheduledEventCreate', () async {
-      final packet =
-          GuildScheduledEventCreatePacket(marshaller: marshaller, dataStore: ds);
+      final packet = GuildScheduledEventCreatePacket(
+        marshaller: marshaller,
+        dataStore: ds,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -202,34 +209,42 @@ void main() {
       expect(capturedEvent, equals(Event.guildScheduledEventCreate));
     });
 
-    test('payload carries guild and correctly serialized GuildScheduledEvent',
-        () async {
-      final packet =
-          GuildScheduledEventCreatePacket(marshaller: marshaller, dataStore: ds);
-      GuildScheduledEventCreateArgs? args;
+    test(
+      'payload carries guild and correctly serialized GuildScheduledEvent',
+      () async {
+        final packet = GuildScheduledEventCreatePacket(
+          marshaller: marshaller,
+          dataStore: ds,
+        );
+        GuildScheduledEventCreateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        if (event == Event.guildScheduledEventCreate) {
-          args = payload as GuildScheduledEventCreateArgs;
+          bool Function(String?)? constraint,
+        }) {
+          if (event == Event.guildScheduledEventCreate) {
+            args = payload as GuildScheduledEventCreateArgs;
+          }
         }
-      }
 
-      await packet.listen(_buildCreateMessage(), dispatch);
+        await packet.listen(_buildCreateMessage(), dispatch);
 
-      expect(args, isNotNull);
-      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
-      expect(args!.guild.name, equals('Test Guild'));
-      final e = args!.event;
-      expect(e.id, equals(Snowflake.parse(_eventId)));
-      expect(e.guildId, equals(Snowflake.parse(_guildId)));
-      expect(e.name, equals('Test Event'));
-      expect(e.status, equals(GuildScheduledEventStatus.scheduled));
-      expect(e.entityType, equals(GuildScheduledEventEntityType.voice));
-      expect(e.privacyLevel, equals(GuildScheduledEventPrivacyLevel.guildOnly));
-    });
+        expect(args, isNotNull);
+        expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
+        expect(args!.guild.name, equals('Test Guild'));
+        final e = args!.event;
+        expect(e.id, equals(Snowflake.parse(_eventId)));
+        expect(e.guildId, equals(Snowflake.parse(_guildId)));
+        expect(e.name, equals('Test Event'));
+        expect(e.status, equals(GuildScheduledEventStatus.scheduled));
+        expect(e.entityType, equals(GuildScheduledEventEntityType.voice));
+        expect(
+          e.privacyLevel,
+          equals(GuildScheduledEventPrivacyLevel.guildOnly),
+        );
+      },
+    );
   });
 
   // ── GUILD_SCHEDULED_EVENT_UPDATE ───────────────────────────────────────────
@@ -242,23 +257,32 @@ void main() {
     setUp(() {
       cache = FakeCacheProvider();
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
       marshaller = FakeMarshaller(
         cache: cache,
-        entityContext: buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+        entityContext: buildCtx(
+          dataStore: ds,
+          wss: FakeWebsocketOrchestrator(),
+        ),
       );
     });
 
     test('dispatches Event.guildScheduledEventUpdate', () async {
-      final packet =
-          GuildScheduledEventUpdatePacket(marshaller: marshaller, dataStore: ds);
+      final packet = GuildScheduledEventUpdatePacket(
+        marshaller: marshaller,
+        dataStore: ds,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -267,14 +291,17 @@ void main() {
     });
 
     test('before is null when no cache entry exists', () async {
-      final packet =
-          GuildScheduledEventUpdatePacket(marshaller: marshaller, dataStore: ds);
+      final packet = GuildScheduledEventUpdatePacket(
+        marshaller: marshaller,
+        dataStore: ds,
+      );
       GuildScheduledEventUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildScheduledEventUpdate) {
           args = payload as GuildScheduledEventUpdateArgs;
         }
@@ -293,14 +320,17 @@ void main() {
         ..['name'] = 'Old Event Name';
       await cache.put(cacheKey, beforePayload);
 
-      final packet =
-          GuildScheduledEventUpdatePacket(marshaller: marshaller, dataStore: ds);
+      final packet = GuildScheduledEventUpdatePacket(
+        marshaller: marshaller,
+        dataStore: ds,
+      );
       GuildScheduledEventUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildScheduledEventUpdate) {
           args = payload as GuildScheduledEventUpdateArgs;
         }
@@ -324,22 +354,31 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
       marshaller = FakeMarshaller(
-        entityContext: buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+        entityContext: buildCtx(
+          dataStore: ds,
+          wss: FakeWebsocketOrchestrator(),
+        ),
       );
     });
 
     test('dispatches Event.guildScheduledEventDelete', () async {
-      final packet =
-          GuildScheduledEventDeletePacket(marshaller: marshaller, dataStore: ds);
+      final packet = GuildScheduledEventDeletePacket(
+        marshaller: marshaller,
+        dataStore: ds,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -347,27 +386,32 @@ void main() {
       expect(capturedEvent, equals(Event.guildScheduledEventDelete));
     });
 
-    test('payload carries guild and correctly serialized GuildScheduledEvent',
-        () async {
-      final packet =
-          GuildScheduledEventDeletePacket(marshaller: marshaller, dataStore: ds);
-      GuildScheduledEventDeleteArgs? args;
+    test(
+      'payload carries guild and correctly serialized GuildScheduledEvent',
+      () async {
+        final packet = GuildScheduledEventDeletePacket(
+          marshaller: marshaller,
+          dataStore: ds,
+        );
+        GuildScheduledEventDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        if (event == Event.guildScheduledEventDelete) {
-          args = payload as GuildScheduledEventDeleteArgs;
+          bool Function(String?)? constraint,
+        }) {
+          if (event == Event.guildScheduledEventDelete) {
+            args = payload as GuildScheduledEventDeleteArgs;
+          }
         }
-      }
 
-      await packet.listen(_buildDeleteMessage(), dispatch);
-      expect(args, isNotNull);
-      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
-      expect(args!.event.id, equals(Snowflake.parse(_eventId)));
-      expect(args!.event.name, equals('Test Event'));
-    });
+        await packet.listen(_buildDeleteMessage(), dispatch);
+        expect(args, isNotNull);
+        expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
+        expect(args!.event.id, equals(Snowflake.parse(_eventId)));
+        expect(args!.event.name, equals('Test Event'));
+      },
+    );
   });
 
   // ── GUILD_SCHEDULED_EVENT_USER_ADD ─────────────────────────────────────────
@@ -377,7 +421,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       final user = _buildUser(ds);
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
       when(() => ds.user).thenReturn(FakeUserPart(user));
@@ -387,10 +434,11 @@ void main() {
       final packet = GuildScheduledEventUserAddPacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -402,10 +450,11 @@ void main() {
       final packet = GuildScheduledEventUserAddPacket(dataStore: ds);
       GuildScheduledEventUserAddArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildScheduledEventUserAdd) {
           args = payload as GuildScheduledEventUserAddArgs;
         }
@@ -427,7 +476,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       final user = _buildUser(ds);
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
       when(() => ds.user).thenReturn(FakeUserPart(user));
@@ -437,10 +489,11 @@ void main() {
       final packet = GuildScheduledEventUserRemovePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -452,10 +505,11 @@ void main() {
       final packet = GuildScheduledEventUserRemovePacket(dataStore: ds);
       GuildScheduledEventUserRemoveArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildScheduledEventUserRemove) {
           args = payload as GuildScheduledEventUserRemoveArgs;
         }

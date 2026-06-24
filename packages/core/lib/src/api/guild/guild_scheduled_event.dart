@@ -42,9 +42,7 @@ final class GuildScheduledEventEntityMetadata {
 
   GuildScheduledEventEntityMetadata({this.location});
 
-  Map<String, dynamic> toJson() => {
-        if (location != null) 'location': location,
-      };
+  Map<String, dynamic> toJson() => {if (location != null) 'location': location};
 }
 
 final class GuildScheduledEvent {

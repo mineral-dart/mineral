@@ -22,34 +22,34 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'guild_id': '987654321',
-          'channel_id': '111222333',
-          'user_id': '444555666',
-          'session_id': 'sess_abc123',
-          'deaf': false,
-          'mute': false,
-          'self_deaf': true,
-          'self_mute': true,
-          'self_video': false,
-          'suppress': false,
-          'request_to_speak_timestamp': null,
-          'discoverable': true,
-        };
+      'guild_id': '987654321',
+      'channel_id': '111222333',
+      'user_id': '444555666',
+      'session_id': 'sess_abc123',
+      'deaf': false,
+      'mute': false,
+      'self_deaf': true,
+      'self_mute': true,
+      'self_video': false,
+      'suppress': false,
+      'request_to_speak_timestamp': null,
+      'discoverable': true,
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'guild_id': '987654321',
-          'channel_id': '111222333',
-          'user_id': '444555666',
-          'session_id': 'sess_abc123',
-          'deaf': false,
-          'mute': false,
-          'self_deaf': true,
-          'self_mute': true,
-          'self_video': false,
-          'suppress': false,
-          'request_to_speak_timestamp': null,
-          'discoverable': true,
-        };
+      'guild_id': '987654321',
+      'channel_id': '111222333',
+      'user_id': '444555666',
+      'session_id': 'sess_abc123',
+      'deaf': false,
+      'mute': false,
+      'self_deaf': true,
+      'self_mute': true,
+      'self_video': false,
+      'suppress': false,
+      'request_to_speak_timestamp': null,
+      'discoverable': true,
+    };
 
     group('serialize()', () {
       test('maps all fields correctly', () async {

@@ -12,7 +12,7 @@ final class MessageReactionRemoveEmojiPacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   MessageReactionRemoveEmojiPacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -34,41 +34,45 @@ final class MessageReactionRemoveEmojiPacket implements ListenablePacket {
   }
 
   Future<void> _guild(
-      DispatchEvent dispatch,
-      Snowflake guildId,
-      Snowflake channelId,
-      Snowflake messageId,
-      PartialEmoji emoji) async {
-    final channel =
-        await _dataStore.channel.get<GuildTextChannel>(channelId.value, false);
+    DispatchEvent dispatch,
+    Snowflake guildId,
+    Snowflake channelId,
+    Snowflake messageId,
+    PartialEmoji emoji,
+  ) async {
+    final channel = await _dataStore.channel.get<GuildTextChannel>(
+      channelId.value,
+      false,
+    );
     final message = await channel?.messages.get(messageId);
     final guild = await _dataStore.guild.get(guildId.value, false);
 
     dispatch<GuildMessageReactionRemoveEmojiArgs>(
-        event: Event.guildMessageReactionRemoveEmoji,
-        payload: (
-          guild: guild,
-          channel: channel!,
-          message: message! as Message,
-          emoji: emoji
-        ));
+      event: Event.guildMessageReactionRemoveEmoji,
+      payload: (
+        guild: guild,
+        channel: channel!,
+        message: message! as Message,
+        emoji: emoji,
+      ),
+    );
   }
 
   Future<void> _private(
-      DispatchEvent dispatch,
-      Snowflake channelId,
-      Snowflake messageId,
-      PartialEmoji emoji) async {
-    final channel =
-        await _dataStore.channel.get<PrivateChannel>(channelId.value, false);
+    DispatchEvent dispatch,
+    Snowflake channelId,
+    Snowflake messageId,
+    PartialEmoji emoji,
+  ) async {
+    final channel = await _dataStore.channel.get<PrivateChannel>(
+      channelId.value,
+      false,
+    );
     final message = await channel?.messages.get(messageId);
 
     dispatch<PrivateMessageReactionRemoveEmojiArgs>(
-        event: Event.privateMessageReactionRemoveEmoji,
-        payload: (
-          channel: channel!,
-          message: message! as Message,
-          emoji: emoji
-        ));
+      event: Event.privateMessageReactionRemoveEmoji,
+      payload: (channel: channel!, message: message! as Message, emoji: emoji),
+    );
   }
 }

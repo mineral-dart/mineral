@@ -28,105 +28,106 @@ class _FakeMessagePart extends Mock implements MessagePartContract {
 
   @override
   Future<T?> get<T extends BaseMessage>(
-          Object channelId, Object messageId, bool force) async =>
-      _message as T?;
+    Object channelId,
+    Object messageId,
+    bool force,
+  ) async => _message as T?;
 }
 
 // ── Domain object builders ────────────────────────────────────────────────────
 
 Message _buildMessage(EntityContext ctx) => Message(
-      MessageProperties(
-        id: Snowflake.parse(_messageId),
-        content: 'test message',
-        channelId: Snowflake.parse(_channelId),
-        authorId: null,
-        guildId: Snowflake.parse(_guildId),
-        authorIsBot: false,
-        embeds: [],
-        createdAt: DateTime.now(),
-        updatedAt: null,
-      ),
-      ctx: ctx,
-    );
+  MessageProperties(
+    id: Snowflake.parse(_messageId),
+    content: 'test message',
+    channelId: Snowflake.parse(_channelId),
+    authorId: null,
+    guildId: Snowflake.parse(_guildId),
+    authorIsBot: false,
+    embeds: [],
+    createdAt: DateTime.now(),
+    updatedAt: null,
+  ),
+  ctx: ctx,
+);
 
-GuildTextChannel _buildServerTextChannel(EntityContext ctx) =>
-    GuildTextChannel(
-      ChannelProperties(
-        ctx: ctx,
-        id: Snowflake.parse(_channelId),
-        type: ChannelType.guildText,
-        name: 'general',
-        description: null,
-        guildId: Snowflake.parse(_guildId),
-        categoryId: null,
-        position: null,
-        nsfw: false,
-        lastMessageId: null,
-        bitrate: null,
-        userLimit: null,
-        rateLimitPerUser: null,
-        recipients: [],
-        icon: null,
-        ownerId: null,
-        applicationId: null,
-        lastPinTimestamp: null,
-        rtcRegion: null,
-        videoQualityMode: null,
-        messageCount: null,
-        memberCount: null,
-        defaultAutoArchiveDuration: null,
-        permissions: [],
-        flags: null,
-        totalMessageSent: null,
-        available: null,
-        appliedTags: [],
-        defaultReactions: null,
-        defaultSortOrder: null,
-        defaultForumLayout: null,
-        threads: ThreadsManager(
-          Snowflake.parse(_guildId),
-          Snowflake.parse(_channelId),
-          ctx: ctx,
-        ),
-      ),
-    );
+GuildTextChannel _buildServerTextChannel(EntityContext ctx) => GuildTextChannel(
+  ChannelProperties(
+    ctx: ctx,
+    id: Snowflake.parse(_channelId),
+    type: ChannelType.guildText,
+    name: 'general',
+    description: null,
+    guildId: Snowflake.parse(_guildId),
+    categoryId: null,
+    position: null,
+    nsfw: false,
+    lastMessageId: null,
+    bitrate: null,
+    userLimit: null,
+    rateLimitPerUser: null,
+    recipients: [],
+    icon: null,
+    ownerId: null,
+    applicationId: null,
+    lastPinTimestamp: null,
+    rtcRegion: null,
+    videoQualityMode: null,
+    messageCount: null,
+    memberCount: null,
+    defaultAutoArchiveDuration: null,
+    permissions: [],
+    flags: null,
+    totalMessageSent: null,
+    available: null,
+    appliedTags: [],
+    defaultReactions: null,
+    defaultSortOrder: null,
+    defaultForumLayout: null,
+    threads: ThreadsManager(
+      Snowflake.parse(_guildId),
+      Snowflake.parse(_channelId),
+      ctx: ctx,
+    ),
+  ),
+);
 
 PrivateChannel _buildPrivateChannel(EntityContext ctx) => PrivateChannel(
-      ChannelProperties(
-        ctx: ctx,
-        id: Snowflake.parse(_channelId),
-        type: ChannelType.dm,
-        name: 'dm',
-        description: null,
-        guildId: null,
-        categoryId: null,
-        position: null,
-        nsfw: false,
-        lastMessageId: null,
-        bitrate: null,
-        userLimit: null,
-        rateLimitPerUser: null,
-        recipients: [],
-        icon: null,
-        ownerId: null,
-        applicationId: null,
-        lastPinTimestamp: null,
-        rtcRegion: null,
-        videoQualityMode: null,
-        messageCount: null,
-        memberCount: null,
-        defaultAutoArchiveDuration: null,
-        permissions: [],
-        flags: null,
-        totalMessageSent: null,
-        available: null,
-        appliedTags: [],
-        defaultReactions: null,
-        defaultSortOrder: null,
-        defaultForumLayout: null,
-        threads: ThreadsManager(null, null, ctx: ctx),
-      ),
-    );
+  ChannelProperties(
+    ctx: ctx,
+    id: Snowflake.parse(_channelId),
+    type: ChannelType.dm,
+    name: 'dm',
+    description: null,
+    guildId: null,
+    categoryId: null,
+    position: null,
+    nsfw: false,
+    lastMessageId: null,
+    bitrate: null,
+    userLimit: null,
+    rateLimitPerUser: null,
+    recipients: [],
+    icon: null,
+    ownerId: null,
+    applicationId: null,
+    lastPinTimestamp: null,
+    rtcRegion: null,
+    videoQualityMode: null,
+    messageCount: null,
+    memberCount: null,
+    defaultAutoArchiveDuration: null,
+    permissions: [],
+    flags: null,
+    totalMessageSent: null,
+    available: null,
+    appliedTags: [],
+    defaultReactions: null,
+    defaultSortOrder: null,
+    defaultForumLayout: null,
+    threads: ThreadsManager(null, null, ctx: ctx),
+  ),
+);
 
 // ── Shard message factories ───────────────────────────────────────────────────
 
@@ -143,8 +144,7 @@ ShardMessage<dynamic> _guildShardMessage(Map<String, dynamic> emojiPayload) =>
       },
     );
 
-ShardMessage<dynamic> _privateShardMessage(
-        Map<String, dynamic> emojiPayload) =>
+ShardMessage<dynamic> _privateShardMessage(Map<String, dynamic> emojiPayload) =>
     ShardMessage(
       type: 'MESSAGE_REACTION_REMOVE_EMOJI',
       opCode: OpCode.dispatch,
@@ -165,10 +165,8 @@ void main() {
 
     test('packetType is messageReactionRemoveEmoji', () {
       final packet = MessageReactionRemoveEmojiPacket(dataStore: buildMockDs());
-      expect(packet.packetType,
-          equals(PacketType.messageReactionRemoveEmoji));
-      expect(packet.packetType.name,
-          equals('MESSAGE_REACTION_REMOVE_EMOJI'));
+      expect(packet.packetType, equals(PacketType.messageReactionRemoveEmoji));
+      expect(packet.packetType.name, equals('MESSAGE_REACTION_REMOVE_EMOJI'));
     });
 
     // ── guild branch ───────────────────────────────────────────────────────
@@ -194,39 +192,41 @@ void main() {
         Event? capturedEvent;
         Object? capturedPayload;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           capturedEvent = event;
           capturedPayload = payload;
         }
 
         await packet.listen(
-            _guildShardMessage({'id': null, 'name': '👍', 'animated': false}),
-            dispatch);
+          _guildShardMessage({'id': null, 'name': '👍', 'animated': false}),
+          dispatch,
+        );
 
-        expect(capturedEvent,
-            equals(Event.guildMessageReactionRemoveEmoji));
-        expect(capturedPayload,
-            isA<GuildMessageReactionRemoveEmojiArgs>());
+        expect(capturedEvent, equals(Event.guildMessageReactionRemoveEmoji));
+        expect(capturedPayload, isA<GuildMessageReactionRemoveEmojiArgs>());
       });
 
       test('payload carries correct unicode emoji', () async {
         GuildMessageReactionRemoveEmojiArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.guildMessageReactionRemoveEmoji) {
             args = payload as GuildMessageReactionRemoveEmojiArgs;
           }
         }
 
         await packet.listen(
-            _guildShardMessage({'id': null, 'name': '👍', 'animated': false}),
-            dispatch);
+          _guildShardMessage({'id': null, 'name': '👍', 'animated': false}),
+          dispatch,
+        );
 
         expect(args, isNotNull);
         expect(args!.emoji, isA<PartialEmoji>());
@@ -238,27 +238,28 @@ void main() {
       test('payload carries correct custom animated emoji', () async {
         GuildMessageReactionRemoveEmojiArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.guildMessageReactionRemoveEmoji) {
             args = payload as GuildMessageReactionRemoveEmojiArgs;
           }
         }
 
         await packet.listen(
-            _guildShardMessage({
-              'id': '999888777666555444',
-              'name': 'cool',
-              'animated': true,
-            }),
-            dispatch);
+          _guildShardMessage({
+            'id': '999888777666555444',
+            'name': 'cool',
+            'animated': true,
+          }),
+          dispatch,
+        );
 
         expect(args, isNotNull);
         expect(args!.emoji.name, equals('cool'));
-        expect(args!.emoji.id,
-            equals(Snowflake.parse('999888777666555444')));
+        expect(args!.emoji.id, equals(Snowflake.parse('999888777666555444')));
         expect(args!.emoji.animated, isTrue);
       });
     });
@@ -284,41 +285,41 @@ void main() {
         Event? capturedEvent;
         Object? capturedPayload;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           capturedEvent = event;
           capturedPayload = payload;
         }
 
         await packet.listen(
-            _privateShardMessage(
-                {'id': null, 'name': '🔥', 'animated': false}),
-            dispatch);
+          _privateShardMessage({'id': null, 'name': '🔥', 'animated': false}),
+          dispatch,
+        );
 
-        expect(capturedEvent,
-            equals(Event.privateMessageReactionRemoveEmoji));
-        expect(capturedPayload,
-            isA<PrivateMessageReactionRemoveEmojiArgs>());
+        expect(capturedEvent, equals(Event.privateMessageReactionRemoveEmoji));
+        expect(capturedPayload, isA<PrivateMessageReactionRemoveEmojiArgs>());
       });
 
       test('payload carries correct unicode emoji', () async {
         PrivateMessageReactionRemoveEmojiArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.privateMessageReactionRemoveEmoji) {
             args = payload as PrivateMessageReactionRemoveEmojiArgs;
           }
         }
 
         await packet.listen(
-            _privateShardMessage(
-                {'id': null, 'name': '🔥', 'animated': false}),
-            dispatch);
+          _privateShardMessage({'id': null, 'name': '🔥', 'animated': false}),
+          dispatch,
+        );
 
         expect(args, isNotNull);
         expect(args!.emoji, isA<PartialEmoji>());

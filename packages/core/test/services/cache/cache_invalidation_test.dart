@@ -6,16 +6,19 @@ import 'package:test/test.dart';
 
 void main() {
   group('CacheInvalidation.invalidate', () {
-    test('removes the key when invalidationEnabled is true (defaults)', () async {
-      final cache = FakeCacheProvider()
-        ..store['users/1'] = {'id': '1'}
-        ..config = CacheConfig.defaults();
+    test(
+      'removes the key when invalidationEnabled is true (defaults)',
+      () async {
+        final cache = FakeCacheProvider()
+          ..store['users/1'] = {'id': '1'}
+          ..config = CacheConfig.defaults();
 
-      final CacheProviderContract nullable = cache;
-      await nullable.invalidate('users/1');
+        final CacheProviderContract nullable = cache;
+        await nullable.invalidate('users/1');
 
-      expect(cache.store.containsKey('users/1'), isFalse);
-    });
+        expect(cache.store.containsKey('users/1'), isFalse);
+      },
+    );
 
     test('keeps the key when invalidationEnabled is false (legacy)', () async {
       final cache = FakeCacheProvider()
@@ -28,27 +31,33 @@ void main() {
       expect(cache.store['users/1'], {'id': '1'});
     });
 
-    test('keeps the key when invalidationEnabled is false (disabled config)', () async {
-      final cache = FakeCacheProvider()
-        ..store['users/1'] = {'id': '1'}
-        ..config = const CacheConfig(invalidationEnabled: false);
+    test(
+      'keeps the key when invalidationEnabled is false (disabled config)',
+      () async {
+        final cache = FakeCacheProvider()
+          ..store['users/1'] = {'id': '1'}
+          ..config = const CacheConfig(invalidationEnabled: false);
 
-      final CacheProviderContract nullable = cache;
-      await nullable.invalidate('users/1');
+        final CacheProviderContract nullable = cache;
+        await nullable.invalidate('users/1');
 
-      expect(cache.store['users/1'], {'id': '1'});
-    });
+        expect(cache.store['users/1'], {'id': '1'});
+      },
+    );
 
-    test('removes the key when invalidationEnabled is true (explicit config)', () async {
-      final cache = FakeCacheProvider()
-        ..store['users/2'] = {'id': '2'}
-        ..config = const CacheConfig(invalidationEnabled: true);
+    test(
+      'removes the key when invalidationEnabled is true (explicit config)',
+      () async {
+        final cache = FakeCacheProvider()
+          ..store['users/2'] = {'id': '2'}
+          ..config = const CacheConfig(invalidationEnabled: true);
 
-      final CacheProviderContract nullable = cache;
-      await nullable.invalidate('users/2');
+        final CacheProviderContract nullable = cache;
+        await nullable.invalidate('users/2');
 
-      expect(cache.store.containsKey('users/2'), isFalse);
-    });
+        expect(cache.store.containsKey('users/2'), isFalse);
+      },
+    );
 
     test('is a no-op when the cache is null', () async {
       const CacheProviderContract? nullable = null;

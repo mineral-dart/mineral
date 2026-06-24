@@ -112,11 +112,13 @@ void main() {
 
       expect(
         ioc.validateBindings,
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'message',
-          contains('AbstractClass'),
-        )),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'message',
+            contains('AbstractClass'),
+          ),
+        ),
       );
     });
 
@@ -232,8 +234,13 @@ void main() {
     test('exception contains the service type', () {
       expect(
         () => container.resolve<Foo>(),
-        throwsA(isA<ServiceNotFoundException>()
-            .having((e) => e.serviceType, 'serviceType', Foo)),
+        throwsA(
+          isA<ServiceNotFoundException>().having(
+            (e) => e.serviceType,
+            'serviceType',
+            Foo,
+          ),
+        ),
       );
     });
   });

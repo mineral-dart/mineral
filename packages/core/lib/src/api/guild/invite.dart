@@ -19,19 +19,19 @@ final class Invite {
   final DateTime? expiresAt;
   final bool isTemporary;
 
-  Invite(
-      {required EntityContext ctx,
-      required this.type,
-      required this.code,
-      required this.maxAge,
-      required this.maxUses,
-      required this.inviterId,
-      required this.isTemporary,
-      required this.createdAt,
-      this.guildId,
-      this.channelId,
-      this.expiresAt})
-      : _ctx = ctx;
+  Invite({
+    required EntityContext ctx,
+    required this.type,
+    required this.code,
+    required this.maxAge,
+    required this.maxUses,
+    required this.inviterId,
+    required this.isTemporary,
+    required this.createdAt,
+    this.guildId,
+    this.channelId,
+    this.expiresAt,
+  }) : _ctx = ctx;
 
   Future<User?> resolveInviter() {
     return _datastore.user.get(inviterId.value, false);

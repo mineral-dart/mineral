@@ -20,18 +20,17 @@ void main() {
     });
 
     Map<String, dynamic> discordPayload() => {
-          'id': '111111111111111111',
-          'type': 1,
-          'guild_id': '222222222222222222',
-          'channel_id': '333333333333333333',
-          'user': {'id': '444444444444444444'},
-          'name': 'My Webhook',
-          'avatar': null,
-          'token': 'secret-token',
-          'application_id': null,
-          'url':
-              'https://discord.com/api/webhooks/111111111111111111/secret-token',
-        };
+      'id': '111111111111111111',
+      'type': 1,
+      'guild_id': '222222222222222222',
+      'channel_id': '333333333333333333',
+      'user': {'id': '444444444444444444'},
+      'name': 'My Webhook',
+      'avatar': null,
+      'token': 'secret-token',
+      'application_id': null,
+      'url': 'https://discord.com/api/webhooks/111111111111111111/secret-token',
+    };
 
     test('normalize maps Discord fields and writes cache', () async {
       final result = await serializer.normalize(discordPayload());

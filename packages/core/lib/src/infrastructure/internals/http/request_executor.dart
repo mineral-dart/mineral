@@ -22,16 +22,19 @@ final class RequestExecutor {
         final retryAfter = response.body['retry_after'];
         final seconds = double.parse(retryAfter.toString()).toInt() + 1;
         logger.warn(
-            'Rate limit reached, retrying in $seconds seconds (attempt ${attempt + 1}/$maxRetries)');
+          'Rate limit reached, retrying in $seconds seconds (attempt ${attempt + 1}/$maxRetries)',
+        );
         await Future.delayed(Duration(seconds: seconds));
         continue;
       }
 
       return switch (response.statusCode) {
-        _ when [404, 401, 500].contains(response.statusCode) =>
-          throwError(response),
-        _ => response.body
-      } as T;
+            _ when [404, 401, 500].contains(response.statusCode) => throwError(
+              response,
+            ),
+            _ => response.body,
+          }
+          as T;
     }
 
     throw HttpException('Unexpected: exhausted retries');
@@ -42,7 +45,7 @@ final class RequestExecutor {
       'method': response.method,
       'statusCode': response.statusCode,
       'reason': response.reasonPhrase,
-      'url': response.uri.toString()
+      'url': response.uri.toString(),
     };
 
     throw HttpException(jsonEncode(data));

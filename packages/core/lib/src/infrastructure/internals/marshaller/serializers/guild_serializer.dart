@@ -51,7 +51,7 @@ final class GuildSerializer implements SerializerContract<Guild> {
           'tier': json['premium_tier'],
           'subscription_count': json['premium_subscription_count'],
           'has_enabled_progress_bar': json['premium_progress_bar_enabled'],
-        }
+        },
       },
       'channel_settings': {
         'afk_channel_id': json['afk_channel_id'],
@@ -71,14 +71,20 @@ final class GuildSerializer implements SerializerContract<Guild> {
   @override
   Future<Guild> serialize(Map<String, dynamic> payload) async {
     final channelManager = ChannelManager.fromMap(
-        payload['id'] as String,
-        payload['channel_settings'] as Map<String, dynamic>,
-        ctx: _ctx);
-    final threadManager =
-        ThreadsManager(Snowflake.parse(payload['id']), null, ctx: _ctx);
+      payload['id'] as String,
+      payload['channel_settings'] as Map<String, dynamic>,
+      ctx: _ctx,
+    );
+    final threadManager = ThreadsManager(
+      Snowflake.parse(payload['id']),
+      null,
+      ctx: _ctx,
+    );
     final roleManager = RoleManager(Snowflake.parse(payload['id']), ctx: _ctx);
-    final memberManager =
-        MemberManager(Snowflake.parse(payload['id']), ctx: _ctx);
+    final memberManager = MemberManager(
+      Snowflake.parse(payload['id']),
+      ctx: _ctx,
+    );
 
     final guildAssets = GuildAsset(
       Snowflake.parse(payload['id']),
@@ -86,57 +92,91 @@ final class GuildSerializer implements SerializerContract<Guild> {
       emojis: EmojiManager(Snowflake.parse(payload['id']), ctx: _ctx),
       stickers: StickerManager(Snowflake.parse(payload['id']), ctx: _ctx),
       icon: Helper.createOrNull(
-          field: payload['icon'],
-          fn: () =>
-              ImageAsset(['icons', payload['guild_id'] as String], payload['icon'] as String)),
+        field: payload['icon'],
+        fn: () => ImageAsset([
+          'icons',
+          payload['guild_id'] as String,
+        ], payload['icon'] as String),
+      ),
       splash: Helper.createOrNull(
-          field: payload['splash'],
-          fn: () => ImageAsset(
-              ['splashes', payload['guild_id'] as String], payload['splash'] as String)),
+        field: payload['splash'],
+        fn: () => ImageAsset([
+          'splashes',
+          payload['guild_id'] as String,
+        ], payload['splash'] as String),
+      ),
       banner: Helper.createOrNull(
-          field: payload['banner'],
-          fn: () =>
-              ImageAsset(['banners', payload['guild_id'] as String], payload['banner'] as String)),
+        field: payload['banner'],
+        fn: () => ImageAsset([
+          'banners',
+          payload['guild_id'] as String,
+        ], payload['banner'] as String),
+      ),
       discoverySplash: Helper.createOrNull(
-          field: payload['discovery_splash'],
-          fn: () => ImageAsset(['discovery-splashes', payload['id'] as String],
-              payload['discovery_splash'] as String)),
+        field: payload['discovery_splash'],
+        fn: () => ImageAsset([
+          'discovery-splashes',
+          payload['id'] as String,
+        ], payload['discovery_splash'] as String),
+      ),
     );
 
     final settings = payload['settings'] as Map<String, dynamic>;
     final guildSettings = GuildSettings(
-        bitfieldPermission: payload['permissions'] as String?,
-        afkTimeout: payload['afk_timeout'] as int?,
-        hasWidgetEnabled: payload['widget_enabled'] as bool? ?? false,
-        explicitContentFilter: findInEnum(
-            ExplicitContentFilter.values, settings['explicit_content_filter'],
-            orElse: ExplicitContentFilter.unknown),
-        verificationLevel: findInEnum(
-            VerificationLevel.values, settings['verification_level'],
-            orElse: VerificationLevel.unknown),
-        defaultMessageNotifications: findInEnum(
-            DefaultMessageNotification.values,
-            settings['default_message_notifications'],
-            orElse: DefaultMessageNotification.unknown),
-        features: List.unmodifiable(List<String>.from(settings['features'] as Iterable<dynamic>)),
-        mfaLevel: findInEnum(MfaLevel.values, settings['mfa_level'],
-            orElse: MfaLevel.unknown),
-        systemChannelFlags: List.unmodifiable(bitfieldToList(SystemChannelFlag.values,
-            settings['system_channel_flags'] as int)),
-        vanityUrlCode: payload['vanity_url_code'] as String?,
-        subscription: GuildSubscription(
-          tier: findInEnum(
-              PremiumTier.values, settings['premium_tier'],
-              orElse: PremiumTier.unknown),
-          subscriptionCount: settings['premium_subscription_count'] as int?,
-          hasEnabledProgressBar: settings['premium_progress_bar_enabled'] as bool,
+      bitfieldPermission: payload['permissions'] as String?,
+      afkTimeout: payload['afk_timeout'] as int?,
+      hasWidgetEnabled: payload['widget_enabled'] as bool? ?? false,
+      explicitContentFilter: findInEnum(
+        ExplicitContentFilter.values,
+        settings['explicit_content_filter'],
+        orElse: ExplicitContentFilter.unknown,
+      ),
+      verificationLevel: findInEnum(
+        VerificationLevel.values,
+        settings['verification_level'],
+        orElse: VerificationLevel.unknown,
+      ),
+      defaultMessageNotifications: findInEnum(
+        DefaultMessageNotification.values,
+        settings['default_message_notifications'],
+        orElse: DefaultMessageNotification.unknown,
+      ),
+      features: List.unmodifiable(
+        List<String>.from(settings['features'] as Iterable<dynamic>),
+      ),
+      mfaLevel: findInEnum(
+        MfaLevel.values,
+        settings['mfa_level'],
+        orElse: MfaLevel.unknown,
+      ),
+      systemChannelFlags: List.unmodifiable(
+        bitfieldToList(
+          SystemChannelFlag.values,
+          settings['system_channel_flags'] as int,
         ),
-        preferredLocale: settings['preferred_locale'] as String,
-        maxVideoChannelUsers: payload['max_video_channel_users'] as int?,
-        nsfwLevel: findInEnum(NsfwLevel.values, settings['nsfw_level'],
-            orElse: NsfwLevel.unknown),
-        rulesManager:
-            RulesManager(Snowflake.parse(payload['id'] as String), ctx: _ctx));
+      ),
+      vanityUrlCode: payload['vanity_url_code'] as String?,
+      subscription: GuildSubscription(
+        tier: findInEnum(
+          PremiumTier.values,
+          settings['premium_tier'],
+          orElse: PremiumTier.unknown,
+        ),
+        subscriptionCount: settings['premium_subscription_count'] as int?,
+        hasEnabledProgressBar: settings['premium_progress_bar_enabled'] as bool,
+      ),
+      preferredLocale: settings['preferred_locale'] as String,
+      maxVideoChannelUsers: payload['max_video_channel_users'] as int?,
+      nsfwLevel: findInEnum(
+        NsfwLevel.values,
+        settings['nsfw_level'],
+        orElse: NsfwLevel.unknown,
+      ),
+      rulesManager: RulesManager(
+        Snowflake.parse(payload['id'] as String),
+        ctx: _ctx,
+      ),
+    );
 
     return Guild(
       ctx: _ctx,
@@ -179,8 +219,9 @@ final class GuildSerializer implements SerializerContract<Guild> {
             guild.settings.defaultMessageNotifications.value,
         'features': guild.settings.features,
         'mfa_level': guild.settings.mfaLevel.value,
-        'system_channel_flags':
-            listToBitfield(guild.settings.systemChannelFlags),
+        'system_channel_flags': listToBitfield(
+          guild.settings.systemChannelFlags,
+        ),
         'vanity_url_code': guild.settings.vanityUrlCode,
         'premium_tier': guild.settings.subscription.tier.value,
         'premium_subscription_count':
@@ -196,7 +237,7 @@ final class GuildSerializer implements SerializerContract<Guild> {
               guild.settings.subscription.subscriptionCount,
           'premium_progress_bar_enabled':
               guild.settings.subscription.hasEnabledProgressBar,
-        }
+        },
       },
       'channel_settings': {
         'afk_channel_id': guild.channels.afkChannelId?.value,
@@ -204,8 +245,7 @@ final class GuildSerializer implements SerializerContract<Guild> {
         'rules_channel_id': guild.channels.rulesChannelId?.value,
         'public_updates_channel_id':
             guild.channels.publicUpdatesChannelId?.value,
-        'safety_alerts_channel_id':
-            guild.channels.safetyAlertsChannelId?.value,
+        'safety_alerts_channel_id': guild.channels.safetyAlertsChannelId?.value,
       },
     };
   }

@@ -26,27 +26,27 @@ const _creatorId = '987654321098765432';
 // ── Minimal auto-moderation rule payload ──────────────────────────────────────
 
 Map<String, dynamic> _rulePayload({String name = 'test-rule'}) => {
-      'id': _ruleId,
-      'guild_id': _guildId,
-      'name': name,
-      'creator_id': _creatorId,
-      'event_type': 1, // MESSAGE_SEND
-      'trigger_type': 1, // KEYWORD
-      'trigger_metadata': {
-        'keyword_filter': ['badword'],
-        'regex_patterns': <String>[],
-        'presets': <int>[],
-        'allow_list': <String>[],
-        'mention_total_limit': null,
-        'mention_raid_protection_enabled': false,
-      },
-      'actions': [
-        {'type': 1} // BLOCK_MESSAGE
-      ],
-      'enabled': true,
-      'exempt_roles': <String>[],
-      'exempt_channels': <String>[],
-    };
+  'id': _ruleId,
+  'guild_id': _guildId,
+  'name': name,
+  'creator_id': _creatorId,
+  'event_type': 1, // MESSAGE_SEND
+  'trigger_type': 1, // KEYWORD
+  'trigger_metadata': {
+    'keyword_filter': ['badword'],
+    'regex_patterns': <String>[],
+    'presets': <int>[],
+    'allow_list': <String>[],
+    'mention_total_limit': null,
+    'mention_raid_protection_enabled': false,
+  },
+  'actions': [
+    {'type': 1}, // BLOCK_MESSAGE
+  ],
+  'enabled': true,
+  'exempt_roles': <String>[],
+  'exempt_channels': <String>[],
+};
 
 ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
     ShardMessage(
@@ -85,15 +85,18 @@ void main() {
       final packet = AutomoderationRuleCreatePacket(marshaller: marshaller);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('AUTO_MODERATION_RULE_CREATE', _rulePayload()), dispatch);
+        _msg('AUTO_MODERATION_RULE_CREATE', _rulePayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildRuleCreate));
     });
@@ -102,17 +105,20 @@ void main() {
       final packet = AutomoderationRuleCreatePacket(marshaller: marshaller);
       GuildRuleCreateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildRuleCreate) {
           args = payload as GuildRuleCreateArgs;
         }
       }
 
       await packet.listen(
-          _msg('AUTO_MODERATION_RULE_CREATE', _rulePayload()), dispatch);
+        _msg('AUTO_MODERATION_RULE_CREATE', _rulePayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.rule.id, equals(Snowflake.parse(_ruleId)));
@@ -133,15 +139,18 @@ void main() {
       final packet = AutoModerationRuleUpdatePacket(marshaller: marshaller);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('AUTO_MODERATION_RULE_UPDATE', _rulePayload()), dispatch);
+        _msg('AUTO_MODERATION_RULE_UPDATE', _rulePayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildRuleUpdate));
     });
@@ -150,17 +159,20 @@ void main() {
       final packet = AutoModerationRuleUpdatePacket(marshaller: marshaller);
       GuildRuleUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildRuleUpdate) {
           args = payload as GuildRuleUpdateArgs;
         }
       }
 
       await packet.listen(
-          _msg('AUTO_MODERATION_RULE_UPDATE', _rulePayload()), dispatch);
+        _msg('AUTO_MODERATION_RULE_UPDATE', _rulePayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.before, isNull);
@@ -170,25 +182,28 @@ void main() {
     test('before is populated when rule is in cache', () async {
       // Pre-seed the old rule in cache.
       final ruleCacheKey = marshaller.cacheKey.guildRules(_guildId, _ruleId);
-      final oldNormalized =
-          await marshaller.serializers.rules.normalize(_rulePayload(name: 'old-rule'));
+      final oldNormalized = await marshaller.serializers.rules.normalize(
+        _rulePayload(name: 'old-rule'),
+      );
       await cache.put(ruleCacheKey, oldNormalized);
 
       final packet = AutoModerationRuleUpdatePacket(marshaller: marshaller);
       GuildRuleUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildRuleUpdate) {
           args = payload as GuildRuleUpdateArgs;
         }
       }
 
       await packet.listen(
-          _msg('AUTO_MODERATION_RULE_UPDATE', _rulePayload(name: 'new-rule')),
-          dispatch);
+        _msg('AUTO_MODERATION_RULE_UPDATE', _rulePayload(name: 'new-rule')),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.before, isNotNull);
@@ -210,15 +225,18 @@ void main() {
       final packet = AutomoderationRuleDeletePacket(marshaller: marshaller);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('AUTO_MODERATION_RULE_DELETE', _rulePayload()), dispatch);
+        _msg('AUTO_MODERATION_RULE_DELETE', _rulePayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildRuleDelete));
     });
@@ -227,17 +245,20 @@ void main() {
       final packet = AutomoderationRuleDeletePacket(marshaller: marshaller);
       GuildRuleDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildRuleDelete) {
           args = payload as GuildRuleDeleteArgs;
         }
       }
 
       await packet.listen(
-          _msg('AUTO_MODERATION_RULE_DELETE', _rulePayload()), dispatch);
+        _msg('AUTO_MODERATION_RULE_DELETE', _rulePayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.rule.id, equals(Snowflake.parse(_ruleId)));

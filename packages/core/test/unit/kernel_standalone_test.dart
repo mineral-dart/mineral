@@ -50,7 +50,8 @@ final class _FakeHttpClient implements HttpClientContract {
   @override
   Future<Response<T>> patch<T>(RequestContract r) => throw UnimplementedError();
   @override
-  Future<Response<T>> delete<T>(RequestContract r) => throw UnimplementedError();
+  Future<Response<T>> delete<T>(RequestContract r) =>
+      throw UnimplementedError();
   @override
   Future<Response<T>> send<T>(RequestContract r) => throw UnimplementedError();
 }
@@ -79,8 +80,7 @@ final class _FakeEventListener implements EventListenerContract {
     required Event event,
     required T handle,
     required String? customId,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
   @override
   void unsubscribe(StreamSubscription subscription) {}
   @override
@@ -89,8 +89,10 @@ final class _FakeEventListener implements EventListenerContract {
 
 final class _FakePacketDispatcher implements PacketDispatcherContract {
   @override
-  void listen(PacketTypeContract packet,
-      Function(ShardMessage, DispatchEvent) listener) {}
+  void listen(
+    PacketTypeContract packet,
+    Function(ShardMessage, DispatchEvent) listener,
+  ) {}
   @override
   void dispatch(dynamic payload) {}
   @override
@@ -160,8 +162,7 @@ void main() {
       final logger = FakeLogger();
       final manager = ProviderManager(logger: logger);
 
-      final provider = _RecordingProvider()
-        ..throwOnReady = Exception('boom');
+      final provider = _RecordingProvider()..throwOnReady = Exception('boom');
       manager.register(provider);
 
       await expectLater(manager.ready(), throwsException);
@@ -171,20 +172,22 @@ void main() {
       expect(logger.errors.single, contains('failed to initialize'));
     });
 
-    test('ProviderManager logs on dispose failure without rethrowing',
-        () async {
-      final logger = FakeLogger();
-      final manager = ProviderManager(logger: logger);
+    test(
+      'ProviderManager logs on dispose failure without rethrowing',
+      () async {
+        final logger = FakeLogger();
+        final manager = ProviderManager(logger: logger);
 
-      final failing = _RecordingProvider();
-      manager.register(failing);
-      // We cannot easily make dispose throw without subclassing; the simpler
-      // assertion is that the happy path also exercises the injected logger
-      // surface (no exceptions, no global IoC touch).
-      await manager.dispose();
+        final failing = _RecordingProvider();
+        manager.register(failing);
+        // We cannot easily make dispose throw without subclassing; the simpler
+        // assertion is that the happy path also exercises the injected logger
+        // surface (no exceptions, no global IoC touch).
+        await manager.dispose();
 
-      expect(failing.disposeCalled, isTrue);
-      expect(logger.errors, isEmpty);
-    });
+        expect(failing.disposeCalled, isTrue);
+        expect(logger.errors, isEmpty);
+      },
+    );
   });
 }

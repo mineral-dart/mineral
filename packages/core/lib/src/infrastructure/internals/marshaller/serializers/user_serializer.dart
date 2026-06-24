@@ -42,18 +42,31 @@ final class UserSerializer implements SerializerContract<User> {
 
   @override
   Future<User> serialize(Map<String, dynamic> json) async {
-    final userAssets = Map<String, dynamic>.from(json['assets'] as Map<dynamic, dynamic>);
+    final userAssets = Map<String, dynamic>.from(
+      json['assets'] as Map<dynamic, dynamic>,
+    );
     final assets = UserAssets(
       avatar: Helper.createOrNull(
-          field: userAssets['avatar'],
-          fn: () => ImageAsset(['avatars', json['id'] as String], userAssets['avatar'] as String)),
+        field: userAssets['avatar'],
+        fn: () => ImageAsset([
+          'avatars',
+          json['id'] as String,
+        ], userAssets['avatar'] as String),
+      ),
       avatarDecoration: Helper.createOrNull(
-          field: userAssets['avatar_decoration'],
-          fn: () => ImageAsset(['avatar-decorations', json['id'] as String],
-              userAssets['avatar_decoration'] as String)),
+        field: userAssets['avatar_decoration'],
+        fn: () => ImageAsset([
+          'avatar-decorations',
+          json['id'] as String,
+        ], userAssets['avatar_decoration'] as String),
+      ),
       banner: Helper.createOrNull(
-          field: userAssets['banner'],
-          fn: () => ImageAsset(['banners', json['id'] as String], userAssets['banner'] as String)),
+        field: userAssets['banner'],
+        fn: () => ImageAsset([
+          'banners',
+          json['id'] as String,
+        ], userAssets['banner'] as String),
+      ),
     );
 
     return User(
@@ -70,13 +83,15 @@ final class UserSerializer implements SerializerContract<User> {
       email: json['email'] as String?,
       flags: json['flags'] as int?,
       premiumType: PremiumTier.values.firstWhere(
-          (e) => e == json['premium_type'],
-          orElse: () => PremiumTier.none),
+        (e) => e == json['premium_type'],
+        orElse: () => PremiumTier.none,
+      ),
       publicFlags: json['public_flags'] as int?,
       assets: assets,
       createdAt: Helper.createOrNull(
-          field: json['created_at'],
-          fn: () => DateTime.parse(json['created_at'] as String)),
+        field: json['created_at'],
+        fn: () => DateTime.parse(json['created_at'] as String),
+      ),
       presence: null,
     );
   }

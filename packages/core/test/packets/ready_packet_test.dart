@@ -44,32 +44,32 @@ final class _NoopCommandManager implements CommandInteractionManagerContract {
 // ── Minimal READY payload ──────────────────────────────────────────────────────
 
 Map<String, dynamic> _readyPayload() => {
-      'v': 10,
-      'user': {
-        'id': '123456789012345678',
-        'username': 'TestBot',
-        'discriminator': '0000',
-        'avatar': null,
-        'bot': true,
-        'mfa_enabled': false,
-        'flags': 0,
-        'public_flags': 0,
-      },
-      'guilds': <Map<String, dynamic>>[],
-      'session_id': 'fake-session-id',
-      'session_type': 'normal',
-      'resume_gateway_url': 'wss://gateway.discord.gg',
-      'private_channels': <dynamic>[],
-      'presences': <dynamic>[],
-      'application': {'id': '999888777666555444', 'flags': 0},
-    };
+  'v': 10,
+  'user': {
+    'id': '123456789012345678',
+    'username': 'TestBot',
+    'discriminator': '0000',
+    'avatar': null,
+    'bot': true,
+    'mfa_enabled': false,
+    'flags': 0,
+    'public_flags': 0,
+  },
+  'guilds': <Map<String, dynamic>>[],
+  'session_id': 'fake-session-id',
+  'session_type': 'normal',
+  'resume_gateway_url': 'wss://gateway.discord.gg',
+  'private_channels': <dynamic>[],
+  'presences': <dynamic>[],
+  'application': {'id': '999888777666555444', 'flags': 0},
+};
 
 ShardMessage<dynamic> _buildMessage() => ShardMessage(
-      type: 'READY',
-      opCode: OpCode.dispatch,
-      sequence: 1,
-      payload: _readyPayload(),
-    );
+  type: 'READY',
+  opCode: OpCode.dispatch,
+  sequence: 1,
+  payload: _readyPayload(),
+);
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -115,10 +115,11 @@ void main() {
     test('dispatches Event.ready', () async {
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -130,10 +131,11 @@ void main() {
     test('payload is ReadyArgs with a Bot', () async {
       Object? capturedPayload;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedPayload = payload;
       }
 
@@ -145,73 +147,87 @@ void main() {
     });
 
     test('Bot is stored in runtimeState after READY', () async {
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(_buildMessage(), dispatch);
 
       expect(runtimeState.bot, isNotNull);
     });
 
-    test('cache is cleared on second READY when clearOnReady is true', () async {
-      final cache = FakeCacheProvider()
-        ..config = CacheConfig(clearOnReady: true, staggerClearMs: 0);
-      final marshallerWithCache = FakeMarshaller(cache: cache);
+    test(
+      'cache is cleared on second READY when clearOnReady is true',
+      () async {
+        final cache = FakeCacheProvider()
+          ..config = CacheConfig(clearOnReady: true, staggerClearMs: 0);
+        final marshallerWithCache = FakeMarshaller(cache: cache);
 
-      await cache.put('some-key', {'data': 'value'});
-      expect(cache.store.containsKey('some-key'), isTrue);
+        await cache.put('some-key', {'data': 'value'});
+        expect(cache.store.containsKey('some-key'), isTrue);
 
-      final packetWithCache = ReadyPacket(
-        marshaller: marshallerWithCache,
-        commandManager: commandManager,
-        wss: wss,
-        runtimeState: runtimeState,
-        entityContext: ctx,
-        cacheConfig: cache.config,
-      );
+        final packetWithCache = ReadyPacket(
+          marshaller: marshallerWithCache,
+          commandManager: commandManager,
+          wss: wss,
+          runtimeState: runtimeState,
+          entityContext: ctx,
+          cacheConfig: cache.config,
+        );
 
-      await packetWithCache.listen(_buildMessage(), <T extends Object>(
-          {required Event event,
+        await packetWithCache.listen(
+          _buildMessage(),
+          <T extends Object>({
+            required Event event,
+            required T payload,
+            bool Function(String?)? constraint,
+          }) {},
+        );
+
+        // Cache is cleared on first (and only) isAlreadyUsed = false call
+        expect(cache.store.containsKey('some-key'), isFalse);
+      },
+    );
+
+    test(
+      'registerGlobal is called only once even if listen is called twice',
+      () async {
+        int callCount = 0;
+        final trackingManager = _CountingCommandManager(
+          onRegisterGlobal: () {
+            callCount++;
+          },
+        );
+
+        final p = ReadyPacket(
+          marshaller: marshaller,
+          commandManager: trackingManager,
+          wss: wss,
+          runtimeState: runtimeState,
+          entityContext: ctx,
+        );
+
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {});
+          bool Function(String?)? constraint,
+        }) {}
 
-      // Cache is cleared on first (and only) isAlreadyUsed = false call
-      expect(cache.store.containsKey('some-key'), isFalse);
-    });
+        await p.listen(_buildMessage(), dispatch);
+        await p.listen(_buildMessage(), dispatch);
 
-    test('registerGlobal is called only once even if listen is called twice',
-        () async {
-      int callCount = 0;
-      final trackingManager = _CountingCommandManager(onRegisterGlobal: () {
-        callCount++;
-      });
-
-      final p = ReadyPacket(
-        marshaller: marshaller,
-        commandManager: trackingManager,
-        wss: wss,
-        runtimeState: runtimeState,
-        entityContext: ctx,
-      );
-
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
-
-      await p.listen(_buildMessage(), dispatch);
-      await p.listen(_buildMessage(), dispatch);
-
-      expect(callCount, equals(1));
-    });
+        expect(callCount, equals(1));
+      },
+    );
   });
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-final class _CountingCommandManager implements CommandInteractionManagerContract {
+final class _CountingCommandManager
+    implements CommandInteractionManagerContract {
   final void Function() onRegisterGlobal;
 
   _CountingCommandManager({required this.onRegisterGlobal});

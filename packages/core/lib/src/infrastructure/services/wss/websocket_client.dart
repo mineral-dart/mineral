@@ -54,17 +54,17 @@ final class WebsocketClientImpl implements WebsocketClient {
   @override
   Stream? stream;
 
-  WebsocketClientImpl(
-      {required this.url,
-      required LoggerContract logger,
-      this.name = 'default',
-      void Function(Object payload)? onError,
-      void Function(int? exitCode)? onClose,
-      void Function(WebsocketMessage)? onOpen})
-      : _logger = logger,
-        _onError = onError,
-        _onClose = onClose,
-        _onOpen = onOpen;
+  WebsocketClientImpl({
+    required this.url,
+    required LoggerContract logger,
+    this.name = 'default',
+    void Function(Object payload)? onError,
+    void Function(int? exitCode)? onClose,
+    void Function(WebsocketMessage)? onOpen,
+  }) : _logger = logger,
+       _onError = onError,
+       _onClose = onClose,
+       _onOpen = onOpen;
 
   @override
   Future<void> connect() async {
@@ -124,8 +124,12 @@ final class WebsocketClientImpl implements WebsocketClient {
   Future<void> _handleMessage(dynamic callback, dynamic message) async {
     try {
       final interceptedMessage = await _handleMessageInterceptors(
-          WebsocketMessageImpl(
-              channelName: name, originalContent: message, content: message));
+        WebsocketMessageImpl(
+          channelName: name,
+          originalContent: message,
+          content: message,
+        ),
+      );
       callback(interceptedMessage);
     } on SerializationException catch (e) {
       _logger.warn('Dropping malformed gateway frame: $e');
@@ -135,7 +139,8 @@ final class WebsocketClientImpl implements WebsocketClient {
   @override
   Future<void> send(String message) async {
     final interceptedMessage = await _handleRequestedMessageInterceptors(
-        WebsocketRequestedMessageImpl(channelName: name, content: message));
+      WebsocketRequestedMessageImpl(channelName: name, content: message),
+    );
 
     switch (_channel?.readyState) {
       case io.WebSocket.open:
@@ -160,7 +165,8 @@ final class WebsocketClientImpl implements WebsocketClient {
   }
 
   Future<WebsocketMessage> _handleMessageInterceptors(
-      WebsocketMessage message) async {
+    WebsocketMessage message,
+  ) async {
     for (final interceptor in interceptor.message) {
       message = await interceptor(message);
     }
@@ -169,7 +175,8 @@ final class WebsocketClientImpl implements WebsocketClient {
   }
 
   Future<WebsocketRequestedMessage> _handleRequestedMessageInterceptors(
-      WebsocketRequestedMessage message) async {
+    WebsocketRequestedMessage message,
+  ) async {
     for (final interceptor in interceptor.request) {
       message = await interceptor(message);
     }

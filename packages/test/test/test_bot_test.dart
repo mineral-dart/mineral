@@ -21,9 +21,13 @@ void main() {
 
       expect(ioc.resolve<LoggerContract>(), same(bot.logger));
       expect(
-          ioc.resolve<CommandInteractionManagerContract>(), same(bot.commands));
-      expect(ioc.resolve<InteractiveComponentManagerContract>(),
-          same(bot.components));
+        ioc.resolve<CommandInteractionManagerContract>(),
+        same(bot.commands),
+      );
+      expect(
+        ioc.resolve<InteractiveComponentManagerContract>(),
+        same(bot.components),
+      );
       expect(ioc.resolveOrNull<MarshallerContract>(), isNotNull);
       expect(ioc.resolveOrNull<DataStoreContract>(), isNotNull);
       expect(ioc.resolveOrNull<HttpClientContract>(), isNotNull);

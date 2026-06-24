@@ -13,7 +13,7 @@ enum CommandKind implements EnhancedEnum<int> {
   const CommandKind(this.value);
 
   factory CommandKind.of(int value) => values.firstWhere(
-        (e) => e.value == value,
-        orElse: () => CommandKind.unknown,
-      );
+    (e) => e.value == value,
+    orElse: () => CommandKind.unknown,
+  );
 }

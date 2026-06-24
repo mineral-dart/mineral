@@ -42,17 +42,16 @@ final class RulesManager {
     List<Snowflake> exemptChannels = const [],
     bool enabled = true,
     String? reason,
-  }) =>
-      _datastore.rules.create(
-        guildId: guildId,
-        name: name,
-        eventType: eventType,
-        triggerType: triggerType,
-        actions: actions,
-        triggerMetadata: triggerMetadata,
-        exemptRoles: exemptRoles,
-        exemptChannels: exemptChannels,
-        enabled: enabled,
-        reason: reason,
-      );
+  }) => _datastore.rules.create(
+    guildId: guildId,
+    name: name,
+    eventType: eventType,
+    triggerType: triggerType,
+    actions: actions,
+    triggerMetadata: triggerMetadata,
+    exemptRoles: exemptRoles,
+    exemptChannels: exemptChannels,
+    enabled: enabled,
+    reason: reason,
+  );
 }

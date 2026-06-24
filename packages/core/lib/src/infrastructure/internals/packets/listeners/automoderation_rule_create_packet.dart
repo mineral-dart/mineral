@@ -11,14 +11,18 @@ final class AutomoderationRuleCreatePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   AutomoderationRuleCreatePacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final rawRule =
-        await _marshaller.serializers.rules.normalize(message.payload as Map<String, dynamic>);
+    final rawRule = await _marshaller.serializers.rules.normalize(
+      message.payload as Map<String, dynamic>,
+    );
     final rule = await _marshaller.serializers.rules.serialize(rawRule);
 
-    dispatch<GuildRuleCreateArgs>(event: Event.guildRuleCreate, payload: (rule: rule));
+    dispatch<GuildRuleCreateArgs>(
+      event: Event.guildRuleCreate,
+      payload: (rule: rule),
+    );
   }
 }

@@ -25,8 +25,7 @@ void main() {
       });
 
       test('generates ref key when ref is true', () {
-        expect(
-            cacheKey.guildAssets('123', ref: true), 'ref:guild/123/assets');
+        expect(cacheKey.guildAssets('123', ref: true), 'ref:guild/123/assets');
       });
 
       test('generates non-ref key by default', () {
@@ -40,8 +39,10 @@ void main() {
       });
 
       test('generates ref key when ref is true', () {
-        expect(cacheKey.guildSettings('123', ref: true),
-            'ref:guild/123/settings');
+        expect(
+          cacheKey.guildSettings('123', ref: true),
+          'ref:guild/123/settings',
+        );
       });
     });
 
@@ -51,8 +52,10 @@ void main() {
       });
 
       test('generates ref key when ref is true', () {
-        expect(cacheKey.guildRules('123', '456', ref: true),
-            'ref:guild/123/rules/456');
+        expect(
+          cacheKey.guildRules('123', '456', ref: true),
+          'ref:guild/123/rules/456',
+        );
       });
     });
 
@@ -62,8 +65,10 @@ void main() {
       });
 
       test('generates ref key when ref is true', () {
-        expect(cacheKey.guildSubscription('123', ref: true),
-            'ref:guild/123/subscriptions');
+        expect(
+          cacheKey.guildSubscription('123', ref: true),
+          'ref:guild/123/subscriptions',
+        );
       });
     });
 
@@ -83,8 +88,10 @@ void main() {
       });
 
       test('works with guildId parameter', () {
-        expect(cacheKey.channelPermission('789', guildId: '123'),
-            'channels/789/permissions');
+        expect(
+          cacheKey.channelPermission('789', guildId: '123'),
+          'channels/789/permissions',
+        );
       });
     });
 
@@ -100,20 +107,26 @@ void main() {
       });
 
       test('generates ref key when ref is true', () {
-        expect(cacheKey.member('123', '456', ref: true),
-            'ref:guild/123/members/456');
+        expect(
+          cacheKey.member('123', '456', ref: true),
+          'ref:guild/123/members/456',
+        );
       });
     });
 
     group('memberAssets', () {
       test('generates member assets key', () {
-        expect(cacheKey.memberAssets('123', '456'),
-            'guild/123/members/456/assets');
+        expect(
+          cacheKey.memberAssets('123', '456'),
+          'guild/123/members/456/assets',
+        );
       });
 
       test('generates ref key when ref is true', () {
-        expect(cacheKey.memberAssets('123', '456', ref: true),
-            'ref:guild/123/members/456/assets');
+        expect(
+          cacheKey.memberAssets('123', '456', ref: true),
+          'ref:guild/123/members/456/assets',
+        );
       });
     });
 
@@ -129,8 +142,10 @@ void main() {
 
     group('voiceState', () {
       test('generates voice state key', () {
-        expect(cacheKey.voiceState('123', '456'),
-            'voice_states/guild/123/members/456');
+        expect(
+          cacheKey.voiceState('123', '456'),
+          'voice_states/guild/123/members/456',
+        );
       });
     });
 
@@ -165,7 +180,9 @@ void main() {
     group('embed', () {
       test('generates embed key with fixed uid', () {
         expect(
-            cacheKey.embed('101', uid: 'fixed'), 'messages/101/embeds/fixed');
+          cacheKey.embed('101', uid: 'fixed'),
+          'messages/101/embeds/fixed',
+        );
       });
 
       test('generates embed key with auto-generated uuid', () {
@@ -225,8 +242,11 @@ void main() {
         ];
 
         for (final key in refKeys) {
-          expect(key, startsWith('ref:'),
-              reason: '$key should start with ref:');
+          expect(
+            key,
+            startsWith('ref:'),
+            reason: '$key should start with ref:',
+          );
         }
       });
 
@@ -243,8 +263,11 @@ void main() {
         ];
 
         for (final key in nonRefKeys) {
-          expect(key.startsWith('ref:'), isFalse,
-              reason: '$key should not start with ref:');
+          expect(
+            key.startsWith('ref:'),
+            isFalse,
+            reason: '$key should not start with ref:',
+          );
         }
       });
     });

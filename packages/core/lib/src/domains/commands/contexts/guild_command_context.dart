@@ -21,10 +21,11 @@ final class GuildCommandContext extends CommandContext {
   });
 
   static Future<GuildCommandContext> fromMap(
-      MarshallerContract marshaller,
-      DataStoreContract datastore,
-      EntityContext ctx,
-      Map<String, dynamic> payload) async {
+    MarshallerContract marshaller,
+    DataStoreContract datastore,
+    EntityContext ctx,
+    Map<String, dynamic> payload,
+  ) async {
     final memberMap = payload['member'] as Map<String, dynamic>;
     final memberUser = memberMap['user'] as Map<String, dynamic>;
     final member = await datastore.member.get(
@@ -48,7 +49,10 @@ final class GuildCommandContext extends CommandContext {
       version: payload['version'] as int,
       member: member,
       guild: await datastore.guild.get(payload['guild_id'] as String, true),
-      channel: await datastore.channel.get(payload['channel_id'] as String, false),
+      channel: await datastore.channel.get(
+        payload['channel_id'] as String,
+        false,
+      ),
     );
   }
 }

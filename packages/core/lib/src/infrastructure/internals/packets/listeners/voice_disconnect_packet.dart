@@ -12,7 +12,7 @@ final class VoiceDisconnectPacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   VoiceDisconnectPacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -31,7 +31,10 @@ final class VoiceDisconnectPacket implements ListenablePacket {
       await _marshaller.cache.invalidate(cacheKey);
 
       if (before != null) {
-        dispatch<VoiceDisconnectArgs>(event: Event.voiceDisconnect, payload: (state: before));
+        dispatch<VoiceDisconnectArgs>(
+          event: Event.voiceDisconnect,
+          payload: (state: before),
+        );
       }
     }
   }

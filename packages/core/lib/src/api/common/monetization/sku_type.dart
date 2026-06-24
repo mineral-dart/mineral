@@ -12,7 +12,7 @@ enum SkuType implements EnhancedEnum<int> {
   const SkuType(this.value);
 
   static SkuType from(int value) => SkuType.values.firstWhere(
-        (e) => e.value == value,
-        orElse: () => throw ArgumentError('Unknown SkuType value: $value'),
-      );
+    (e) => e.value == value,
+    orElse: () => throw ArgumentError('Unknown SkuType value: $value'),
+  );
 }

@@ -9,9 +9,6 @@ final class TextDisplay implements MessageComponent, ModalComponent {
 
   @override
   Map<String, dynamic> toJson() {
-    return {
-      'type': type.value,
-      'content': _content,
-    };
+    return {'type': type.value, 'content': _content};
   }
 }

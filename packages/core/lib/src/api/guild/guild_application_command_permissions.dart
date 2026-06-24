@@ -23,7 +23,8 @@ final class ApplicationCommandPermission {
     final type = ApplicationCommandPermissionType.values.firstWhere(
       (e) => e.value == typeValue,
       orElse: () => throw ArgumentError(
-          'Unknown ApplicationCommandPermissionType value: $typeValue'),
+        'Unknown ApplicationCommandPermissionType value: $typeValue',
+      ),
     );
 
     return ApplicationCommandPermission(
@@ -57,7 +58,8 @@ final class GuildApplicationCommandPermissions {
   });
 
   factory GuildApplicationCommandPermissions.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
     final rawPerms = json['permissions'] as List<dynamic>;
     return GuildApplicationCommandPermissions(
       id: Snowflake.parse(json['id']),

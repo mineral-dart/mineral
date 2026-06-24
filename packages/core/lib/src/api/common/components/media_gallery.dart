@@ -5,11 +5,11 @@ final class MediaGallery implements MessageComponent {
   final List<MediaItem> _items;
 
   MediaGallery({required List<MediaItem> items})
-      : assert(
-          items.isNotEmpty && items.length <= 10,
-          'MediaGallery must contain between 1 and 10 items.',
-        ),
-        _items = items;
+    : assert(
+        items.isNotEmpty && items.length <= 10,
+        'MediaGallery must contain between 1 and 10 items.',
+      ),
+      _items = items;
 
   @override
   Map<String, dynamic> toJson() {

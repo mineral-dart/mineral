@@ -48,7 +48,10 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
         removeFromRequestQueue(stale);
         if (!stale.completer.isCompleted) {
           stale.completer.completeError(
-            TimeoutException('Request queue entry ${stale.uid} timed out', _requestQueueTtl),
+            TimeoutException(
+              'Request queue entry ${stale.uid} timed out',
+              _requestQueueTtl,
+            ),
           );
         }
       }
@@ -76,8 +79,8 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
     this.config, {
     required LoggerContract logger,
     required HttpClientContract httpClient,
-  })  : _logger = logger,
-        _httpClient = httpClient;
+  }) : _logger = logger,
+       _httpClient = httpClient;
 
   @override
   void send(WebsocketIsolateMessageTransfert message) {
@@ -91,15 +94,16 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
   }
 
   void _sendToShards(WebsocketIsolateMessageTransfert message) {
-    shards
-        .forEach((_, shard) => shard.client.send(json.encode(message.payload)));
+    shards.forEach(
+      (_, shard) => shard.client.send(json.encode(message.payload)),
+    );
   }
 
   void _requestMessage(WebsocketIsolateMessageTransfert message) {
     _addToRequestQueueWithTtl((
       uid: message.uid!,
       targetKeys: message.targetKeys,
-      completer: message.completer!
+      completer: message.completer!,
     ));
 
     _sendToShards(message);
@@ -107,18 +111,26 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
 
   @override
   void setBotPresence(
-      List<BotActivity>? activities, StatusType? status, bool? afk) {
+    List<BotActivity>? activities,
+    StatusType? status,
+    bool? afk,
+  ) {
     final message = ShardMessageBuilder()
       ..setOpCode(OpCode.presenceUpdate)
       ..append(
-          'since', afk == true ? DateTime.now().millisecondsSinceEpoch : null)
+        'since',
+        afk == true ? DateTime.now().millisecondsSinceEpoch : null,
+      )
       ..append(
-          'activities',
-          activities != null
-              ? activities.map((element) => element.toJson()).toList()
-              : [])
-      ..append('status',
-          status != null ? status.toString() : StatusType.online.toString())
+        'activities',
+        activities != null
+            ? activities.map((element) => element.toJson()).toList()
+            : [],
+      )
+      ..append(
+        'status',
+        status != null ? status.toString() : StatusType.online.toString(),
+      )
       ..append('afk', afk ?? false);
 
     send(WebsocketIsolateMessageTransfert.send(message.toJson()));
@@ -160,12 +172,14 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
       _logger.warn(
         'Shard $targetIndex not found for guild $guildId, broadcasting',
       );
-      send(WebsocketIsolateMessageTransfert.request(
-        payload: message.toJson(),
-        uid: uid,
-        completer: completer,
-        targetKeys: ['presences'],
-      ));
+      send(
+        WebsocketIsolateMessageTransfert.request(
+          payload: message.toJson(),
+          uid: uid,
+          completer: completer,
+          targetKeys: ['presences'],
+        ),
+      );
     }
 
     return completer.future;
@@ -195,7 +209,9 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
     }
     final shardCount = response['shards'];
     if (shardCount is! int) {
-      throw StateError('Gateway response missing valid "shards" field: $response');
+      throw StateError(
+        'Gateway response missing valid "shards" field: $response',
+      );
     }
 
     final sessionLimit =
@@ -228,13 +244,14 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
             '$endpoint/?v=${config.version}&encoding=${config.encoding.encoder.value}';
 
         final shard = Shard(
-            shardName: 'shard #$i',
-            shardIndex: i,
-            shardCount: totalShards,
-            url: url,
-            wss: this,
-            logger: _logger,
-            strategy: strategy);
+          shardName: 'shard #$i',
+          shardIndex: i,
+          shardCount: totalShards,
+          url: url,
+          wss: this,
+          logger: _logger,
+          strategy: strategy,
+        );
 
         shards.putIfAbsent(i, () => shard);
 

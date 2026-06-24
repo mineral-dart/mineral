@@ -17,32 +17,32 @@ void main() {
     });
 
     Map<String, dynamic> fullPayload() => {
-          'id': 'msg_123',
-          'title': 'Test Embed',
-          'description': 'A test description',
-          'type': 'rich',
-          'url': 'https://example.com',
-          'timestamp': '2024-01-15T10:30:00.000Z',
-          'assets': null,
-          'provider': null,
-          'fields': [
-            {'name': 'Field 1', 'value': 'Value 1', 'inline': false},
-          ],
-          'color': 16711680,
-        };
+      'id': 'msg_123',
+      'title': 'Test Embed',
+      'description': 'A test description',
+      'type': 'rich',
+      'url': 'https://example.com',
+      'timestamp': '2024-01-15T10:30:00.000Z',
+      'assets': null,
+      'provider': null,
+      'fields': [
+        {'name': 'Field 1', 'value': 'Value 1', 'inline': false},
+      ],
+      'color': 16711680,
+    };
 
     Map<String, dynamic> minimalPayload() => {
-          'id': 'msg_456',
-          'title': null,
-          'description': null,
-          'type': null,
-          'url': null,
-          'timestamp': null,
-          'assets': null,
-          'provider': null,
-          'fields': null,
-          'color': null,
-        };
+      'id': 'msg_456',
+      'title': null,
+      'description': null,
+      'type': null,
+      'url': null,
+      'timestamp': null,
+      'assets': null,
+      'provider': null,
+      'fields': null,
+      'color': null,
+    };
 
     group('serialize()', () {
       test('maps all fields when present', () {

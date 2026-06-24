@@ -5,8 +5,11 @@ void main() {
   group('ResponseCode', () {
     test('every enum value has a non-empty message', () {
       for (final code in ResponseCode.values) {
-        expect(code.message, isNotEmpty,
-            reason: '${code.name} should have a message');
+        expect(
+          code.message,
+          isNotEmpty,
+          reason: '${code.name} should have a message',
+        );
       }
     });
 
@@ -58,8 +61,9 @@ void main() {
 
     group('errorsCodes', () {
       test('contains expected error codes', () {
-        final errorCodeValues =
-            ResponseCode.errorsCodes.map((e) => e.code).toList();
+        final errorCodeValues = ResponseCode.errorsCodes
+            .map((e) => e.code)
+            .toList();
 
         expect(errorCodeValues, contains(400));
         expect(errorCodeValues, contains(401));
@@ -74,8 +78,9 @@ void main() {
       });
 
       test('does not contain success codes', () {
-        final errorCodeValues =
-            ResponseCode.errorsCodes.map((e) => e.code).toList();
+        final errorCodeValues = ResponseCode.errorsCodes
+            .map((e) => e.code)
+            .toList();
 
         expect(errorCodeValues, isNot(contains(200)));
         expect(errorCodeValues, isNot(contains(201)));
@@ -83,16 +88,18 @@ void main() {
       });
 
       test('does not contain rate limit code', () {
-        final errorCodeValues =
-            ResponseCode.errorsCodes.map((e) => e.code).toList();
+        final errorCodeValues = ResponseCode.errorsCodes
+            .map((e) => e.code)
+            .toList();
         expect(errorCodeValues, isNot(contains(429)));
       });
     });
 
     group('successCodes', () {
       test('contains expected success codes', () {
-        final successCodeValues =
-            ResponseCode.successCodes.map((e) => e.code).toList();
+        final successCodeValues = ResponseCode.successCodes
+            .map((e) => e.code)
+            .toList();
 
         expect(successCodeValues, contains(200));
         expect(successCodeValues, contains(201));
@@ -105,8 +112,9 @@ void main() {
       });
 
       test('does not contain error codes', () {
-        final successCodeValues =
-            ResponseCode.successCodes.map((e) => e.code).toList();
+        final successCodeValues = ResponseCode.successCodes
+            .map((e) => e.code)
+            .toList();
 
         expect(successCodeValues, isNot(contains(400)));
         expect(successCodeValues, isNot(contains(500)));
@@ -115,8 +123,9 @@ void main() {
 
     group('rateLimitCodes', () {
       test('contains 429', () {
-        final rateLimitValues =
-            ResponseCode.rateLimitCodes.map((e) => e.code).toList();
+        final rateLimitValues = ResponseCode.rateLimitCodes
+            .map((e) => e.code)
+            .toList();
         expect(rateLimitValues, contains(429));
       });
 
@@ -127,8 +136,10 @@ void main() {
 
     group('toString', () {
       test('returns formatted string', () {
-        expect(ResponseCode.success.toString(),
-            'ResponseCode: 200 - The request is passed with success');
+        expect(
+          ResponseCode.success.toString(),
+          'ResponseCode: 200 - The request is passed with success',
+        );
       });
     });
   });

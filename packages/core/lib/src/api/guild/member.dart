@@ -52,8 +52,11 @@ final class Member implements UserClient {
   /// final voice = await member.resolveVoiceContext(force: true);
   /// ```
   Future<MemberVoiceManager> resolveVoiceContext({bool force = false}) async {
-    final voiceState =
-        await _datastore.member.getVoiceState(guildId.value, id.value, force);
+    final voiceState = await _datastore.member.getVoiceState(
+      guildId.value,
+      id.value,
+      force,
+    );
     return MemberVoiceManager(guildId, id, voiceState, ctx: _ctx);
   }
 
@@ -112,10 +115,11 @@ final class Member implements UserClient {
   /// ```
   Future<void> setUsername(String value, String? reason) =>
       _datastore.member.update(
-          guildId: guildId.value,
-          memberId: id.value,
-          payload: {'username': value},
-          reason: reason);
+        guildId: guildId.value,
+        memberId: id.value,
+        payload: {'username': value},
+        reason: reason,
+      );
 
   /// Change the member's nickname.
   ///
@@ -124,10 +128,11 @@ final class Member implements UserClient {
   /// ```
   Future<void> setNickname(String value, String? reason) =>
       _datastore.member.update(
-          guildId: guildId.value,
-          memberId: id.value,
-          payload: {'nick': value},
-          reason: reason);
+        guildId: guildId.value,
+        memberId: id.value,
+        payload: {'nick': value},
+        reason: reason,
+      );
 
   /// Ban the member.
   ///
@@ -136,17 +141,21 @@ final class Member implements UserClient {
   /// ```
   Future<void> ban({Duration? deleteSince, String? reason}) =>
       _datastore.member.ban(
-          guildId: guildId.value,
-          memberId: id.value,
-          deleteSince: deleteSince);
+        guildId: guildId.value,
+        memberId: id.value,
+        deleteSince: deleteSince,
+      );
 
   /// Kick the member.
   ///
   /// ```dart
   /// await member.kick(reason: 'Testing');
   /// ```
-  Future<void> kick({String? reason}) => _datastore.member
-      .kick(guildId: guildId.value, memberId: id.value, reason: reason);
+  Future<void> kick({String? reason}) => _datastore.member.kick(
+    guildId: guildId.value,
+    memberId: id.value,
+    reason: reason,
+  );
 
   /// Exclude the member.
   ///
@@ -154,14 +163,16 @@ final class Member implements UserClient {
   /// await member.exclude(duration: Duration(days: 7), reason: 'Testing');
   /// ```
   Future<void> exclude({Duration? duration, String? reason}) {
-    final timeout =
-        duration != null ? DateTime.now().add(duration) : DateTime.now();
+    final timeout = duration != null
+        ? DateTime.now().add(duration)
+        : DateTime.now();
 
     return _datastore.member.update(
-        guildId: guildId.value,
-        memberId: id.value,
-        reason: reason,
-        payload: {'communication_disabled_until': timeout.toIso8601String()});
+      guildId: guildId.value,
+      memberId: id.value,
+      reason: reason,
+      payload: {'communication_disabled_until': timeout.toIso8601String()},
+    );
   }
 
   /// Unexclude the member.
@@ -170,10 +181,11 @@ final class Member implements UserClient {
   /// await member.unExclude(reason: 'Testing');
   /// ```
   Future<void> unExclude({String? reason}) => _datastore.member.update(
-      guildId: guildId.value,
-      memberId: id.value,
-      reason: reason,
-      payload: {'communication_disabled_until': null});
+    guildId: guildId.value,
+    memberId: id.value,
+    reason: reason,
+    payload: {'communication_disabled_until': null},
+  );
 
   /// Enable the member's MFA. This member will be required to verify their account for accessing the guild.
   ///
@@ -181,10 +193,11 @@ final class Member implements UserClient {
   /// await member.enableMfa(reason: 'Testing');
   /// ```
   Future<void> enableMfa({String? reason}) => _datastore.member.update(
-      guildId: guildId.value,
-      memberId: id.value,
-      payload: {'mfa_enable': true},
-      reason: reason);
+    guildId: guildId.value,
+    memberId: id.value,
+    payload: {'mfa_enable': true},
+    reason: reason,
+  );
 
   /// Disable the member's MFA.
   ///
@@ -192,10 +205,11 @@ final class Member implements UserClient {
   /// await member.disableMfa(reason: 'Testing');
   /// ```
   Future<void> disableMfa({String? reason}) => _datastore.member.update(
-      guildId: guildId.value,
-      memberId: id.value,
-      payload: {'mfa_enable': false},
-      reason: reason);
+    guildId: guildId.value,
+    memberId: id.value,
+    payload: {'mfa_enable': false},
+    reason: reason,
+  );
 
   /// Toggle the member's MFA.
   ///
@@ -216,15 +230,16 @@ final class Member implements UserClient {
   /// ```
   Future<void> edit(MemberBuilder builder, {String? reason}) =>
       _datastore.member.update(
-          guildId: guildId.value,
-          memberId: id.value,
-          reason: reason,
-          payload: {
-            'nick': nickname,
-            'mute': builder.isMuted,
-            'deaf': builder.isDeafened,
-            'exclude': builder.isExcluded,
-          });
+        guildId: guildId.value,
+        memberId: id.value,
+        reason: reason,
+        payload: {
+          'nick': nickname,
+          'mute': builder.isMuted,
+          'deaf': builder.isDeafened,
+          'exclude': builder.isExcluded,
+        },
+      );
 
   Member({
     required EntityContext ctx,

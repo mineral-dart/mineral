@@ -108,25 +108,29 @@ void main() {
   });
 
   group('Ready failure', () {
-    test('error propagates and subsequent providers are not initialized',
-        () async {
-      manager
-        ..register(_TrackingProvider('A', log))
-        ..register(_FailingReadyProvider('B', log))
-        ..register(_TrackingProvider('C', log));
+    test(
+      'error propagates and subsequent providers are not initialized',
+      () async {
+        manager
+          ..register(_TrackingProvider('A', log))
+          ..register(_FailingReadyProvider('B', log))
+          ..register(_TrackingProvider('C', log));
 
-      await expectLater(
-        manager.ready(),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'message',
-          contains('B failed in ready'),
-        )),
-      );
+        await expectLater(
+          manager.ready(),
+          throwsA(
+            isA<Exception>().having(
+              (e) => e.toString(),
+              'message',
+              contains('B failed in ready'),
+            ),
+          ),
+        );
 
-      expect(log, ['ready:A', 'ready:B']);
-      expect(log, isNot(contains('ready:C')));
-    });
+        expect(log, ['ready:A', 'ready:B']);
+        expect(log, isNot(contains('ready:C')));
+      },
+    );
 
     test('logger records the error', () async {
       final env = createTestIoc();

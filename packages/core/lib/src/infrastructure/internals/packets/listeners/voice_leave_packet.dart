@@ -12,7 +12,7 @@ final class VoiceLeavePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   VoiceLeavePacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -28,7 +28,10 @@ final class VoiceLeavePacket implements ListenablePacket {
         beforeRaw['channel_id'] != null &&
         beforeRaw['channel_id'] != payload['channel_id']) {
       final before = await _marshaller.serializers.voice.serialize(beforeRaw);
-      dispatch<VoiceLeaveArgs>(event: Event.voiceLeave, payload: (state: before));
+      dispatch<VoiceLeaveArgs>(
+        event: Event.voiceLeave,
+        payload: (state: before),
+      );
 
       await _marshaller.cache.invalidate(cacheKey);
     }

@@ -31,8 +31,10 @@ final class MessagePart extends BasePart implements MessagePartContract {
     final body = await dataStore.requestBucket.get<List<dynamic>>(req);
 
     final messages = await Future.wait(
-      body.map((e) async => marshaller.serializers.message
-          .normalize(e as Map<String, dynamic>)),
+      body.map(
+        (e) async =>
+            marshaller.serializers.message.normalize(e as Map<String, dynamic>),
+      ),
     );
 
     final serializedMessages = await Future.wait(
@@ -76,8 +78,9 @@ final class MessagePart extends BasePart implements MessagePartContract {
       return message as T;
     }
 
-    final req =
-        Request.json(endpoint: '/channels/$channelId/messages/$messageId');
+    final req = Request.json(
+      endpoint: '/channels/$channelId/messages/$messageId',
+    );
     final body = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     final message = await marshaller.serializers.message.normalize(body);
@@ -105,14 +108,14 @@ final class MessagePart extends BasePart implements MessagePartContract {
     };
     final req = switch (files.isEmpty) {
       true => Request.json(
-          endpoint: '/channels/$channelId/messages/$messageId',
-          body: payload,
-        ),
+        endpoint: '/channels/$channelId/messages/$messageId',
+        body: payload,
+      ),
       false => Request.formData(
-          endpoint: '/channels/$channelId/messages/$messageId',
-          body: payload,
-          files: files,
-        ),
+        endpoint: '/channels/$channelId/messages/$messageId',
+        body: payload,
+        files: files,
+      ),
     };
 
     final body = await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
@@ -167,14 +170,14 @@ final class MessagePart extends BasePart implements MessagePartContract {
     };
     final req = switch (files.isEmpty) {
       true => Request.json(
-          endpoint: '/channels/$channelId/messages',
-          body: payload,
-        ),
+        endpoint: '/channels/$channelId/messages',
+        body: payload,
+      ),
       false => Request.formData(
-          endpoint: '/channels/$channelId/messages',
-          body: payload,
-          files: files,
-        ),
+        endpoint: '/channels/$channelId/messages',
+        body: payload,
+        files: files,
+      ),
     };
 
     final body = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
@@ -209,7 +212,9 @@ final class MessagePart extends BasePart implements MessagePartContract {
       files: files,
     );
 
-    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.message.normalize(result);
     final serialized = await marshaller.serializers.message.serialize(raw);
@@ -291,8 +296,9 @@ final class MessagePart extends BasePart implements MessagePartContract {
     body['channel_id'] = channelId.value;
     body['guild_id'] = guildId?.value;
 
-    final answerPayload =
-        await marshaller.serializers.pollAnswerVote.normalize(body);
+    final answerPayload = await marshaller.serializers.pollAnswerVote.normalize(
+      body,
+    );
 
     final answer = await marshaller.serializers.pollAnswerVote.serialize(
       answerPayload,

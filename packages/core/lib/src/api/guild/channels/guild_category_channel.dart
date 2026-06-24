@@ -13,7 +13,10 @@ final class GuildCategoryChannel extends GuildChannel {
   ThreadsManager get threads => properties.threads;
 
   GuildCategoryChannel(this.properties) {
-    methods = ChannelMethods(properties.guildId!, properties.id,
-        ctx: properties.ctx);
+    methods = ChannelMethods(
+      properties.guildId!,
+      properties.id,
+      ctx: properties.ctx,
+    );
   }
 }

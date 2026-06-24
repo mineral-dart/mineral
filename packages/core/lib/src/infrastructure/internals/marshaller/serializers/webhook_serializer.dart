@@ -45,8 +45,7 @@ final class WebhookSerializer implements SerializerContract<Webhook> {
       channelId: json['channel_id'] != null
           ? Snowflake.parse(json['channel_id'])
           : null,
-      userId:
-          json['user_id'] != null ? Snowflake.parse(json['user_id']) : null,
+      userId: json['user_id'] != null ? Snowflake.parse(json['user_id']) : null,
       name: json['name'] as String?,
       avatar: json['avatar'] as String?,
       token: json['token'] as String?,

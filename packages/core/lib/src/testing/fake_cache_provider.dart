@@ -33,8 +33,10 @@ final class FakeCacheProvider implements CacheProviderContract {
       keys.map((k) => store[k] as Map<String, dynamic>?).toList();
 
   @override
-  FutureOr<Map<String, dynamic>> getOrFail(String key,
-          {Exception Function()? onFail}) =>
+  FutureOr<Map<String, dynamic>> getOrFail(
+    String key, {
+    Exception Function()? onFail,
+  }) =>
       store[key] as Map<String, dynamic>? ??
       (throw (onFail?.call() ?? Exception('Key $key not found')));
 
@@ -46,8 +48,10 @@ final class FakeCacheProvider implements CacheProviderContract {
       .firstOrNull;
 
   @override
-  FutureOr<Map<String, dynamic>> whereKeyStartsWithOrFail(String prefix,
-          {Exception Function()? onFail}) =>
+  FutureOr<Map<String, dynamic>> whereKeyStartsWithOrFail(
+    String prefix, {
+    Exception Function()? onFail,
+  }) =>
       whereKeyStartsWith(prefix) as Map<String, dynamic>? ??
       (throw (onFail?.call() ?? Exception('Prefix $prefix not found')));
 

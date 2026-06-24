@@ -13,7 +13,9 @@ final class EventsCommand implements CommandDeclaration {
       return;
     }
 
-    final lines = events.values.map((event) => '• **${event.name}**').join('\n');
+    final lines = events.values
+        .map((event) => '• **${event.name}**')
+        .join('\n');
 
     await ctx.interaction.reply(
       builder: MessageBuilder.text('📅 Scheduled events:\n$lines'),
@@ -26,9 +28,11 @@ final class EventsCommand implements CommandDeclaration {
     return CommandDeclarationBuilder()
       ..setName('events')
       ..setDescription('Manage scheduled events')
-      ..addSubCommand((sub) => sub
-        ..setName('list')
-        ..setDescription('List the guild scheduled events')
-        ..setHandle(list));
+      ..addSubCommand(
+        (sub) => sub
+          ..setName('list')
+          ..setDescription('List the guild scheduled events')
+          ..setHandle(list),
+      );
   }
 }

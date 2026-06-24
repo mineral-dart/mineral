@@ -130,7 +130,10 @@ final class Simulator {
     await _runComponent(customId, () => listener.handle(submission));
   }
 
-  Future<void> _runEvent(String eventName, FutureOr<void> Function() body) async {
+  Future<void> _runEvent(
+    String eventName,
+    FutureOr<void> Function() body,
+  ) async {
     try {
       await body();
     } on Object catch (e, st) {
@@ -138,15 +141,23 @@ final class Simulator {
     }
   }
 
-  Future<void> _runCommand(String commandName, FutureOr<void> Function() body) async {
+  Future<void> _runCommand(
+    String commandName,
+    FutureOr<void> Function() body,
+  ) async {
     try {
       await body();
     } on Object catch (e, st) {
-      errors.add(HandlerError(error: e, stackTrace: st, commandName: commandName));
+      errors.add(
+        HandlerError(error: e, stackTrace: st, commandName: commandName),
+      );
     }
   }
 
-  Future<void> _runComponent(String customId, FutureOr<void> Function() body) async {
+  Future<void> _runComponent(
+    String customId,
+    FutureOr<void> Function() body,
+  ) async {
     try {
       await body();
     } on Object catch (e, st) {
@@ -175,7 +186,7 @@ final class TestInteractionResponder {
       'data': {
         'flags': flags,
         'components': [
-          {'type': 10, 'content': content}
+          {'type': 10, 'content': content},
         ],
       },
     };
@@ -195,10 +206,7 @@ final class TestInteractionResponder {
     final dataStore = ioc.resolve<DataStoreContract>();
     final body = {
       'type': 9,
-      'data': {
-        'custom_id': customId,
-        'title': title,
-      },
+      'data': {'custom_id': customId, 'title': title},
     };
     final req = Request.json(
       endpoint: '/interactions/$interactionId/$token/callback',

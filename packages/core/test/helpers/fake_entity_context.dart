@@ -15,10 +15,9 @@ EntityContext fakeEntityContext({
   WebsocketOrchestratorContract? wss,
   LoggerContract? logger,
   RuntimeState? runtimeState,
-}) =>
-    EntityContext(
-      datastore: dataStore ?? FakeDataStore(FakeHttpClient()),
-      wss: wss ?? FakeWebsocketOrchestrator(),
-      logger: logger ?? FakeLogger(),
-      runtimeState: runtimeState ?? RuntimeState(),
-    );
+}) => EntityContext(
+  datastore: dataStore ?? FakeDataStore(FakeHttpClient()),
+  wss: wss ?? FakeWebsocketOrchestrator(),
+  logger: logger ?? FakeLogger(),
+  runtimeState: runtimeState ?? RuntimeState(),
+);

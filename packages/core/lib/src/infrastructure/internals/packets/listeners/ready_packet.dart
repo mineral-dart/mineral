@@ -29,21 +29,23 @@ final class ReadyPacket implements ListenablePacket {
     required RuntimeState runtimeState,
     required EntityContext entityContext,
     CacheConfig? cacheConfig,
-  })  : _marshaller = marshaller,
-        _commandManager = commandManager,
-        _wss = wss,
-        _runtimeState = runtimeState,
-        _entityContext = entityContext,
-        _cacheConfig = cacheConfig;
+  }) : _marshaller = marshaller,
+       _commandManager = commandManager,
+       _wss = wss,
+       _runtimeState = runtimeState,
+       _entityContext = entityContext,
+       _cacheConfig = cacheConfig;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     // Bot is created at runtime from the gateway's READY payload and stored
     // in the shared [RuntimeState] for downstream consumers (GuildCreatePacket,
     // Interaction).
-    final bot = _runtimeState.bot ??=
-        Bot.fromJson(message.payload as Map<String, dynamic>,
-            wss: _wss, entityContext: _entityContext);
+    final bot = _runtimeState.bot ??= Bot.fromJson(
+      message.payload as Map<String, dynamic>,
+      wss: _wss,
+      entityContext: _entityContext,
+    );
 
     if (!isAlreadyUsed) {
       await _commandManager.registerGlobal(bot);

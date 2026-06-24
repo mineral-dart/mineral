@@ -13,18 +13,22 @@ final class ShardData implements ShardDataContract {
 
   @override
   void dispatch(WebsocketMessage message) {
-    if (message.content case ShardMessage(:final sequence)
-        when sequence != null) {
+    if (message.content case ShardMessage(
+      :final sequence,
+    ) when sequence != null) {
       _shard.authentication.sequence = sequence;
     }
 
-    if (message.content case ShardMessage(:final type, :final payload)
-        when type == PacketType.ready.name) {
+    if (message.content case ShardMessage(
+      :final type,
+      :final payload,
+    ) when type == PacketType.ready.name) {
       _shard.authentication.setupRequirements(payload as Map<String, dynamic>);
     }
 
-    if (message.content case ShardMessage(:final type)
-        when type == PacketType.resumed.name) {
+    if (message.content case ShardMessage(
+      :final type,
+    ) when type == PacketType.resumed.name) {
       _shard.authentication.resetReconnectAttempts();
     }
 

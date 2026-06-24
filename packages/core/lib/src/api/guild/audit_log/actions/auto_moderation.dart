@@ -47,8 +47,12 @@ final class AutoModerationBlockMessageAuditLog extends AuditLog {
     required EntityContext ctx,
     required this.messageId,
     required this.ruleTriggerType,
-  }) : super(AuditLogType.autoModerationBlockMessage, guildId, userId,
-            ctx: ctx);
+  }) : super(
+         AuditLogType.autoModerationBlockMessage,
+         guildId,
+         userId,
+         ctx: ctx,
+       );
 }
 
 final class AutoModerationFlagToChannelAuditLog extends AuditLog {
@@ -61,8 +65,12 @@ final class AutoModerationFlagToChannelAuditLog extends AuditLog {
     required EntityContext ctx,
     required this.messageId,
     this.channelId,
-  }) : super(AuditLogType.autoModerationFlagToChannel, guildId, userId,
-            ctx: ctx);
+  }) : super(
+         AuditLogType.autoModerationFlagToChannel,
+         guildId,
+         userId,
+         ctx: ctx,
+       );
 }
 
 final class AutoModerationUserCommunicationDisabledAuditLog extends AuditLog {
@@ -74,7 +82,10 @@ final class AutoModerationUserCommunicationDisabledAuditLog extends AuditLog {
     required EntityContext ctx,
     required this.duration,
     required Snowflake userId,
-  }) : super(AuditLogType.autoModerationUserCommunicationDisabled, guildId,
-            moderatorId,
-            ctx: ctx);
+  }) : super(
+         AuditLogType.autoModerationUserCommunicationDisabled,
+         guildId,
+         moderatorId,
+         ctx: ctx,
+       );
 }

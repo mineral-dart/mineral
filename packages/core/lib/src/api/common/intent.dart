@@ -148,7 +148,8 @@ final class Intent {
   /// Includes everything except [guildMembers], [guildPresences], and [messageContent].
   ///
   /// Value: 32509
-  static const int allNonPrivileged = guilds |
+  static const int allNonPrivileged =
+      guilds |
       guildModeration |
       guildEmojisAndStickers |
       guildIntegrations |

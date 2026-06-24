@@ -19,8 +19,9 @@ final class PollSerializer implements SerializerContract<Poll> {
     final payload = {
       'message_id': json['message_id'],
       'question_text': (json['question'] as Map<String, dynamic>)['text'],
-      'answers':
-          List.from(json['answers'] as Iterable<dynamic>).map((element) => (element as Map<String, dynamic>)['text']).toList(),
+      'answers': List.from(
+        json['answers'] as Iterable<dynamic>,
+      ).map((element) => (element as Map<String, dynamic>)['text']).toList(),
       'expiry': json['expiry'],
       'allow_multiselect': json['allow_multiselect'],
       'layout_type': json['layout_type'],
@@ -35,25 +36,30 @@ final class PollSerializer implements SerializerContract<Poll> {
   @override
   Poll serialize(Map<String, dynamic> json) {
     return Poll(
-        messageId: Snowflake.nullable(json['message_id'] as String?),
-        question: PollQuestion(content: json['question_text'] as String),
-        answers: List.from(json['answers'] as Iterable<dynamic>)
-            .map((element) {
-              final el = element as Map<String, dynamic>;
-              return PollAnswer(
-                content: el['text'] as String,
-                emoji: Helper.createOrNull(
-                    field: el['emoji'],
-                    fn: () => PartialEmoji.fromUnicode(el['emoji'] as String)));
-            })
-            .toList(),
-        expireAt: Helper.createOrNull(
-            field: json['expiry'],
-            fn: () =>
-                DateTime.parse(json['expiry'] as String).difference(DateTime.now())),
-        isAllowMultiple: json['allow_multiselect'] as bool,
-        layout: findInEnum(PollLayout.values, json['layout_type'],
-            orElse: PollLayout.unknown));
+      messageId: Snowflake.nullable(json['message_id'] as String?),
+      question: PollQuestion(content: json['question_text'] as String),
+      answers: List.from(json['answers'] as Iterable<dynamic>).map((element) {
+        final el = element as Map<String, dynamic>;
+        return PollAnswer(
+          content: el['text'] as String,
+          emoji: Helper.createOrNull(
+            field: el['emoji'],
+            fn: () => PartialEmoji.fromUnicode(el['emoji'] as String),
+          ),
+        );
+      }).toList(),
+      expireAt: Helper.createOrNull(
+        field: json['expiry'],
+        fn: () =>
+            DateTime.parse(json['expiry'] as String).difference(DateTime.now()),
+      ),
+      isAllowMultiple: json['allow_multiselect'] as bool,
+      layout: findInEnum(
+        PollLayout.values,
+        json['layout_type'],
+        orElse: PollLayout.unknown,
+      ),
+    );
   }
 
   @override

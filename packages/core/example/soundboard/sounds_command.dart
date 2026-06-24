@@ -13,7 +13,9 @@ final class SoundsCommand implements CommandDeclaration {
       return;
     }
 
-    final lines = sounds.values.map((sound) => '• **${sound.name}**').join('\n');
+    final lines = sounds.values
+        .map((sound) => '• **${sound.name}**')
+        .join('\n');
 
     await ctx.interaction.reply(
       builder: MessageBuilder.text('🔊 Soundboard sounds:\n$lines'),
@@ -26,9 +28,11 @@ final class SoundsCommand implements CommandDeclaration {
     return CommandDeclarationBuilder()
       ..setName('sounds')
       ..setDescription('Soundboard utilities')
-      ..addSubCommand((sub) => sub
-        ..setName('list')
-        ..setDescription('List the guild soundboard sounds')
-        ..setHandle(list));
+      ..addSubCommand(
+        (sub) => sub
+          ..setName('list')
+          ..setDescription('List the guild soundboard sounds')
+          ..setHandle(list),
+      );
   }
 }

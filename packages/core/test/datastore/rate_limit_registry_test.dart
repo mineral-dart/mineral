@@ -42,9 +42,7 @@ void main() {
     test('headers without bucket id are ignored', () {
       final registry = RateLimitRegistry();
       final route = RouteKey('GET', '/users/@me');
-      registry.updateFromHeaders(route, {
-        Header('X-RateLimit-Limit', '5'),
-      });
+      registry.updateFromHeaders(route, {Header('X-RateLimit-Limit', '5')});
       expect(registry.bucketFor(route), isNull);
     });
 

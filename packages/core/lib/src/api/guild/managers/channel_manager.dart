@@ -41,9 +41,10 @@ final class ChannelManager<C extends Channel> {
   /// ```dart
   /// final channel = await guild.channels.create<TextChannel>(builder, reason: 'Testing');
   /// ```
-  Future<T> create<T extends C>(ChannelBuilderContract builder,
-          {String? reason}) =>
-      _datastore.channel.create<T>(_guildId.value, builder, reason: reason);
+  Future<T> create<T extends C>(
+    ChannelBuilderContract builder, {
+    String? reason,
+  }) => _datastore.channel.create<T>(_guildId.value, builder, reason: reason);
 
   /// Resolve the guild's afk channel.
   /// ```dart
@@ -51,8 +52,10 @@ final class ChannelManager<C extends Channel> {
   /// ```
   Future<GuildVoiceChannel?> resolveAfkChannel({bool force = false}) async {
     return switch (afkChannelId) {
-      Snowflake(:final value) =>
-        _datastore.channel.get<GuildVoiceChannel>(value, force),
+      Snowflake(:final value) => _datastore.channel.get<GuildVoiceChannel>(
+        value,
+        force,
+      ),
       _ => null,
     };
   }
@@ -63,8 +66,10 @@ final class ChannelManager<C extends Channel> {
   /// ```
   Future<GuildTextChannel?> resolveSystemChannel({bool force = false}) async {
     return switch (systemChannelId) {
-      Snowflake(:final value) =>
-        _datastore.channel.get<GuildTextChannel>(value, force),
+      Snowflake(:final value) => _datastore.channel.get<GuildTextChannel>(
+        value,
+        force,
+      ),
       _ => null,
     };
   }
@@ -75,8 +80,10 @@ final class ChannelManager<C extends Channel> {
   /// ```
   Future<GuildTextChannel?> resolveRulesChannel({bool force = false}) async {
     return switch (rulesChannelId) {
-      Snowflake(:final value) =>
-        _datastore.channel.get<GuildTextChannel>(value, force),
+      Snowflake(:final value) => _datastore.channel.get<GuildTextChannel>(
+        value,
+        force,
+      ),
       _ => null,
     };
   }
@@ -85,11 +92,14 @@ final class ChannelManager<C extends Channel> {
   /// ```dart
   /// final publicUpdatesChannel = await guild.channels.resolvePublicUpdatesChannel();
   /// ```
-  Future<GuildTextChannel?> resolvePublicUpdatesChannel(
-      {bool force = false}) async {
+  Future<GuildTextChannel?> resolvePublicUpdatesChannel({
+    bool force = false,
+  }) async {
     return switch (publicUpdatesChannelId) {
-      Snowflake(:final value) =>
-        _datastore.channel.get<GuildTextChannel>(value, force),
+      Snowflake(:final value) => _datastore.channel.get<GuildTextChannel>(
+        value,
+        force,
+      ),
       _ => null,
     };
   }
@@ -98,11 +108,14 @@ final class ChannelManager<C extends Channel> {
   /// ```dart
   /// final safetyAlertsChannel = await guild.channels.resolveSafetyAlertsChannel();
   /// ```
-  Future<GuildTextChannel?> resolveSafetyAlertsChannel(
-      {bool force = false}) async {
+  Future<GuildTextChannel?> resolveSafetyAlertsChannel({
+    bool force = false,
+  }) async {
     return switch (safetyAlertsChannelId) {
-      Snowflake(:final value) =>
-        _datastore.channel.get<GuildTextChannel>(value, force),
+      Snowflake(:final value) => _datastore.channel.get<GuildTextChannel>(
+        value,
+        force,
+      ),
       _ => null,
     };
   }
@@ -113,8 +126,9 @@ final class ChannelManager<C extends Channel> {
   /// await guild.setAfkChannel('1091121140090535956', reason: 'Testing');
   /// ```
   Future<void> setAfkChannel(String? channelId, {String? reason}) async {
-    await _datastore.guild
-        .update(_guildId.value, {'afk_channel_id': channelId}, reason);
+    await _datastore.guild.update(_guildId.value, {
+      'afk_channel_id': channelId,
+    }, reason);
   }
 
   /// Set the guild's system channel.
@@ -123,8 +137,9 @@ final class ChannelManager<C extends Channel> {
   /// await guild.setSystemChannel('1091121140090535956', reason: 'Testing');
   /// ```
   Future<void> setSystemChannel(String? channelId, {String? reason}) async {
-    await _datastore.guild
-        .update(_guildId.value, {'system_channel_id': channelId}, reason);
+    await _datastore.guild.update(_guildId.value, {
+      'system_channel_id': channelId,
+    }, reason);
   }
 
   /// Set the guild's rules channel.
@@ -133,8 +148,9 @@ final class ChannelManager<C extends Channel> {
   /// await guild.setRulesChannel('1091121140090535956', reason: 'Testing');
   /// ```
   Future<void> setRulesChannel(String? channelId, {String? reason}) async {
-    await _datastore.guild
-        .update(_guildId.value, {'rules_channel_id': channelId}, reason);
+    await _datastore.guild.update(_guildId.value, {
+      'rules_channel_id': channelId,
+    }, reason);
   }
 
   /// Set the guild's public updates channel.
@@ -142,10 +158,13 @@ final class ChannelManager<C extends Channel> {
   /// ```dart
   /// await guild.setPublicUpdatesChannel('1091121140090535956', reason: 'Testing');
   /// ```
-  Future<void> setPublicUpdatesChannel(String? channelId,
-      {String? reason}) async {
-    await _datastore.guild.update(
-        _guildId.value, {'public_updates_channel_id': channelId}, reason);
+  Future<void> setPublicUpdatesChannel(
+    String? channelId, {
+    String? reason,
+  }) async {
+    await _datastore.guild.update(_guildId.value, {
+      'public_updates_channel_id': channelId,
+    }, reason);
   }
 
   factory ChannelManager.empty(String guildId, {required EntityContext ctx}) {
@@ -161,18 +180,22 @@ final class ChannelManager<C extends Channel> {
   }
 
   factory ChannelManager.fromMap(
-      Object guildId, Map<String, dynamic> payload,
-      {required EntityContext ctx}) {
+    Object guildId,
+    Map<String, dynamic> payload, {
+    required EntityContext ctx,
+  }) {
     return ChannelManager(
       Snowflake.parse(guildId),
       ctx: ctx,
       afkChannelId: Snowflake.nullable(payload['afk_channel_id']),
       systemChannelId: Snowflake.nullable(payload['system_channel_id']),
       rulesChannelId: Snowflake.nullable(payload['rules_channel_id']),
-      publicUpdatesChannelId:
-          Snowflake.nullable(payload['public_updates_channel_id']),
-      safetyAlertsChannelId:
-          Snowflake.nullable(payload['safety_alerts_channel_id']),
+      publicUpdatesChannelId: Snowflake.nullable(
+        payload['public_updates_channel_id'],
+      ),
+      safetyAlertsChannelId: Snowflake.nullable(
+        payload['safety_alerts_channel_id'],
+      ),
     );
   }
 }

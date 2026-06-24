@@ -25,7 +25,7 @@ final class RedisProvider implements CacheProviderContract {
   CacheTtlPolicy get _ttlPolicy => config.ttlPolicy;
 
   RedisProvider({required String host, required int port, String? password})
-      : _password = password {
+    : _password = password {
     settings = RedisSettings(host, port, hasPassword: password != null);
   }
 
@@ -70,8 +70,9 @@ final class RedisProvider implements CacheProviderContract {
     final keys = <dynamic>[];
     var cursor = '0';
     do {
-      final result = await Command(_connection)
-          .send_object(['SCAN', cursor, 'MATCH', match, 'COUNT', 100]);
+      final result = await Command(
+        _connection,
+      ).send_object(['SCAN', cursor, 'MATCH', match, 'COUNT', 100]);
       cursor = (result as List)[0].toString();
       keys.addAll(result[1] as List);
     } while (cursor != '0');
@@ -106,8 +107,9 @@ final class RedisProvider implements CacheProviderContract {
     final keys = await _scanKeys(match: '${_escapeGlob(prefix)}*');
     if (keys.isEmpty) return {};
 
-    final List values =
-        await Command(_connection).send_object(['MGET', ...keys]);
+    final List values = await Command(
+      _connection,
+    ).send_object(['MGET', ...keys]);
 
     final Map<String, dynamic> r = {};
     for (var i = 0; i < keys.length; i++) {
@@ -119,14 +121,16 @@ final class RedisProvider implements CacheProviderContract {
   }
 
   @override
-  Future<Map<String, dynamic>> whereKeyStartsWithOrFail(String prefix,
-      {Exception Function()? onFail}) async {
+  Future<Map<String, dynamic>> whereKeyStartsWithOrFail(
+    String prefix, {
+    Exception Function()? onFail,
+  }) async {
     final entries = await whereKeyStartsWith(prefix);
 
     return entries.isEmpty
         ? onFail != null
-            ? throw onFail()
-            : throw Exception('No entries found')
+              ? throw onFail()
+              : throw Exception('No entries found')
         : entries;
   }
 
@@ -145,15 +149,18 @@ final class RedisProvider implements CacheProviderContract {
     final values = await Command(_connection).send_object(['MGET', ...keys]);
     if (values case final List values) {
       return List<Map<String, dynamic>?>.from(
-          values.map((e) => e == null ? null : jsonDecode(e as String)).toList());
+        values.map((e) => e == null ? null : jsonDecode(e as String)).toList(),
+      );
     }
 
     throw Exception('Values are not iterable');
   }
 
   @override
-  Future<Map<String, dynamic>> getOrFail(String key,
-      {Exception Function()? onFail}) async {
+  Future<Map<String, dynamic>> getOrFail(
+    String key, {
+    Exception Function()? onFail,
+  }) async {
     final value = await get(key);
     if (value == null) {
       if (onFail case Function()) {
@@ -189,8 +196,7 @@ final class RedisProvider implements CacheProviderContract {
     final keyTtls = {
       for (final key in objects.keys) key: ttl ?? _ttlPolicy.ttlFor(key),
     };
-    final hasAnyTtl =
-        keyTtls.values.any((d) => d != null && d > Duration.zero);
+    final hasAnyTtl = keyTtls.values.any((d) => d != null && d > Duration.zero);
 
     if (!hasAnyTtl) {
       final encoded = {

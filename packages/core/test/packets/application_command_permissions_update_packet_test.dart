@@ -23,20 +23,20 @@ const _channelId = '555666777888999000';
 // ── Shard message factory ─────────────────────────────────────────────────────
 
 ShardMessage<dynamic> _buildShardMessage() => ShardMessage(
-      type: 'APPLICATION_COMMAND_PERMISSIONS_UPDATE',
-      opCode: OpCode.dispatch,
-      sequence: 1,
-      payload: {
-        'id': _commandId,
-        'application_id': _applicationId,
-        'guild_id': _guildId,
-        'permissions': [
-          {'id': _roleId, 'type': 1, 'permission': true},
-          {'id': _userId, 'type': 2, 'permission': false},
-          {'id': _channelId, 'type': 3, 'permission': true},
-        ],
-      },
-    );
+  type: 'APPLICATION_COMMAND_PERMISSIONS_UPDATE',
+  opCode: OpCode.dispatch,
+  sequence: 1,
+  payload: {
+    'id': _commandId,
+    'application_id': _applicationId,
+    'guild_id': _guildId,
+    'permissions': [
+      {'id': _roleId, 'type': 1, 'permission': true},
+      {'id': _userId, 'type': 2, 'permission': false},
+      {'id': _channelId, 'type': 3, 'permission': true},
+    ],
+  },
+);
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -45,12 +45,17 @@ void main() {
     // ── packetType identity ─────────────────────────────────────────────────
 
     test('packetType is applicationCommandPermissionsUpdate', () {
-      final packet =
-          ApplicationCommandPermissionsUpdatePacket(dataStore: buildMockDs());
-      expect(packet.packetType,
-          equals(PacketType.applicationCommandPermissionsUpdate));
-      expect(packet.packetType.name,
-          equals('APPLICATION_COMMAND_PERMISSIONS_UPDATE'));
+      final packet = ApplicationCommandPermissionsUpdatePacket(
+        dataStore: buildMockDs(),
+      );
+      expect(
+        packet.packetType,
+        equals(PacketType.applicationCommandPermissionsUpdate),
+      );
+      expect(
+        packet.packetType.name,
+        equals('APPLICATION_COMMAND_PERMISSIONS_UPDATE'),
+      );
     });
 
     // ── dispatch ────────────────────────────────────────────────────────────
@@ -61,51 +66,63 @@ void main() {
 
       setUp(() {
         final ds = MockDataStore();
-        guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+        guild = buildMinimalGuild(
+          _guildId,
+          buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+        );
         when(() => ds.guild).thenReturn(FakeGuildPart(guild));
         packet = ApplicationCommandPermissionsUpdatePacket(dataStore: ds);
       });
 
-      test('dispatches Event.guildApplicationCommandPermissionsUpdate',
-          () async {
-        Event? capturedEvent;
+      test(
+        'dispatches Event.guildApplicationCommandPermissionsUpdate',
+        () async {
+          Event? capturedEvent;
 
-        void dispatch<T extends Object>(
-            {required Event event,
+          void dispatch<T extends Object>({
+            required Event event,
             required T payload,
-            bool Function(String?)? constraint}) {
-          capturedEvent = event;
-        }
+            bool Function(String?)? constraint,
+          }) {
+            capturedEvent = event;
+          }
 
-        await packet.listen(_buildShardMessage(), dispatch);
+          await packet.listen(_buildShardMessage(), dispatch);
 
-        expect(capturedEvent,
-            equals(Event.guildApplicationCommandPermissionsUpdate));
-      });
+          expect(
+            capturedEvent,
+            equals(Event.guildApplicationCommandPermissionsUpdate),
+          );
+        },
+      );
 
       test('payload is GuildApplicationCommandPermissionsUpdateArgs', () async {
         Object? capturedPayload;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           capturedPayload = payload;
         }
 
         await packet.listen(_buildShardMessage(), dispatch);
 
-        expect(capturedPayload,
-            isA<GuildApplicationCommandPermissionsUpdateArgs>());
+        expect(
+          capturedPayload,
+          isA<GuildApplicationCommandPermissionsUpdateArgs>(),
+        );
       });
 
       test('payload carries the resolved guild', () async {
         GuildApplicationCommandPermissionsUpdateArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.guildApplicationCommandPermissionsUpdate) {
             args = payload as GuildApplicationCommandPermissionsUpdateArgs;
           }
@@ -121,10 +138,11 @@ void main() {
       test('GuildApplicationCommandPermissions has correct ids', () async {
         GuildApplicationCommandPermissionsUpdateArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.guildApplicationCommandPermissionsUpdate) {
             args = payload as GuildApplicationCommandPermissionsUpdateArgs;
           }
@@ -142,10 +160,11 @@ void main() {
       test('permissions list has correct entries with correct types', () async {
         GuildApplicationCommandPermissionsUpdateArgs? args;
 
-        void dispatch<T extends Object>(
-            {required Event event,
-            required T payload,
-            bool Function(String?)? constraint}) {
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {
           if (event == Event.guildApplicationCommandPermissionsUpdate) {
             args = payload as GuildApplicationCommandPermissionsUpdateArgs;
           }
@@ -170,7 +189,9 @@ void main() {
         // channel entry
         expect(entries[2].id, equals(Snowflake.parse(_channelId)));
         expect(
-            entries[2].type, equals(ApplicationCommandPermissionType.channel));
+          entries[2].type,
+          equals(ApplicationCommandPermissionType.channel),
+        );
         expect(entries[2].permission, isTrue);
       });
     });

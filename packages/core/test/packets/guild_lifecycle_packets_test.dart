@@ -23,37 +23,37 @@ const _guildId = '123456789012345678';
 // ── Minimal guild payload ──────────────────────────────────────────────────────
 
 Map<String, dynamic> _guildPayload({String name = 'Test Guild'}) => {
-      'id': _guildId,
-      'name': name,
-      'owner_id': '000000000000000001',
-      'description': null,
-      'application_id': null,
-      'icon': null,
-      'icon_hash': null,
-      'splash': null,
-      'discovery_splash': null,
-      'banner': null,
-      'afk_channel_id': null,
-      'afk_timeout': 300,
-      'widget_enabled': false,
-      'verification_level': 0,
-      'default_message_notifications': 0,
-      'explicit_content_filter': 0,
-      'features': <String>[],
-      'mfa_level': 0,
-      'system_channel_id': null,
-      'system_channel_flags': 0,
-      'rules_channel_id': null,
-      'public_updates_channel_id': null,
-      'safety_alerts_channel_id': null,
-      'vanity_url_code': null,
-      'premium_tier': 0,
-      'premium_subscription_count': null,
-      'premium_progress_bar_enabled': false,
-      'preferred_locale': 'en-US',
-      'max_video_channel_users': null,
-      'nsfw_level': 0,
-    };
+  'id': _guildId,
+  'name': name,
+  'owner_id': '000000000000000001',
+  'description': null,
+  'application_id': null,
+  'icon': null,
+  'icon_hash': null,
+  'splash': null,
+  'discovery_splash': null,
+  'banner': null,
+  'afk_channel_id': null,
+  'afk_timeout': 300,
+  'widget_enabled': false,
+  'verification_level': 0,
+  'default_message_notifications': 0,
+  'explicit_content_filter': 0,
+  'features': <String>[],
+  'mfa_level': 0,
+  'system_channel_id': null,
+  'system_channel_flags': 0,
+  'rules_channel_id': null,
+  'public_updates_channel_id': null,
+  'safety_alerts_channel_id': null,
+  'vanity_url_code': null,
+  'premium_tier': 0,
+  'premium_subscription_count': null,
+  'premium_progress_bar_enabled': false,
+  'preferred_locale': 'en-US',
+  'max_video_channel_users': null,
+  'nsfw_level': 0,
+};
 
 ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
     ShardMessage(
@@ -92,15 +92,15 @@ void main() {
       final packet = GuildUpdatePacket(marshaller: marshaller);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
-      await packet.listen(
-          _msg('GUILD_UPDATE', _guildPayload()), dispatch);
+      await packet.listen(_msg('GUILD_UPDATE', _guildPayload()), dispatch);
 
       expect(capturedEvent, equals(Event.guildUpdate));
     });
@@ -109,17 +109,17 @@ void main() {
       final packet = GuildUpdatePacket(marshaller: marshaller);
       GuildUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildUpdate) {
           args = payload as GuildUpdateArgs;
         }
       }
 
-      await packet.listen(
-          _msg('GUILD_UPDATE', _guildPayload()), dispatch);
+      await packet.listen(_msg('GUILD_UPDATE', _guildPayload()), dispatch);
 
       expect(args, isNotNull);
       expect(args!.before, isNull);
@@ -129,24 +129,28 @@ void main() {
     test('before is populated when guild is in cache', () async {
       // Pre-seed old guild data in cache.
       final guildCacheKey = marshaller.cacheKey.guild(_guildId);
-      final oldPayload = await marshaller.serializers.guild
-          .normalize(_guildPayload(name: 'Old Guild Name'));
+      final oldPayload = await marshaller.serializers.guild.normalize(
+        _guildPayload(name: 'Old Guild Name'),
+      );
       await cache.put(guildCacheKey, oldPayload);
 
       final packet = GuildUpdatePacket(marshaller: marshaller);
       GuildUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildUpdate) {
           args = payload as GuildUpdateArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_UPDATE', _guildPayload(name: 'New Guild Name')), dispatch);
+        _msg('GUILD_UPDATE', _guildPayload(name: 'New Guild Name')),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.before, isNotNull);
@@ -157,13 +161,13 @@ void main() {
     test('guild cache is updated after dispatch', () async {
       final packet = GuildUpdatePacket(marshaller: marshaller);
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
-      await packet.listen(
-          _msg('GUILD_UPDATE', _guildPayload()), dispatch);
+      await packet.listen(_msg('GUILD_UPDATE', _guildPayload()), dispatch);
 
       final guildCacheKey = marshaller.cacheKey.guild(_guildId);
       final cached = await cache.get(guildCacheKey);
@@ -185,15 +189,18 @@ void main() {
       final packet = GuildDeletePacket(marshaller: marshaller);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('GUILD_DELETE', {'id': _guildId, 'unavailable': true}), dispatch);
+        _msg('GUILD_DELETE', {'id': _guildId, 'unavailable': true}),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildDelete));
     });
@@ -202,17 +209,20 @@ void main() {
       final packet = GuildDeletePacket(marshaller: marshaller);
       GuildDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildDelete) {
           args = payload as GuildDeleteArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_DELETE', {'id': _guildId, 'unavailable': true}), dispatch);
+        _msg('GUILD_DELETE', {'id': _guildId, 'unavailable': true}),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild, isNull);
@@ -221,24 +231,28 @@ void main() {
     test('guild is populated from cache when present', () async {
       // Pre-seed guild in cache.
       final guildCacheKey = marshaller.cacheKey.guild(_guildId);
-      final normalized =
-          await marshaller.serializers.guild.normalize(_guildPayload());
+      final normalized = await marshaller.serializers.guild.normalize(
+        _guildPayload(),
+      );
       await cache.put(guildCacheKey, normalized);
 
       final packet = GuildDeletePacket(marshaller: marshaller);
       GuildDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildDelete) {
           args = payload as GuildDeleteArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_DELETE', {'id': _guildId, 'unavailable': false}), dispatch);
+        _msg('GUILD_DELETE', {'id': _guildId, 'unavailable': false}),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild, isNotNull);
@@ -247,19 +261,20 @@ void main() {
 
     test('guild is invalidated from cache on delete', () async {
       final guildCacheKey = marshaller.cacheKey.guild(_guildId);
-      final normalized =
-          await marshaller.serializers.guild.normalize(_guildPayload());
+      final normalized = await marshaller.serializers.guild.normalize(
+        _guildPayload(),
+      );
       await cache.put(guildCacheKey, normalized);
 
       final packet = GuildDeletePacket(marshaller: marshaller);
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
-      await packet.listen(
-          _msg('GUILD_DELETE', {'id': _guildId}), dispatch);
+      await packet.listen(_msg('GUILD_DELETE', {'id': _guildId}), dispatch);
 
       final cached = await cache.get(guildCacheKey);
       expect(cached, isNull);

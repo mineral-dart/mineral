@@ -11,16 +11,24 @@ final class PrivateChannelFactory
   ChannelType get type => ChannelType.dm;
 
   @override
-  Future<PrivateChannel> serialize(MarshallerContract marshaller,
-      EntityContext ctx, Map<String, dynamic> json) async {
-    final properties =
-        await ChannelProperties.serializeCache(marshaller, ctx, json);
+  Future<PrivateChannel> serialize(
+    MarshallerContract marshaller,
+    EntityContext ctx,
+    Map<String, dynamic> json,
+  ) async {
+    final properties = await ChannelProperties.serializeCache(
+      marshaller,
+      ctx,
+      json,
+    );
     return PrivateChannel(properties);
   }
 
   @override
   Future<Map<String, dynamic>> normalize(
-      MarshallerContract marshaller, Map<String, dynamic> json) async {
+    MarshallerContract marshaller,
+    Map<String, dynamic> json,
+  ) async {
     final payload = {
       'id': json['id'],
       'type': json['type'],
@@ -39,7 +47,9 @@ final class PrivateChannelFactory
 
   @override
   Map<String, dynamic> deserialize(
-      MarshallerContract marshaller, PrivateChannel channel) {
+    MarshallerContract marshaller,
+    PrivateChannel channel,
+  ) {
     return {
       'id': channel.id.value,
       'type': channel.type.value,

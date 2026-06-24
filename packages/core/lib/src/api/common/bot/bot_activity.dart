@@ -7,8 +7,13 @@ class BotActivity {
   PartialEmoji? emoji;
   String? state;
 
-  BotActivity(
-      {required this.type, this.name, this.url, this.emoji, this.state});
+  BotActivity({
+    required this.type,
+    this.name,
+    this.url,
+    this.emoji,
+    this.state,
+  });
 
   Object toJson() {
     return {

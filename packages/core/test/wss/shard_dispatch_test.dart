@@ -31,8 +31,10 @@ final class _SpyPacketDispatcher implements PacketDispatcherContract {
   }
 
   @override
-  void listen(PacketTypeContract packet,
-      Function(ShardMessage, DispatchEvent) listener) {}
+  void listen(
+    PacketTypeContract packet,
+    Function(ShardMessage, DispatchEvent) listener,
+  ) {}
 
   @override
   void dispose() {}
@@ -44,8 +46,10 @@ final class _NoPubspecStrategy extends DefaultRunningStrategy {
   _NoPubspecStrategy(super.packetDispatcher) : super(logger: FakeLogger());
 
   @override
-  Future<Map> readPubspec(String location) async =>
-      {'version': '5.0.0', 'dependencies': {}};
+  Future<Map> readPubspec(String location) async => {
+    'version': '5.0.0',
+    'dependencies': {},
+  };
 }
 
 WebsocketMessage<ShardMessage> _message(ShardMessage content) =>
@@ -56,14 +60,14 @@ WebsocketMessage<ShardMessage> _message(ShardMessage content) =>
     );
 
 Shard _shard({required RunningStrategy strategy, FakeLogger? logger}) => Shard(
-      shardName: 'test-shard-0',
-      shardIndex: 0,
-      shardCount: 1,
-      url: 'wss://fake',
-      wss: FakeWebsocketOrchestrator(),
-      logger: logger ?? FakeLogger(),
-      strategy: strategy,
-    )..client = FakeWebsocketClient();
+  shardName: 'test-shard-0',
+  shardIndex: 0,
+  shardCount: 1,
+  url: 'wss://fake',
+  wss: FakeWebsocketOrchestrator(),
+  logger: logger ?? FakeLogger(),
+  strategy: strategy,
+)..client = FakeWebsocketClient();
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
@@ -95,11 +99,23 @@ void main() {
     test('dispatches multiple messages in order', () {
       final messages = [
         ShardMessage(
-            type: 'M1', opCode: OpCode.dispatch, sequence: 1, payload: {}),
+          type: 'M1',
+          opCode: OpCode.dispatch,
+          sequence: 1,
+          payload: {},
+        ),
         ShardMessage(
-            type: 'M2', opCode: OpCode.dispatch, sequence: 2, payload: {}),
+          type: 'M2',
+          opCode: OpCode.dispatch,
+          sequence: 2,
+          payload: {},
+        ),
         ShardMessage(
-            type: 'M3', opCode: OpCode.dispatch, sequence: 3, payload: {}),
+          type: 'M3',
+          opCode: OpCode.dispatch,
+          sequence: 3,
+          payload: {},
+        ),
       ];
 
       for (final m in messages) {
@@ -242,55 +258,70 @@ void main() {
     });
 
     test('ShardData.dispatch delegates to the running strategy', () {
-      final msg = _message(ShardMessage(
-        type: 'MESSAGE_CREATE',
-        opCode: OpCode.dispatch,
-        sequence: 5,
-        payload: {'content': 'hello'},
-      ));
+      final msg = _message(
+        ShardMessage(
+          type: 'MESSAGE_CREATE',
+          opCode: OpCode.dispatch,
+          sequence: 5,
+          payload: {'content': 'hello'},
+        ),
+      );
 
       shard.dispatchEvent.dispatch(msg);
 
       expect(spy.dispatched, hasLength(1));
       expect(
-          (spy.dispatched.first as ShardMessage).type, equals('MESSAGE_CREATE'));
+        (spy.dispatched.first as ShardMessage).type,
+        equals('MESSAGE_CREATE'),
+      );
     });
 
     test('ShardData.dispatch updates shard sequence', () {
-      shard.dispatchEvent.dispatch(_message(ShardMessage(
-        type: 'CHANNEL_UPDATE',
-        opCode: OpCode.dispatch,
-        sequence: 77,
-        payload: {},
-      )));
+      shard.dispatchEvent.dispatch(
+        _message(
+          ShardMessage(
+            type: 'CHANNEL_UPDATE',
+            opCode: OpCode.dispatch,
+            sequence: 77,
+            payload: {},
+          ),
+        ),
+      );
 
       expect(shard.authentication.sequence, equals(77));
     });
 
     test('ShardData.dispatch stores READY payload in sessionId', () {
-      shard.dispatchEvent.dispatch(_message(ShardMessage(
-        type: 'READY',
-        opCode: OpCode.dispatch,
-        sequence: 1,
-        payload: {
-          'session_id': 'sess-abc',
-          'resume_gateway_url': 'wss://resume.discord.gg',
-        },
-      )));
+      shard.dispatchEvent.dispatch(
+        _message(
+          ShardMessage(
+            type: 'READY',
+            opCode: OpCode.dispatch,
+            sequence: 1,
+            payload: {
+              'session_id': 'sess-abc',
+              'resume_gateway_url': 'wss://resume.discord.gg',
+            },
+          ),
+        ),
+      );
 
       expect(shard.authentication.sessionId, equals('sess-abc'));
-      expect(
-          shard.authentication.resumeUrl, equals('wss://resume.discord.gg'));
+      expect(shard.authentication.resumeUrl, equals('wss://resume.discord.gg'));
     });
 
     test('ShardData.dispatch handles null payload type gracefully', () {
       expect(
-        () => shard.dispatchEvent.dispatch(_message(ShardMessage(
-          type: null,
-          opCode: OpCode.heartbeatAck,
-          sequence: null,
-          payload: null,
-        ))),
+        () => shard.dispatchEvent.dispatch(
+          _message(
+            ShardMessage(
+              type: null,
+              opCode: OpCode.heartbeatAck,
+              sequence: null,
+              payload: null,
+            ),
+          ),
+        ),
         returnsNormally,
       );
     });
@@ -314,21 +345,29 @@ void main() {
     });
 
     test('sequence is updated after each dispatch', () {
-      shard.dispatchEvent.dispatch(_message(ShardMessage(
-        type: 'EVT',
-        opCode: OpCode.dispatch,
-        sequence: 10,
-        payload: {},
-      )));
+      shard.dispatchEvent.dispatch(
+        _message(
+          ShardMessage(
+            type: 'EVT',
+            opCode: OpCode.dispatch,
+            sequence: 10,
+            payload: {},
+          ),
+        ),
+      );
 
       expect(shard.authentication.sequence, equals(10));
 
-      shard.dispatchEvent.dispatch(_message(ShardMessage(
-        type: 'EVT',
-        opCode: OpCode.dispatch,
-        sequence: 20,
-        payload: {},
-      )));
+      shard.dispatchEvent.dispatch(
+        _message(
+          ShardMessage(
+            type: 'EVT',
+            opCode: OpCode.dispatch,
+            sequence: 20,
+            payload: {},
+          ),
+        ),
+      );
 
       expect(shard.authentication.sequence, equals(20));
     });
@@ -336,12 +375,16 @@ void main() {
     test('sequence is not overwritten by messages without a sequence', () {
       shard.authentication.sequence = 42;
 
-      shard.dispatchEvent.dispatch(_message(ShardMessage(
-        type: null,
-        opCode: OpCode.heartbeatAck,
-        sequence: null,
-        payload: null,
-      )));
+      shard.dispatchEvent.dispatch(
+        _message(
+          ShardMessage(
+            type: null,
+            opCode: OpCode.heartbeatAck,
+            sequence: null,
+            payload: null,
+          ),
+        ),
+      );
 
       expect(shard.authentication.sequence, equals(42));
     });

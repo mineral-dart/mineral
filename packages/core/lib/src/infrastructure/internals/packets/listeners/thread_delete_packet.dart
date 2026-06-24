@@ -16,14 +16,17 @@ final class ThreadDeletePacket implements ListenablePacket {
   ThreadDeletePacket({
     required MarshallerContract marshaller,
     required DataStoreContract dataStore,
-  })  : _marshaller = marshaller,
-        _dataStore = dataStore;
+  }) : _marshaller = marshaller,
+       _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
 
-    final guild = await _dataStore.guild.get(payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      payload['guild_id'] as Object,
+      false,
+    );
 
     final threadCacheKey = _marshaller.cacheKey.thread(payload['id'] as Object);
     final threadRaw = await _marshaller.cache?.getOrFail(threadCacheKey);
@@ -33,6 +36,9 @@ final class ThreadDeletePacket implements ListenablePacket {
 
     await _marshaller.cache.invalidate(threadCacheKey);
 
-    dispatch<GuildThreadDeleteArgs>(event: Event.guildThreadDelete, payload: (thread: thread as ThreadChannel?, guild: guild));
+    dispatch<GuildThreadDeleteArgs>(
+      event: Event.guildThreadDelete,
+      payload: (thread: thread as ThreadChannel?, guild: guild),
+    );
   }
 }

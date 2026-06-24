@@ -25,11 +25,7 @@ void main() {
 
     group('ban', () {
       test('sends PUT to /guilds/:guildId/bans/:memberId', () async {
-        await member.ban(
-          guildId: '222',
-          memberId: '111',
-          deleteSince: null,
-        );
+        await member.ban(guildId: '222', memberId: '111', deleteSince: null);
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('PUT'));

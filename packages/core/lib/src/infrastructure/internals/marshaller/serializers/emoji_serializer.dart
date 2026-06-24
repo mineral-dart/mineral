@@ -22,15 +22,21 @@ final class EmojiSerializer implements SerializerContract<Emoji> {
       'animated': json['animated'] ?? false,
       'roles': json['roles'] != null
           ? List.from(json['roles'] as Iterable<dynamic>)
-              .map((element) => _marshaller.cacheKey
-                  .guildEmoji(json['guild_id'] as String, (element as Map<String, dynamic>)['id'] as String))
-              .toList()
+                .map(
+                  (element) => _marshaller.cacheKey.guildEmoji(
+                    json['guild_id'] as String,
+                    (element as Map<String, dynamic>)['id'] as String,
+                  ),
+                )
+                .toList()
           : <String>[],
       'guild_id': json['guild_id'],
     };
 
-    final cacheKey =
-        _marshaller.cacheKey.guildEmoji(json['guild_id'] as String, json['id'] as String);
+    final cacheKey = _marshaller.cacheKey.guildEmoji(
+      json['guild_id'] as String,
+      json['id'] as String,
+    );
     await _marshaller.cache?.put(cacheKey, payload);
 
     return payload;
@@ -38,7 +44,9 @@ final class EmojiSerializer implements SerializerContract<Emoji> {
 
   @override
   Future<Emoji> serialize(Map<String, dynamic> json) async {
-    final rawRoles = await _marshaller.cache?.getMany(json['roles'] as List<String>);
+    final rawRoles = await _marshaller.cache?.getMany(
+      json['roles'] as List<String>,
+    );
     final roles = await rawRoles?.nonNulls.map((element) async {
       return _marshaller.serializers.role.serialize(element);
     }).wait;
@@ -48,8 +56,11 @@ final class EmojiSerializer implements SerializerContract<Emoji> {
       ctx: _ctx,
       id: Snowflake.parse(json['id']),
       name: json['name'] as String,
-      roles: roles?.fold(
-              {}, (value, element) => {...?value, element.id: element}) ??
+      roles:
+          roles?.fold(
+            {},
+            (value, element) => {...?value, element.id: element},
+          ) ??
           {},
       managed: json['managed'] as bool,
       animated: json['animated'] as bool,

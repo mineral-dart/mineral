@@ -18,10 +18,6 @@ final class Separator implements MessageComponent {
 
   @override
   Map<String, dynamic> toJson() {
-    return {
-      'type': type.value,
-      'divider': _show,
-      'spacing': _spacing.value,
-    };
+    return {'type': type.value, 'divider': _show, 'spacing': _spacing.value};
   }
 }

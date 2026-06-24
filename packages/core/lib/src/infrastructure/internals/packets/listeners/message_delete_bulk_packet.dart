@@ -16,8 +16,8 @@ final class MessageDeleteBulkPacket implements ListenablePacket {
   MessageDeleteBulkPacket({
     required MarshallerContract marshaller,
     required DataStoreContract dataStore,
-  })  : _marshaller = marshaller,
-        _dataStore = dataStore;
+  }) : _marshaller = marshaller,
+       _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -28,17 +28,21 @@ final class MessageDeleteBulkPacket implements ListenablePacket {
     }
 
     final channelId = Snowflake.parse(payload['channel_id']);
-    final messageIds =
-        (payload['ids'] as List<dynamic>).map(Snowflake.parse).toList();
+    final messageIds = (payload['ids'] as List<dynamic>)
+        .map(Snowflake.parse)
+        .toList();
 
     final messages = <Snowflake, Message>{};
     for (final messageId in messageIds) {
-      final messageCacheKey =
-          _marshaller.cacheKey.message(channelId.value, messageId.value);
+      final messageCacheKey = _marshaller.cacheKey.message(
+        channelId.value,
+        messageId.value,
+      );
       final rawMessage = await _marshaller.cache?.get(messageCacheKey);
       if (rawMessage != null) {
-        final cachedMessage =
-            await _marshaller.serializers.message.serialize(rawMessage);
+        final cachedMessage = await _marshaller.serializers.message.serialize(
+          rawMessage,
+        );
         messages[messageId] = cachedMessage;
       }
       await _marshaller.cache.invalidate(messageCacheKey);
@@ -51,12 +55,13 @@ final class MessageDeleteBulkPacket implements ListenablePacket {
     }
 
     dispatch<GuildMessageDeleteBulkArgs>(
-        event: Event.guildMessageDeleteBulk,
-        payload: (
-          guild: guild,
-          channel: channel,
-          messageIds: messageIds,
-          messages: messages,
-        ));
+      event: Event.guildMessageDeleteBulk,
+      payload: (
+        guild: guild,
+        channel: channel,
+        messageIds: messageIds,
+        messages: messages,
+      ),
+    );
   }
 }

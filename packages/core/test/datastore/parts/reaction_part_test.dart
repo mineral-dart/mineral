@@ -28,75 +28,90 @@ void main() {
 
     group('add', () {
       test(
-          'sends PUT to /channels/:channelId/messages/:messageId/reactions/:emoji/@me',
-          () async {
-        await reaction.add('111', '222', unicode);
+        'sends PUT to /channels/:channelId/messages/:messageId/reactions/:emoji/@me',
+        () async {
+          await reaction.add('111', '222', unicode);
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('PUT'));
-        expect(
-          http.calls.single.path,
-          equals('/channels/111/messages/222/reactions/${Uri.encodeComponent('🔥')}/@me'),
-        );
-      });
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('PUT'));
+          expect(
+            http.calls.single.path,
+            equals(
+              '/channels/111/messages/222/reactions/${Uri.encodeComponent('🔥')}/@me',
+            ),
+          );
+        },
+      );
     });
 
     group('remove', () {
       test(
-          'sends DELETE to /channels/:channelId/messages/:messageId/reactions/:emoji/@me',
-          () async {
-        await reaction.remove('111', '222', unicode);
+        'sends DELETE to /channels/:channelId/messages/:messageId/reactions/:emoji/@me',
+        () async {
+          await reaction.remove('111', '222', unicode);
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('DELETE'));
-        expect(
-          http.calls.single.path,
-          equals('/channels/111/messages/222/reactions/${Uri.encodeComponent('🔥')}/@me'),
-        );
-      });
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('DELETE'));
+          expect(
+            http.calls.single.path,
+            equals(
+              '/channels/111/messages/222/reactions/${Uri.encodeComponent('🔥')}/@me',
+            ),
+          );
+        },
+      );
     });
 
     group('removeAll', () {
       test(
-          'sends DELETE to /channels/:channelId/messages/:messageId/reactions',
-          () async {
-        await reaction.removeAll('111', '222');
+        'sends DELETE to /channels/:channelId/messages/:messageId/reactions',
+        () async {
+          await reaction.removeAll('111', '222');
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('DELETE'));
-        expect(http.calls.single.path,
-            equals('/channels/111/messages/222/reactions'));
-      });
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('DELETE'));
+          expect(
+            http.calls.single.path,
+            equals('/channels/111/messages/222/reactions'),
+          );
+        },
+      );
     });
 
     group('removeForEmoji', () {
       test(
-          'sends DELETE to /channels/:channelId/messages/:messageId/reactions/:emoji',
-          () async {
-        await reaction.removeForEmoji('111', '222', unicode);
+        'sends DELETE to /channels/:channelId/messages/:messageId/reactions/:emoji',
+        () async {
+          await reaction.removeForEmoji('111', '222', unicode);
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('DELETE'));
-        expect(
-          http.calls.single.path,
-          equals('/channels/111/messages/222/reactions/${Uri.encodeComponent('🔥')}'),
-        );
-      });
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('DELETE'));
+          expect(
+            http.calls.single.path,
+            equals(
+              '/channels/111/messages/222/reactions/${Uri.encodeComponent('🔥')}',
+            ),
+          );
+        },
+      );
     });
 
     group('removeForUser', () {
       test(
-          'sends DELETE to /channels/:channelId/messages/:messageId/reactions/:emoji/:userId',
-          () async {
-        await reaction.removeForUser('999', '111', '222', unicode);
+        'sends DELETE to /channels/:channelId/messages/:messageId/reactions/:emoji/:userId',
+        () async {
+          await reaction.removeForUser('999', '111', '222', unicode);
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('DELETE'));
-        expect(
-          http.calls.single.path,
-          equals('/channels/111/messages/222/reactions/${Uri.encodeComponent('🔥')}/999'),
-        );
-      });
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('DELETE'));
+          expect(
+            http.calls.single.path,
+            equals(
+              '/channels/111/messages/222/reactions/${Uri.encodeComponent('🔥')}/999',
+            ),
+          );
+        },
+      );
     });
   });
 }

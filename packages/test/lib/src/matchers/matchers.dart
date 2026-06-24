@@ -225,8 +225,7 @@ class _RoleAssignedMatcher extends Matcher {
         !memberMatcher!.matches(item.memberId, matchState)) {
       return false;
     }
-    if (roleMatcher != null &&
-        !roleMatcher!.matches(item.roleId, matchState)) {
+    if (roleMatcher != null && !roleMatcher!.matches(item.roleId, matchState)) {
       return false;
     }
     return true;
@@ -260,8 +259,7 @@ class _RoleRemovedMatcher extends Matcher {
         !memberMatcher!.matches(item.memberId, matchState)) {
       return false;
     }
-    if (roleMatcher != null &&
-        !roleMatcher!.matches(item.roleId, matchState)) {
+    if (roleMatcher != null && !roleMatcher!.matches(item.roleId, matchState)) {
       return false;
     }
     return true;

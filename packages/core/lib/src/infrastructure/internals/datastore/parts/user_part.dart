@@ -20,7 +20,9 @@ final class UserPart extends BasePart implements UserPartContract {
     }
 
     final request = Request.json(endpoint: '/users/$userId');
-    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(request);
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(
+      request,
+    );
 
     final raw = await marshaller.serializers.user.normalize(result);
     final user = await marshaller.serializers.user.serialize(raw);

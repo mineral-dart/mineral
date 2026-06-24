@@ -28,8 +28,10 @@ final class MessageSerializer<T extends Message>
       'message_snapshots': json['message_snapshots'],
     };
 
-    final cacheKey =
-        _marshaller.cacheKey.message(json['channel_id'] as Object, json['id'] as Object);
+    final cacheKey = _marshaller.cacheKey.message(
+      json['channel_id'] as Object,
+      json['id'] as Object,
+    );
     await _marshaller.cache?.put(cacheKey, payload);
 
     return payload;
@@ -54,11 +56,13 @@ final class MessageSerializer<T extends Message>
     final rawSnapshots = json['message_snapshots'] as List<dynamic>?;
     final snapshots = rawSnapshots != null
         ? rawSnapshots
-            .map((e) => MessageSnapshot.fromJson(
+              .map(
+                (e) => MessageSnapshot.fromJson(
                   e as Map<String, dynamic>,
                   marshaller: _marshaller,
-                ))
-            .toList()
+                ),
+              )
+              .toList()
         : const <MessageSnapshot>[];
 
     final messageProperties = MessageProperties.fromJson(

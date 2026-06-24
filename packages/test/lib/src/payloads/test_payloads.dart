@@ -33,13 +33,13 @@ final class TestUser {
   });
 
   Map<String, dynamic> toRawJson() => {
-        'id': id,
-        'username': username,
-        'discriminator': discriminator,
-        'global_name': globalName,
-        'bot': bot,
-        'avatar': null,
-      };
+    'id': id,
+    'username': username,
+    'discriminator': discriminator,
+    'global_name': globalName,
+    'bot': bot,
+    'avatar': null,
+  };
 
   @override
   bool operator ==(Object other) => other is TestUser && other.id == id;
@@ -64,17 +64,17 @@ final class TestGuild {
   });
 
   Map<String, dynamic> toRawJson() => {
-        'id': id,
-        'name': name,
-        'owner_id': ownerId,
-        'description': null,
-        'icon': null,
-        'splash': null,
-        'banner': null,
-        'application_id': null,
-        'settings': const <String, dynamic>{},
-        'channel_settings': const <String, dynamic>{},
-      };
+    'id': id,
+    'name': name,
+    'owner_id': ownerId,
+    'description': null,
+    'icon': null,
+    'splash': null,
+    'banner': null,
+    'application_id': null,
+    'settings': const <String, dynamic>{},
+    'channel_settings': const <String, dynamic>{},
+  };
 
   @override
   bool operator ==(Object other) => other is TestGuild && other.id == id;
@@ -103,17 +103,17 @@ final class TestRole {
   });
 
   Map<String, dynamic> toRawJson() => {
-        'id': id,
-        'name': name,
-        'color': color,
-        'hoist': false,
-        'position': position,
-        'permissions': '0',
-        'managed': false,
-        'mentionable': false,
-        'flags': 0,
-        'guild_id': guildId,
-      };
+    'id': id,
+    'name': name,
+    'color': color,
+    'hoist': false,
+    'position': position,
+    'permissions': '0',
+    'managed': false,
+    'mentionable': false,
+    'flags': 0,
+    'guild_id': guildId,
+  };
 
   @override
   bool operator ==(Object other) => other is TestRole && other.id == id;
@@ -142,13 +142,13 @@ final class TestMember {
   });
 
   Map<String, dynamic> toRawJson() => {
-        'user': user.toRawJson(),
-        'nick': nickname,
-        'guild_id': guildId,
-        'roles': roles.map((r) => r.id).toList(),
-        'flags': 0,
-        'joined_at': DateTime.now().toUtc().toIso8601String(),
-      };
+    'user': user.toRawJson(),
+    'nick': nickname,
+    'guild_id': guildId,
+    'roles': roles.map((r) => r.id).toList(),
+    'flags': 0,
+    'joined_at': DateTime.now().toUtc().toIso8601String(),
+  };
 
   @override
   bool operator ==(Object other) =>
@@ -176,11 +176,11 @@ final class TestChannel {
   });
 
   Map<String, dynamic> toRawJson() => {
-        'id': id,
-        'name': name,
-        'guild_id': guildId,
-        'type': type,
-      };
+    'id': id,
+    'name': name,
+    'guild_id': guildId,
+    'type': type,
+  };
 
   @override
   bool operator ==(Object other) => other is TestChannel && other.id == id;

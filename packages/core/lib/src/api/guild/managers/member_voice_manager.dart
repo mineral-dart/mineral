@@ -55,10 +55,11 @@ final class MemberVoiceManager {
     }
 
     await _datastore.member.update(
-        guildId: _guildId.value,
-        memberId: _memberId.value,
-        reason: reason,
-        payload: {'mute': true});
+      guildId: _guildId.value,
+      memberId: _memberId.value,
+      reason: reason,
+      payload: {'mute': true},
+    );
   }
 
   /// Unmute the [Member].
@@ -73,10 +74,11 @@ final class MemberVoiceManager {
     }
 
     await _datastore.member.update(
-        guildId: _guildId.value,
-        memberId: _memberId.value,
-        reason: reason,
-        payload: {'mute': false});
+      guildId: _guildId.value,
+      memberId: _memberId.value,
+      reason: reason,
+      payload: {'mute': false},
+    );
   }
 
   /// Toggle the [Member] mute status.
@@ -91,10 +93,11 @@ final class MemberVoiceManager {
     }
 
     await _datastore.member.update(
-        guildId: _guildId.value,
-        memberId: _memberId.value,
-        reason: reason,
-        payload: {'mute': !(isMuted ?? false)});
+      guildId: _guildId.value,
+      memberId: _memberId.value,
+      reason: reason,
+      payload: {'mute': !(isMuted ?? false)},
+    );
   }
 
   /// Deafen the [Member].
@@ -109,10 +112,11 @@ final class MemberVoiceManager {
     }
 
     await _datastore.member.update(
-        guildId: _guildId.value,
-        memberId: _memberId.value,
-        reason: reason,
-        payload: {'deaf': true});
+      guildId: _guildId.value,
+      memberId: _memberId.value,
+      reason: reason,
+      payload: {'deaf': true},
+    );
   }
 
   /// Set the [Member] mute status.
@@ -127,10 +131,11 @@ final class MemberVoiceManager {
     }
 
     await _datastore.member.update(
-        guildId: _guildId.value,
-        memberId: _memberId.value,
-        reason: reason,
-        payload: {'mute': value});
+      guildId: _guildId.value,
+      memberId: _memberId.value,
+      reason: reason,
+      payload: {'mute': value},
+    );
   }
 
   /// Un-deafen the [Member].
@@ -145,10 +150,11 @@ final class MemberVoiceManager {
     }
 
     await _datastore.member.update(
-        guildId: _guildId.value,
-        memberId: _memberId.value,
-        reason: reason,
-        payload: {'deaf': false});
+      guildId: _guildId.value,
+      memberId: _memberId.value,
+      reason: reason,
+      payload: {'deaf': false},
+    );
   }
 
   /// Toggle the [Member] deafen status.
@@ -163,10 +169,11 @@ final class MemberVoiceManager {
     }
 
     await _datastore.member.update(
-        guildId: _guildId.value,
-        memberId: _memberId.value,
-        reason: reason,
-        payload: {'deaf': !(isDeafened ?? false)});
+      guildId: _guildId.value,
+      memberId: _memberId.value,
+      reason: reason,
+      payload: {'deaf': !(isDeafened ?? false)},
+    );
   }
 
   /// Set the [Member] deafen status.
@@ -181,10 +188,11 @@ final class MemberVoiceManager {
     }
 
     await _datastore.member.update(
-        guildId: _guildId.value,
-        memberId: _memberId.value,
-        reason: reason,
-        payload: {'deaf': value});
+      guildId: _guildId.value,
+      memberId: _memberId.value,
+      reason: reason,
+      payload: {'deaf': value},
+    );
   }
 
   /// Update the current [VoiceState] with multiple properties.
@@ -227,10 +235,11 @@ final class MemberVoiceManager {
     }
 
     await _datastore.member.update(
-        guildId: _guildId.value,
-        memberId: _memberId.value,
-        reason: reason,
-        payload: {'channel_id': channelId});
+      guildId: _guildId.value,
+      memberId: _memberId.value,
+      reason: reason,
+      payload: {'channel_id': channelId},
+    );
   }
 
   /// Disconnect the [Member] from the voice channel.
@@ -245,9 +254,10 @@ final class MemberVoiceManager {
     }
 
     await _datastore.member.update(
-        guildId: _guildId.value,
-        memberId: _memberId.value,
-        reason: reason,
-        payload: {'channel_id': null});
+      guildId: _guildId.value,
+      memberId: _memberId.value,
+      reason: reason,
+      payload: {'channel_id': null},
+    );
   }
 }

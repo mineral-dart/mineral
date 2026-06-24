@@ -18,16 +18,22 @@ final class JsonEncoderStrategy implements EncodingStrategy {
   @override
   WebsocketMessage decode(WebsocketMessage message) {
     try {
-      final raw = safeCast<String>(message.originalContent,
-          context: 'json frame body');
-      final decoded = safeCast<Map<String, dynamic>>(json.decode(raw),
-          context: 'json frame payload');
+      final raw = safeCast<String>(
+        message.originalContent,
+        context: 'json frame body',
+      );
+      final decoded = safeCast<Map<String, dynamic>>(
+        json.decode(raw),
+        context: 'json frame payload',
+      );
       return message..content = ShardMessage.of(decoded);
     } on SerializationException {
       rethrow;
     } on Exception catch (e) {
       _logger.error('Failed to decode JSON WebSocket message: $e');
-      throw SerializationException('Failed to decode JSON WebSocket message: $e');
+      throw SerializationException(
+        'Failed to decode JSON WebSocket message: $e',
+      );
     }
   }
 

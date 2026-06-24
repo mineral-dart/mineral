@@ -62,12 +62,16 @@ void main() {
 
     group('sequence tracking', () {
       test('updates shard sequence when message carries one', () {
-        shardData.dispatch(_msg(ShardMessage(
-          type: 'GUILD_CREATE',
-          opCode: OpCode.dispatch,
-          sequence: 99,
-          payload: {},
-        )));
+        shardData.dispatch(
+          _msg(
+            ShardMessage(
+              type: 'GUILD_CREATE',
+              opCode: OpCode.dispatch,
+              sequence: 99,
+              payload: {},
+            ),
+          ),
+        );
 
         expect(shard.authentication.sequence, equals(99));
       });
@@ -75,30 +79,42 @@ void main() {
       test('does not overwrite sequence when message has none', () {
         shard.authentication.sequence = 5;
 
-        shardData.dispatch(_msg(ShardMessage(
-          type: null,
-          opCode: OpCode.heartbeatAck,
-          sequence: null,
-          payload: null,
-        )));
+        shardData.dispatch(
+          _msg(
+            ShardMessage(
+              type: null,
+              opCode: OpCode.heartbeatAck,
+              sequence: null,
+              payload: null,
+            ),
+          ),
+        );
 
         expect(shard.authentication.sequence, equals(5));
       });
 
       test('overwrites previous sequence with the latest value', () {
         shardData
-          ..dispatch(_msg(ShardMessage(
-            type: 'MSG',
-            opCode: OpCode.dispatch,
-            sequence: 10,
-            payload: {},
-          )))
-          ..dispatch(_msg(ShardMessage(
-            type: 'MSG',
-            opCode: OpCode.dispatch,
-            sequence: 20,
-            payload: {},
-          )));
+          ..dispatch(
+            _msg(
+              ShardMessage(
+                type: 'MSG',
+                opCode: OpCode.dispatch,
+                sequence: 10,
+                payload: {},
+              ),
+            ),
+          )
+          ..dispatch(
+            _msg(
+              ShardMessage(
+                type: 'MSG',
+                opCode: OpCode.dispatch,
+                sequence: 20,
+                payload: {},
+              ),
+            ),
+          );
 
         expect(shard.authentication.sequence, equals(20));
       });
@@ -106,27 +122,38 @@ void main() {
 
     group('READY event', () {
       test('calls setupRequirements with the payload', () {
-        shardData.dispatch(_msg(ShardMessage(
-          type: PacketType.ready.name,
-          opCode: OpCode.dispatch,
-          sequence: 1,
-          payload: {
-            'session_id': 'session-abc',
-            'resume_gateway_url': 'wss://resume.discord.gg',
-          },
-        )));
+        shardData.dispatch(
+          _msg(
+            ShardMessage(
+              type: PacketType.ready.name,
+              opCode: OpCode.dispatch,
+              sequence: 1,
+              payload: {
+                'session_id': 'session-abc',
+                'resume_gateway_url': 'wss://resume.discord.gg',
+              },
+            ),
+          ),
+        );
 
         expect(shard.authentication.sessionId, equals('session-abc'));
-        expect(shard.authentication.resumeUrl, equals('wss://resume.discord.gg'));
+        expect(
+          shard.authentication.resumeUrl,
+          equals('wss://resume.discord.gg'),
+        );
       });
 
       test('does not call setupRequirements for non-READY events', () {
-        shardData.dispatch(_msg(ShardMessage(
-          type: 'GUILD_CREATE',
-          opCode: OpCode.dispatch,
-          sequence: 2,
-          payload: {},
-        )));
+        shardData.dispatch(
+          _msg(
+            ShardMessage(
+              type: 'GUILD_CREATE',
+              opCode: OpCode.dispatch,
+              sequence: 2,
+              payload: {},
+            ),
+          ),
+        );
 
         expect(shard.authentication.sessionId, isNull);
         expect(shard.authentication.resumeUrl, isNull);
@@ -138,12 +165,16 @@ void main() {
         // Arm the reconnect counter via public API
         shard.authentication.resetReconnectAttempts();
 
-        shardData.dispatch(_msg(ShardMessage(
-          type: PacketType.resumed.name,
-          opCode: OpCode.dispatch,
-          sequence: 3,
-          payload: null,
-        )));
+        shardData.dispatch(
+          _msg(
+            ShardMessage(
+              type: PacketType.resumed.name,
+              opCode: OpCode.dispatch,
+              sequence: 3,
+              payload: null,
+            ),
+          ),
+        );
 
         // resetReconnectAttempts is idempotent; what we verify is that
         // dispatch does not throw and continues to delegate to the strategy.
@@ -155,12 +186,16 @@ void main() {
         // we cannot distinguish it here without deeper access, but at minimum
         // the dispatch chain must complete normally.
         expect(
-          () => shardData.dispatch(_msg(ShardMessage(
-            type: 'MESSAGE_CREATE',
-            opCode: OpCode.dispatch,
-            sequence: 4,
-            payload: {},
-          ))),
+          () => shardData.dispatch(
+            _msg(
+              ShardMessage(
+                type: 'MESSAGE_CREATE',
+                opCode: OpCode.dispatch,
+                sequence: 4,
+                payload: {},
+              ),
+            ),
+          ),
           returnsNormally,
         );
       });
@@ -168,12 +203,14 @@ void main() {
 
     group('strategy delegation', () {
       test('always delegates to the running strategy', () {
-        final msg = _msg(ShardMessage(
-          type: 'MESSAGE_CREATE',
-          opCode: OpCode.dispatch,
-          sequence: 10,
-          payload: {},
-        ));
+        final msg = _msg(
+          ShardMessage(
+            type: 'MESSAGE_CREATE',
+            opCode: OpCode.dispatch,
+            sequence: 10,
+            payload: {},
+          ),
+        );
 
         shardData.dispatch(msg);
 
@@ -182,24 +219,32 @@ void main() {
       });
 
       test('delegates even when message has no sequence or type', () {
-        shardData.dispatch(_msg(ShardMessage(
-          type: null,
-          opCode: OpCode.heartbeatAck,
-          sequence: null,
-          payload: null,
-        )));
+        shardData.dispatch(
+          _msg(
+            ShardMessage(
+              type: null,
+              opCode: OpCode.heartbeatAck,
+              sequence: null,
+              payload: null,
+            ),
+          ),
+        );
 
         expect(strategy.dispatched, hasLength(1));
       });
 
       test('delegates all messages in order', () {
         for (var i = 1; i <= 3; i++) {
-          shardData.dispatch(_msg(ShardMessage(
-            type: 'EVENT_$i',
-            opCode: OpCode.dispatch,
-            sequence: i,
-            payload: {},
-          )));
+          shardData.dispatch(
+            _msg(
+              ShardMessage(
+                type: 'EVENT_$i',
+                opCode: OpCode.dispatch,
+                sequence: i,
+                payload: {},
+              ),
+            ),
+          );
         }
 
         expect(strategy.dispatched, hasLength(3));

@@ -16,10 +16,12 @@ final class EnvPlaceholder implements PlaceholderContract {
   }
 
   void _injectEntryMap(String identifier, Map<String, dynamic> values) {
-    final mapEntry = Map<String, dynamic>.from(values.map((key, value) {
-      final currentKey = key.snakeCase.toUpperCase();
-      return MapEntry('$identifier.$currentKey', value);
-    }));
+    final mapEntry = Map<String, dynamic>.from(
+      values.map((key, value) {
+        final currentKey = key.snakeCase.toUpperCase();
+        return MapEntry('$identifier.$currentKey', value);
+      }),
+    );
 
     _values.addAll(mapEntry);
   }
@@ -30,7 +32,7 @@ final class EnvPlaceholder implements PlaceholderContract {
       final String finalValue = switch (element.value) {
         final String s => s,
         final int i => i.toString(),
-        _ => throw Exception('Invalid type')
+        _ => throw Exception('Invalid type'),
       };
 
       return acc

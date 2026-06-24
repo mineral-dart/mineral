@@ -4,7 +4,9 @@ import 'package:mineral/src/api/guild/audit_log/audit_log.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 Future<AuditLog> stageInstanceCreateAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return StageInstanceCreateAuditLog(
     guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
@@ -16,20 +18,24 @@ Future<AuditLog> stageInstanceCreateAuditLogHandler(
 }
 
 Future<AuditLog> stageInstanceUpdateAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return StageInstanceUpdateAuditLog(
     guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     stageInstanceId: Snowflake.parse(json['target_id']),
-    changes: List<Map<String, dynamic>>.from(json['changes'] as Iterable<dynamic>)
-        .map(Change.fromJson)
-        .toList(),
+    changes: List<Map<String, dynamic>>.from(
+      json['changes'] as Iterable<dynamic>,
+    ).map(Change.fromJson).toList(),
     ctx: ctx,
   );
 }
 
 Future<AuditLog> stageInstanceDeleteAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return StageInstanceDeleteAuditLog(
     guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),

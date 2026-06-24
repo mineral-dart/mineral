@@ -96,55 +96,65 @@ void main() {
 
   group('TypingPacket', () {
     test('packetType is PacketType.typingStart', () {
-      final packet = TypingPacket(ctx: buildCtx(dataStore: ds, wss: wss));
+      final packet = TypingPacket(
+        ctx: buildCtx(dataStore: ds, wss: wss),
+      );
       expect(packet.packetType, equals(PacketType.typingStart));
       expect(packet.packetType.name, equals('TYPING_START'));
     });
 
     test('dispatches Event.typing', () async {
-      final packet = TypingPacket(ctx: buildCtx(dataStore: ds, wss: wss));
+      final packet = TypingPacket(
+        ctx: buildCtx(dataStore: ds, wss: wss),
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('TYPING_START', {
-            'channel_id': _channelId,
-            'guild_id': _guildId,
-            'user_id': _userId,
-            'timestamp': 1700000000,
-          }),
-          dispatch);
+        _msg('TYPING_START', {
+          'channel_id': _channelId,
+          'guild_id': _guildId,
+          'user_id': _userId,
+          'timestamp': 1700000000,
+        }),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.typing));
     });
 
     test('payload is TypingArgs with correct Typing object', () async {
-      final packet = TypingPacket(ctx: buildCtx(dataStore: ds, wss: wss));
+      final packet = TypingPacket(
+        ctx: buildCtx(dataStore: ds, wss: wss),
+      );
       TypingArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.typing) {
           args = payload as TypingArgs;
         }
       }
 
       await packet.listen(
-          _msg('TYPING_START', {
-            'channel_id': _channelId,
-            'guild_id': _guildId,
-            'user_id': _userId,
-            'timestamp': 1700000000,
-          }),
-          dispatch);
+        _msg('TYPING_START', {
+          'channel_id': _channelId,
+          'guild_id': _guildId,
+          'user_id': _userId,
+          'timestamp': 1700000000,
+        }),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       final typing = args!.typing;
@@ -154,26 +164,30 @@ void main() {
     });
 
     test('typing has no guild for DM typing', () async {
-      final packet = TypingPacket(ctx: buildCtx(dataStore: ds, wss: wss));
+      final packet = TypingPacket(
+        ctx: buildCtx(dataStore: ds, wss: wss),
+      );
       TypingArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.typing) {
           args = payload as TypingArgs;
         }
       }
 
       await packet.listen(
-          _msg('TYPING_START', {
-            'channel_id': _channelId,
-            'user_id': _userId,
-            'timestamp': 1700000000,
-            // no guild_id
-          }),
-          dispatch);
+        _msg('TYPING_START', {
+          'channel_id': _channelId,
+          'user_id': _userId,
+          'timestamp': 1700000000,
+          // no guild_id
+        }),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.typing.guildId, isNull);
@@ -200,61 +214,59 @@ void main() {
       final packet = PresenceUpdatePacket(dataStore: presenceDs);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('PRESENCE_UPDATE', {
-            'guild_id': _guildId,
-            'user': {'id': _userId},
-            'status': 'online',
-            'activities': <dynamic>[],
-            'client_status': {
-              'desktop': 'online',
-              'mobile': null,
-              'web': null,
-            },
-          }),
-          dispatch);
+        _msg('PRESENCE_UPDATE', {
+          'guild_id': _guildId,
+          'user': {'id': _userId},
+          'status': 'online',
+          'activities': <dynamic>[],
+          'client_status': {'desktop': 'online', 'mobile': null, 'web': null},
+        }),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildPresenceUpdate));
     });
 
-    test('payload is GuildPresenceUpdateArgs with member and presence',
-        () async {
-      final packet = PresenceUpdatePacket(dataStore: presenceDs);
-      GuildPresenceUpdateArgs? args;
+    test(
+      'payload is GuildPresenceUpdateArgs with member and presence',
+      () async {
+        final packet = PresenceUpdatePacket(dataStore: presenceDs);
+        GuildPresenceUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        if (event == Event.guildPresenceUpdate) {
-          args = payload as GuildPresenceUpdateArgs;
+          bool Function(String?)? constraint,
+        }) {
+          if (event == Event.guildPresenceUpdate) {
+            args = payload as GuildPresenceUpdateArgs;
+          }
         }
-      }
 
-      await packet.listen(
+        await packet.listen(
           _msg('PRESENCE_UPDATE', {
             'guild_id': _guildId,
             'user': {'id': _userId},
             'status': 'online',
             'activities': <dynamic>[],
-            'client_status': {
-              'desktop': 'online',
-              'mobile': null,
-              'web': null,
-            },
+            'client_status': {'desktop': 'online', 'mobile': null, 'web': null},
           }),
-          dispatch);
+          dispatch,
+        );
 
-      expect(args, isNotNull);
-      expect(args!.member.id, equals(Snowflake.parse(_userId)));
-      expect(args!.presence, isNotNull);
-    });
+        expect(args, isNotNull);
+        expect(args!.member.id, equals(Snowflake.parse(_userId)));
+        expect(args!.presence, isNotNull);
+      },
+    );
   });
 }

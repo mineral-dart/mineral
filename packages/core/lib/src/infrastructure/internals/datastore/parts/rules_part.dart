@@ -12,15 +12,19 @@ final class RulesPart extends BasePart implements RulesPartContract {
 
   @override
   Future<Map<Snowflake, AutoModerationRule>> fetch(
-      Object guildId, bool force) async {
+    Object guildId,
+    bool force,
+  ) async {
     final parsedGuildId = Snowflake.parse(guildId);
-    final req =
-        Request.json(endpoint: '/guilds/$parsedGuildId/auto-moderation/rules');
+    final req = Request.json(
+      endpoint: '/guilds/$parsedGuildId/auto-moderation/rules',
+    );
     final result = await dataStore.requestBucket.get<List<dynamic>>(req);
 
     final rules = await result.map((element) async {
-      final raw = await marshaller.serializers.rules
-          .normalize(element as Map<String, dynamic>);
+      final raw = await marshaller.serializers.rules.normalize(
+        element as Map<String, dynamic>,
+      );
       return marshaller.serializers.rules.serialize(raw);
     }).wait;
 
@@ -29,9 +33,15 @@ final class RulesPart extends BasePart implements RulesPartContract {
 
   @override
   Future<AutoModerationRule?> get(
-      Object guildId, Object rulesId, bool force) async {
+    Object guildId,
+    Object rulesId,
+    bool force,
+  ) async {
     final parsedGuildId = Snowflake.parse(guildId);
-    final String key = marshaller.cacheKey.guildRules(parsedGuildId.value, rulesId);
+    final String key = marshaller.cacheKey.guildRules(
+      parsedGuildId.value,
+      rulesId,
+    );
 
     final cachedEmoji = await marshaller.cache?.get(key);
     if (!force && cachedEmoji != null) {
@@ -40,7 +50,8 @@ final class RulesPart extends BasePart implements RulesPartContract {
     }
 
     final req = Request.json(
-        endpoint: '/guilds/$parsedGuildId/auto-moderation/rules/$rulesId');
+      endpoint: '/guilds/$parsedGuildId/auto-moderation/rules/$rulesId',
+    );
     final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     final raw = await marshaller.serializers.rules.normalize(result);
@@ -64,37 +75,39 @@ final class RulesPart extends BasePart implements RulesPartContract {
   }) async {
     final parsedGuildId = Snowflake.parse(guildId);
     final req = Request.json(
-        endpoint: '/guilds/$parsedGuildId/auto-moderation/rules',
-        body: {
-          'name': name,
-          'event_type': eventType.value,
-          'trigger_type': triggerType.value,
-          'trigger_metadata': triggerMetadata != null
-              ? {
-                  'keyword_filter': triggerMetadata.keywordFilter,
-                  'regex_patterns': triggerMetadata.regexPatterns,
-                  'presets':
-                      triggerMetadata.presets.map((e) => e.value).toList(),
-                  'allow_list': triggerMetadata.allowList,
-                  'mention_total_limit': triggerMetadata.mentionTotalLimit,
-                  'mention_raid_protection_enabled':
-                      triggerMetadata.mentionRaidProtectionEnabled,
-                }
-              : null,
-          'actions': actions
-              .map((action) => {
-                    'type': action.type.value,
-                    if (action.metadata != null) 'metadata': action.metadata,
-                  })
-              .toList(),
-          'exempt_roles': exemptRoles.map((e) => e.toString()).toList(),
-          'exempt_channels': exemptChannels.map((e) => e.toString()).toList(),
-          'enabled': enabled,
-        },
-        headers: {
-          DiscordHeader.auditLogReason(reason)
-        });
-    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+      endpoint: '/guilds/$parsedGuildId/auto-moderation/rules',
+      body: {
+        'name': name,
+        'event_type': eventType.value,
+        'trigger_type': triggerType.value,
+        'trigger_metadata': triggerMetadata != null
+            ? {
+                'keyword_filter': triggerMetadata.keywordFilter,
+                'regex_patterns': triggerMetadata.regexPatterns,
+                'presets': triggerMetadata.presets.map((e) => e.value).toList(),
+                'allow_list': triggerMetadata.allowList,
+                'mention_total_limit': triggerMetadata.mentionTotalLimit,
+                'mention_raid_protection_enabled':
+                    triggerMetadata.mentionRaidProtectionEnabled,
+              }
+            : null,
+        'actions': actions
+            .map(
+              (action) => {
+                'type': action.type.value,
+                if (action.metadata != null) 'metadata': action.metadata,
+              },
+            )
+            .toList(),
+        'exempt_roles': exemptRoles.map((e) => e.toString()).toList(),
+        'exempt_channels': exemptChannels.map((e) => e.toString()).toList(),
+        'enabled': enabled,
+      },
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.rules.normalize({
       ...result,
@@ -106,19 +119,23 @@ final class RulesPart extends BasePart implements RulesPartContract {
   }
 
   @override
-  Future<AutoModerationRule?> update(
-      {required Object id,
-      required Object guildId,
-      required Map<String, dynamic> payload,
-      required String? reason}) async {
+  Future<AutoModerationRule?> update({
+    required Object id,
+    required Object guildId,
+    required Map<String, dynamic> payload,
+    required String? reason,
+  }) async {
     final ruleId = Snowflake.parse(id);
     final parsedGuildId = Snowflake.parse(guildId);
     final req = Request.json(
-        endpoint: '/guilds/$parsedGuildId/auto-moderation/rules/$ruleId',
-        body: payload,
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/guilds/$parsedGuildId/auto-moderation/rules/$ruleId',
+      body: payload,
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
-    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.rules.normalize({
       ...result,
@@ -133,8 +150,9 @@ final class RulesPart extends BasePart implements RulesPartContract {
   Future<void> delete(Object guildId, Object ruleId, {String? reason}) async {
     final parsedGuildId = Snowflake.parse(guildId);
     final req = Request.json(
-        endpoint: '/guilds/$parsedGuildId/auto-moderation/rules/$ruleId',
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/guilds/$parsedGuildId/auto-moderation/rules/$ruleId',
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }

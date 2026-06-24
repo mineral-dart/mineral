@@ -14,48 +14,72 @@ import '../helpers/mocks.dart';
 // ── Fake interaction part that captures sendAutocompleteResult calls ──────────
 
 final class _FakeInteractionPart implements InteractionPartContract {
-  final List<({Snowflake id, String token, List<Choice> choices})> autocompleteResults = [];
+  final List<({Snowflake id, String token, List<Choice> choices})>
+  autocompleteResults = [];
 
   @override
   Future<void> sendAutocompleteResult(
-      Snowflake id, String token, List<Choice> choices) async {
+    Snowflake id,
+    String token,
+    List<Choice> choices,
+  ) async {
     autocompleteResults.add((id: id, token: token, choices: choices));
   }
 
   // All other methods are not exercised in these tests.
   @override
   Future<void> replyInteraction(
-          Snowflake id, String token, MessageBuilder builder, bool ephemeral) async =>
-      throw UnimplementedError();
+    Snowflake id,
+    String token,
+    MessageBuilder builder,
+    bool ephemeral,
+  ) async => throw UnimplementedError();
   @override
   Future<void> editInteraction(
-          Snowflake botId, String token, MessageBuilder builder, bool ephemeral) async =>
-      throw UnimplementedError();
+    Snowflake botId,
+    String token,
+    MessageBuilder builder,
+    bool ephemeral,
+  ) async => throw UnimplementedError();
   @override
   Future<void> deleteInteraction(Snowflake botId, String token) async =>
       throw UnimplementedError();
   @override
   Future<void> noReplyInteraction(
-          Snowflake id, String token, bool ephemeral) async =>
-      throw UnimplementedError();
+    Snowflake id,
+    String token,
+    bool ephemeral,
+  ) async => throw UnimplementedError();
   @override
-  Future<void> createFollowup(Snowflake botId, String token,
-          MessageBuilder builder, bool ephemeral) async =>
-      throw UnimplementedError();
+  Future<void> createFollowup(
+    Snowflake botId,
+    String token,
+    MessageBuilder builder,
+    bool ephemeral,
+  ) async => throw UnimplementedError();
   @override
-  Future<void> editFollowup(Snowflake botId, String token, Snowflake messageId,
-          MessageBuilder builder, bool ephemeral) async =>
-      throw UnimplementedError();
+  Future<void> editFollowup(
+    Snowflake botId,
+    String token,
+    Snowflake messageId,
+    MessageBuilder builder,
+    bool ephemeral,
+  ) async => throw UnimplementedError();
   @override
   Future<void> deleteFollowup(
-          Snowflake botId, String token, Snowflake messageId) async =>
-      throw UnimplementedError();
+    Snowflake botId,
+    String token,
+    Snowflake messageId,
+  ) async => throw UnimplementedError();
   @override
   Future<void> waitInteraction(Snowflake id, String token) async =>
       throw UnimplementedError();
   @override
-  Future<void> sendModal(Snowflake id, String token, ModalBuilder modal) async =>
-      throw UnimplementedError();
+  Future<void> sendModal(
+    Snowflake id,
+    String token,
+    ModalBuilder modal,
+  ) async => throw UnimplementedError();
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -113,15 +137,17 @@ void main() {
         final command = CommandDeclarationBuilder()
           ..setName('search')
           ..setDescription('Search something')
-          ..addOption(Option.string(
-            name: 'query',
-            description: 'The search query',
-            autocomplete: true,
-            onAutocomplete: (ctx) {
-              capturedValue = ctx.value;
-              return [Choice('Result', 'result')];
-            },
-          ))
+          ..addOption(
+            Option.string(
+              name: 'query',
+              description: 'The search query',
+              autocomplete: true,
+              onAutocomplete: (ctx) {
+                capturedValue = ctx.value;
+                return [Choice('Result', 'result')];
+              },
+            ),
+          )
           ..setHandle((ctx, opts) {});
 
         manager.addCommand(command);
@@ -145,15 +171,17 @@ void main() {
         final command = CommandDeclarationBuilder()
           ..setName('pick')
           ..setDescription('Pick an item')
-          ..addOption(Option.string(
-            name: 'item',
-            description: 'An item',
-            autocomplete: true,
-            onAutocomplete: (ctx) => [
-              Choice('Alpha', 'alpha'),
-              Choice('Beta', 'beta'),
-            ],
-          ))
+          ..addOption(
+            Option.string(
+              name: 'item',
+              description: 'An item',
+              autocomplete: true,
+              onAutocomplete: (ctx) => [
+                Choice('Alpha', 'alpha'),
+                Choice('Beta', 'beta'),
+              ],
+            ),
+          )
           ..setHandle((ctx, opts) {});
 
         manager.addCommand(command);
@@ -188,15 +216,17 @@ void main() {
         final command = CommandDeclarationBuilder()
           ..setName('greet')
           ..setDescription('Greet someone')
-          ..addOption(Option.string(
-            name: 'username',
-            description: 'User to greet',
-            autocomplete: true,
-            onAutocomplete: (ctx) {
-              capturedCtx = ctx;
-              return [];
-            },
-          ))
+          ..addOption(
+            Option.string(
+              name: 'username',
+              description: 'User to greet',
+              autocomplete: true,
+              onAutocomplete: (ctx) {
+                capturedCtx = ctx;
+                return [];
+              },
+            ),
+          )
           ..setHandle((ctx, opts) {});
 
         manager.addCommand(command);
@@ -207,12 +237,7 @@ void main() {
           'data': {
             'name': 'greet',
             'options': [
-              {
-                'name': 'username',
-                'type': 3,
-                'value': 'ali',
-                'focused': true,
-              },
+              {'name': 'username', 'type': 3, 'value': 'ali', 'focused': true},
             ],
           },
         });
@@ -228,19 +253,18 @@ void main() {
         final command = CommandDeclarationBuilder()
           ..setName('filter')
           ..setDescription('Filter results')
-          ..addOption(Option.string(
-            name: 'query',
-            description: 'Search query',
-            autocomplete: true,
-            onAutocomplete: (ctx) {
-              capturedCtx = ctx;
-              return [];
-            },
-          ))
-          ..addOption(Option.integer(
-            name: 'limit',
-            description: 'Max results',
-          ))
+          ..addOption(
+            Option.string(
+              name: 'query',
+              description: 'Search query',
+              autocomplete: true,
+              onAutocomplete: (ctx) {
+                capturedCtx = ctx;
+                return [];
+              },
+            ),
+          )
+          ..addOption(Option.integer(name: 'limit', description: 'Max results'))
           ..setHandle((ctx, opts) {});
 
         manager.addCommand(command);
@@ -281,22 +305,28 @@ void main() {
 
         expect(fakePart.autocompleteResults, isEmpty);
         expect(
-            logger.warnings,
-            contains(contains(
-                'No autocomplete handler for command "unknown" option "q"')));
+          logger.warnings,
+          contains(
+            contains(
+              'No autocomplete handler for command "unknown" option "q"',
+            ),
+          ),
+        );
       });
 
       test('caps choices at 25', () async {
         final command = CommandDeclarationBuilder()
           ..setName('big')
           ..setDescription('Lots of choices')
-          ..addOption(Option.string(
-            name: 'item',
-            description: 'An item',
-            autocomplete: true,
-            onAutocomplete: (ctx) =>
-                List.generate(30, (i) => Choice('Item $i', 'item_$i')),
-          ))
+          ..addOption(
+            Option.string(
+              name: 'item',
+              description: 'An item',
+              autocomplete: true,
+              onAutocomplete: (ctx) =>
+                  List.generate(30, (i) => Choice('Item $i', 'item_$i')),
+            ),
+          )
           ..setHandle((ctx, opts) {});
 
         manager.addCommand(command);
@@ -320,12 +350,14 @@ void main() {
         final command = CommandDeclarationBuilder()
           ..setName('nofocus')
           ..setDescription('No focused option')
-          ..addOption(Option.string(
-            name: 'q',
-            description: 'A query',
-            autocomplete: true,
-            onAutocomplete: (ctx) => [],
-          ))
+          ..addOption(
+            Option.string(
+              name: 'q',
+              description: 'A query',
+              autocomplete: true,
+              onAutocomplete: (ctx) => [],
+            ),
+          )
           ..setHandle((ctx, opts) {});
 
         manager.addCommand(command);
@@ -343,50 +375,49 @@ void main() {
         });
 
         expect(fakePart.autocompleteResults, isEmpty);
-        expect(
-            logger.warnings,
-            contains(contains('No focused option found')));
+        expect(logger.warnings, contains(contains('No focused option found')));
       });
 
-      test('does not break when a non-autocomplete option exists alongside autocomplete one',
-          () async {
-        bool handlerCalled = false;
+      test(
+        'does not break when a non-autocomplete option exists alongside autocomplete one',
+        () async {
+          bool handlerCalled = false;
 
-        final command = CommandDeclarationBuilder()
-          ..setName('mixed')
-          ..setDescription('Mixed options')
-          ..addOption(Option.string(
-            name: 'ac',
-            description: 'Autocomplete option',
-            autocomplete: true,
-            onAutocomplete: (ctx) {
-              handlerCalled = true;
-              return [Choice('X', 'x')];
+          final command = CommandDeclarationBuilder()
+            ..setName('mixed')
+            ..setDescription('Mixed options')
+            ..addOption(
+              Option.string(
+                name: 'ac',
+                description: 'Autocomplete option',
+                autocomplete: true,
+                onAutocomplete: (ctx) {
+                  handlerCalled = true;
+                  return [Choice('X', 'x')];
+                },
+              ),
+            )
+            ..addOption(Option.boolean(name: 'flag', description: 'A flag'))
+            ..setHandle((ctx, opts) {});
+
+          manager.addCommand(command);
+
+          await manager.handleAutocomplete({
+            'id': '777777777777777777',
+            'token': 'tok',
+            'data': {
+              'name': 'mixed',
+              'options': [
+                {'name': 'ac', 'type': 3, 'value': 'x', 'focused': true},
+                {'name': 'flag', 'type': 5, 'value': true},
+              ],
             },
-          ))
-          ..addOption(Option.boolean(
-            name: 'flag',
-            description: 'A flag',
-          ))
-          ..setHandle((ctx, opts) {});
+          });
 
-        manager.addCommand(command);
-
-        await manager.handleAutocomplete({
-          'id': '777777777777777777',
-          'token': 'tok',
-          'data': {
-            'name': 'mixed',
-            'options': [
-              {'name': 'ac', 'type': 3, 'value': 'x', 'focused': true},
-              {'name': 'flag', 'type': 5, 'value': true},
-            ],
-          },
-        });
-
-        expect(handlerCalled, isTrue);
-        expect(fakePart.autocompleteResults, hasLength(1));
-      });
+          expect(handlerCalled, isTrue);
+          expect(fakePart.autocompleteResults, hasLength(1));
+        },
+      );
     });
   });
 }

@@ -20,22 +20,22 @@ void main() {
     });
 
     Map<String, dynamic> discordPayload() => {
-          'id': '111111111111111111',
-          'guild_id': '222222222222222222',
-          'channel_id': '333333333333333333',
-          'creator_id': '444444444444444444',
-          'name': 'Stage event',
-          'description': 'A great event',
-          'scheduled_start_time': '2026-06-01T18:00:00.000Z',
-          'scheduled_end_time': '2026-06-01T20:00:00.000Z',
-          'privacy_level': 2,
-          'status': 1,
-          'entity_type': 1,
-          'entity_id': '555555555555555555',
-          'entity_metadata': null,
-          'user_count': 12,
-          'image': null,
-        };
+      'id': '111111111111111111',
+      'guild_id': '222222222222222222',
+      'channel_id': '333333333333333333',
+      'creator_id': '444444444444444444',
+      'name': 'Stage event',
+      'description': 'A great event',
+      'scheduled_start_time': '2026-06-01T18:00:00.000Z',
+      'scheduled_end_time': '2026-06-01T20:00:00.000Z',
+      'privacy_level': 2,
+      'status': 1,
+      'entity_type': 1,
+      'entity_id': '555555555555555555',
+      'entity_metadata': null,
+      'user_count': 12,
+      'image': null,
+    };
 
     test('normalize maps Discord fields and writes cache', () async {
       final result = await serializer.normalize(discordPayload());
@@ -44,9 +44,11 @@ void main() {
       expect(result['creator_id'], equals('444444444444444444'));
       expect(result['name'], equals('Stage event'));
       expect(
-          cache.store.containsKey(
-              'guild/222222222222222222/scheduled-events/111111111111111111'),
-          isTrue);
+        cache.store.containsKey(
+          'guild/222222222222222222/scheduled-events/111111111111111111',
+        ),
+        isTrue,
+      );
     });
 
     test('normalize falls back to creator.id when creator_id absent', () async {
@@ -57,14 +59,16 @@ void main() {
       expect(result['creator_id'], equals('999999999999999999'));
     });
 
-    test('normalize captures entity_metadata.location for external events',
-        () async {
-      final payload = discordPayload()
-        ..['entity_type'] = 3
-        ..['entity_metadata'] = {'location': 'Paris'};
-      final result = await serializer.normalize(payload);
-      expect((result['entity_metadata'] as Map)['location'], equals('Paris'));
-    });
+    test(
+      'normalize captures entity_metadata.location for external events',
+      () async {
+        final payload = discordPayload()
+          ..['entity_type'] = 3
+          ..['entity_metadata'] = {'location': 'Paris'};
+        final result = await serializer.normalize(payload);
+        expect((result['entity_metadata'] as Map)['location'], equals('Paris'));
+      },
+    );
 
     test('serialize builds a GuildScheduledEvent', () async {
       final raw = await serializer.normalize(discordPayload());
@@ -73,10 +77,14 @@ void main() {
       expect(event.guildId.value, equals('222222222222222222'));
       expect(event.name, equals('Stage event'));
       expect(event.status, equals(GuildScheduledEventStatus.scheduled));
-      expect(event.entityType,
-          equals(GuildScheduledEventEntityType.stageInstance));
-      expect(event.privacyLevel,
-          equals(GuildScheduledEventPrivacyLevel.guildOnly));
+      expect(
+        event.entityType,
+        equals(GuildScheduledEventEntityType.stageInstance),
+      );
+      expect(
+        event.privacyLevel,
+        equals(GuildScheduledEventPrivacyLevel.guildOnly),
+      );
       expect(event.userCount, equals(12));
     });
 

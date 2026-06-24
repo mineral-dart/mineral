@@ -11,8 +11,8 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
   @override
   Future<Map<Snowflake, Webhook>> fetchForChannel(Object channelId) async {
     final req = Request.json(endpoint: '/channels/$channelId/webhooks');
-    final result =
-        await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
+    final result = await dataStore.requestBucket
+        .get<List<Map<String, dynamic>>>(req);
 
     final webhooks = await result.map((json) async {
       final raw = await marshaller.serializers.webhook.normalize(json);
@@ -25,8 +25,8 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
   @override
   Future<Map<Snowflake, Webhook>> fetchForServer(Object guildId) async {
     final req = Request.json(endpoint: '/guilds/$guildId/webhooks');
-    final result =
-        await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
+    final result = await dataStore.requestBucket
+        .get<List<Map<String, dynamic>>>(req);
 
     final webhooks = await result.map((json) async {
       final raw = await marshaller.serializers.webhook.normalize(json);
@@ -79,8 +79,9 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
       headers: {DiscordHeader.auditLogReason(reason)},
     );
 
-    final result =
-        await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.webhook.normalize(result);
     return marshaller.serializers.webhook.serialize(raw);
@@ -106,8 +107,9 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
       headers: {DiscordHeader.auditLogReason(reason)},
     );
 
-    final result =
-        await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.webhook.normalize(result);
     return marshaller.serializers.webhook.serialize(raw);
@@ -125,11 +127,11 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
       if (avatar != null) 'avatar': avatar,
     };
 
-    final req =
-        Request.json(endpoint: '/webhooks/$id/$token', body: body);
+    final req = Request.json(endpoint: '/webhooks/$id/$token', body: body);
 
-    final result =
-        await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
 
     final raw = await marshaller.serializers.webhook.normalize(result);
     return marshaller.serializers.webhook.serialize(raw);
@@ -145,8 +147,10 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
   }
 
   @override
-  Future<void> deleteWithToken(
-      {required Object id, required String token}) async {
+  Future<void> deleteWithToken({
+    required Object id,
+    required String token,
+  }) async {
     final req = Request.json(endpoint: '/webhooks/$id/$token');
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
@@ -173,19 +177,16 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
 
     final endpoint = '/webhooks/$id/$token';
     final req = files.isEmpty
-        ? Request.json(
-            endpoint: endpoint,
-            body: body,
-            queryParameters: query,
-          )
+        ? Request.json(endpoint: endpoint, body: body, queryParameters: query)
         : Request.formData(
             endpoint: endpoint,
             body: body,
             files: files,
           ).copyWith(queryParameters: query);
 
-    final result =
-        await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     if (!wait || result.isEmpty) {
       return null;
@@ -204,9 +205,7 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
   }) async {
     final req = Request.json(
       endpoint: '/webhooks/$id/$token/messages/$messageId',
-      queryParameters: {
-        if (threadId != null) 'thread_id': threadId.toString(),
-      },
+      queryParameters: {if (threadId != null) 'thread_id': threadId.toString()},
     );
 
     final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
@@ -240,19 +239,16 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
 
     final endpoint = '/webhooks/$id/$token/messages/$messageId';
     final req = files.isEmpty
-        ? Request.json(
-            endpoint: endpoint,
-            body: body,
-            queryParameters: query,
-          )
+        ? Request.json(endpoint: endpoint, body: body, queryParameters: query)
         : Request.formData(
             endpoint: endpoint,
             body: body,
             files: files,
           ).copyWith(queryParameters: query);
 
-    final result =
-        await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
 
     if (result.isEmpty) {
       return null;
@@ -271,9 +267,7 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
   }) async {
     final req = Request.json(
       endpoint: '/webhooks/$id/$token/messages/$messageId',
-      queryParameters: {
-        if (threadId != null) 'thread_id': threadId.toString(),
-      },
+      queryParameters: {if (threadId != null) 'thread_id': threadId.toString()},
     );
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
   }
@@ -288,9 +282,7 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
     final req = Request.json(
       endpoint: '/webhooks/$id/$token/github',
       body: payload,
-      queryParameters: {
-        if (threadId != null) 'thread_id': threadId.toString(),
-      },
+      queryParameters: {if (threadId != null) 'thread_id': threadId.toString()},
     );
     await dataStore.requestBucket.post<Map<String, dynamic>>(req);
   }
@@ -305,9 +297,7 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
     final req = Request.json(
       endpoint: '/webhooks/$id/$token/slack',
       body: payload,
-      queryParameters: {
-        if (threadId != null) 'thread_id': threadId.toString(),
-      },
+      queryParameters: {if (threadId != null) 'thread_id': threadId.toString()},
     );
     await dataStore.requestBucket.post<Map<String, dynamic>>(req);
   }

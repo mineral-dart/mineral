@@ -12,8 +12,7 @@ final class StageInstancePart extends BasePart
   Future<StageInstance> get(Object channelId) async {
     final id = Snowflake.parse(channelId);
     final req = Request.json(endpoint: '/stage-instances/$id');
-    final result =
-        await dataStore.requestBucket.get<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
     return StageInstance.fromJson(result);
   }
 
@@ -30,10 +29,12 @@ final class StageInstancePart extends BasePart
       'channel_id': Snowflake.parse(channelId).value,
       'topic': topic,
       if (privacyLevel != null) 'privacy_level': privacyLevel.value,
-      if (sendStartNotification != null) 'send_start_notification': sendStartNotification,
+      if (sendStartNotification != null)
+        'send_start_notification': sendStartNotification,
       if (guildScheduledEventId != null)
-        'guild_scheduled_event_id':
-            Snowflake.parse(guildScheduledEventId).value,
+        'guild_scheduled_event_id': Snowflake.parse(
+          guildScheduledEventId,
+        ).value,
     };
 
     final req = Request.json(
@@ -41,8 +42,9 @@ final class StageInstancePart extends BasePart
       body: body,
       headers: {DiscordHeader.auditLogReason(reason)},
     );
-    final result =
-        await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
     return StageInstance.fromJson(result);
   }
 
@@ -65,16 +67,14 @@ final class StageInstancePart extends BasePart
       body: body,
       headers: {DiscordHeader.auditLogReason(reason)},
     );
-    final result =
-        await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
     return StageInstance.fromJson(result);
   }
 
   @override
-  Future<void> delete({
-    required Object channelId,
-    String? reason,
-  }) async {
+  Future<void> delete({required Object channelId, String? reason}) async {
     final id = Snowflake.parse(channelId);
     final req = Request.json(
       endpoint: '/stage-instances/$id',

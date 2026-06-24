@@ -9,7 +9,7 @@ final class ApplicationEmojiManager {
   final Snowflake _applicationId;
 
   ApplicationEmojiManager(this._applicationId, {required EntityContext ctx})
-      : _ctx = ctx;
+    : _ctx = ctx;
 
   /// Fetch all application-owned emojis.
   /// ```dart

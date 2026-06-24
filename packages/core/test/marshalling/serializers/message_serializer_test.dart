@@ -22,30 +22,27 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'id': '777888999',
-          'author_id': '444555666',
-          'content': 'Hello world!',
-          'embeds': <Map<String, dynamic>>[],
-          'channel_id': '111222333',
-          'guild_id': '987654321',
-          'author_is_bot': false,
-          'timestamp': '2024-01-15T10:30:00.000Z',
-          'edited_timestamp': null,
-        };
+      'id': '777888999',
+      'author_id': '444555666',
+      'content': 'Hello world!',
+      'embeds': <Map<String, dynamic>>[],
+      'channel_id': '111222333',
+      'guild_id': '987654321',
+      'author_is_bot': false,
+      'timestamp': '2024-01-15T10:30:00.000Z',
+      'edited_timestamp': null,
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'id': '777888999',
-          'author': {
-            'id': '444555666',
-            'bot': false,
-          },
-          'content': 'Hello world!',
-          'embeds': <Map<String, dynamic>>[],
-          'channel_id': '111222333',
-          'guild_id': '987654321',
-          'timestamp': '2024-01-15T10:30:00.000Z',
-          'edited_timestamp': null,
-        };
+      'id': '777888999',
+      'author': {'id': '444555666', 'bot': false},
+      'content': 'Hello world!',
+      'embeds': <Map<String, dynamic>>[],
+      'channel_id': '111222333',
+      'guild_id': '987654321',
+      'timestamp': '2024-01-15T10:30:00.000Z',
+      'edited_timestamp': null,
+    };
 
     group('serialize()', () {
       test('maps all fields correctly', () async {
@@ -64,8 +61,10 @@ void main() {
         final message = await serializer.serialize(normalizedPayload());
 
         expect(message.createdAt, isA<DateTime>());
-        expect(message.createdAt,
-            equals(DateTime.parse('2024-01-15T10:30:00.000Z')));
+        expect(
+          message.createdAt,
+          equals(DateTime.parse('2024-01-15T10:30:00.000Z')),
+        );
       });
 
       test('handles null edited_timestamp', () async {
@@ -101,7 +100,7 @@ void main() {
               'provider': null,
               'fields': null,
               'color': null,
-            }
+            },
           ];
         final message = await serializer.serialize(payload);
 

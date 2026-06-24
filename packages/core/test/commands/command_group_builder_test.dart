@@ -26,9 +26,7 @@ void main() {
 
       test('stores name localizations with translation', () {
         final translation = Translation({
-          'name': {
-            Lang.fr: 'administrateur',
-          },
+          'name': {Lang.fr: 'administrateur'},
         });
 
         builder.setName('admin', translation: translation);
@@ -109,9 +107,7 @@ void main() {
 
       test('includes name localizations', () {
         final translation = Translation({
-          'name': {
-            Lang.fr: 'administrateur',
-          },
+          'name': {Lang.fr: 'administrateur'},
         });
 
         builder
@@ -132,9 +128,7 @@ void main() {
 
       test('includes description localizations', () {
         final translation = Translation({
-          'description': {
-            Lang.fr: 'Commandes admin',
-          },
+          'description': {Lang.fr: 'Commandes admin'},
         });
 
         builder
@@ -156,13 +150,17 @@ void main() {
       test('throws MissingPropertyException when name is null', () {
         builder.setDescription('test');
         expect(
-            () => builder.toJson(), throwsA(isA<MissingPropertyException>()));
+          () => builder.toJson(),
+          throwsA(isA<MissingPropertyException>()),
+        );
       });
 
       test('throws MissingPropertyException when description is null', () {
         builder.setName('test');
         expect(
-            () => builder.toJson(), throwsA(isA<MissingPropertyException>()));
+          () => builder.toJson(),
+          throwsA(isA<MissingPropertyException>()),
+        );
       });
 
       test('serializes sub commands in options', () {

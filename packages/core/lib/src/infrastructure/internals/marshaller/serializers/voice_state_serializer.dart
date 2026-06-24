@@ -26,8 +26,10 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
       'discoverable': json['discoverable'],
     };
 
-    final cacheKey =
-        _marshaller.cacheKey.voiceState(json['guild_id'] as String, json['user_id'] as String);
+    final cacheKey = _marshaller.cacheKey.voiceState(
+      json['guild_id'] as String,
+      json['user_id'] as String,
+    );
     await _marshaller.cache?.put(cacheKey, payload);
 
     return payload;
@@ -36,21 +38,22 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
   @override
   Future<VoiceState> serialize(Map<String, dynamic> json) async {
     return VoiceState(
-        ctx: _ctx,
-        guildId: Snowflake.parse(json['guild_id']),
-        channelId: Snowflake.nullable(json['channel_id'] as String?),
-        userId: Snowflake.parse(json['user_id']),
-        sessionId: json['session_id'] as String?,
-        isDeaf: json['deaf'] as bool,
-        isMute: json['mute'] as bool,
-        isSelfDeaf: json['self_deaf'] as bool,
-        isSelfMute: json['self_mute'] as bool,
-        hasSelfVideo: json['self_video'] as bool,
-        isSuppress: json['suppress'] as bool,
-        requestToSpeakTimestamp: json['request_to_speak_timestamp'] != null
-            ? DateTime.parse(json['request_to_speak_timestamp'] as String)
-            : null,
-        isDiscoverable: json['discoverable'] as bool);
+      ctx: _ctx,
+      guildId: Snowflake.parse(json['guild_id']),
+      channelId: Snowflake.nullable(json['channel_id'] as String?),
+      userId: Snowflake.parse(json['user_id']),
+      sessionId: json['session_id'] as String?,
+      isDeaf: json['deaf'] as bool,
+      isMute: json['mute'] as bool,
+      isSelfDeaf: json['self_deaf'] as bool,
+      isSelfMute: json['self_mute'] as bool,
+      hasSelfVideo: json['self_video'] as bool,
+      isSuppress: json['suppress'] as bool,
+      requestToSpeakTimestamp: json['request_to_speak_timestamp'] != null
+          ? DateTime.parse(json['request_to_speak_timestamp'] as String)
+          : null,
+      isDiscoverable: json['discoverable'] as bool,
+    );
   }
 
   @override
@@ -66,8 +69,8 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
       'self_mute': state.isSelfMute,
       'self_stream': state.hasSelfVideo,
       'suppress': state.isSuppress,
-      'request_to_speak_timestamp':
-          state.requestToSpeakTimestamp?.toIso8601String(),
+      'request_to_speak_timestamp': state.requestToSpeakTimestamp
+          ?.toIso8601String(),
       'discoverable': state.isDiscoverable,
     };
   }

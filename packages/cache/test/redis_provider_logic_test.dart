@@ -28,7 +28,9 @@ import 'package:test/test.dart';
 
 /// Mirrors the fixed inspect() null-filtering logic.
 Map<String, dynamic> applyInspectNullFilter(
-    List<dynamic> keys, List<dynamic> values) {
+  List<dynamic> keys,
+  List<dynamic> values,
+) {
   final result = <String, dynamic>{};
   for (var i = 0; i < keys.length; i++) {
     final v = values[i];
@@ -40,7 +42,9 @@ Map<String, dynamic> applyInspectNullFilter(
 
 /// Mirrors the fixed whereKeyStartsWith() null-filtering logic.
 Map<String, dynamic> applyWhereNullFilter(
-    List<dynamic> keys, List<dynamic> values) {
+  List<dynamic> keys,
+  List<dynamic> values,
+) {
   final Map<String, dynamic> r = {};
   for (var i = 0; i < keys.length; i++) {
     final v = values[i];
@@ -89,7 +93,10 @@ void main() {
       // The old code did `value.length` on the raw SCAN reply, which is
       // [cursor, [keys]]. Its length is always 2 regardless of key count.
       // This confirms why the old logic was wrong.
-      final scanReply = ['0', ['k1', 'k2', 'k3']];
+      final scanReply = [
+        '0',
+        ['k1', 'k2', 'k3'],
+      ];
       expect(scanReply.length, 2); // always 2 → the bug
     });
   });
@@ -100,7 +107,10 @@ void main() {
   group('H11/M21 – inspect() null-filtering on MGET results', () {
     test('all values present – no entries dropped', () {
       final keys = ['a', 'b'];
-      final values = [jsonEncode({'x': 1}), jsonEncode({'y': 2})];
+      final values = [
+        jsonEncode({'x': 1}),
+        jsonEncode({'y': 2}),
+      ];
 
       final result = applyInspectNullFilter(keys, values);
 
@@ -112,7 +122,11 @@ void main() {
 
     test('one null in the middle is skipped', () {
       final keys = ['a', 'b', 'c'];
-      final values = [jsonEncode({'x': 1}), null, jsonEncode({'z': 3})];
+      final values = [
+        jsonEncode({'x': 1}),
+        null,
+        jsonEncode({'z': 3}),
+      ];
 
       final result = applyInspectNullFilter(keys, values);
 
@@ -133,12 +147,14 @@ void main() {
 
     test('single non-null value survives', () {
       final keys = ['only'];
-      final values = [jsonEncode({'id': 42})];
+      final values = [
+        jsonEncode({'id': 42}),
+      ];
 
       final result = applyInspectNullFilter(keys, values);
 
       expect(result, {
-        'only': {'id': 42}
+        'only': {'id': 42},
       });
     });
   });
@@ -146,7 +162,10 @@ void main() {
   group('H11/M21 – whereKeyStartsWith() null-filtering on MGET results', () {
     test('all values present – full result returned', () {
       final keys = ['users/1', 'users/2'];
-      final values = [jsonEncode({'id': 1}), jsonEncode({'id': 2})];
+      final values = [
+        jsonEncode({'id': 1}),
+        jsonEncode({'id': 2}),
+      ];
 
       final result = applyWhereNullFilter(keys, values);
 
@@ -156,7 +175,10 @@ void main() {
     test('expired key (null) is silently dropped', () {
       // users/2 expired between SCAN and MGET → Redis returns null for it.
       final keys = ['users/1', 'users/2'];
-      final values = [jsonEncode({'id': 1}), null];
+      final values = [
+        jsonEncode({'id': 1}),
+        null,
+      ];
 
       final result = applyWhereNullFilter(keys, values);
 
@@ -187,14 +209,20 @@ void main() {
       expect(() => guardedRemoveMany([]), returnsNormally);
     });
 
-    test('guardedGetMany with keys would reach MGET (documents live boundary)', () {
-      // The non-empty path is only reachable with a live Redis connection.
-      expect(() => guardedGetMany(['k']), throwsStateError);
-    });
+    test(
+      'guardedGetMany with keys would reach MGET (documents live boundary)',
+      () {
+        // The non-empty path is only reachable with a live Redis connection.
+        expect(() => guardedGetMany(['k']), throwsStateError);
+      },
+    );
 
-    test('guardedRemoveMany with keys would reach DEL (documents live boundary)', () {
-      expect(() => guardedRemoveMany(['k']), throwsStateError);
-    });
+    test(
+      'guardedRemoveMany with keys would reach DEL (documents live boundary)',
+      () {
+        expect(() => guardedRemoveMany(['k']), throwsStateError);
+      },
+    );
   });
 
   // -------------------------------------------------------------------------

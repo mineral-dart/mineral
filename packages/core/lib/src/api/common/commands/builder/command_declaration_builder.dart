@@ -53,23 +53,29 @@ final class CommandDeclarationBuilder implements CommandBuilder {
   }
 
   CommandDeclarationBuilder setIntegrationTypes(
-      List<ApplicationIntegrationType> types) {
+    List<ApplicationIntegrationType> types,
+  ) {
     integrationTypes = types;
     return this;
   }
 
   CommandDeclarationBuilder setInteractionContexts(
-      List<InteractionContextType> contexts) {
+    List<InteractionContextType> contexts,
+  ) {
     interactionContexts = contexts;
     return this;
   }
 
-  CommandDeclarationBuilder setDescription(String description,
-      {Translation? translation}) {
+  CommandDeclarationBuilder setDescription(
+    String description, {
+    Translation? translation,
+  }) {
     _description = description;
     if (translation != null) {
-      _descriptionLocalizations =
-          _helper.extractTranslations('description', translation);
+      _descriptionLocalizations = _helper.extractTranslations(
+        'description',
+        translation,
+      );
     }
     return this;
   }
@@ -80,7 +86,8 @@ final class CommandDeclarationBuilder implements CommandBuilder {
   }
 
   CommandDeclarationBuilder setHandle<T extends CommandContext>(
-      CommandHandler<T> fn) {
+    CommandHandler<T> fn,
+  ) {
     _handle = fn;
     return this;
   }
@@ -98,7 +105,8 @@ final class CommandDeclarationBuilder implements CommandBuilder {
 
     if (instance is! SubCommandDeclaration) {
       throw InvalidCommandException(
-          'Factory must return a SubCommandDeclaration instance');
+        'Factory must return a SubCommandDeclaration instance',
+      );
     }
 
     final builder = instance.build();
@@ -160,23 +168,28 @@ final class CommandDeclarationBuilder implements CommandBuilder {
     for (final subCommand in subCommands) {
       if (subCommand.handle case null) {
         throw MissingMethodException(
-            'Command "$commandName.${subCommand.name}" has no handler');
+          'Command "$commandName.${subCommand.name}" has no handler',
+        );
       }
 
-      registrations.add(CommandRegistration(
-        name: '$name.${subCommand.name}',
-        handler: subCommand.handle!,
-        declaredOptions: List.unmodifiable(subCommand.options),
-      ));
+      registrations.add(
+        CommandRegistration(
+          name: '$name.${subCommand.name}',
+          handler: subCommand.handle!,
+          declaredOptions: List.unmodifiable(subCommand.options),
+        ),
+      );
     }
 
     for (final group in groups) {
       for (final subCommand in group.commands) {
-        registrations.add(CommandRegistration(
-          name: '$name.${group.name}.${subCommand.name}',
-          handler: subCommand.handle!,
-          declaredOptions: List.unmodifiable(subCommand.options),
-        ));
+        registrations.add(
+          CommandRegistration(
+            name: '$name.${group.name}.${subCommand.name}',
+            handler: subCommand.handle!,
+            declaredOptions: List.unmodifiable(subCommand.options),
+          ),
+        );
       }
     }
 

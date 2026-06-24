@@ -16,31 +16,44 @@ final class ChannelPinsUpdatePacket implements ListenablePacket {
   ChannelPinsUpdatePacket({
     required LoggerContract logger,
     required DataStoreContract dataStore,
-  })  : _logger = logger,
-        _dataStore = dataStore;
+  }) : _logger = logger,
+       _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final channel =
-        await _dataStore.channel.get(message.payload['channel_id'] as Object, false);
+    final channel = await _dataStore.channel.get(
+      message.payload['channel_id'] as Object,
+      false,
+    );
 
     return switch (channel) {
       GuildChannel() => registerServerChannelPins(channel, dispatch),
       PrivateChannel() => registerPrivateChannelPins(channel, dispatch),
-      _ => _logger
-          .warn("Unknown channel type: $channel contact Mineral's core team.")
+      _ => _logger.warn(
+        "Unknown channel type: $channel contact Mineral's core team.",
+      ),
     };
   }
 
   Future<void> registerServerChannelPins(
-      GuildChannel channel, DispatchEvent dispatch) async {
+    GuildChannel channel,
+    DispatchEvent dispatch,
+  ) async {
     final guild = await _dataStore.guild.get(channel.guildId.value, false);
 
-    dispatch<GuildChannelPinsUpdateArgs>(event: Event.guildChannelPinsUpdate, payload: (guild: guild, channel: channel));
+    dispatch<GuildChannelPinsUpdateArgs>(
+      event: Event.guildChannelPinsUpdate,
+      payload: (guild: guild, channel: channel),
+    );
   }
 
   Future<void> registerPrivateChannelPins(
-      PrivateChannel channel, DispatchEvent dispatch) async {
-    dispatch<PrivateChannelPinsUpdateArgs>(event: Event.privateChannelPinsUpdate, payload: (channel: channel));
+    PrivateChannel channel,
+    DispatchEvent dispatch,
+  ) async {
+    dispatch<PrivateChannelPinsUpdateArgs>(
+      event: Event.privateChannelPinsUpdate,
+      payload: (channel: channel),
+    );
   }
 }

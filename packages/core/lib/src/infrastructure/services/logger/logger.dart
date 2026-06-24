@@ -21,14 +21,17 @@ final class Logger implements LoggerContract {
   final logging.Logger _logger = logging.Logger.detached('core');
 
   Logger(this._logLevel, this._dartEnv, {String label = 'mineral'})
-      : _label = label {
+    : _label = label {
     _logger.level = _logLevel.level;
 
     _logger.onRecord.listen((record) {
       final time = DateFormat.Hms().format(record.time);
 
       List<Sequence> makeMessage(
-          String messageType, Color messageColor, List<Sequence> message) {
+        String messageType,
+        Color messageColor,
+        List<Sequence> message,
+      ) {
         return [
           SetStyles(Style.foreground(Color.brightBlack)),
           Print(time),
@@ -50,17 +53,23 @@ final class Logger implements LoggerContract {
 
       final message = switch (record.level) {
         logging.Level.FINEST => makeMessage('trace', Color.white, [
-            SetStyles(Style.foreground(Color.brightBlack)),
-            Print(record.message)
-          ]),
-        logging.Level.SHOUT =>
-          makeMessage('fatal', Color.brightRed, [Print(record.message)]),
-        logging.Level.SEVERE =>
-          makeMessage('error', Color.red, [Print(record.message)]),
-        logging.Level.WARNING =>
-          makeMessage('warn', Color.yellow, [Print(record.message)]),
+          SetStyles(Style.foreground(Color.brightBlack)),
+          Print(record.message),
+        ]),
+        logging.Level.SHOUT => makeMessage('fatal', Color.brightRed, [
+          Print(record.message),
+        ]),
+        logging.Level.SEVERE => makeMessage('error', Color.red, [
+          Print(record.message),
+        ]),
+        logging.Level.WARNING => makeMessage('warn', Color.yellow, [
+          Print(record.message),
+        ]),
         logging.Level.INFO => makeMessage(
-            'info', Color.fromRGB(140, 169, 238), [Print(record.message)]),
+          'info',
+          Color.fromRGB(140, 169, 238),
+          [Print(record.message)],
+        ),
         _ => makeMessage('unknown', Color.blue, [Print(record.message)]),
       };
 

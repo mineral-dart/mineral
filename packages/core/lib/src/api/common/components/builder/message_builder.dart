@@ -334,11 +334,9 @@ final class MessageBuilder {
       }
     }
 
-    _components.add(Section(
-      builder: builder,
-      button: button,
-      thumbnail: thumbnail,
-    ));
+    _components.add(
+      Section(builder: builder, button: button, thumbnail: thumbnail),
+    );
   }
 
   /// Adds a select menu (dropdown) to the message.

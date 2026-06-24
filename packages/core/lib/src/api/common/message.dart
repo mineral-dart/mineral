@@ -127,21 +127,29 @@ final class Message implements GuildMessage, PrivateMessage, BaseMessage {
   bool get isForwarded => referenceType == MessageReferenceType.forward;
 
   Message(this._properties, {required EntityContext ctx})
-      : _ctx = ctx,
-        reactions = ReactionManger(_properties.id.value,
-            _properties.channelId.value,
-            ctx: ctx);
+    : _ctx = ctx,
+      reactions = ReactionManger(
+        _properties.id.value,
+        _properties.channelId.value,
+        ctx: ctx,
+      );
 
   @override
   Future<void> edit(MessageBuilder builder) async {
-    await _datastore.message
-        .update(id: id.value, channelId: channelId.value, builder: builder);
+    await _datastore.message.update(
+      id: id.value,
+      channelId: channelId.value,
+      builder: builder,
+    );
   }
 
   @override
   Future<Member> resolveMember({bool force = false}) async {
-    final member =
-        await _datastore.member.get(guildId!.value, authorId!.value, force);
+    final member = await _datastore.member.get(
+      guildId!.value,
+      authorId!.value,
+      force,
+    );
     return member!;
   }
 
@@ -227,7 +235,11 @@ final class Message implements GuildMessage, PrivateMessage, BaseMessage {
   ///  final thread = await message.createThread<PublicThreadChannel>(builder);
   ///  ```
   Future<T> createThread<T extends ThreadChannel>(
-          ThreadChannelBuilder builder) =>
-      _datastore.thread.createFromMessage<T>(
-          guildId.value, channelId.value, id?.value, builder);
+    ThreadChannelBuilder builder,
+  ) => _datastore.thread.createFromMessage<T>(
+    guildId.value,
+    channelId.value,
+    id?.value,
+    builder,
+  );
 }

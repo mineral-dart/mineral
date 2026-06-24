@@ -10,8 +10,7 @@ final class GuildScheduledEventCreateAuditLog extends AuditLog {
     required Snowflake userId,
     required EntityContext ctx,
     required this.eventId,
-  }) : super(AuditLogType.guildScheduledEventCreate, guildId, userId,
-            ctx: ctx);
+  }) : super(AuditLogType.guildScheduledEventCreate, guildId, userId, ctx: ctx);
 }
 
 final class GuildScheduledEventUpdateAuditLog extends AuditLog {
@@ -24,8 +23,7 @@ final class GuildScheduledEventUpdateAuditLog extends AuditLog {
     required EntityContext ctx,
     required this.eventId,
     required this.changes,
-  }) : super(AuditLogType.guildScheduledEventUpdate, guildId, userId,
-            ctx: ctx);
+  }) : super(AuditLogType.guildScheduledEventUpdate, guildId, userId, ctx: ctx);
 }
 
 final class GuildScheduledEventDeleteAuditLog extends AuditLog {
@@ -36,6 +34,5 @@ final class GuildScheduledEventDeleteAuditLog extends AuditLog {
     required Snowflake userId,
     required EntityContext ctx,
     required this.eventId,
-  }) : super(AuditLogType.guildScheduledEventDelete, guildId, userId,
-            ctx: ctx);
+  }) : super(AuditLogType.guildScheduledEventDelete, guildId, userId, ctx: ctx);
 }

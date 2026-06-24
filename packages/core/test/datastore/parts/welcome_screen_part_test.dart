@@ -13,28 +13,27 @@ const _guildId = '123456789012345678';
 Map<String, dynamic> _welcomeScreenPayload({
   String? description = 'Welcome to our guild!',
   List<Map<String, dynamic>>? channels,
-}) =>
-    {
-      'description': description,
-      'welcome_channels': channels ??
-          [
-            {
-              'channel_id': '111222333444555666',
-              'description': 'Start here',
-              'emoji_id': null,
-              'emoji_name': null,
-            },
-            {
-              'channel_id': '222333444555666777',
-              'description': 'Get roles',
-              'emoji_id': '999888777666555444',
-              'emoji_name': 'star',
-            },
-          ],
-    };
+}) => {
+  'description': description,
+  'welcome_channels':
+      channels ??
+      [
+        {
+          'channel_id': '111222333444555666',
+          'description': 'Start here',
+          'emoji_id': null,
+          'emoji_name': null,
+        },
+        {
+          'channel_id': '222333444555666777',
+          'description': 'Get roles',
+          'emoji_id': '999888777666555444',
+          'emoji_name': 'star',
+        },
+      ],
+};
 
-(WelcomeScreenPart, void Function() restore) _buildPart(
-    FakeHttpClient client) {
+(WelcomeScreenPart, void Function() restore) _buildPart(FakeHttpClient client) {
   final ds = FakeDataStore(client);
   final ioc = createTestIoc(dataStore: ds);
   return (WelcomeScreenPart(FakeMarshaller(), ds), ioc.restore);
@@ -67,14 +66,18 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/welcome-screen'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/welcome-screen'),
+        );
       });
 
       test('parses description correctly', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _welcomeScreenPayload(description: 'Hello world!')),
+            200,
+            _welcomeScreenPayload(description: 'Hello world!'),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -97,25 +100,24 @@ void main() {
         expect(screen.welcomeChannels, hasLength(2));
 
         final first = screen.welcomeChannels[0];
-        expect(first.channelId,
-            equals(Snowflake.parse('111222333444555666')));
+        expect(first.channelId, equals(Snowflake.parse('111222333444555666')));
         expect(first.description, equals('Start here'));
         expect(first.emojiId, isNull);
         expect(first.emojiName, isNull);
 
         final second = screen.welcomeChannels[1];
-        expect(second.channelId,
-            equals(Snowflake.parse('222333444555666777')));
+        expect(second.channelId, equals(Snowflake.parse('222333444555666777')));
         expect(second.description, equals('Get roles'));
-        expect(second.emojiId,
-            equals(Snowflake.parse('999888777666555444')));
+        expect(second.emojiId, equals(Snowflake.parse('999888777666555444')));
         expect(second.emojiName, equals('star'));
       });
 
       test('handles null description', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _welcomeScreenPayload(description: null)),
+            200,
+            _welcomeScreenPayload(description: null),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -128,7 +130,9 @@ void main() {
       test('handles empty welcome_channels list', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _welcomeScreenPayload(channels: [])),
+            200,
+            _welcomeScreenPayload(channels: []),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -153,14 +157,18 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('PATCH'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/welcome-screen'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/welcome-screen'),
+        );
       });
 
       test('returns parsed WelcomeScreen from PATCH response', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _welcomeScreenPayload(description: 'Updated!')),
+            200,
+            _welcomeScreenPayload(description: 'Updated!'),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -184,8 +192,10 @@ void main() {
         restore();
 
         expect(client.calls.single.method, equals('PATCH'));
-        expect(client.calls.single.path,
-            equals('/guilds/$_guildId/welcome-screen'));
+        expect(
+          client.calls.single.path,
+          equals('/guilds/$_guildId/welcome-screen'),
+        );
       });
 
       test('only-present fields are sent (enabled only)', () async {
@@ -210,15 +220,16 @@ void main() {
             'description': 'New channel desc',
             'emoji_id': null,
             'emoji_name': null,
-          }
+          },
         ];
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200,
-              _welcomeScreenPayload(
-                description: 'With channels',
-                channels: channels,
-              )),
+            200,
+            _welcomeScreenPayload(
+              description: 'With channels',
+              channels: channels,
+            ),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -230,8 +241,10 @@ void main() {
         restore();
 
         expect(screen.welcomeChannels, hasLength(1));
-        expect(screen.welcomeChannels.first.description,
-            equals('New channel desc'));
+        expect(
+          screen.welcomeChannels.first.description,
+          equals('New channel desc'),
+        );
       });
     });
   });

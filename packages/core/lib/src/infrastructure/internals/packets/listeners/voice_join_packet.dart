@@ -11,7 +11,7 @@ final class VoiceJoinPacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   VoiceJoinPacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -24,13 +24,17 @@ final class VoiceJoinPacket implements ListenablePacket {
 
     // Trigger VoiceJoinEvent whenever a user joins ANY channel (including moves)
     if (payload['channel_id'] != null &&
-        (before == null ||
-            before['channel_id'] != payload['channel_id'])) {
-      final rawVoiceState =
-          await _marshaller.serializers.voice.normalize(payload);
-      final voiceState =
-          await _marshaller.serializers.voice.serialize(rawVoiceState);
-      dispatch<VoiceJoinArgs>(event: Event.voiceJoin, payload: (state: voiceState));
+        (before == null || before['channel_id'] != payload['channel_id'])) {
+      final rawVoiceState = await _marshaller.serializers.voice.normalize(
+        payload,
+      );
+      final voiceState = await _marshaller.serializers.voice.serialize(
+        rawVoiceState,
+      );
+      dispatch<VoiceJoinArgs>(
+        event: Event.voiceJoin,
+        payload: (state: voiceState),
+      );
     }
   }
 }

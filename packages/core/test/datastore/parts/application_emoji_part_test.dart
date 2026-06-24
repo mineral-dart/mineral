@@ -14,15 +14,14 @@ import '../../helpers/ioc_test_helper.dart';
 Map<String, dynamic> _emojiPayload({
   String id = '111222333444555666',
   String name = 'thumbsup',
-}) =>
-    {
-      'id': id,
-      'name': name,
-      'managed': false,
-      'available': true,
-      'animated': false,
-      'roles': null,
-    };
+}) => {
+  'id': id,
+  'name': name,
+  'managed': false,
+  'available': true,
+  'animated': false,
+  'roles': null,
+};
 
 /// Creates a minimal [Image] from a 1x1 transparent PNG for tests.
 Image _fakeImage() {
@@ -58,7 +57,8 @@ void main() {
     /// Creates a fresh [ApplicationEmojiPart] with a given HTTP client,
     /// registers a new IoC scope, and returns the restore callback.
     (ApplicationEmojiPart, void Function() restore) buildPart(
-        FakeHttpClient client) {
+      FakeHttpClient client,
+    ) {
       final ds = FakeDataStore(client);
       final ioc = createTestIoc(dataStore: ds);
       return (ApplicationEmojiPart(FakeMarshaller(), ds), ioc.restore);
@@ -90,8 +90,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/applications/$applicationId/emojis'));
+        expect(
+          client.calls.single.path,
+          equals('/applications/$applicationId/emojis'),
+        );
       });
 
       test('unwraps the items wrapper and returns Emojis', () async {
@@ -139,30 +141,37 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/applications/$applicationId/emojis/111222333444555666'));
+        expect(
+          client.calls.single.path,
+          equals('/applications/$applicationId/emojis/111222333444555666'),
+        );
       });
 
-      test('deserializes app-emoji payload WITHOUT guild_id into an Emoji', () async {
-        final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(200,
-              _emojiPayload(id: '555666777888999000', name: 'cool')),
-        ]);
-        final (p, restore) = buildPart(client);
+      test(
+        'deserializes app-emoji payload WITHOUT guild_id into an Emoji',
+        () async {
+          final client = FakeHttpClient([
+            FakeResponse<Map<String, dynamic>>(
+              200,
+              _emojiPayload(id: '555666777888999000', name: 'cool'),
+            ),
+          ]);
+          final (p, restore) = buildPart(client);
 
-        final emoji = await p.get(applicationId, '555666777888999000');
-        restore();
+          final emoji = await p.get(applicationId, '555666777888999000');
+          restore();
 
-        expect(emoji, isA<Emoji>());
-        expect(emoji!.name, equals('cool'));
-        expect(emoji.id, equals(Snowflake.parse('555666777888999000')));
-        // guildId is set to applicationId since app emojis have no guild_id
-        expect(emoji.guildId, equals(Snowflake.parse(applicationId)));
-        expect(emoji.managed, isFalse);
-        expect(emoji.available, isTrue);
-        expect(emoji.animated, isFalse);
-        expect(emoji.roles, isEmpty);
-      });
+          expect(emoji, isA<Emoji>());
+          expect(emoji!.name, equals('cool'));
+          expect(emoji.id, equals(Snowflake.parse('555666777888999000')));
+          // guildId is set to applicationId since app emojis have no guild_id
+          expect(emoji.guildId, equals(Snowflake.parse(applicationId)));
+          expect(emoji.managed, isFalse);
+          expect(emoji.available, isTrue);
+          expect(emoji.animated, isFalse);
+          expect(emoji.roles, isEmpty);
+        },
+      );
     });
 
     // ── create ───────────────────────────────────────────────────────────────
@@ -179,8 +188,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('POST'));
-        expect(client.calls.single.path,
-            equals('/applications/$applicationId/emojis'));
+        expect(
+          client.calls.single.path,
+          equals('/applications/$applicationId/emojis'),
+        );
       });
     });
 
@@ -189,8 +200,10 @@ void main() {
     group('update()', () {
       test('sends PATCH to /applications/:id/emojis/:emojiId', () async {
         final client = FakeHttpClient([
-          FakeResponse<Map<String, dynamic>>(200,
-              _emojiPayload(id: '111222333444555666', name: 'new_name')),
+          FakeResponse<Map<String, dynamic>>(
+            200,
+            _emojiPayload(id: '111222333444555666', name: 'new_name'),
+          ),
         ]);
         final (p, restore) = buildPart(client);
 
@@ -199,8 +212,10 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('PATCH'));
-        expect(client.calls.single.path,
-            equals('/applications/$applicationId/emojis/111222333444555666'));
+        expect(
+          client.calls.single.path,
+          equals('/applications/$applicationId/emojis/111222333444555666'),
+        );
       });
     });
 
@@ -212,8 +227,10 @@ void main() {
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('DELETE'));
-        expect(http.calls.single.path,
-            equals('/applications/$applicationId/emojis/111222333444555666'));
+        expect(
+          http.calls.single.path,
+          equals('/applications/$applicationId/emojis/111222333444555666'),
+        );
       });
     });
   });

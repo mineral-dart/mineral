@@ -20,19 +20,19 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'id': '123456789',
-          'type': 0,
-          'allow': '8',
-          'deny': '0',
-        };
+      'id': '123456789',
+      'type': 0,
+      'allow': '8',
+      'deny': '0',
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'id': '123456789',
-          'type': 0,
-          'allow': '8',
-          'deny': '0',
-          'guild_id': '987654321',
-        };
+      'id': '123456789',
+      'type': 0,
+      'allow': '8',
+      'deny': '0',
+      'guild_id': '987654321',
+    };
 
     group('serialize()', () {
       test('maps fields correctly', () {
@@ -78,8 +78,10 @@ void main() {
         final result = serializer.deserialize(overwrite);
 
         expect(result, containsPair('id', '123456789'));
-        expect(result,
-            containsPair('type', ChannelPermissionOverwriteType.role.value));
+        expect(
+          result,
+          containsPair('type', ChannelPermissionOverwriteType.role.value),
+        );
       });
     });
 
@@ -87,8 +89,10 @@ void main() {
       test('writes to cache with channelPermission key', () async {
         await serializer.normalize(rawDiscordPayload());
 
-        final expectedKey =
-            CacheKey().channelPermission('123456789', guildId: '987654321');
+        final expectedKey = CacheKey().channelPermission(
+          '123456789',
+          guildId: '987654321',
+        );
         expect(cache.store.containsKey(expectedKey), isTrue);
       });
 

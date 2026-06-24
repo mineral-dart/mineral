@@ -19,8 +19,7 @@ final class SentMessage extends RecordedAction {
   });
 
   @override
-  String toString() =>
-      'SentMessage(channel: $channelId, content: $content)';
+  String toString() => 'SentMessage(channel: $channelId, content: $content)';
 }
 
 /// A reply produced by a slash command or component handler.
@@ -77,8 +76,7 @@ final class MemberBanned extends RecordedAction {
   });
 
   @override
-  String toString() =>
-      'MemberBanned(member: $memberId, reason: $reason)';
+  String toString() => 'MemberBanned(member: $memberId, reason: $reason)';
 }
 
 /// A role assignment produced by `member.roles.add(...)`.
@@ -96,8 +94,7 @@ final class RoleAssigned extends RecordedAction {
   });
 
   @override
-  String toString() =>
-      'RoleAssigned(member: $memberId, role: $roleId)';
+  String toString() => 'RoleAssigned(member: $memberId, role: $roleId)';
 }
 
 /// A role removal produced by `member.roles.remove(...)`.
@@ -133,8 +130,5 @@ final class MessageDeleted extends RecordedAction {
   final String channelId;
   final String messageId;
 
-  const MessageDeleted({
-    required this.channelId,
-    required this.messageId,
-  });
+  const MessageDeleted({required this.channelId, required this.messageId});
 }

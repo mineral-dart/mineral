@@ -25,7 +25,11 @@ final class Change<B, A> {
   Change(this.key, this.before, this.after);
 
   factory Change.fromJson(Map<String, dynamic> json) {
-    return Change(json['key'] as String, json['old_value'] as B, json['new_value'] as A?);
+    return Change(
+      json['key'] as String,
+      json['old_value'] as B,
+      json['new_value'] as A?,
+    );
   }
 }
 

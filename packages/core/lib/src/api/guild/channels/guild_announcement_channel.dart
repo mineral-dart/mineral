@@ -20,8 +20,11 @@ final class GuildAnnouncementChannel extends GuildChannel {
   late final GuildCategoryChannel? category;
 
   GuildAnnouncementChannel(this.properties) {
-    methods = ChannelMethods(properties.guildId!, properties.id,
-        ctx: properties.ctx);
+    methods = ChannelMethods(
+      properties.guildId!,
+      properties.id,
+      ctx: properties.ctx,
+    );
     messages = MessageManager(properties.id, ctx: properties.ctx);
   }
 

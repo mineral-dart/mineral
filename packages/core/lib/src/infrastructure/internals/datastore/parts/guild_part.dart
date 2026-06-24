@@ -14,8 +14,7 @@ final class GuildPart extends BasePart implements GuildPartContract {
 
     final cachedServer = await marshaller.cache?.get(key);
     if (!force && cachedServer != null) {
-      final guild =
-          await marshaller.serializers.guild.serialize(cachedServer);
+      final guild = await marshaller.serializers.guild.serialize(cachedServer);
 
       return guild;
     }
@@ -31,17 +30,22 @@ final class GuildPart extends BasePart implements GuildPartContract {
 
   @override
   Future<Guild> update(
-      Object id, Map<String, dynamic> payload, String? reason) async {
+    Object id,
+    Map<String, dynamic> payload,
+    String? reason,
+  ) async {
     final guildId = Snowflake.parse(id);
     final req = Request.json(
-        endpoint: '/guilds/$guildId',
-        body: payload,
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/guilds/$guildId',
+      body: payload,
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
     final response = await dataStore.client.patch(req);
 
-    final rawServer = await marshaller.serializers.guild
-        .normalize(response.body as Map<String, dynamic>);
+    final rawServer = await marshaller.serializers.guild.normalize(
+      response.body as Map<String, dynamic>,
+    );
     return marshaller.serializers.guild.serialize(rawServer);
   }
 
@@ -49,8 +53,9 @@ final class GuildPart extends BasePart implements GuildPartContract {
   Future<void> delete(Object id, String? reason) async {
     final guildId = Snowflake.parse(id);
     final req = Request.json(
-        endpoint: '/guilds/$guildId',
-        headers: {DiscordHeader.auditLogReason(reason)});
+      endpoint: '/guilds/$guildId',
+      headers: {DiscordHeader.auditLogReason(reason)},
+    );
 
     await dataStore.client.delete(req);
   }

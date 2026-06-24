@@ -73,8 +73,11 @@ final class VoiceState {
   /// final voice = await member.resolveVoiceContext(force: true);
   /// ```
   Future<MemberVoiceManager> resolveVoiceContext({bool force = false}) async {
-    final voiceState = await _datastore.member
-        .getVoiceState(guildId.value, userId.value, force);
+    final voiceState = await _datastore.member.getVoiceState(
+      guildId.value,
+      userId.value,
+      force,
+    );
     return MemberVoiceManager(guildId, userId, voiceState, ctx: _ctx);
   }
 

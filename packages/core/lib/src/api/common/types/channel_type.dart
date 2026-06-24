@@ -32,7 +32,7 @@ enum ChannelType implements EnhancedEnum<int> {
     guildStageVoice,
     guildDirectory,
     guildForum,
-    guildMedia
+    guildMedia,
   ];
 
   static List<ChannelType> privateTypes = [dm, groupDm];

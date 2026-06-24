@@ -15,13 +15,9 @@ final class MonetizationPart extends BasePart
   Future<List<Sku>> fetchSkus(Object applicationId) async {
     final appId = Snowflake.parse(applicationId);
     final req = Request.json(endpoint: '/applications/$appId/skus');
-    final result =
-        await dataStore.requestBucket.get<List<dynamic>>(req);
+    final result = await dataStore.requestBucket.get<List<dynamic>>(req);
 
-    return result
-        .cast<Map<String, dynamic>>()
-        .map(Sku.fromJson)
-        .toList();
+    return result.cast<Map<String, dynamic>>().map(Sku.fromJson).toList();
   }
 
   @override
@@ -50,8 +46,7 @@ final class MonetizationPart extends BasePart
       endpoint: '/applications/$appId/entitlements',
       queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
-    final result =
-        await dataStore.requestBucket.get<List<dynamic>>(req);
+    final result = await dataStore.requestBucket.get<List<dynamic>>(req);
 
     return result
         .cast<Map<String, dynamic>>()
@@ -75,27 +70,34 @@ final class MonetizationPart extends BasePart
         'owner_type': ownerType.value,
       },
     );
-    final result =
-        await dataStore.requestBucket.post<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.post<Map<String, dynamic>>(
+      req,
+    );
 
     return Entitlement.fromJson(result);
   }
 
   @override
   Future<void> consumeEntitlement(
-      Object applicationId, Object entitlementId) async {
+    Object applicationId,
+    Object entitlementId,
+  ) async {
     final appId = Snowflake.parse(applicationId);
     final req = Request.json(
-        endpoint: '/applications/$appId/entitlements/$entitlementId/consume');
+      endpoint: '/applications/$appId/entitlements/$entitlementId/consume',
+    );
     await dataStore.requestBucket.post<void>(req);
   }
 
   @override
   Future<void> deleteTestEntitlement(
-      Object applicationId, Object entitlementId) async {
+    Object applicationId,
+    Object entitlementId,
+  ) async {
     final appId = Snowflake.parse(applicationId);
     final req = Request.json(
-        endpoint: '/applications/$appId/entitlements/$entitlementId');
+      endpoint: '/applications/$appId/entitlements/$entitlementId',
+    );
     await dataStore.requestBucket.delete<void>(req);
   }
 
@@ -118,8 +120,7 @@ final class MonetizationPart extends BasePart
       endpoint: '/skus/$skuId/subscriptions',
       queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
-    final result =
-        await dataStore.requestBucket.get<List<dynamic>>(req);
+    final result = await dataStore.requestBucket.get<List<dynamic>>(req);
 
     return result
         .cast<Map<String, dynamic>>()
@@ -129,11 +130,13 @@ final class MonetizationPart extends BasePart
 
   @override
   Future<Subscription> getSubscription(
-      Object skuId, Object subscriptionId) async {
+    Object skuId,
+    Object subscriptionId,
+  ) async {
     final req = Request.json(
-        endpoint: '/skus/$skuId/subscriptions/$subscriptionId');
-    final result =
-        await dataStore.requestBucket.get<Map<String, dynamic>>(req);
+      endpoint: '/skus/$skuId/subscriptions/$subscriptionId',
+    );
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
     return Subscription.fromJson(result);
   }

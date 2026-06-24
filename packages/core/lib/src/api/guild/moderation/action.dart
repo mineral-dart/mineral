@@ -5,8 +5,5 @@ final class Action {
   final ActionType type;
   final ActionMetadata? metadata;
 
-  Action({
-    required this.type,
-    this.metadata,
-  });
+  Action({required this.type, this.metadata});
 }

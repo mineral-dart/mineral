@@ -21,17 +21,11 @@ void main() {
     });
 
     test('roles are cached for 4 hours via segment match', () {
-      expect(
-        policy.ttlFor('guild/123/roles/456'),
-        const Duration(hours: 4),
-      );
+      expect(policy.ttlFor('guild/123/roles/456'), const Duration(hours: 4));
     });
 
     test('emojis are cached for 12 hours', () {
-      expect(
-        policy.ttlFor('guild/123/emojis/456'),
-        const Duration(hours: 12),
-      );
+      expect(policy.ttlFor('guild/123/emojis/456'), const Duration(hours: 12));
     });
 
     test('stickers are cached for 12 hours', () {
@@ -82,11 +76,16 @@ void main() {
       expect(policy.ttlFor('webhooks/123456789'), const Duration(hours: 1));
     });
 
-    test('unlisted key families fall through to the conservative 1-hour default',
-        () {
-      expect(policy.ttlFor('foo/bar'), const Duration(hours: 1));
-      expect(policy.ttlFor('arbitrary/unlisted/key'), const Duration(hours: 1));
-    });
+    test(
+      'unlisted key families fall through to the conservative 1-hour default',
+      () {
+        expect(policy.ttlFor('foo/bar'), const Duration(hours: 1));
+        expect(
+          policy.ttlFor('arbitrary/unlisted/key'),
+          const Duration(hours: 1),
+        );
+      },
+    );
   });
 
   group('CacheTtlPolicy.disabled', () {
@@ -121,9 +120,7 @@ void main() {
     });
 
     test('override with null disables expiration for that key family', () {
-      final policy = CacheTtlPolicy.defaults().override({
-        'users/': null,
-      });
+      final policy = CacheTtlPolicy.defaults().override({'users/': null});
 
       expect(policy.ttlFor('users/789'), isNull);
     });

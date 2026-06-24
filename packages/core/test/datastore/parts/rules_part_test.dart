@@ -24,15 +24,19 @@ void main() {
     tearDown(() => restoreIoc());
 
     group('delete', () {
-      test('sends DELETE to /guilds/:guildId/auto-moderation/rules/:ruleId',
-          () async {
-        await rules.delete('222', '333');
+      test(
+        'sends DELETE to /guilds/:guildId/auto-moderation/rules/:ruleId',
+        () async {
+          await rules.delete('222', '333');
 
-        expect(http.calls, hasLength(1));
-        expect(http.calls.single.method, equals('DELETE'));
-        expect(http.calls.single.path,
-            equals('/guilds/222/auto-moderation/rules/333'));
-      });
+          expect(http.calls, hasLength(1));
+          expect(http.calls.single.method, equals('DELETE'));
+          expect(
+            http.calls.single.path,
+            equals('/guilds/222/auto-moderation/rules/333'),
+          );
+        },
+      );
     });
   });
 }

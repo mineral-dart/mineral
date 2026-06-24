@@ -12,15 +12,18 @@ final class StageInstanceCreatePacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   StageInstanceCreatePacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final guild = await _dataStore.guild
-        .get(message.payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      message.payload['guild_id'] as Object,
+      false,
+    );
 
-    final instance =
-        StageInstance.fromJson(message.payload as Map<String, dynamic>);
+    final instance = StageInstance.fromJson(
+      message.payload as Map<String, dynamic>,
+    );
 
     dispatch<GuildStageInstanceCreateArgs>(
       event: Event.guildStageInstanceCreate,

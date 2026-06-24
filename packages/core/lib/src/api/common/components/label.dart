@@ -8,11 +8,7 @@ final class Label implements ModalComponent {
   final Component component;
   final String? description;
 
-  Label({
-    required this.label,
-    required this.component,
-    this.description,
-  });
+  Label({required this.label, required this.component, this.description});
 
   @override
   Map<String, dynamic> toJson() {

@@ -43,7 +43,9 @@ final class StageInstance {
       channelId: Snowflake.parse(json['channel_id']),
       topic: json['topic'] as String,
       privacyLevel: privacyLevel,
-      guildScheduledEventId: Snowflake.nullable(json['guild_scheduled_event_id']),
+      guildScheduledEventId: Snowflake.nullable(
+        json['guild_scheduled_event_id'],
+      ),
     );
   }
 }

@@ -11,7 +11,8 @@ abstract class UserUpdateEvent extends BaseListenableEvent {
   Event get event => Event.userUpdate;
 
   @override
-  Function get handler => (UserUpdateArgs p) => handle(p.before, p.after);
+  Function get handler =>
+      (UserUpdateArgs p) => handle(p.before, p.after);
 
   FutureOr<void> handle(User? before, User after);
 }
@@ -23,7 +24,8 @@ abstract class InviteCreateEvent extends BaseListenableEvent {
   Event get event => Event.inviteCreate;
 
   @override
-  Function get handler => (InviteCreateArgs p) => handle(p.invite);
+  Function get handler =>
+      (InviteCreateArgs p) => handle(p.invite);
   FutureOr<void> handle(Invite invite);
 }
 
@@ -34,7 +36,8 @@ abstract class InviteDeleteEvent extends BaseListenableEvent {
   Event get event => Event.inviteDelete;
 
   @override
-  Function get handler => (InviteDeleteArgs p) => handle(p.code, p.channel);
+  Function get handler =>
+      (InviteDeleteArgs p) => handle(p.code, p.channel);
 
   FutureOr<void> handle(String code, Channel? channel);
 }
@@ -46,7 +49,8 @@ abstract class ReadyEvent extends BaseListenableEvent {
   Event get event => Event.ready;
 
   @override
-  Function get handler => (ReadyArgs p) => handle(p.bot);
+  Function get handler =>
+      (ReadyArgs p) => handle(p.bot);
 
   FutureOr<void> handle(Bot bot);
 }
@@ -58,7 +62,8 @@ abstract class TypingEvent extends BaseListenableEvent {
   Event get event => Event.typing;
 
   @override
-  Function get handler => (TypingArgs p) => handle(p.typing);
+  Function get handler =>
+      (TypingArgs p) => handle(p.typing);
 
   FutureOr<void> handle(Typing typing);
 }
@@ -70,7 +75,8 @@ abstract class VoiceConnectEvent extends BaseListenableEvent {
   Event get event => Event.voiceConnect;
 
   @override
-  Function get handler => (VoiceConnectArgs p) => handle(p.state);
+  Function get handler =>
+      (VoiceConnectArgs p) => handle(p.state);
 
   FutureOr<void> handle(VoiceState state);
 }
@@ -82,7 +88,8 @@ abstract class VoiceDisconnectEvent extends BaseListenableEvent {
   Event get event => Event.voiceDisconnect;
 
   @override
-  Function get handler => (VoiceDisconnectArgs p) => handle(p.state);
+  Function get handler =>
+      (VoiceDisconnectArgs p) => handle(p.state);
 
   FutureOr<void> handle(VoiceState state);
 }
@@ -94,7 +101,8 @@ abstract class VoiceJoinEvent extends BaseListenableEvent {
   Event get event => Event.voiceJoin;
 
   @override
-  Function get handler => (VoiceJoinArgs p) => handle(p.state);
+  Function get handler =>
+      (VoiceJoinArgs p) => handle(p.state);
 
   FutureOr<void> handle(VoiceState state);
 }
@@ -106,7 +114,8 @@ abstract class VoiceLeaveEvent extends BaseListenableEvent {
   Event get event => Event.voiceLeave;
 
   @override
-  Function get handler => (VoiceLeaveArgs p) => handle(p.state);
+  Function get handler =>
+      (VoiceLeaveArgs p) => handle(p.state);
 
   FutureOr<void> handle(VoiceState state);
 }
@@ -118,7 +127,8 @@ abstract class VoiceMoveEvent extends BaseListenableEvent {
   Event get event => Event.voiceMove;
 
   @override
-  Function get handler => (VoiceMoveArgs p) => handle(p.before, p.after);
+  Function get handler =>
+      (VoiceMoveArgs p) => handle(p.before, p.after);
 
   FutureOr<void> handle(VoiceState? before, VoiceState after);
 }
@@ -130,7 +140,8 @@ abstract class VoiceStateUpdateEvent extends BaseListenableEvent {
   Event get event => Event.voiceStateUpdate;
 
   @override
-  Function get handler => (VoiceStateUpdateArgs p) => handle(p.state);
+  Function get handler =>
+      (VoiceStateUpdateArgs p) => handle(p.state);
 
   FutureOr<void> handle(VoiceState state);
 }

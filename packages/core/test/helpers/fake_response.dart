@@ -36,8 +36,7 @@ final class FakeResponse<T> implements Response<T> {
   /// Convenience: a successful 200 response with an empty JSON body.
   static FakeResponse<Map<String, dynamic>> ok([
     Map<String, dynamic> body = const {},
-  ]) =>
-      FakeResponse(200, body, bodyString: '{}');
+  ]) => FakeResponse(200, body, bodyString: '{}');
 
   /// Convenience: a 500 response.
   static FakeResponse<Map<String, dynamic>> guildError() =>

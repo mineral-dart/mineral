@@ -29,11 +29,16 @@ final class PollAnswerVoteSerializer
   @override
   Future<PollAnswerVote> serialize(Map<String, dynamic> json) async {
     final List<User> voters = [];
-    final message = await _datastore.message
-        .get<Message>(json['channel_id'] as Object, json['message_id'] as Object, false);
+    final message = await _datastore.message.get<Message>(
+      json['channel_id'] as Object,
+      json['message_id'] as Object,
+      false,
+    );
     Guild? guild;
     for (final voter in json['users'] as Iterable<dynamic>) {
-      final payload = await _marshaller.serializers.user.normalize(voter as Map<String, dynamic>);
+      final payload = await _marshaller.serializers.user.normalize(
+        voter as Map<String, dynamic>,
+      );
       final user = await _marshaller.serializers.user.serialize(payload);
       voters.add(user);
     }

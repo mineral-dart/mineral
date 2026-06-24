@@ -49,74 +49,77 @@ final class _NoopCommandManager implements CommandInteractionManagerContract {
 // ── Minimal GUILD_CREATE payload ──────────────────────────────────────────────
 
 Map<String, dynamic> _guildPayload() => {
-      'id': _guildId,
-      'name': 'Test Guild',
-      'owner_id': _botId,
-      'description': null,
-      'application_id': null,
-      'icon': null,
-      'icon_hash': null,
-      'splash': null,
-      'discovery_splash': null,
-      'banner': null,
-      'afk_channel_id': null,
-      'afk_timeout': 300,
-      'widget_enabled': false,
-      'verification_level': 0,
-      'default_message_notifications': 0,
-      'explicit_content_filter': 0,
-      'features': <String>[],
-      'mfa_level': 0,
-      'system_channel_id': null,
-      'system_channel_flags': 0,
-      'rules_channel_id': null,
-      'public_updates_channel_id': null,
-      'safety_alerts_channel_id': null,
-      'vanity_url_code': null,
-      'premium_tier': 0,
-      'premium_subscription_count': null,
-      'premium_progress_bar_enabled': false,
-      'preferred_locale': 'en-US',
-      'max_video_channel_users': null,
-      'nsfw_level': 0,
-      'channels': <Map<String, dynamic>>[],
-      'members': <Map<String, dynamic>>[],
-      'roles': <Map<String, dynamic>>[],
-      'stickers': <Map<String, dynamic>>[],
-      'voice_states': <Map<String, dynamic>>[],
-      'threads': <Map<String, dynamic>>[],
-      'presences': <Map<String, dynamic>>[],
-      'emojis': <Map<String, dynamic>>[],
-    };
+  'id': _guildId,
+  'name': 'Test Guild',
+  'owner_id': _botId,
+  'description': null,
+  'application_id': null,
+  'icon': null,
+  'icon_hash': null,
+  'splash': null,
+  'discovery_splash': null,
+  'banner': null,
+  'afk_channel_id': null,
+  'afk_timeout': 300,
+  'widget_enabled': false,
+  'verification_level': 0,
+  'default_message_notifications': 0,
+  'explicit_content_filter': 0,
+  'features': <String>[],
+  'mfa_level': 0,
+  'system_channel_id': null,
+  'system_channel_flags': 0,
+  'rules_channel_id': null,
+  'public_updates_channel_id': null,
+  'safety_alerts_channel_id': null,
+  'vanity_url_code': null,
+  'premium_tier': 0,
+  'premium_subscription_count': null,
+  'premium_progress_bar_enabled': false,
+  'preferred_locale': 'en-US',
+  'max_video_channel_users': null,
+  'nsfw_level': 0,
+  'channels': <Map<String, dynamic>>[],
+  'members': <Map<String, dynamic>>[],
+  'roles': <Map<String, dynamic>>[],
+  'stickers': <Map<String, dynamic>>[],
+  'voice_states': <Map<String, dynamic>>[],
+  'threads': <Map<String, dynamic>>[],
+  'presences': <Map<String, dynamic>>[],
+  'emojis': <Map<String, dynamic>>[],
+};
 
 ShardMessage<dynamic> _buildMessage() => ShardMessage(
-      type: 'GUILD_CREATE',
-      opCode: OpCode.dispatch,
-      sequence: 1,
-      payload: _guildPayload(),
-    );
+  type: 'GUILD_CREATE',
+  opCode: OpCode.dispatch,
+  sequence: 1,
+  payload: _guildPayload(),
+);
 
-Bot _buildBot(FakeWebsocketOrchestrator wss, EntityContext ctx) =>
-    Bot.fromJson({
-      'v': 10,
-      'user': {
-        'id': _botId,
-        'username': 'TestBot',
-        'discriminator': '0000',
-        'avatar': null,
-        'bot': true,
-        'mfa_enabled': false,
-        'flags': 0,
-        'public_flags': 0,
-      },
-      'guilds': <Map<String, dynamic>>[],
-      'session_id': 'fake-session-id',
-      'session_type': 'normal',
-      'resume_gateway_url': 'wss://gateway.discord.gg',
-      'private_channels': <dynamic>[],
-      'presences': <dynamic>[],
-      'application': {'id': '999888777666555444', 'flags': 0},
-    }, wss: wss, entityContext: ctx);
+Bot _buildBot(FakeWebsocketOrchestrator wss, EntityContext ctx) => Bot.fromJson(
+  {
+    'v': 10,
+    'user': {
+      'id': _botId,
+      'username': 'TestBot',
+      'discriminator': '0000',
+      'avatar': null,
+      'bot': true,
+      'mfa_enabled': false,
+      'flags': 0,
+      'public_flags': 0,
+    },
+    'guilds': <Map<String, dynamic>>[],
+    'session_id': 'fake-session-id',
+    'session_type': 'normal',
+    'resume_gateway_url': 'wss://gateway.discord.gg',
+    'private_channels': <dynamic>[],
+    'presences': <dynamic>[],
+    'application': {'id': '999888777666555444', 'flags': 0},
+  },
+  wss: wss,
+  entityContext: ctx,
+);
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -173,10 +176,11 @@ void main() {
 
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -194,10 +198,11 @@ void main() {
 
       GuildCreateArgs? capturedArgs;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildCreate) {
           capturedArgs = payload as GuildCreateArgs;
         }
@@ -217,10 +222,11 @@ void main() {
         runtimeState: runtimeState,
       );
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(_buildMessage(), dispatch);
 
@@ -238,18 +244,15 @@ void main() {
         runtimeState: emptyState,
       );
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
-      expect(
-        () => packet.listen(_buildMessage(), dispatch),
-        throwsStateError,
-      );
+      expect(() => packet.listen(_buildMessage(), dispatch), throwsStateError);
     });
   });
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-

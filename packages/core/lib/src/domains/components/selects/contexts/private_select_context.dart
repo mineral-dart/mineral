@@ -43,19 +43,23 @@ final class PrivateSelectContext extends SelectContextBase {
   }
 
   static Future<PrivateSelectContext> fromMap(
-      MarshallerContract marshaller,
-      DataStoreContract datastore,
-      EntityContext ctx,
-      Map<String, dynamic> payload) async {
+    MarshallerContract marshaller,
+    DataStoreContract datastore,
+    EntityContext ctx,
+    Map<String, dynamic> payload,
+  ) async {
     return PrivateSelectContext(
       ctx: ctx,
-      customId: (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
+      customId:
+          (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
       id: Snowflake.parse(payload['id']),
       applicationId: Snowflake.parse(payload['application_id']),
       token: payload['token'] as String,
       version: payload['version'] as int,
       userId: Snowflake.parse((payload['user'] as Map<String, dynamic>)['id']),
-      messageId: Snowflake.nullable((payload['message'] as Map<String, dynamic>)['id'] as String?),
+      messageId: Snowflake.nullable(
+        (payload['message'] as Map<String, dynamic>)['id'] as String?,
+      ),
       channelId: Snowflake.nullable(payload['channel_id'] as String?),
     );
   }

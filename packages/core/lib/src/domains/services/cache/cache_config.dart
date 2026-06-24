@@ -19,12 +19,12 @@ final class CacheConfig {
 
   /// Pre-v5 configuration: cache grows unbounded, no automatic invalidation.
   factory CacheConfig.legacy() => CacheConfig(
-        ttlPolicy: CacheTtlPolicy.disabled(),
-        clearOnReady: false,
-        invalidationEnabled: false,
-        sweeperInterval: Duration.zero,
-        staggerClearMs: 0,
-      );
+    ttlPolicy: CacheTtlPolicy.disabled(),
+    clearOnReady: false,
+    invalidationEnabled: false,
+    sweeperInterval: Duration.zero,
+    staggerClearMs: 0,
+  );
 
   final CacheTtlPolicy? _ttlPolicy;
 

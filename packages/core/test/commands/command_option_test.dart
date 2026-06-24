@@ -17,14 +17,20 @@ void main() {
       });
 
       test('respects required parameter', () {
-        final option =
-            Option.string(name: 'name', description: 'A name', required: true);
+        final option = Option.string(
+          name: 'name',
+          description: 'A name',
+          required: true,
+        );
         expect(option.isRequired, true);
       });
 
       test('toJson generates correct output', () {
         final option = Option.string(
-            name: 'reason', description: 'The reason', required: true);
+          name: 'reason',
+          description: 'The reason',
+          required: true,
+        );
         final json = option.toJson();
 
         expect(json['name'], 'reason');
@@ -86,26 +92,30 @@ void main() {
 
     group('Option.channel', () {
       test('creates channel option with correct type', () {
-        final option =
-            Option.channel(name: 'channel', description: 'A channel');
+        final option = Option.channel(
+          name: 'channel',
+          description: 'A channel',
+        );
         expect(option.type, CommandOptionType.channel);
         expect(option.channelTypes, isEmpty);
       });
 
       test('accepts channel type filter', () {
         final option = Option.channel(
-            name: 'channel',
-            description: 'A text channel',
-            channels: [ChannelType.guildText]);
+          name: 'channel',
+          description: 'A text channel',
+          channels: [ChannelType.guildText],
+        );
         expect(option.channelTypes, hasLength(1));
         expect(option.channelTypes!.first, ChannelType.guildText);
       });
 
       test('toJson serializes channel types', () {
         final option = Option.channel(
-            name: 'ch',
-            description: 'd',
-            channels: [ChannelType.guildText, ChannelType.guildVoice]);
+          name: 'ch',
+          description: 'd',
+          channels: [ChannelType.guildText, ChannelType.guildVoice],
+        );
         final json = option.toJson();
 
         expect(json['channel_types'], hasLength(2));
@@ -123,16 +133,20 @@ void main() {
 
     group('Option.mentionable', () {
       test('creates mentionable option with correct type', () {
-        final option =
-            Option.mentionable(name: 'mention', description: 'A mentionable');
+        final option = Option.mentionable(
+          name: 'mention',
+          description: 'A mentionable',
+        );
         expect(option.type, CommandOptionType.mentionable);
       });
     });
 
     group('Option.attachment', () {
       test('creates attachment option with correct type', () {
-        final option =
-            Option.attachment(name: 'file', description: 'An attachment');
+        final option = Option.attachment(
+          name: 'file',
+          description: 'An attachment',
+        );
         expect(option.type, CommandOptionType.attachment);
       });
     });
@@ -152,8 +166,11 @@ void main() {
         ];
 
         for (final option in options) {
-          expect(option.isRequired, false,
-              reason: '${option.name} should default to not required');
+          expect(
+            option.isRequired,
+            false,
+            reason: '${option.name} should default to not required',
+          );
         }
       });
     });
@@ -165,10 +182,7 @@ void main() {
         final option = ChoiceOption.string(
           name: 'color',
           description: 'Pick a color',
-          choices: [
-            Choice('Red', 'red'),
-            Choice('Blue', 'blue'),
-          ],
+          choices: [Choice('Red', 'red'), Choice('Blue', 'blue')],
         );
 
         expect(option.type, CommandOptionType.string);
@@ -181,10 +195,7 @@ void main() {
         final option = ChoiceOption.string(
           name: 'color',
           description: 'Pick a color',
-          choices: [
-            Choice('Red', 'red'),
-            Choice('Blue', 'blue'),
-          ],
+          choices: [Choice('Red', 'red'), Choice('Blue', 'blue')],
         );
 
         final json = option.toJson();
@@ -214,10 +225,7 @@ void main() {
         final option = ChoiceOption.integer(
           name: 'level',
           description: 'Pick a level',
-          choices: [
-            Choice('Low', 1),
-            Choice('High', 10),
-          ],
+          choices: [Choice('Low', 1), Choice('High', 10)],
         );
 
         expect(option.type, CommandOptionType.integer);
@@ -242,10 +250,7 @@ void main() {
         final option = ChoiceOption.double(
           name: 'multiplier',
           description: 'Pick a multiplier',
-          choices: [
-            Choice('Half', 0.5),
-            Choice('Double', 2.0),
-          ],
+          choices: [Choice('Half', 0.5), Choice('Double', 2.0)],
         );
 
         expect(option.type, CommandOptionType.double);

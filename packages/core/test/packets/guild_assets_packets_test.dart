@@ -26,37 +26,37 @@ const _stickerId = '999888777666555444';
 // ── Payloads ──────────────────────────────────────────────────────────────────
 
 Map<String, dynamic> _emojiUpdatePayload() => {
-      'guild_id': _guildId,
-      'emojis': [
-        {
-          'id': _emojiId,
-          'name': 'test_emoji',
-          'roles': <String>[],
-          'require_colons': true,
-          'managed': false,
-          'animated': false,
-          'available': true,
-        }
-      ],
-    };
+  'guild_id': _guildId,
+  'emojis': [
+    {
+      'id': _emojiId,
+      'name': 'test_emoji',
+      'roles': <String>[],
+      'require_colons': true,
+      'managed': false,
+      'animated': false,
+      'available': true,
+    },
+  ],
+};
 
 Map<String, dynamic> _stickerUpdatePayload() => {
+  'guild_id': _guildId,
+  'stickers': [
+    {
+      'id': _stickerId,
+      'name': 'test_sticker',
+      'type': 2, // GUILD sticker
+      'format_type': 1, // PNG
+      'description': 'A test sticker',
+      'tags': 'test',
       'guild_id': _guildId,
-      'stickers': [
-        {
-          'id': _stickerId,
-          'name': 'test_sticker',
-          'type': 2, // GUILD sticker
-          'format_type': 1, // PNG
-          'description': 'A test sticker',
-          'tags': 'test',
-          'guild_id': _guildId,
-          'available': true,
-          'sort_value': 0,
-          'pack_id': null,
-        }
-      ],
-    };
+      'available': true,
+      'sort_value': 0,
+      'pack_id': null,
+    },
+  ],
+};
 
 ShardMessage<dynamic> _msg(String type, Map<String, dynamic> payload) =>
     ShardMessage(
@@ -95,46 +95,58 @@ void main() {
 
   group('GuildEmojisUpdatePacket', () {
     test('packetType is PacketType.guildEmojisUpdate', () {
-      final packet =
-          GuildEmojisUpdatePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildEmojisUpdatePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.guildEmojisUpdate));
       expect(packet.packetType.name, equals('GUILD_EMOJIS_UPDATE'));
     });
 
     test('dispatches Event.guildEmojisUpdate', () async {
-      final packet =
-          GuildEmojisUpdatePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildEmojisUpdatePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('GUILD_EMOJIS_UPDATE', _emojiUpdatePayload()), dispatch);
+        _msg('GUILD_EMOJIS_UPDATE', _emojiUpdatePayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildEmojisUpdate));
     });
 
     test('payload carries guild and emojis map', () async {
-      final packet =
-          GuildEmojisUpdatePacket(marshaller: marshaller, dataStore: dataStore);
+      final packet = GuildEmojisUpdatePacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildEmojisUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildEmojisUpdate) {
           args = payload as GuildEmojisUpdateArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_EMOJIS_UPDATE', _emojiUpdatePayload()), dispatch);
+        _msg('GUILD_EMOJIS_UPDATE', _emojiUpdatePayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
@@ -148,45 +160,57 @@ void main() {
   group('GuildStickersUpdatePacket', () {
     test('packetType is PacketType.guildStickersUpdate', () {
       final packet = GuildStickersUpdatePacket(
-          marshaller: marshaller, dataStore: dataStore);
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       expect(packet.packetType, equals(PacketType.guildStickersUpdate));
       expect(packet.packetType.name, equals('GUILD_STICKERS_UPDATE'));
     });
 
     test('dispatches Event.guildStickersUpdate', () async {
       final packet = GuildStickersUpdatePacket(
-          marshaller: marshaller, dataStore: dataStore);
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
       await packet.listen(
-          _msg('GUILD_STICKERS_UPDATE', _stickerUpdatePayload()), dispatch);
+        _msg('GUILD_STICKERS_UPDATE', _stickerUpdatePayload()),
+        dispatch,
+      );
 
       expect(capturedEvent, equals(Event.guildStickersUpdate));
     });
 
     test('payload carries guild and stickers map', () async {
       final packet = GuildStickersUpdatePacket(
-          marshaller: marshaller, dataStore: dataStore);
+        marshaller: marshaller,
+        dataStore: dataStore,
+      );
       GuildStickersUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildStickersUpdate) {
           args = payload as GuildStickersUpdateArgs;
         }
       }
 
       await packet.listen(
-          _msg('GUILD_STICKERS_UPDATE', _stickerUpdatePayload()), dispatch);
+        _msg('GUILD_STICKERS_UPDATE', _stickerUpdatePayload()),
+        dispatch,
+      );
 
       expect(args, isNotNull);
       expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
@@ -195,4 +219,3 @@ void main() {
     });
   });
 }
-

@@ -6,11 +6,11 @@ final class GuildUpdateAuditLogAction extends AuditLog {
   final Guild guild;
   final List<Change> changes;
 
-  GuildUpdateAuditLogAction(
-      {required Snowflake guildId,
-      required Snowflake userId,
-      required EntityContext ctx,
-      required this.guild,
-      required this.changes})
-      : super(AuditLogType.guildUpdate, guildId, userId, ctx: ctx);
+  GuildUpdateAuditLogAction({
+    required Snowflake guildId,
+    required Snowflake userId,
+    required EntityContext ctx,
+    required this.guild,
+    required this.changes,
+  }) : super(AuditLogType.guildUpdate, guildId, userId, ctx: ctx);
 }

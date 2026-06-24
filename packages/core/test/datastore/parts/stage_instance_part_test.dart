@@ -16,15 +16,15 @@ Map<String, dynamic> _stageInstancePayload({
   String? topic,
   int privacyLevel = 2,
   String? guildScheduledEventId,
-}) =>
-    {
-      'id': _instanceId,
-      'guild_id': _guildId,
-      'channel_id': _channelId,
-      'topic': topic ?? 'Test Topic',
-      'privacy_level': privacyLevel,
-      if (guildScheduledEventId != null) 'guild_scheduled_event_id': guildScheduledEventId,
-    };
+}) => {
+  'id': _instanceId,
+  'guild_id': _guildId,
+  'channel_id': _channelId,
+  'topic': topic ?? 'Test Topic',
+  'privacy_level': privacyLevel,
+  if (guildScheduledEventId != null)
+    'guild_scheduled_event_id': guildScheduledEventId,
+};
 
 (StageInstancePart, void Function() restore) _buildPart(FakeHttpClient client) {
   final ds = FakeDataStore(client);
@@ -59,14 +59,18 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('GET'));
-        expect(client.calls.single.path,
-            equals('/stage-instances/$_channelId'));
+        expect(
+          client.calls.single.path,
+          equals('/stage-instances/$_channelId'),
+        );
       });
 
       test('returns a correctly parsed StageInstance', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _stageInstancePayload(topic: 'Hello World', privacyLevel: 2)),
+            200,
+            _stageInstancePayload(topic: 'Hello World', privacyLevel: 2),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -84,7 +88,9 @@ void main() {
       test('parses public privacy level correctly', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _stageInstancePayload(privacyLevel: 1)),
+            200,
+            _stageInstancePayload(privacyLevel: 1),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -98,16 +104,19 @@ void main() {
         final eventId = '777666555444333222';
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200,
-              _stageInstancePayload(guildScheduledEventId: eventId)),
+            200,
+            _stageInstancePayload(guildScheduledEventId: eventId),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
         final instance = await p.get(_channelId);
         restore();
 
-        expect(instance.guildScheduledEventId,
-            equals(Snowflake.parse(eventId)));
+        expect(
+          instance.guildScheduledEventId,
+          equals(Snowflake.parse(eventId)),
+        );
       });
     });
 
@@ -131,12 +140,16 @@ void main() {
       test('returns correctly parsed StageInstance', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _stageInstancePayload(topic: 'My Stage')),
+            200,
+            _stageInstancePayload(topic: 'My Stage'),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
-        final instance =
-            await p.create(channelId: _channelId, topic: 'My Stage');
+        final instance = await p.create(
+          channelId: _channelId,
+          topic: 'My Stage',
+        );
         restore();
 
         expect(instance, isA<StageInstance>());
@@ -164,7 +177,9 @@ void main() {
       test('sends privacyLevel when provided', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _stageInstancePayload(privacyLevel: 1)),
+            200,
+            _stageInstancePayload(privacyLevel: 1),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -242,7 +257,9 @@ void main() {
       test('sends PATCH to /stage-instances/:channelId', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _stageInstancePayload(topic: 'New Topic')),
+            200,
+            _stageInstancePayload(topic: 'New Topic'),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -251,18 +268,25 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('PATCH'));
-        expect(client.calls.single.path,
-            equals('/stage-instances/$_channelId'));
+        expect(
+          client.calls.single.path,
+          equals('/stage-instances/$_channelId'),
+        );
       });
 
       test('returns updated StageInstance', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _stageInstancePayload(topic: 'Updated')),
+            200,
+            _stageInstancePayload(topic: 'Updated'),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
-        final instance = await p.update(channelId: _channelId, topic: 'Updated');
+        final instance = await p.update(
+          channelId: _channelId,
+          topic: 'Updated',
+        );
         restore();
 
         expect(instance.topic, equals('Updated'));
@@ -289,8 +313,9 @@ void main() {
         final (p, restore) = _buildPart(client);
 
         await p.update(
-            channelId: _channelId,
-            privacyLevel: StagePrivacyLevel.guildOnly);
+          channelId: _channelId,
+          privacyLevel: StagePrivacyLevel.guildOnly,
+        );
         restore();
 
         final body = client.requests.single.body as Map<String, dynamic>;
@@ -322,7 +347,9 @@ void main() {
       test('sends both topic and privacyLevel when both provided', () async {
         final client = FakeHttpClient([
           FakeResponse<Map<String, dynamic>>(
-              200, _stageInstancePayload(topic: 'Both', privacyLevel: 1)),
+            200,
+            _stageInstancePayload(topic: 'Both', privacyLevel: 1),
+          ),
         ]);
         final (p, restore) = _buildPart(client);
 
@@ -345,9 +372,7 @@ void main() {
 
     group('delete()', () {
       test('sends DELETE to /stage-instances/:channelId', () async {
-        final client = FakeHttpClient([
-          FakeResponse<void>(204, null),
-        ]);
+        final client = FakeHttpClient([FakeResponse<void>(204, null)]);
         final (p, restore) = _buildPart(client);
 
         await p.delete(channelId: _channelId);
@@ -355,14 +380,14 @@ void main() {
 
         expect(client.calls, hasLength(1));
         expect(client.calls.single.method, equals('DELETE'));
-        expect(client.calls.single.path,
-            equals('/stage-instances/$_channelId'));
+        expect(
+          client.calls.single.path,
+          equals('/stage-instances/$_channelId'),
+        );
       });
 
       test('sends audit log reason header when reason provided', () async {
-        final client = FakeHttpClient([
-          FakeResponse<void>(204, null),
-        ]);
+        final client = FakeHttpClient([FakeResponse<void>(204, null)]);
         final (p, restore) = _buildPart(client);
 
         await p.delete(channelId: _channelId, reason: 'ending stage');
@@ -377,13 +402,10 @@ void main() {
       });
 
       test('completes without error when no reason provided', () async {
-        final client = FakeHttpClient([
-          FakeResponse<void>(204, null),
-        ]);
+        final client = FakeHttpClient([FakeResponse<void>(204, null)]);
         final (p, restore) = _buildPart(client);
 
-        await expectLater(
-            p.delete(channelId: _channelId), completes);
+        await expectLater(p.delete(channelId: _channelId), completes);
         restore();
       });
     });

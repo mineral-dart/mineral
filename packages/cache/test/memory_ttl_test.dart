@@ -18,16 +18,18 @@ void main() {
       expect(provider.get('key'), isNull);
     });
 
-    test('entries without ttl never expire (default config has disabled TTL policy)',
-        () async {
-      final provider = MemoryProvider(env);
-      provider.put('key', {'a': 1});
+    test(
+      'entries without ttl never expire (default config has disabled TTL policy)',
+      () async {
+        final provider = MemoryProvider(env);
+        provider.put('key', {'a': 1});
 
-      await Future<void>.delayed(const Duration(milliseconds: 30));
+        await Future<void>.delayed(const Duration(milliseconds: 30));
 
-      expect(provider.has('key'), isTrue);
-      expect(provider.get('key'), {'a': 1});
-    });
+        expect(provider.has('key'), isTrue);
+        expect(provider.get('key'), {'a': 1});
+      },
+    );
 
     test('get evicts the expired entry', () async {
       final provider = MemoryProvider(env);
@@ -124,35 +126,39 @@ void main() {
       expect(provider.has('users/1'), isTrue);
     });
 
-    test('sweeper actively removes expired entries when configured via injected config',
-        () async {
-      final provider = MemoryProvider(env)
-        ..config = CacheConfig(
-          sweeperInterval: const Duration(milliseconds: 30),
-        );
+    test(
+      'sweeper actively removes expired entries when configured via injected config',
+      () async {
+        final provider = MemoryProvider(env)
+          ..config = CacheConfig(
+            sweeperInterval: const Duration(milliseconds: 30),
+          );
 
-      // LoggerContract is still resolved from IoC for the init() trace log.
-      final container = IocContainer()
-        ..bind<LoggerContract>(_NoopLogger.new);
+        // LoggerContract is still resolved from IoC for the init() trace log.
+        final container = IocContainer()..bind<LoggerContract>(_NoopLogger.new);
 
-      await runWithIoc(container, () async {
-        provider.init();
-        provider.put('k', {'v': 1}, ttl: const Duration(milliseconds: 20));
+        await runWithIoc(container, () async {
+          provider.init();
+          provider.put('k', {'v': 1}, ttl: const Duration(milliseconds: 20));
 
-        await Future<void>.delayed(const Duration(milliseconds: 80));
+          await Future<void>.delayed(const Duration(milliseconds: 80));
 
-        // The sweeper should have removed the entry without any read call.
-        expect(provider.length(), 0);
+          // The sweeper should have removed the entry without any read call.
+          expect(provider.length(), 0);
 
-        provider.dispose();
-      });
-    });
+          provider.dispose();
+        });
+      },
+    );
 
-    test('config field defaults to CacheConfig.defaults() (no explicit assignment)', () {
-      final provider = MemoryProvider(env);
-      // CacheConfig.defaults() has invalidationEnabled=true and the default TTL policy.
-      expect(provider.config.invalidationEnabled, isTrue);
-    });
+    test(
+      'config field defaults to CacheConfig.defaults() (no explicit assignment)',
+      () {
+        final provider = MemoryProvider(env);
+        // CacheConfig.defaults() has invalidationEnabled=true and the default TTL policy.
+        expect(provider.config.invalidationEnabled, isTrue);
+      },
+    );
 
     test('injected legacy config disables invalidation flag', () {
       final provider = MemoryProvider(env)..config = CacheConfig.legacy();
@@ -163,23 +169,28 @@ void main() {
   // ── M24: Duration.zero semantics ─────────────────────────────────────────
 
   group('Duration.zero semantics (M24)', () {
-    test('Duration.zero on put means no expiry (matches Redis semantics)',
-        () async {
-      final provider = MemoryProvider(env);
-      provider.put('k', {'v': 1}, ttl: Duration.zero);
+    test(
+      'Duration.zero on put means no expiry (matches Redis semantics)',
+      () async {
+        final provider = MemoryProvider(env);
+        provider.put('k', {'v': 1}, ttl: Duration.zero);
 
-      await Future<void>.delayed(const Duration(milliseconds: 30));
+        await Future<void>.delayed(const Duration(milliseconds: 30));
 
-      // Duration.zero must NOT cause immediate eviction; it means "no expiry",
-      // matching Redis buildSetCommand which emits a plain SET (no PX) for
-      // non-positive durations.
-      expect(provider.has('k'), isTrue);
-      expect(provider.get('k'), {'v': 1});
-    });
+        // Duration.zero must NOT cause immediate eviction; it means "no expiry",
+        // matching Redis buildSetCommand which emits a plain SET (no PX) for
+        // non-positive durations.
+        expect(provider.has('k'), isTrue);
+        expect(provider.get('k'), {'v': 1});
+      },
+    );
 
     test('Duration.zero via putMany means no expiry', () async {
       final provider = MemoryProvider(env);
-      provider.putMany({'k1': {'a': 1}, 'k2': {'b': 2}}, ttl: Duration.zero);
+      provider.putMany({
+        'k1': {'a': 1},
+        'k2': {'b': 2},
+      }, ttl: Duration.zero);
 
       await Future<void>.delayed(const Duration(milliseconds: 30));
 

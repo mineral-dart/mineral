@@ -92,8 +92,9 @@ final class IocContainer {
   }
 
   void validateBindings() {
-    final missing = _requiredBindings.where((type) =>
-        !_services.containsKey(type) && !_factories.containsKey(type));
+    final missing = _requiredBindings.where(
+      (type) => !_services.containsKey(type) && !_factories.containsKey(type),
+    );
     if (missing.isNotEmpty) {
       throw ServiceNotFoundException(missing.first);
     }
@@ -119,8 +120,7 @@ IocContainer _ioc = IocContainer();
 /// Zone-based override takes precedence over the global container, which lets
 /// tests inject a scoped container via [runWithIoc] without mutating shared
 /// state.
-IocContainer get ioc =>
-    Zone.current[#iocContainer] as IocContainer? ?? _ioc;
+IocContainer get ioc => Zone.current[#iocContainer] as IocContainer? ?? _ioc;
 
 /// Swaps the global container for [container] and returns a restore function.
 ///

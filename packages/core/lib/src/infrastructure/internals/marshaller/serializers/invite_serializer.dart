@@ -27,8 +27,10 @@ final class InviteSerializer implements SerializerContract<Invite> {
       'type': json['type'],
     };
 
-    final cacheKey =
-        _marshaller.cacheKey.voiceState(json['guild_id'] as String, inviter?['id'] as String);
+    final cacheKey = _marshaller.cacheKey.voiceState(
+      json['guild_id'] as String,
+      inviter?['id'] as String,
+    );
     await _marshaller.cache?.put(cacheKey, payload);
 
     return payload;
@@ -48,8 +50,9 @@ final class InviteSerializer implements SerializerContract<Invite> {
       guildId: Snowflake.parse(json['guildId']),
       createdAt: DateTime.parse(json['createdAt'] as String),
       expiresAt: Helper.createOrNull(
-          field: json['expiresAt'],
-          fn: () => DateTime.parse(json['expiresAt'] as String)),
+        field: json['expiresAt'],
+        fn: () => DateTime.parse(json['expiresAt'] as String),
+      ),
     );
   }
 

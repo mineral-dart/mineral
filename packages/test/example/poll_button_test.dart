@@ -22,10 +22,9 @@ void main() {
 
       expect(
         bot.actions.modals,
-        contains(isModalShown(
-          customId: 'poll_comment',
-          title: 'Add a comment',
-        )),
+        contains(
+          isModalShown(customId: 'poll_comment', title: 'Add a comment'),
+        ),
       );
     });
 
@@ -45,9 +44,11 @@ void main() {
 
       expect(
         bot.actions.interactionReplies,
-        contains(isInteractionReplied(
-          content: 'Vote recorded with comment: "great idea".',
-        )),
+        contains(
+          isInteractionReplied(
+            content: 'Vote recorded with comment: "great idea".',
+          ),
+        ),
       );
     });
   });

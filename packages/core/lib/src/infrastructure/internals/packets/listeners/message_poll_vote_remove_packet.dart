@@ -12,7 +12,7 @@ final class MessagePollVoteRemovePacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   MessagePollVoteRemovePacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -27,29 +27,52 @@ final class MessagePollVoteRemovePacket implements ListenablePacket {
   }
 
   Future<void> _guild(
-      Map<String, dynamic> payload, User user, DispatchEvent dispatch) async {
-    final guild = await _dataStore.guild.get(payload['guild_id'] as String, false);
+    Map<String, dynamic> payload,
+    User user,
+    DispatchEvent dispatch,
+  ) async {
+    final guild = await _dataStore.guild.get(
+      payload['guild_id'] as String,
+      false,
+    );
     final message = await _dataStore.message.get<GuildMessage>(
-        payload['channel_id'] as String, payload['message_id'] as String, false);
+      payload['channel_id'] as String,
+      payload['message_id'] as String,
+      false,
+    );
     final answer = await _dataStore.message.getPollVotes(
-        guild.id,
-        Snowflake.parse(payload['channel_id']),
-        message!.id,
-        payload['answer_id'] as int);
+      guild.id,
+      Snowflake.parse(payload['channel_id']),
+      message!.id,
+      payload['answer_id'] as int,
+    );
 
-    dispatch<GuildPollVoteRemoveArgs>(event: Event.guildPollVoteRemove, payload: (answer: answer, user: user));
+    dispatch<GuildPollVoteRemoveArgs>(
+      event: Event.guildPollVoteRemove,
+      payload: (answer: answer, user: user),
+    );
   }
 
   Future<void> _private(
-      Map<String, dynamic> payload, User user, DispatchEvent dispatch) async {
-    final message = await _dataStore.message
-        .get(payload['channel_id'] as String, payload['message_id'] as String, false);
+    Map<String, dynamic> payload,
+    User user,
+    DispatchEvent dispatch,
+  ) async {
+    final message = await _dataStore.message.get(
+      payload['channel_id'] as String,
+      payload['message_id'] as String,
+      false,
+    );
     final answer = await _dataStore.message.getPollVotes(
-        null,
-        Snowflake.parse(payload['channel_id']),
-        message!.id,
-        payload['answer_id'] as int);
+      null,
+      Snowflake.parse(payload['channel_id']),
+      message!.id,
+      payload['answer_id'] as int,
+    );
 
-    dispatch<PrivatePollVoteRemoveArgs>(event: Event.privatePollVoteRemove, payload: (answer: answer, user: user));
+    dispatch<PrivatePollVoteRemoveArgs>(
+      event: Event.privatePollVoteRemove,
+      payload: (answer: answer, user: user),
+    );
   }
 }

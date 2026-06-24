@@ -19,13 +19,14 @@ void main() {
         final result = MessageBuilder.text('Hello, world!').build();
 
         expect(
-            result,
-            equals([
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': 'Hello, world!',
-              },
-            ]));
+          result,
+          equals([
+            {
+              'type': ComponentType.textDisplay.value,
+              'content': 'Hello, world!',
+            },
+          ]),
+        );
       });
     });
 
@@ -36,17 +37,12 @@ void main() {
           ..addText('Second line');
 
         expect(
-            builder.build(),
-            equals([
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': 'First line',
-              },
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': 'Second line',
-              },
-            ]));
+          builder.build(),
+          equals([
+            {'type': ComponentType.textDisplay.value, 'content': 'First line'},
+            {'type': ComponentType.textDisplay.value, 'content': 'Second line'},
+          ]),
+        );
       });
     });
 
@@ -55,33 +51,34 @@ void main() {
         builder.addButton(Button.primary('click_me', label: 'Click Me'));
 
         expect(
-            builder.build(),
-            equals([
-              {
-                'type': ComponentType.actionRow.value,
-                'components': [
-                  {
-                    'type': ComponentType.button.value,
-                    'style': 1,
-                    'custom_id': 'click_me',
-                    'label': 'Click Me',
-                  },
-                ],
-              },
-            ]));
+          builder.build(),
+          equals([
+            {
+              'type': ComponentType.actionRow.value,
+              'components': [
+                {
+                  'type': ComponentType.button.value,
+                  'style': 1,
+                  'custom_id': 'click_me',
+                  'label': 'Click Me',
+                },
+              ],
+            },
+          ]),
+        );
       });
     });
 
     group('addButtons', () {
       test(
-          'generates valid Discord API JSON with multiple buttons in one ActionRow',
-          () {
-        builder.addButtons([
-          Button.primary('yes', label: 'Yes'),
-          Button.danger('no', label: 'No'),
-        ]);
+        'generates valid Discord API JSON with multiple buttons in one ActionRow',
+        () {
+          builder.addButtons([
+            Button.primary('yes', label: 'Yes'),
+            Button.danger('no', label: 'No'),
+          ]);
 
-        expect(
+          expect(
             builder.build(),
             equals([
               {
@@ -101,8 +98,10 @@ void main() {
                   },
                 ],
               },
-            ]));
-      });
+            ]),
+          );
+        },
+      );
 
       test('throws ArgumentError when more than 5 buttons', () {
         expect(
@@ -121,31 +120,34 @@ void main() {
 
     group('addSelectMenu', () {
       test('generates valid Discord API JSON wrapped in ActionRow', () {
-        builder.addSelectMenu(SelectMenu.text('color', [
-          SelectMenuOption(label: 'Red', value: 'red'),
-        ]));
+        builder.addSelectMenu(
+          SelectMenu.text('color', [
+            SelectMenuOption(label: 'Red', value: 'red'),
+          ]),
+        );
 
         expect(
-            builder.build(),
-            equals([
-              {
-                'type': ComponentType.actionRow.value,
-                'components': [
-                  {
-                    'type': ComponentType.textSelectMenu.value,
-                    'custom_id': 'color',
-                    'options': [
-                      {
-                        'label': 'Red',
-                        'value': 'red',
-                        'description': null,
-                        'default': false,
-                      },
-                    ],
-                  },
-                ],
-              },
-            ]));
+          builder.build(),
+          equals([
+            {
+              'type': ComponentType.actionRow.value,
+              'components': [
+                {
+                  'type': ComponentType.textSelectMenu.value,
+                  'custom_id': 'color',
+                  'options': [
+                    {
+                      'label': 'Red',
+                      'value': 'red',
+                      'description': null,
+                      'default': false,
+                    },
+                  ],
+                },
+              ],
+            },
+          ]),
+        );
       });
     });
 
@@ -154,28 +156,30 @@ void main() {
         builder.addSeparator();
 
         expect(
-            builder.build(),
-            equals([
-              {
-                'type': ComponentType.separator.value,
-                'divider': true,
-                'spacing': 1,
-              },
-            ]));
+          builder.build(),
+          equals([
+            {
+              'type': ComponentType.separator.value,
+              'divider': true,
+              'spacing': 1,
+            },
+          ]),
+        );
       });
 
       test('generates valid Discord API JSON with custom values', () {
         builder.addSeparator(show: false, spacing: SeparatorSize.large);
 
         expect(
-            builder.build(),
-            equals([
-              {
-                'type': ComponentType.separator.value,
-                'divider': false,
-                'spacing': 2,
-              },
-            ]));
+          builder.build(),
+          equals([
+            {
+              'type': ComponentType.separator.value,
+              'divider': false,
+              'spacing': 2,
+            },
+          ]),
+        );
       });
     });
 
@@ -183,23 +187,27 @@ void main() {
       test('generates valid Discord API JSON', () {
         final nested = MessageBuilder()..addText('Inside container');
         builder.addContainer(
-            builder: nested, color: Color('#0000ff'), spoiler: true);
+          builder: nested,
+          color: Color('#0000ff'),
+          spoiler: true,
+        );
 
         expect(
-            builder.build(),
-            equals([
-              {
-                'type': ComponentType.container.value,
-                'accent_color': 0x0000ff,
-                'spoiler': true,
-                'components': [
-                  {
-                    'type': ComponentType.textDisplay.value,
-                    'content': 'Inside container',
-                  },
-                ],
-              },
-            ]));
+          builder.build(),
+          equals([
+            {
+              'type': ComponentType.container.value,
+              'accent_color': 0x0000ff,
+              'spoiler': true,
+              'components': [
+                {
+                  'type': ComponentType.textDisplay.value,
+                  'content': 'Inside container',
+                },
+              ],
+            },
+          ]),
+        );
       });
     });
 
@@ -212,36 +220,39 @@ void main() {
         );
 
         expect(
-            builder.build(),
-            equals([
-              {
-                'type': ComponentType.section.value,
-                'accessory': {
-                  'type': ComponentType.button.value,
-                  'style': 5,
-                  'url': 'https://example.com',
-                  'label': 'Visit',
-                },
-                'components': [
-                  {
-                    'type': ComponentType.textDisplay.value,
-                    'content': 'Section text',
-                  },
-                ],
+          builder.build(),
+          equals([
+            {
+              'type': ComponentType.section.value,
+              'accessory': {
+                'type': ComponentType.button.value,
+                'style': 5,
+                'url': 'https://example.com',
+                'label': 'Visit',
               },
-            ]));
-      });
-
-      test('throws FormatException when section contains non-text components',
-          () {
-        final sectionBuilder = MessageBuilder()
-          ..addButton(Button.primary('btn', label: 'Btn'));
-
-        expect(
-          () => builder.addSection(builder: sectionBuilder),
-          throwsA(isA<FormatException>()),
+              'components': [
+                {
+                  'type': ComponentType.textDisplay.value,
+                  'content': 'Section text',
+                },
+              ],
+            },
+          ]),
         );
       });
+
+      test(
+        'throws FormatException when section contains non-text components',
+        () {
+          final sectionBuilder = MessageBuilder()
+            ..addButton(Button.primary('btn', label: 'Btn'));
+
+          expect(
+            () => builder.addSection(builder: sectionBuilder),
+            throwsA(isA<FormatException>()),
+          );
+        },
+      );
     });
 
     group('build', () {
@@ -260,39 +271,37 @@ void main() {
           ]);
 
         expect(
-            builder.build(),
-            equals([
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': '# Welcome!',
-              },
-              {
-                'type': ComponentType.separator.value,
-                'divider': true,
-                'spacing': 1,
-              },
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': 'Choose an action:',
-              },
-              {
-                'type': ComponentType.actionRow.value,
-                'components': [
-                  {
-                    'type': ComponentType.button.value,
-                    'style': 1,
-                    'custom_id': 'accept',
-                    'label': 'Accept',
-                  },
-                  {
-                    'type': ComponentType.button.value,
-                    'style': 4,
-                    'custom_id': 'decline',
-                    'label': 'Decline',
-                  },
-                ],
-              },
-            ]));
+          builder.build(),
+          equals([
+            {'type': ComponentType.textDisplay.value, 'content': '# Welcome!'},
+            {
+              'type': ComponentType.separator.value,
+              'divider': true,
+              'spacing': 1,
+            },
+            {
+              'type': ComponentType.textDisplay.value,
+              'content': 'Choose an action:',
+            },
+            {
+              'type': ComponentType.actionRow.value,
+              'components': [
+                {
+                  'type': ComponentType.button.value,
+                  'style': 1,
+                  'custom_id': 'accept',
+                  'label': 'Accept',
+                },
+                {
+                  'type': ComponentType.button.value,
+                  'style': 4,
+                  'custom_id': 'decline',
+                  'label': 'Decline',
+                },
+              ],
+            },
+          ]),
+        );
       });
     });
 
@@ -313,17 +322,12 @@ void main() {
         final combined = builder.copyWith(other);
 
         expect(
-            combined.build(),
-            equals([
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': 'First',
-              },
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': 'Second',
-              },
-            ]));
+          combined.build(),
+          equals([
+            {'type': ComponentType.textDisplay.value, 'content': 'First'},
+            {'type': ComponentType.textDisplay.value, 'content': 'Second'},
+          ]),
+        );
       });
 
       test('does not modify originals', () {
@@ -343,17 +347,12 @@ void main() {
         builder.appendFrom(other);
 
         expect(
-            builder.build(),
-            equals([
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': 'First',
-              },
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': 'Second',
-              },
-            ]));
+          builder.build(),
+          equals([
+            {'type': ComponentType.textDisplay.value, 'content': 'First'},
+            {'type': ComponentType.textDisplay.value, 'content': 'Second'},
+          ]),
+        );
       });
     });
 
@@ -364,17 +363,12 @@ void main() {
         builder.prependFrom(header);
 
         expect(
-            builder.build(),
-            equals([
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': 'First',
-              },
-              {
-                'type': ComponentType.textDisplay.value,
-                'content': 'Second',
-              },
-            ]));
+          builder.build(),
+          equals([
+            {'type': ComponentType.textDisplay.value, 'content': 'First'},
+            {'type': ComponentType.textDisplay.value, 'content': 'Second'},
+          ]),
+        );
       });
     });
   });

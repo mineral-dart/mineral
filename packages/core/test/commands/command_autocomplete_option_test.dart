@@ -4,8 +4,10 @@ import 'package:mineral/src/api/common/commands/command_option_type.dart';
 import 'package:mineral/src/domains/commands/contexts/autocomplete_context.dart';
 import 'package:test/test.dart';
 
-List<Choice> _defaultHandler(AutocompleteContext ctx) =>
-    [Choice('Option A', 'a'), Choice('Option B', 'b')];
+List<Choice> _defaultHandler(AutocompleteContext ctx) => [
+  Choice('Option A', 'a'),
+  Choice('Option B', 'b'),
+];
 
 void main() {
   group('Option autocomplete', () {
@@ -25,7 +27,10 @@ void main() {
       });
 
       test('does not emit autocomplete key when false', () {
-        final option = Option.string(name: 'query', description: 'Search query');
+        final option = Option.string(
+          name: 'query',
+          description: 'Search query',
+        );
         final json = option.toJson();
         expect(json.containsKey('autocomplete'), isFalse);
       });

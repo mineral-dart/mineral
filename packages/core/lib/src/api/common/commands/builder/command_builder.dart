@@ -38,7 +38,8 @@ final class CommandBuilder {
 
     if (!firstArg.contains('CommandContext')) {
       throw Exception(
-          'The first argument of the handler function must be CommandContext');
+        'The first argument of the handler function must be CommandContext',
+      );
     }
 
     _handle = fn;
@@ -46,7 +47,8 @@ final class CommandBuilder {
   }
 
   CommandBuilder addSubCommand(
-      SubCommandBuilder Function(SubCommandBuilder) command) {
+    SubCommandBuilder Function(SubCommandBuilder) command,
+  ) {
     final builder = SubCommandBuilder();
     command(builder);
     _subCommands.add(builder);
@@ -54,7 +56,8 @@ final class CommandBuilder {
   }
 
   CommandBuilder createGroup(
-      CommandGroupBuilder Function(CommandGroupBuilder) group) {
+    CommandGroupBuilder Function(CommandGroupBuilder) group,
+  ) {
     final builder = CommandGroupBuilder();
     group(builder);
     _groups.add(builder);
@@ -90,8 +93,10 @@ final class CommandBuilder {
 
     for (final group in _groups) {
       for (final subCommand in group.commands) {
-        handlers.add(
-            ('$_name.${group.name}.${subCommand.name}', subCommand.handle!));
+        handlers.add((
+          '$_name.${group.name}.${subCommand.name}',
+          subCommand.handle!,
+        ));
       }
     }
 

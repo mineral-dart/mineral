@@ -16,11 +16,17 @@ final class Presence {
 
   factory Presence.fromJson(Map<String, dynamic> json) {
     return Presence(
-      since: json['since'] != null ? DateTime.parse(json['since'] as String) : null,
+      since: json['since'] != null
+          ? DateTime.parse(json['since'] as String)
+          : null,
       activities: List.unmodifiable(
-          (json['activities'] as Iterable<dynamic>).map((e) => Activity.fromJson(e as Map<String, dynamic>))),
-      status: StatusType.values
-          .firstWhere((element) => element.value == json['status']),
+        (json['activities'] as Iterable<dynamic>).map(
+          (e) => Activity.fromJson(e as Map<String, dynamic>),
+        ),
+      ),
+      status: StatusType.values.firstWhere(
+        (element) => element.value == json['status'],
+      ),
       afk: json['afk'] as bool? ?? false,
     );
   }

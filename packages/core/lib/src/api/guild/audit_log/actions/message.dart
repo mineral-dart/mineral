@@ -44,8 +44,11 @@ final class MessagePinAuditLog extends AuditLog {
   }) : super(AuditLogType.messagePin, guildId, userId, ctx: ctx);
 
   Future<GuildMessage> resolveMessage({bool force = false}) async {
-    final message = await _datastore.message
-        .get<GuildMessage>(guildId.value, messageId.value, force);
+    final message = await _datastore.message.get<GuildMessage>(
+      guildId.value,
+      messageId.value,
+      force,
+    );
     return message!;
   }
 }
@@ -65,8 +68,11 @@ final class MessageUnpinAuditLog extends AuditLog {
   }) : super(AuditLogType.messageUnpin, guildId, userId, ctx: ctx);
 
   Future<GuildMessage> resolveMessage({bool force = false}) async {
-    final message = await _datastore.message
-        .get<GuildMessage>(guildId.value, messageId.value, force);
+    final message = await _datastore.message.get<GuildMessage>(
+      guildId.value,
+      messageId.value,
+      force,
+    );
     return message!;
   }
 }

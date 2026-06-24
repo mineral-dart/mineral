@@ -23,30 +23,30 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'id': '123456789',
-          'name': 'Admin',
-          'color': 16711680,
-          'hoist': true,
-          'position': 3,
-          'permissions': '8',
-          'managed': false,
-          'mentionable': true,
-          'flags': 0,
-          'guild_id': '987654321',
-        };
+      'id': '123456789',
+      'name': 'Admin',
+      'color': 16711680,
+      'hoist': true,
+      'position': 3,
+      'permissions': '8',
+      'managed': false,
+      'mentionable': true,
+      'flags': 0,
+      'guild_id': '987654321',
+    };
 
     Map<String, dynamic> rawDiscordPayload() => {
-          'id': '123456789',
-          'name': 'Admin',
-          'color': 16711680,
-          'hoist': true,
-          'position': 3,
-          'permissions': '8',
-          'managed': false,
-          'mentionable': true,
-          'flags': 0,
-          'guild_id': '987654321',
-        };
+      'id': '123456789',
+      'name': 'Admin',
+      'color': 16711680,
+      'hoist': true,
+      'position': 3,
+      'permissions': '8',
+      'managed': false,
+      'mentionable': true,
+      'flags': 0,
+      'guild_id': '987654321',
+    };
 
     group('serialize()', () {
       test('maps all scalar fields correctly', () async {

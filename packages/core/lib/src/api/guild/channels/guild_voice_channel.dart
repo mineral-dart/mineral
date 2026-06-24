@@ -18,8 +18,11 @@ final class GuildVoiceChannel extends GuildChannel {
   late final List<VoiceState> members;
 
   GuildVoiceChannel(this.properties) {
-    methods = ChannelMethods(properties.guildId!, properties.id,
-        ctx: properties.ctx);
+    methods = ChannelMethods(
+      properties.guildId!,
+      properties.id,
+      ctx: properties.ctx,
+    );
     messages = MessageManager(properties.id, ctx: properties.ctx);
   }
 
@@ -52,10 +55,9 @@ final class GuildVoiceChannel extends GuildChannel {
   Future<void> sendSoundboardSound(
     Snowflake soundId, {
     Snowflake? sourceGuildId,
-  }) =>
-      properties.ctx.datastore.soundboard.sendToChannel(
-        properties.id.value,
-        soundId: soundId.value,
-        sourceGuildId: sourceGuildId?.value,
-      );
+  }) => properties.ctx.datastore.soundboard.sendToChannel(
+    properties.id.value,
+    soundId: soundId.value,
+    sourceGuildId: sourceGuildId?.value,
+  );
 }

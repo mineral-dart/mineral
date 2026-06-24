@@ -11,10 +11,8 @@ final class WelcomeScreenPart extends BasePart
   @override
   Future<WelcomeScreen> fetch(Object guildId) async {
     final parsedGuildId = Snowflake.parse(guildId);
-    final req =
-        Request.json(endpoint: '/guilds/$parsedGuildId/welcome-screen');
-    final result =
-        await dataStore.requestBucket.get<Map<String, dynamic>>(req);
+    final req = Request.json(endpoint: '/guilds/$parsedGuildId/welcome-screen');
+    final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
     return WelcomeScreen.fromJson(result);
   }
 
@@ -39,8 +37,9 @@ final class WelcomeScreenPart extends BasePart
       body: body,
       headers: {DiscordHeader.auditLogReason(reason)},
     );
-    final result =
-        await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
+    final result = await dataStore.requestBucket.patch<Map<String, dynamic>>(
+      req,
+    );
     return WelcomeScreen.fromJson(result);
   }
 }

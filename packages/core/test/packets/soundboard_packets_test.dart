@@ -28,63 +28,57 @@ Map<String, dynamic> _soundPayload({
   String name = 'Bloop',
   double volume = 1.0,
   bool available = true,
-}) =>
-    {
-      'sound_id': soundId ?? _soundId,
-      'name': name,
-      'volume': volume,
-      'available': available,
-      'guild_id': _guildId,
-    };
+}) => {
+  'sound_id': soundId ?? _soundId,
+  'name': name,
+  'volume': volume,
+  'available': available,
+  'guild_id': _guildId,
+};
 
 ShardMessage<dynamic> _buildCreateMessage() => ShardMessage(
-      type: 'GUILD_SOUNDBOARD_SOUND_CREATE',
-      opCode: OpCode.dispatch,
-      sequence: 1,
-      payload: _soundPayload(name: 'Created Sound'),
-    );
+  type: 'GUILD_SOUNDBOARD_SOUND_CREATE',
+  opCode: OpCode.dispatch,
+  sequence: 1,
+  payload: _soundPayload(name: 'Created Sound'),
+);
 
 ShardMessage<dynamic> _buildUpdateMessage() => ShardMessage(
-      type: 'GUILD_SOUNDBOARD_SOUND_UPDATE',
-      opCode: OpCode.dispatch,
-      sequence: 2,
-      payload: _soundPayload(name: 'Updated Sound'),
-    );
+  type: 'GUILD_SOUNDBOARD_SOUND_UPDATE',
+  opCode: OpCode.dispatch,
+  sequence: 2,
+  payload: _soundPayload(name: 'Updated Sound'),
+);
 
 ShardMessage<dynamic> _buildDeleteMessage() => ShardMessage(
-      type: 'GUILD_SOUNDBOARD_SOUND_DELETE',
-      opCode: OpCode.dispatch,
-      sequence: 3,
-      payload: {
-        'sound_id': _soundId,
-        'guild_id': _guildId,
-      },
-    );
+  type: 'GUILD_SOUNDBOARD_SOUND_DELETE',
+  opCode: OpCode.dispatch,
+  sequence: 3,
+  payload: {'sound_id': _soundId, 'guild_id': _guildId},
+);
 
 ShardMessage<dynamic> _buildSoundsUpdateMessage() => ShardMessage(
-      type: 'GUILD_SOUNDBOARD_SOUNDS_UPDATE',
-      opCode: OpCode.dispatch,
-      sequence: 4,
-      payload: {
-        'guild_id': _guildId,
-        'soundboard_sounds': [
-          _soundPayload(soundId: _soundId, name: 'Alpha'),
-          _soundPayload(soundId: _soundId2, name: 'Beta'),
-        ],
-      },
-    );
+  type: 'GUILD_SOUNDBOARD_SOUNDS_UPDATE',
+  opCode: OpCode.dispatch,
+  sequence: 4,
+  payload: {
+    'guild_id': _guildId,
+    'soundboard_sounds': [
+      _soundPayload(soundId: _soundId, name: 'Alpha'),
+      _soundPayload(soundId: _soundId2, name: 'Beta'),
+    ],
+  },
+);
 
 ShardMessage<dynamic> _buildSoundboardSoundsMessage() => ShardMessage(
-      type: 'SOUNDBOARD_SOUNDS',
-      opCode: OpCode.dispatch,
-      sequence: 5,
-      payload: {
-        'guild_id': _guildId,
-        'soundboard_sounds': [
-          _soundPayload(soundId: _soundId, name: 'Gamma'),
-        ],
-      },
-    );
+  type: 'SOUNDBOARD_SOUNDS',
+  opCode: OpCode.dispatch,
+  sequence: 5,
+  payload: {
+    'guild_id': _guildId,
+    'soundboard_sounds': [_soundPayload(soundId: _soundId, name: 'Gamma')],
+  },
+);
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -93,25 +87,19 @@ void main() {
 
   group('PacketType identity', () {
     test('GuildSoundboardSoundCreatePacket has correct packetType', () {
-      final packet = GuildSoundboardSoundCreatePacket(
-        dataStore: buildMockDs(),
-      );
+      final packet = GuildSoundboardSoundCreatePacket(dataStore: buildMockDs());
       expect(packet.packetType, equals(PacketType.guildSoundboardSoundCreate));
       expect(packet.packetType.name, equals('GUILD_SOUNDBOARD_SOUND_CREATE'));
     });
 
     test('GuildSoundboardSoundUpdatePacket has correct packetType', () {
-      final packet = GuildSoundboardSoundUpdatePacket(
-        dataStore: buildMockDs(),
-      );
+      final packet = GuildSoundboardSoundUpdatePacket(dataStore: buildMockDs());
       expect(packet.packetType, equals(PacketType.guildSoundboardSoundUpdate));
       expect(packet.packetType.name, equals('GUILD_SOUNDBOARD_SOUND_UPDATE'));
     });
 
     test('GuildSoundboardSoundDeletePacket has correct packetType', () {
-      final packet = GuildSoundboardSoundDeletePacket(
-        dataStore: buildMockDs(),
-      );
+      final packet = GuildSoundboardSoundDeletePacket(dataStore: buildMockDs());
       expect(packet.packetType, equals(PacketType.guildSoundboardSoundDelete));
       expect(packet.packetType.name, equals('GUILD_SOUNDBOARD_SOUND_DELETE'));
     });
@@ -120,16 +108,12 @@ void main() {
       final packet = GuildSoundboardSoundsUpdatePacket(
         dataStore: buildMockDs(),
       );
-      expect(
-          packet.packetType, equals(PacketType.guildSoundboardSoundsUpdate));
-      expect(
-          packet.packetType.name, equals('GUILD_SOUNDBOARD_SOUNDS_UPDATE'));
+      expect(packet.packetType, equals(PacketType.guildSoundboardSoundsUpdate));
+      expect(packet.packetType.name, equals('GUILD_SOUNDBOARD_SOUNDS_UPDATE'));
     });
 
     test('SoundboardSoundsPacket has correct packetType', () {
-      final packet = SoundboardSoundsPacket(
-        dataStore: buildMockDs(),
-      );
+      final packet = SoundboardSoundsPacket(dataStore: buildMockDs());
       expect(packet.packetType, equals(PacketType.soundboardSounds));
       expect(packet.packetType.name, equals('SOUNDBOARD_SOUNDS'));
     });
@@ -142,7 +126,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -150,10 +137,11 @@ void main() {
       final packet = GuildSoundboardSoundCreatePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -161,30 +149,33 @@ void main() {
       expect(capturedEvent, equals(Event.guildSoundboardSoundCreate));
     });
 
-    test('payload carries guild and correctly parsed SoundboardSound',
-        () async {
-      final packet = GuildSoundboardSoundCreatePacket(dataStore: ds);
-      GuildSoundboardSoundCreateArgs? args;
+    test(
+      'payload carries guild and correctly parsed SoundboardSound',
+      () async {
+        final packet = GuildSoundboardSoundCreatePacket(dataStore: ds);
+        GuildSoundboardSoundCreateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        if (event == Event.guildSoundboardSoundCreate) {
-          args = payload as GuildSoundboardSoundCreateArgs;
+          bool Function(String?)? constraint,
+        }) {
+          if (event == Event.guildSoundboardSoundCreate) {
+            args = payload as GuildSoundboardSoundCreateArgs;
+          }
         }
-      }
 
-      await packet.listen(_buildCreateMessage(), dispatch);
+        await packet.listen(_buildCreateMessage(), dispatch);
 
-      expect(args, isNotNull);
-      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
-      expect(args!.guild.name, equals('Test Guild'));
-      final sound = args!.sound;
-      expect(sound.soundId, equals(Snowflake.parse(_soundId)));
-      expect(sound.name, equals('Created Sound'));
-      expect(sound.guildId, equals(Snowflake.parse(_guildId)));
-    });
+        expect(args, isNotNull);
+        expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
+        expect(args!.guild.name, equals('Test Guild'));
+        final sound = args!.sound;
+        expect(sound.soundId, equals(Snowflake.parse(_soundId)));
+        expect(sound.name, equals('Created Sound'));
+        expect(sound.guildId, equals(Snowflake.parse(_guildId)));
+      },
+    );
   });
 
   // ── GUILD_SOUNDBOARD_SOUND_UPDATE ─────────────────────────────────────────
@@ -194,7 +185,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -202,10 +196,11 @@ void main() {
       final packet = GuildSoundboardSoundUpdatePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -213,28 +208,31 @@ void main() {
       expect(capturedEvent, equals(Event.guildSoundboardSoundUpdate));
     });
 
-    test('payload carries guild and correctly parsed SoundboardSound',
-        () async {
-      final packet = GuildSoundboardSoundUpdatePacket(dataStore: ds);
-      GuildSoundboardSoundUpdateArgs? args;
+    test(
+      'payload carries guild and correctly parsed SoundboardSound',
+      () async {
+        final packet = GuildSoundboardSoundUpdatePacket(dataStore: ds);
+        GuildSoundboardSoundUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
+        void dispatch<T extends Object>({
+          required Event event,
           required T payload,
-          bool Function(String?)? constraint}) {
-        if (event == Event.guildSoundboardSoundUpdate) {
-          args = payload as GuildSoundboardSoundUpdateArgs;
+          bool Function(String?)? constraint,
+        }) {
+          if (event == Event.guildSoundboardSoundUpdate) {
+            args = payload as GuildSoundboardSoundUpdateArgs;
+          }
         }
-      }
 
-      await packet.listen(_buildUpdateMessage(), dispatch);
+        await packet.listen(_buildUpdateMessage(), dispatch);
 
-      expect(args, isNotNull);
-      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
-      final sound = args!.sound;
-      expect(sound.soundId, equals(Snowflake.parse(_soundId)));
-      expect(sound.name, equals('Updated Sound'));
-    });
+        expect(args, isNotNull);
+        expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
+        final sound = args!.sound;
+        expect(sound.soundId, equals(Snowflake.parse(_soundId)));
+        expect(sound.name, equals('Updated Sound'));
+      },
+    );
   });
 
   // ── GUILD_SOUNDBOARD_SOUND_DELETE ─────────────────────────────────────────
@@ -244,7 +242,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -252,10 +253,11 @@ void main() {
       final packet = GuildSoundboardSoundDeletePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -267,10 +269,11 @@ void main() {
       final packet = GuildSoundboardSoundDeletePacket(dataStore: ds);
       GuildSoundboardSoundDeleteArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildSoundboardSoundDelete) {
           args = payload as GuildSoundboardSoundDeleteArgs;
         }
@@ -291,7 +294,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -299,10 +305,11 @@ void main() {
       final packet = GuildSoundboardSoundsUpdatePacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -314,10 +321,11 @@ void main() {
       final packet = GuildSoundboardSoundsUpdatePacket(dataStore: ds);
       GuildSoundboardSoundsUpdateArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildSoundboardSoundsUpdate) {
           args = payload as GuildSoundboardSoundsUpdateArgs;
         }
@@ -340,7 +348,10 @@ void main() {
 
     setUp(() {
       ds = MockDataStore();
-      final guild = buildMinimalGuild(_guildId, buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()));
+      final guild = buildMinimalGuild(
+        _guildId,
+        buildCtx(dataStore: ds, wss: FakeWebsocketOrchestrator()),
+      );
       when(() => ds.guild).thenReturn(FakeGuildPart(guild));
     });
 
@@ -348,10 +359,11 @@ void main() {
       final packet = SoundboardSoundsPacket(dataStore: ds);
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -363,10 +375,11 @@ void main() {
       final packet = SoundboardSoundsPacket(dataStore: ds);
       GuildSoundboardSoundsArgs? args;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildSoundboardSounds) {
           args = payload as GuildSoundboardSoundsArgs;
         }

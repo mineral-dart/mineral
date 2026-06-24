@@ -110,8 +110,11 @@ final class MessageReaction
   /// ```
   @override
   Future<T> resolveMessage<T extends BaseMessage>({bool force = false}) async {
-    final message = await _datastore.message
-        .get<T>(channelId.value, messageId.value, force);
+    final message = await _datastore.message.get<T>(
+      channelId.value,
+      messageId.value,
+      force,
+    );
     return message!;
   }
 }

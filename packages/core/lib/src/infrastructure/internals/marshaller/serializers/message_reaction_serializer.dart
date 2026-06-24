@@ -32,17 +32,19 @@ final class MessageReactionSerializer<T extends Message>
   @override
   Future<MessageReaction> serialize(Map<String, dynamic> json) async {
     return MessageReaction(
-        ctx: _ctx,
-        guildId: Snowflake.nullable(json['guild_id']),
-        channelId: Snowflake.parse(json['channel_id']),
-        userId: Snowflake.parse(json['author_id']),
-        messageId: Snowflake.parse(json['message_id']),
-        emoji: PartialEmoji(
-            (json['emoji'] as Map<String, dynamic>?)?['id'] as Snowflake?,
-            ((json['emoji'] as Map<String, dynamic>?)?['name'] as String?) ?? '',
-            (json['emoji'] as Map<String, dynamic>?)?['animated'] as bool? ?? false),
-        isBurst: json['is_burst'] as bool? ?? false,
-        type: MessageReactionType.values[json['type'] as int]);
+      ctx: _ctx,
+      guildId: Snowflake.nullable(json['guild_id']),
+      channelId: Snowflake.parse(json['channel_id']),
+      userId: Snowflake.parse(json['author_id']),
+      messageId: Snowflake.parse(json['message_id']),
+      emoji: PartialEmoji(
+        (json['emoji'] as Map<String, dynamic>?)?['id'] as Snowflake?,
+        ((json['emoji'] as Map<String, dynamic>?)?['name'] as String?) ?? '',
+        (json['emoji'] as Map<String, dynamic>?)?['animated'] as bool? ?? false,
+      ),
+      isBurst: json['is_burst'] as bool? ?? false,
+      type: MessageReactionType.values[json['type'] as int],
+    );
   }
 
   @override

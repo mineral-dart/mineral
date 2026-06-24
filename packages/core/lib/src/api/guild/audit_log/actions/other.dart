@@ -10,8 +10,12 @@ final class CreatorMonetizationRequestCreatedAuditLog extends AuditLog {
     required Snowflake userId,
     required EntityContext ctx,
     required this.requestId,
-  }) : super(AuditLogType.creatorMonetizationRequestCreated, guildId, userId,
-            ctx: ctx);
+  }) : super(
+         AuditLogType.creatorMonetizationRequestCreated,
+         guildId,
+         userId,
+         ctx: ctx,
+       );
 }
 
 final class CreatorMonetizationTermsAcceptedAuditLog extends AuditLog {
@@ -22,8 +26,12 @@ final class CreatorMonetizationTermsAcceptedAuditLog extends AuditLog {
     required Snowflake userId,
     required EntityContext ctx,
     required this.termsId,
-  }) : super(AuditLogType.creatorMonetizationTermsAccepted, guildId, userId,
-            ctx: ctx);
+  }) : super(
+         AuditLogType.creatorMonetizationTermsAccepted,
+         guildId,
+         userId,
+         ctx: ctx,
+       );
 }
 
 final class OnboardingPromptCreateAuditLog extends AuditLog {

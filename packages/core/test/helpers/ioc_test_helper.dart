@@ -12,8 +12,7 @@ export 'package:mineral/container.dart' show runWithIoc;
 ///
 /// Returns a restore function to call in tearDown.
 ({IocContainer container, FakeLogger logger, void Function() restore})
-    createTestIoc(
-        {DataStoreContract? dataStore, MarshallerContract? marshaller}) {
+createTestIoc({DataStoreContract? dataStore, MarshallerContract? marshaller}) {
   final logger = FakeLogger();
   final container = IocContainer()..bind<LoggerContract>(() => logger);
   if (dataStore != null) {

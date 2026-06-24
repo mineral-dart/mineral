@@ -13,8 +13,9 @@ void main() {
       });
 
       test('SerializationException contains descriptive message', () {
-        final exception =
-            SerializationException('Expected GuildTextChannel but got Message');
+        final exception = SerializationException(
+          'Expected GuildTextChannel but got Message',
+        );
         expect(exception.message, contains('GuildTextChannel'));
         expect(exception.toString(), contains('SerializationException'));
       });
@@ -32,15 +33,17 @@ void main() {
       });
 
       test('InvalidCommandException contains descriptive message', () {
-        final exception =
-            InvalidCommandException('Command /hello already exists');
+        final exception = InvalidCommandException(
+          'Command /hello already exists',
+        );
         expect(exception.message, contains('/hello'));
         expect(exception.toString(), contains('InvalidCommandException'));
       });
 
       test('InvalidComponentException contains descriptive message', () {
-        final exception =
-            InvalidComponentException('Component "my-button" not found');
+        final exception = InvalidComponentException(
+          'Component "my-button" not found',
+        );
         expect(exception.message, contains('my-button'));
         expect(exception.toString(), contains('InvalidComponentException'));
       });
@@ -75,17 +78,24 @@ void main() {
 
     group('sealed hierarchy — Recoverable vs Fatal', () {
       test('recoverable exceptions extend RecoverableMineralException', () {
-        expect(HttpStatusException(500, ''),
-            isA<RecoverableMineralException>());
+        expect(
+          HttpStatusException(500, ''),
+          isA<RecoverableMineralException>(),
+        );
         expect(SerializationException(''), isA<RecoverableMineralException>());
-        expect(ServiceNotFoundException(String),
-            isA<RecoverableMineralException>());
         expect(
-            InvalidCommandException(''), isA<RecoverableMineralException>());
-        expect(InvalidComponentException(''),
-            isA<RecoverableMineralException>());
+          ServiceNotFoundException(String),
+          isA<RecoverableMineralException>(),
+        );
+        expect(InvalidCommandException(''), isA<RecoverableMineralException>());
         expect(
-            MissingPropertyException(''), isA<RecoverableMineralException>());
+          InvalidComponentException(''),
+          isA<RecoverableMineralException>(),
+        );
+        expect(
+          MissingPropertyException(''),
+          isA<RecoverableMineralException>(),
+        );
         expect(MissingMethodException(''), isA<RecoverableMineralException>());
         expect(TooManyElementException(''), isA<RecoverableMineralException>());
         expect(CommandNameException(''), isA<RecoverableMineralException>());
@@ -97,14 +107,18 @@ void main() {
       });
 
       test('recoverable exceptions are NOT fatal', () {
-        expect(InvalidCommandException(''),
-            isNot(isA<FatalMineralException>()));
+        expect(
+          InvalidCommandException(''),
+          isNot(isA<FatalMineralException>()),
+        );
         expect(SerializationException(''), isNot(isA<FatalMineralException>()));
       });
 
       test('fatal exceptions are NOT recoverable', () {
-        expect(FatalGatewayException('', -1),
-            isNot(isA<RecoverableMineralException>()));
+        expect(
+          FatalGatewayException('', -1),
+          isNot(isA<RecoverableMineralException>()),
+        );
         expect(TokenException(''), isNot(isA<RecoverableMineralException>()));
       });
     });

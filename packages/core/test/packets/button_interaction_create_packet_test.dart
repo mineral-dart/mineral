@@ -5,7 +5,8 @@ import 'package:test/test.dart';
 
 import '../helpers/fake_entity_context.dart';
 
-final class _NoopInteractiveComponent implements InteractiveComponentManagerContract {
+final class _NoopInteractiveComponent
+    implements InteractiveComponentManagerContract {
   @override
   void register(InteractiveComponent component) {}
   @override
@@ -34,10 +35,10 @@ void main() {
             {
               'components': [
                 {'custom_id': 'other_button', 'type': 2},
-              ]
-            }
-          ]
-        }
+              ],
+            },
+          ],
+        },
       };
 
       // BEFORE fix: this test never completed (completer was never resolved)
@@ -48,7 +49,7 @@ void main() {
 
     test('returns null when components list is null', () {
       final payload = {
-        'message': {'components': null}
+        'message': {'components': null},
       };
 
       final result = packet.findButtonByCustomId(payload, 'any');
@@ -62,10 +63,10 @@ void main() {
             {
               'components': [
                 {'custom_id': 'my_button', 'type': 2, 'style': 1},
-              ]
-            }
-          ]
-        }
+              ],
+            },
+          ],
+        },
       };
 
       final result = packet.findButtonByCustomId(payload, 'my_button');
@@ -73,25 +74,27 @@ void main() {
       expect(result!['custom_id'], equals('my_button'));
     });
 
-    test('returns the first matching component when multiple buttons exist',
-        () {
-      final payload = {
-        'message': {
-          'components': [
-            {
-              'components': [
-                {'custom_id': 'btn_a', 'type': 2},
-                {'custom_id': 'btn_b', 'type': 2},
-              ]
-            }
-          ]
-        }
-      };
+    test(
+      'returns the first matching component when multiple buttons exist',
+      () {
+        final payload = {
+          'message': {
+            'components': [
+              {
+                'components': [
+                  {'custom_id': 'btn_a', 'type': 2},
+                  {'custom_id': 'btn_b', 'type': 2},
+                ],
+              },
+            ],
+          },
+        };
 
-      final result = packet.findButtonByCustomId(payload, 'btn_b');
-      expect(result, isNotNull);
-      expect(result!['custom_id'], equals('btn_b'));
-    });
+        final result = packet.findButtonByCustomId(payload, 'btn_b');
+        expect(result, isNotNull);
+        expect(result!['custom_id'], equals('btn_b'));
+      },
+    );
 
     test('finds component across multiple action rows', () {
       final payload = {
@@ -100,15 +103,15 @@ void main() {
             {
               'components': [
                 {'custom_id': 'row1_btn', 'type': 2},
-              ]
+              ],
             },
             {
               'components': [
                 {'custom_id': 'row2_btn', 'type': 2},
-              ]
-            }
-          ]
-        }
+              ],
+            },
+          ],
+        },
       };
 
       final result = packet.findButtonByCustomId(payload, 'row2_btn');

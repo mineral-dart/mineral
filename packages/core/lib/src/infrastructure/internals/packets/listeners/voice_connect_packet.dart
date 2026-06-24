@@ -11,7 +11,7 @@ final class VoiceConnectPacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   VoiceConnectPacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
@@ -30,7 +30,10 @@ final class VoiceConnectPacket implements ListenablePacket {
     );
 
     if (before == null && payload['channel_id'] != null) {
-      dispatch<VoiceConnectArgs>(event: Event.voiceConnect, payload: (state: voiceState));
+      dispatch<VoiceConnectArgs>(
+        event: Event.voiceConnect,
+        payload: (state: voiceState),
+      );
     }
   }
 }

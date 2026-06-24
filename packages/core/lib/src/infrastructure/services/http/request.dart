@@ -33,12 +33,13 @@ final class Request<T> implements RequestContract {
     required this.files,
   });
 
-  static Request json(
-      {required String endpoint,
-      String? method,
-      Set<Header>? headers,
-      dynamic body,
-      Map<String, String>? queryParameters}) {
+  static Request json({
+    required String endpoint,
+    String? method,
+    Set<Header>? headers,
+    dynamic body,
+    Map<String, String>? queryParameters,
+  }) {
     return Request<Map<String, dynamic>>(
       type: RequestType.json,
       method: method,
@@ -76,16 +77,8 @@ final class Request<T> implements RequestContract {
     List<MultipartFile> files = const [],
   }) {
     return switch (files.isEmpty) {
-      true => Request.json(
-          endpoint: endpoint,
-          body: body,
-          headers: headers,
-        ),
-      false => Request.formData(
-          endpoint: endpoint,
-          body: body,
-          files: files,
-        ),
+      true => Request.json(endpoint: endpoint, body: body, headers: headers),
+      false => Request.formData(endpoint: endpoint, body: body, files: files),
     };
   }
 

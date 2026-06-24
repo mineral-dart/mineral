@@ -22,13 +22,17 @@ abstract interface class CacheProviderContract {
 
   FutureOr<List<Map<String, dynamic>?>> getMany(List<String> keys);
 
-  FutureOr<Map<String, dynamic>> getOrFail(String key,
-      {Exception Function()? onFail});
+  FutureOr<Map<String, dynamic>> getOrFail(
+    String key, {
+    Exception Function()? onFail,
+  });
 
   FutureOr<Map<String, dynamic>?> whereKeyStartsWith(String prefix);
 
-  FutureOr<Map<String, dynamic>> whereKeyStartsWithOrFail(String prefix,
-      {Exception Function()? onFail});
+  FutureOr<Map<String, dynamic>> whereKeyStartsWithOrFail(
+    String prefix, {
+    Exception Function()? onFail,
+  });
 
   FutureOr<bool> has(String key);
 

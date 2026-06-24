@@ -34,12 +34,12 @@ final class UserBuilder {
   }
 
   TestUser build() => TestUser(
-        id: _id ?? generateId(),
-        username: _username,
-        discriminator: _discriminator,
-        bot: _bot,
-        globalName: _globalName,
-      );
+    id: _id ?? generateId(),
+    username: _username,
+    discriminator: _discriminator,
+    bot: _bot,
+    globalName: _globalName,
+  );
 }
 
 /// Fluent builder for [TestGuild].
@@ -64,10 +64,10 @@ final class GuildBuilder {
   }
 
   TestGuild build() => TestGuild(
-        id: _id ?? generateId(),
-        name: _name,
-        ownerId: _ownerId ?? generateId(),
-      );
+    id: _id ?? generateId(),
+    name: _name,
+    ownerId: _ownerId ?? generateId(),
+  );
 }
 
 /// Fluent builder for [TestRole].
@@ -146,11 +146,11 @@ final class ChannelBuilder {
   }
 
   TestChannel build() => TestChannel(
-        id: _id ?? generateId(),
-        name: _name,
-        guildId: _guildId,
-        type: _type,
-      );
+    id: _id ?? generateId(),
+    name: _name,
+    guildId: _guildId,
+    type: _type,
+  );
 }
 
 /// Fluent builder for [TestMember].

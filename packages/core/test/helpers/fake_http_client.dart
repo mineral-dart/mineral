@@ -18,7 +18,8 @@ final class FakeHttpClient implements HttpClientContract {
   /// Records the full [RequestContract] for each call.
   final List<RequestContract> requests = [];
 
-  FakeHttpClient([List<Object> outcomes = const []]) : _outcomes = List.of(outcomes);
+  FakeHttpClient([List<Object> outcomes = const []])
+    : _outcomes = List.of(outcomes);
 
   @override
   HttpClientStatus get status => HttpClientStatusImpl();
@@ -29,7 +30,10 @@ final class FakeHttpClient implements HttpClientContract {
   @override
   HttpClientConfig get config => throw UnimplementedError();
 
-  Future<Response<T>> _dispatch<T>(String method, RequestContract request) async {
+  Future<Response<T>> _dispatch<T>(
+    String method,
+    RequestContract request,
+  ) async {
     calls.add((method: method, path: request.url.path));
     requests.add(request);
 

@@ -38,9 +38,10 @@ void main() {
     test('/echo replies with the message option', () async {
       bot.events.register(EchoListener());
 
-      await bot.whenCommand('echo').withOptions({
-        'message': 'hello world',
-      }).expectReply(content: 'hello world');
+      await bot
+          .whenCommand('echo')
+          .withOptions({'message': 'hello world'})
+          .expectReply(content: 'hello world');
     });
 
     test('handler errors are captured under bot.errors', () async {

@@ -33,10 +33,7 @@ class Header {
   Header.userAgent(String value) : this('User-Agent', value);
 }
 
-enum RequestType {
-  json,
-  formData,
-}
+enum RequestType { json, formData }
 
 abstract interface class RequestContract {
   RequestType get type;

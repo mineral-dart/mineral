@@ -231,12 +231,14 @@ final class ChannelBuilder
         'rate_limit_per_user': _rateLimitPerUser!.inSeconds,
       if (_permissionOverwrites.isNotEmpty)
         'permission_overwrites': _permissionOverwrites
-            .map((element) => {
-                  'id': element.id,
-                  'type': element.type.value,
-                  'allow': listToBitfield(element.allow),
-                  'deny': listToBitfield(element.deny),
-                })
+            .map(
+              (element) => {
+                'id': element.id,
+                'type': element.type.value,
+                'allow': listToBitfield(element.allow),
+                'deny': listToBitfield(element.deny),
+              },
+            )
             .toList(),
       if (_parentId != null) 'parent_id': _parentId,
       if (_nsfw != null) 'nsfw': _nsfw,

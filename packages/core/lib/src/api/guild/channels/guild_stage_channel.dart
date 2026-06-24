@@ -18,8 +18,11 @@ final class GuildStageChannel extends GuildChannel {
   late final GuildCategoryChannel? category;
 
   GuildStageChannel(this.properties) {
-    methods = ChannelMethods(properties.guildId!, properties.id,
-        ctx: properties.ctx);
+    methods = ChannelMethods(
+      properties.guildId!,
+      properties.id,
+      ctx: properties.ctx,
+    );
     messages = MessageManager(properties.id, ctx: properties.ctx);
   }
 
@@ -35,13 +38,15 @@ final class GuildStageChannel extends GuildChannel {
   Future<void> setRateLimitPerUser(Duration value, {String? reason}) =>
       methods.setRateLimitPerUser(value, reason);
 
-  Future<void> setDefaultAutoArchiveDuration(Duration value,
-          {String? reason}) =>
-      methods.setDefaultAutoArchiveDuration(value, reason);
+  Future<void> setDefaultAutoArchiveDuration(
+    Duration value, {
+    String? reason,
+  }) => methods.setDefaultAutoArchiveDuration(value, reason);
 
-  Future<void> setDefaultThreadRateLimitPerUser(Duration value,
-          {String? reason}) =>
-      methods.setDefaultThreadRateLimitPerUser(value, reason);
+  Future<void> setDefaultThreadRateLimitPerUser(
+    Duration value, {
+    String? reason,
+  }) => methods.setDefaultThreadRateLimitPerUser(value, reason);
 
   /// Starts a new stage instance for this channel.
   Future<StageInstance> startStageInstance({
@@ -50,15 +55,14 @@ final class GuildStageChannel extends GuildChannel {
     bool? sendStartNotification,
     Object? guildScheduledEventId,
     String? reason,
-  }) =>
-      properties.ctx.datastore.stageInstance.create(
-        channelId: properties.id.value,
-        topic: topic,
-        privacyLevel: privacyLevel,
-        sendStartNotification: sendStartNotification,
-        guildScheduledEventId: guildScheduledEventId,
-        reason: reason,
-      );
+  }) => properties.ctx.datastore.stageInstance.create(
+    channelId: properties.id.value,
+    topic: topic,
+    privacyLevel: privacyLevel,
+    sendStartNotification: sendStartNotification,
+    guildScheduledEventId: guildScheduledEventId,
+    reason: reason,
+  );
 
   /// Fetches the current stage instance for this channel.
   Future<StageInstance> fetchStageInstance() =>
@@ -69,18 +73,17 @@ final class GuildStageChannel extends GuildChannel {
     String? topic,
     StagePrivacyLevel? privacyLevel,
     String? reason,
-  }) =>
-      properties.ctx.datastore.stageInstance.update(
-        channelId: properties.id.value,
-        topic: topic,
-        privacyLevel: privacyLevel,
-        reason: reason,
-      );
+  }) => properties.ctx.datastore.stageInstance.update(
+    channelId: properties.id.value,
+    topic: topic,
+    privacyLevel: privacyLevel,
+    reason: reason,
+  );
 
   /// Ends (deletes) the stage instance for this channel.
-  Future<void> endStageInstance({String? reason}) =>
-      properties.ctx.datastore.stageInstance.delete(
-        channelId: properties.id.value,
-        reason: reason,
-      );
+  Future<void> endStageInstance({String? reason}) => properties
+      .ctx
+      .datastore
+      .stageInstance
+      .delete(channelId: properties.id.value, reason: reason);
 }

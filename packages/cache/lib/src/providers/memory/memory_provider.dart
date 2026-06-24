@@ -22,11 +22,13 @@ final class MemoryProvider implements CacheProviderContract {
 
   @override
   void init() {
-    logger.trace(jsonEncode({
-      'service': 'cache',
-      'message': 'memory is used',
-      'payload': {},
-    }));
+    logger.trace(
+      jsonEncode({
+        'service': 'cache',
+        'message': 'memory is used',
+        'payload': {},
+      }),
+    );
 
     if (_sweeperInterval > Duration.zero) {
       _sweeper = Timer.periodic(_sweeperInterval, (_) => _sweepExpired());
@@ -45,9 +47,7 @@ final class MemoryProvider implements CacheProviderContract {
   @override
   Map<String, dynamic> inspect() {
     _sweepExpired();
-    return {
-      for (final entry in _storage.entries) entry.key: entry.value.value,
-    };
+    return {for (final entry in _storage.entries) entry.key: entry.value.value};
   }
 
   @override
@@ -66,14 +66,16 @@ final class MemoryProvider implements CacheProviderContract {
   }
 
   @override
-  Map<String, dynamic> whereKeyStartsWithOrFail(String prefix,
-      {Exception Function()? onFail}) {
+  Map<String, dynamic> whereKeyStartsWithOrFail(
+    String prefix, {
+    Exception Function()? onFail,
+  }) {
     final entries = whereKeyStartsWith(prefix);
 
     return entries.isEmpty
         ? onFail != null
-            ? throw onFail()
-            : throw Exception('No keys found')
+              ? throw onFail()
+              : throw Exception('No keys found')
         : entries;
   }
 
@@ -144,8 +146,7 @@ final class MemoryProvider implements CacheProviderContract {
   /// caching, so the stored values are always JSON-encodable.  The round-trip
   /// matches Redis's serialisation semantics: after `put`, the caller cannot
   /// mutate the cached entry by modifying the original object.
-  static dynamic _deepCopy(dynamic value) =>
-      jsonDecode(jsonEncode(value));
+  static dynamic _deepCopy(dynamic value) => jsonDecode(jsonEncode(value));
 
   @override
   void remove(String key) => _storage.remove(key);
@@ -177,11 +178,11 @@ final class MemoryProvider implements CacheProviderContract {
 
 final class _Entry {
   _Entry(this.value, Duration? ttl)
-      // Duration.zero is treated as "no expiry", matching Redis semantics
-      // where buildSetCommand omits PX for non-positive durations.
-      : expiresAt = (ttl == null || ttl <= Duration.zero)
-            ? null
-            : DateTime.now().add(ttl);
+    // Duration.zero is treated as "no expiry", matching Redis semantics
+    // where buildSetCommand omits PX for non-positive durations.
+    : expiresAt = (ttl == null || ttl <= Duration.zero)
+          ? null
+          : DateTime.now().add(ttl);
 
   final dynamic value;
   final DateTime? expiresAt;

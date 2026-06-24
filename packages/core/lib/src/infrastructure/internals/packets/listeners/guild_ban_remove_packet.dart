@@ -16,22 +16,31 @@ final class GuildBanRemovePacket implements ListenablePacket {
   GuildBanRemovePacket({
     required MarshallerContract marshaller,
     required DataStoreContract dataStore,
-  })  : _marshaller = marshaller,
-        _dataStore = dataStore;
+  }) : _marshaller = marshaller,
+       _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final guild =
-        await _dataStore.guild.get(message.payload['guild_id'] as Object, false);
-    final user =
-        await _dataStore.user.get((message.payload['user'] as Map<String, dynamic>)['id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      message.payload['guild_id'] as Object,
+      false,
+    );
+    final user = await _dataStore.user.get(
+      (message.payload['user'] as Map<String, dynamic>)['id'] as Object,
+      false,
+    );
 
     if (user case User(:final id)) {
-      final memberCacheKey =
-          _marshaller.cacheKey.member(guild.id.value, id.value);
+      final memberCacheKey = _marshaller.cacheKey.member(
+        guild.id.value,
+        id.value,
+      );
       await _marshaller.cache.invalidate(memberCacheKey);
 
-      dispatch<GuildBanRemoveArgs>(event: Event.guildBanRemove, payload: (user: user, guild: guild));
+      dispatch<GuildBanRemoveArgs>(
+        event: Event.guildBanRemove,
+        payload: (user: user, guild: guild),
+      );
     }
   }
 }

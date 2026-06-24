@@ -4,7 +4,9 @@ import 'package:mineral/src/api/guild/audit_log/audit_log.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 Future<AuditLog> inviteCreateAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   final changes = json['changes'] as List<dynamic>;
   final options = json['options'] as Map<String, dynamic>?;
   return InviteCreateAuditLog(
@@ -20,24 +22,30 @@ Future<AuditLog> inviteCreateAuditLogHandler(
 }
 
 Future<AuditLog> inviteUpdateAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   return InviteUpdateAuditLog(
     guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     inviteCode: json['target_id'] as String,
-    changes: List<Map<String, dynamic>>.from(json['changes'] as Iterable<dynamic>)
-        .map(Change.fromJson)
-        .toList(),
+    changes: List<Map<String, dynamic>>.from(
+      json['changes'] as Iterable<dynamic>,
+    ).map(Change.fromJson).toList(),
     ctx: ctx,
   );
 }
 
 Future<AuditLog> inviteDeleteAuditLogHandler(
-    Map<String, dynamic> json, EntityContext ctx) async {
+  Map<String, dynamic> json,
+  EntityContext ctx,
+) async {
   final options = json['options'] as Map<String, dynamic>?;
-  final code = List.from(json['changes'] as Iterable<dynamic>).firstWhere(
-    (change) => (change as Map<String, dynamic>)['key'] == 'code',
-  ) as Map<String, dynamic>;
+  final code =
+      List.from(json['changes'] as Iterable<dynamic>).firstWhere(
+            (change) => (change as Map<String, dynamic>)['key'] == 'code',
+          )
+          as Map<String, dynamic>;
 
   return InviteDeleteAuditLog(
     guildId: Snowflake.parse(json['guild_id']),

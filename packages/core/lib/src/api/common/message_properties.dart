@@ -40,8 +40,12 @@ final class MessageProperties<T extends Channel> {
     MessageReferenceType? referenceType,
   }) {
     final embeds = List<MessageEmbed>.unmodifiable(
-        (json['embeds'] as Iterable<dynamic>)
-            .map((element) => embedSerializer.serialize(element as Map<String, dynamic>) as MessageEmbed));
+      (json['embeds'] as Iterable<dynamic>).map(
+        (element) =>
+            embedSerializer.serialize(element as Map<String, dynamic>)
+                as MessageEmbed,
+      ),
+    );
 
     return MessageProperties(
       id: Snowflake.parse(json['id']),
@@ -53,8 +57,9 @@ final class MessageProperties<T extends Channel> {
       embeds: embeds,
       createdAt: DateTime.parse(json['timestamp'] as String),
       updatedAt: Helper.createOrNull(
-          field: json['edited_timestamp'],
-          fn: () => DateTime.parse(json['edited_timestamp'] as String)),
+        field: json['edited_timestamp'],
+        fn: () => DateTime.parse(json['edited_timestamp'] as String),
+      ),
       referenceType: referenceType,
       snapshots: snapshots,
     );

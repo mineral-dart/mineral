@@ -12,8 +12,10 @@ class DefaultRunningStrategy implements RunningStrategy {
   final PacketDispatcherContract packetDispatcher;
   final LoggerContract _logger;
 
-  DefaultRunningStrategy(this.packetDispatcher, {required LoggerContract logger})
-      : _logger = logger;
+  DefaultRunningStrategy(
+    this.packetDispatcher, {
+    required LoggerContract logger,
+  }) : _logger = logger;
 
   @override
   Future<void> init(RunningStrategyFactory createShards) async {

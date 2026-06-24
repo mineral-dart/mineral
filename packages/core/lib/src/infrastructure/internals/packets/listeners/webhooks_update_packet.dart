@@ -12,17 +12,22 @@ final class WebhooksUpdatePacket implements ListenablePacket {
   final DataStoreContract _dataStore;
 
   WebhooksUpdatePacket({required DataStoreContract dataStore})
-      : _dataStore = dataStore;
+    : _dataStore = dataStore;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final guild =
-        await _dataStore.guild.get(message.payload['guild_id'] as Object, false);
-    final channel =
-        await _dataStore.channel.get<GuildChannel>(message.payload['channel_id'] as Object, false);
+    final guild = await _dataStore.guild.get(
+      message.payload['guild_id'] as Object,
+      false,
+    );
+    final channel = await _dataStore.channel.get<GuildChannel>(
+      message.payload['channel_id'] as Object,
+      false,
+    );
 
     dispatch<GuildWebhooksUpdateArgs>(
-        event: Event.guildWebhooksUpdate,
-        payload: (guild: guild, channel: channel));
+      event: Event.guildWebhooksUpdate,
+      payload: (guild: guild, channel: channel),
+    );
   }
 }

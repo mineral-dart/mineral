@@ -11,8 +11,11 @@ abstract interface class EventListenerContract {
 
   void Function(Event event, Object error, StackTrace stackTrace)? onEventError;
 
-  StreamSubscription listen<T extends Function>(
-      {required Event event, required T handle, required String? customId});
+  StreamSubscription listen<T extends Function>({
+    required Event event,
+    required T handle,
+    required String? customId,
+  });
 
   void unsubscribe(StreamSubscription subscription);
 
@@ -36,29 +39,34 @@ final class EventListener implements EventListenerContract {
   }
 
   @override
-  StreamSubscription listen<T extends Function>(
-      {required Event event, required T handle, required String? customId}) {
+  StreamSubscription listen<T extends Function>({
+    required Event event,
+    required T handle,
+    required String? customId,
+  }) {
     final controller = dispatcher.controllerFor(event);
 
-    final subscription = controller.stream.where((element) {
-      return switch (element.constraint) {
-        final bool Function(String?) constraint => constraint(customId),
-        _ => true
-      };
-    }).listen((element) async {
-      try {
-        await (handle as Function)(element.payload);
-      } on Exception catch (e, stackTrace) {
-        kernel.logger.error('Failed to dispatch event "${event.name}": $e');
-        kernel.logger.trace('$stackTrace');
-        onEventError?.call(event, e, stackTrace);
-        // ignore: avoid_catching_errors, crash-safety boundary for event handlers
-      } on Error catch (e, stackTrace) {
-        kernel.logger.error('Failed to dispatch event "${event.name}": $e');
-        kernel.logger.trace('$stackTrace');
-        onEventError?.call(event, e, stackTrace);
-      }
-    });
+    final subscription = controller.stream
+        .where((element) {
+          return switch (element.constraint) {
+            final bool Function(String?) constraint => constraint(customId),
+            _ => true,
+          };
+        })
+        .listen((element) async {
+          try {
+            await (handle as Function)(element.payload);
+          } on Exception catch (e, stackTrace) {
+            kernel.logger.error('Failed to dispatch event "${event.name}": $e');
+            kernel.logger.trace('$stackTrace');
+            onEventError?.call(event, e, stackTrace);
+            // ignore: avoid_catching_errors, crash-safety boundary for event handlers
+          } on Error catch (e, stackTrace) {
+            kernel.logger.error('Failed to dispatch event "${event.name}": $e');
+            kernel.logger.trace('$stackTrace');
+            onEventError?.call(event, e, stackTrace);
+          }
+        });
 
     _subscriptions.add(subscription);
     return subscription;

@@ -43,8 +43,9 @@ final class Kernel {
     required this.runtimeState,
   }) {
     _watch.start();
-    httpClient.config.headers
-        .add(Header.authorization('Bot ${wss.config.token}'));
+    httpClient.config.headers.add(
+      Header.authorization('Bot ${wss.config.token}'),
+    );
   }
 
   Future<void> init() async {
@@ -55,8 +56,10 @@ final class Kernel {
       rethrow;
     }
 
-    runningStrategy =
-        DefaultRunningStrategy(packetListener.dispatcher, logger: logger);
+    runningStrategy = DefaultRunningStrategy(
+      packetListener.dispatcher,
+      logger: logger,
+    );
 
     try {
       await runningStrategy.init(wss.createShards);
@@ -65,7 +68,9 @@ final class Kernel {
       try {
         await providerManager.dispose();
       } on Exception catch (disposeError) {
-        logger.error('Additionally, providerManager.dispose() failed: $disposeError');
+        logger.error(
+          'Additionally, providerManager.dispose() failed: $disposeError',
+        );
       }
       rethrow;
     }

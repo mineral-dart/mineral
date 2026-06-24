@@ -10,8 +10,9 @@ final class EntitlementUpdatePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final entitlement =
-        Entitlement.fromJson(message.payload as Map<String, dynamic>);
+    final entitlement = Entitlement.fromJson(
+      message.payload as Map<String, dynamic>,
+    );
 
     dispatch<EntitlementUpdateArgs>(
       event: Event.entitlementUpdate,

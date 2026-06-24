@@ -47,10 +47,11 @@ void main() {
           channelName: 'shard-0',
           originalContent: jsonString,
           content: ShardMessage(
-              type: null,
-              opCode: OpCode.unknown,
-              sequence: null,
-              payload: null),
+            type: null,
+            opCode: OpCode.unknown,
+            sequence: null,
+            payload: null,
+          ),
         );
 
         final result = strategy.decode(wsMessage);
@@ -74,10 +75,11 @@ void main() {
           channelName: 'shard-0',
           originalContent: jsonString,
           content: ShardMessage(
-              type: null,
-              opCode: OpCode.unknown,
-              sequence: null,
-              payload: null),
+            type: null,
+            opCode: OpCode.unknown,
+            sequence: null,
+            payload: null,
+          ),
         );
 
         final result = strategy.decode(wsMessage);
@@ -92,44 +94,56 @@ void main() {
           channelName: 'shard-0',
           originalContent: 'not-valid-json{{{',
           content: ShardMessage(
+            type: null,
+            opCode: OpCode.unknown,
+            sequence: null,
+            payload: null,
+          ),
+        );
+
+        expect(
+          () => strategy.decode(wsMessage),
+          throwsA(isA<SerializationException>()),
+        );
+      });
+
+      test(
+        'throws SerializationException when original content is not a string',
+        () {
+          final wsMessage = WebsocketMessageImpl<ShardMessage>(
+            channelName: 'shard-0',
+            originalContent: <int>[1, 2, 3],
+            content: ShardMessage(
               type: null,
               opCode: OpCode.unknown,
               sequence: null,
-              payload: null),
-        );
+              payload: null,
+            ),
+          );
 
-        expect(() => strategy.decode(wsMessage),
-            throwsA(isA<SerializationException>()));
-      });
-
-      test('throws SerializationException when original content is not a string', () {
-        final wsMessage = WebsocketMessageImpl<ShardMessage>(
-          channelName: 'shard-0',
-          originalContent: <int>[1, 2, 3],
-          content: ShardMessage(
-              type: null,
-              opCode: OpCode.unknown,
-              sequence: null,
-              payload: null),
-        );
-
-        expect(() => strategy.decode(wsMessage),
-            throwsA(isA<SerializationException>()));
-      });
+          expect(
+            () => strategy.decode(wsMessage),
+            throwsA(isA<SerializationException>()),
+          );
+        },
+      );
 
       test('throws SerializationException when JSON root is not an object', () {
         final wsMessage = WebsocketMessageImpl<ShardMessage>(
           channelName: 'shard-0',
           originalContent: '[1, 2, 3]',
           content: ShardMessage(
-              type: null,
-              opCode: OpCode.unknown,
-              sequence: null,
-              payload: null),
+            type: null,
+            opCode: OpCode.unknown,
+            sequence: null,
+            payload: null,
+          ),
         );
 
-        expect(() => strategy.decode(wsMessage),
-            throwsA(isA<SerializationException>()));
+        expect(
+          () => strategy.decode(wsMessage),
+          throwsA(isA<SerializationException>()),
+        );
       });
     });
 

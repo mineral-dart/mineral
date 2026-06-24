@@ -19,29 +19,37 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
     required LoggerContract logger,
     required InteractiveComponentManagerContract interactiveComponent,
     required EntityContext ctx,
-  })  : _logger = logger,
-        _interactiveComponentManager = interactiveComponent,
-        _ctx = ctx;
+  }) : _logger = logger,
+       _interactiveComponentManager = interactiveComponent,
+       _ctx = ctx;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final type = InteractionType.values
-        .firstWhereOrNull((e) => e.value == message.payload['type']);
+    final type = InteractionType.values.firstWhereOrNull(
+      (e) => e.value == message.payload['type'],
+    );
 
     final componentType = ComponentType.values.firstWhereOrNull(
-        (e) => e.value == message.payload['data']['component_type']);
+      (e) => e.value == message.payload['data']['component_type'],
+    );
 
     final payload = message.payload as Map<String, dynamic>;
     if (type == InteractionType.messageComponent &&
         componentType == ComponentType.button) {
-      final guildId = Snowflake.nullable((payload['guild'] as Map<String, dynamic>?)?['id'] as String?);
+      final guildId = Snowflake.nullable(
+        (payload['guild'] as Map<String, dynamic>?)?['id'] as String?,
+      );
 
       final type = ComponentType.values.firstWhereOrNull(
-          (e) => e.value == (payload['data'] as Map<String, dynamic>)['component_type']);
+        (e) =>
+            e.value ==
+            (payload['data'] as Map<String, dynamic>)['component_type'],
+      );
 
       if (type == null) {
         _logger.warn(
-            'Component type ${(payload['data'] as Map<String, dynamic>)['component_type']} not found');
+          'Component type ${(payload['data'] as Map<String, dynamic>)['component_type']} not found',
+        );
         return;
       }
 
@@ -53,15 +61,22 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
   }
 
   Future<void> _handleServerButton(
-      Map<String, dynamic> payload, DispatchEvent dispatch) async {
+    Map<String, dynamic> payload,
+    DispatchEvent dispatch,
+  ) async {
     final metadata = payload['message']['interaction_metadata'];
-    final targetButton =
-        findButtonByCustomId(payload, (payload['data'] as Map<String, dynamic>)['custom_id'] as String);
-    final type = ButtonType.values
-        .firstWhereOrNull((e) => e.value == targetButton?['type']);
+    final targetButton = findButtonByCustomId(
+      payload,
+      (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
+    );
+    final type = ButtonType.values.firstWhereOrNull(
+      (e) => e.value == targetButton?['type'],
+    );
 
     if (type == null) {
-      _logger.warn('Button type ${(metadata as Map<String, dynamic>)['type']} not found');
+      _logger.warn(
+        'Button type ${(metadata as Map<String, dynamic>)['type']} not found',
+      );
       return;
     }
 
@@ -71,29 +86,42 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
       applicationId: Snowflake.parse(payload['application_id']),
       version: payload['version'] as int,
       token: payload['token'] as String,
-      customId: (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
-      channelId: Snowflake.parse((payload['message'] as Map<String, dynamic>)['channel_id']),
-      messageId: Snowflake.parse((payload['message'] as Map<String, dynamic>)['id']),
+      customId:
+          (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
+      channelId: Snowflake.parse(
+        (payload['message'] as Map<String, dynamic>)['channel_id'],
+      ),
+      messageId: Snowflake.parse(
+        (payload['message'] as Map<String, dynamic>)['id'],
+      ),
     );
 
     dispatch<GuildButtonClickArgs>(
-        event: Event.guildButtonClick,
-        payload: (ctx: ctx),
-        constraint: (String? customId) => customId == ctx.customId);
+      event: Event.guildButtonClick,
+      payload: (ctx: ctx),
+      constraint: (String? customId) => customId == ctx.customId,
+    );
 
     _interactiveComponentManager.dispatch(ctx.customId, [ctx]);
   }
 
   Future<void> _handlePrivateButton(
-      Map<String, dynamic> payload, DispatchEvent dispatch) async {
+    Map<String, dynamic> payload,
+    DispatchEvent dispatch,
+  ) async {
     final metadata = payload['message']['interaction_metadata'];
-    final targetButton =
-        findButtonByCustomId(payload, (payload['data'] as Map<String, dynamic>)['custom_id'] as String);
-    final type = ButtonType.values
-        .firstWhereOrNull((e) => e.value == targetButton?['custom_id']);
+    final targetButton = findButtonByCustomId(
+      payload,
+      (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
+    );
+    final type = ButtonType.values.firstWhereOrNull(
+      (e) => e.value == targetButton?['custom_id'],
+    );
 
     if (type == null) {
-      _logger.warn('Button type ${(metadata as Map<String, dynamic>)['type']} not found');
+      _logger.warn(
+        'Button type ${(metadata as Map<String, dynamic>)['type']} not found',
+      );
       return;
     }
 
@@ -103,20 +131,29 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
       applicationId: Snowflake.parse(payload['application_id']),
       version: payload['version'] as int,
       token: payload['token'] as String,
-      customId: (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
-      authorId: Snowflake.parse(((payload['member'] as Map<String, dynamic>)['user'] as Map<String, dynamic>)['id']),
+      customId:
+          (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
+      authorId: Snowflake.parse(
+        ((payload['member'] as Map<String, dynamic>)['user']
+            as Map<String, dynamic>)['id'],
+      ),
       channelId: Snowflake.parse(payload['channel_id']),
-      messageId: Snowflake.parse((payload['message'] as Map<String, dynamic>)['id']),
+      messageId: Snowflake.parse(
+        (payload['message'] as Map<String, dynamic>)['id'],
+      ),
     );
 
     dispatch<PrivateButtonClickArgs>(
-        event: Event.privateButtonClick,
-        payload: (ctx: ctx),
-        constraint: (String? customId) => customId == ctx.customId);
+      event: Event.privateButtonClick,
+      payload: (ctx: ctx),
+      constraint: (String? customId) => customId == ctx.customId,
+    );
   }
 
   Map<String, dynamic>? findButtonByCustomId(
-      Map<String, dynamic> payload, String customId) {
+    Map<String, dynamic> payload,
+    String customId,
+  ) {
     final components = payload['message']['components'] as List<dynamic>?;
     if (components == null) {
       return null;

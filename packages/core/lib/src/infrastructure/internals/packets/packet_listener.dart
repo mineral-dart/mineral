@@ -131,17 +131,25 @@ final class PacketListener implements PacketListenerContract {
     final ic = interactiveComponent;
     final cm = commandManager;
 
-    subscribe(ReadyPacket(
+    subscribe(
+      ReadyPacket(
         marshaller: m,
         commandManager: cm,
         wss: wss,
         runtimeState: runtimeState,
         entityContext: entityContext,
-        cacheConfig: cacheConfig));
+        cacheConfig: cacheConfig,
+      ),
+    );
     subscribe(MessageCreatePacket(marshaller: m));
     subscribe(MessageUpdatePacket(marshaller: m));
-    subscribe(GuildCreatePacket(
-        marshaller: m, commandManager: cm, runtimeState: runtimeState));
+    subscribe(
+      GuildCreatePacket(
+        marshaller: m,
+        commandManager: cm,
+        runtimeState: runtimeState,
+      ),
+    );
     subscribe(GuildUpdatePacket(marshaller: m));
     subscribe(GuildDeletePacket(marshaller: m));
     subscribe(UserUpdatePacket(marshaller: m));
@@ -162,7 +170,9 @@ final class PacketListener implements PacketListenerContract {
     subscribe(GuildBanRemovePacket(marshaller: m, dataStore: ds));
     subscribe(GuildEmojisUpdatePacket(marshaller: m, dataStore: ds));
     subscribe(GuildStickersUpdatePacket(marshaller: m, dataStore: ds));
-    subscribe(GuildAuditLogEntryCreatePacket(logger: logger, ctx: entityContext));
+    subscribe(
+      GuildAuditLogEntryCreatePacket(logger: logger, ctx: entityContext),
+    );
 
     subscribe(MessageDeletePacket(marshaller: m, dataStore: ds));
     subscribe(MessageDeleteBulkPacket(marshaller: m, dataStore: ds));
@@ -172,21 +182,32 @@ final class PacketListener implements PacketListenerContract {
     subscribe(MessageReactionRemoveAllPacket(dataStore: ds));
     subscribe(MessageReactionRemoveEmojiPacket(dataStore: ds));
 
-    subscribe(ButtonInteractionCreatePacket(
-        logger: logger, interactiveComponent: ic, ctx: entityContext));
+    subscribe(
+      ButtonInteractionCreatePacket(
+        logger: logger,
+        interactiveComponent: ic,
+        ctx: entityContext,
+      ),
+    );
     subscribe(CommandInteractionCreatePacket(commandManager: cm));
-    subscribe(SelectInteractionCreatePacket(
+    subscribe(
+      SelectInteractionCreatePacket(
         logger: logger,
         marshaller: m,
         dataStore: ds,
         interactiveComponent: ic,
-        entityContext: entityContext));
-    subscribe(ModalInteractionCreatePacket(
+        entityContext: entityContext,
+      ),
+    );
+    subscribe(
+      ModalInteractionCreatePacket(
         logger: logger,
         marshaller: m,
         dataStore: ds,
         interactiveComponent: ic,
-        entityContext: entityContext));
+        entityContext: entityContext,
+      ),
+    );
 
     subscribe(ThreadCreatePacket(marshaller: m, dataStore: ds));
     subscribe(ThreadUpdatePacket(marshaller: m, dataStore: ds));
@@ -207,8 +228,7 @@ final class PacketListener implements PacketListenerContract {
     subscribe(MessagePollVoteAddPacket(dataStore: ds));
     subscribe(MessagePollVoteRemovePacket(dataStore: ds));
 
-    subscribe(
-        ApplicationCommandPermissionsUpdatePacket(dataStore: ds));
+    subscribe(ApplicationCommandPermissionsUpdatePacket(dataStore: ds));
 
     subscribe(GuildIntegrationsUpdatePacket(dataStore: ds));
     subscribe(IntegrationCreatePacket(dataStore: ds));

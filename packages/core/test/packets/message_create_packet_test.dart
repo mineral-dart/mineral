@@ -19,72 +19,72 @@ const _authorId = '987654321098765432';
 // ── Payload builders ──────────────────────────────────────────────────────────
 
 Map<String, dynamic> _guildMessagePayload() => {
-      'id': _messageId,
-      'channel_id': _channelId,
-      'guild_id': _guildId,
-      'author': {
-        'id': _authorId,
-        'username': 'TestUser',
-        'discriminator': '0000',
-        'avatar': null,
-        'bot': false,
-        'global_name': null,
-        'public_flags': 0,
-      },
-      'content': 'Hello from a guild!',
-      'embeds': <Map<String, dynamic>>[],
-      'timestamp': '2024-06-01T12:00:00.000Z',
-      'edited_timestamp': null,
-      'type': 0, // MessageType.initial
-      'attachments': <dynamic>[],
-      'mentions': <dynamic>[],
-      'mention_roles': <dynamic>[],
-      'mention_channels': <dynamic>[],
-      'pinned': false,
-      'mention_everyone': false,
-      'tts': false,
-      'flags': 0,
-    };
+  'id': _messageId,
+  'channel_id': _channelId,
+  'guild_id': _guildId,
+  'author': {
+    'id': _authorId,
+    'username': 'TestUser',
+    'discriminator': '0000',
+    'avatar': null,
+    'bot': false,
+    'global_name': null,
+    'public_flags': 0,
+  },
+  'content': 'Hello from a guild!',
+  'embeds': <Map<String, dynamic>>[],
+  'timestamp': '2024-06-01T12:00:00.000Z',
+  'edited_timestamp': null,
+  'type': 0, // MessageType.initial
+  'attachments': <dynamic>[],
+  'mentions': <dynamic>[],
+  'mention_roles': <dynamic>[],
+  'mention_channels': <dynamic>[],
+  'pinned': false,
+  'mention_everyone': false,
+  'tts': false,
+  'flags': 0,
+};
 
 Map<String, dynamic> _privateMessagePayload() => {
-      'id': _messageId,
-      'channel_id': _channelId,
-      // no guild_id → private message
-      'author': {
-        'id': _authorId,
-        'username': 'TestUser',
-        'discriminator': '0000',
-        'avatar': null,
-        'bot': false,
-        'global_name': null,
-        'public_flags': 0,
-      },
-      'content': 'Hello from a DM!',
-      'embeds': <Map<String, dynamic>>[],
-      'timestamp': '2024-06-01T12:00:00.000Z',
-      'edited_timestamp': null,
-      'type': 0, // MessageType.initial
-      'attachments': <dynamic>[],
-      'mentions': <dynamic>[],
-      'mention_roles': <dynamic>[],
-      'mention_channels': <dynamic>[],
-      'pinned': false,
-      'mention_everyone': false,
-      'tts': false,
-      'flags': 0,
-    };
+  'id': _messageId,
+  'channel_id': _channelId,
+  // no guild_id → private message
+  'author': {
+    'id': _authorId,
+    'username': 'TestUser',
+    'discriminator': '0000',
+    'avatar': null,
+    'bot': false,
+    'global_name': null,
+    'public_flags': 0,
+  },
+  'content': 'Hello from a DM!',
+  'embeds': <Map<String, dynamic>>[],
+  'timestamp': '2024-06-01T12:00:00.000Z',
+  'edited_timestamp': null,
+  'type': 0, // MessageType.initial
+  'attachments': <dynamic>[],
+  'mentions': <dynamic>[],
+  'mention_roles': <dynamic>[],
+  'mention_channels': <dynamic>[],
+  'pinned': false,
+  'mention_everyone': false,
+  'tts': false,
+  'flags': 0,
+};
 
 Map<String, dynamic> _replyPayload() => {
-      ..._guildMessagePayload(),
-      'type': 19, // MessageType.reply (Discord value 19)
-      'content': 'A reply message',
-    };
+  ..._guildMessagePayload(),
+  'type': 19, // MessageType.reply (Discord value 19)
+  'content': 'A reply message',
+};
 
 Map<String, dynamic> _unsupportedTypePayload() => {
-      ..._guildMessagePayload(),
-      'type': 3, // Not initial or reply
-      'content': 'Should be ignored',
-    };
+  ..._guildMessagePayload(),
+  'type': 3, // Not initial or reply
+  'content': 'Should be ignored',
+};
 
 ShardMessage<dynamic> _buildMessage(Map<String, dynamic> payload) =>
     ShardMessage(
@@ -120,10 +120,11 @@ void main() {
     test('dispatches Event.guildMessageCreate for guild messages', () async {
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -135,10 +136,11 @@ void main() {
     test('payload is GuildMessageCreateArgs for guild messages', () async {
       Object? capturedPayload;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedPayload = payload;
       }
 
@@ -153,10 +155,11 @@ void main() {
     test('guild message is a GuildMessage', () async {
       GuildMessage? capturedMsg;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.guildMessageCreate) {
           capturedMsg = (payload as GuildMessageCreateArgs).message;
         }
@@ -172,10 +175,11 @@ void main() {
     test('dispatches Event.privateMessageCreate for DM messages', () async {
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -187,10 +191,11 @@ void main() {
     test('payload is PrivateMessageCreateArgs for DM messages', () async {
       Object? capturedPayload;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedPayload = payload;
       }
 
@@ -205,10 +210,11 @@ void main() {
     test('private message is a PrivateMessage', () async {
       PrivateMessage? capturedMsg;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         if (event == Event.privateMessageCreate) {
           capturedMsg = (payload as PrivateMessageCreateArgs).message;
         }
@@ -226,10 +232,11 @@ void main() {
       // The packet checks for MessageType.initial.value and MessageType.reply.value
       Event? capturedEvent;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         capturedEvent = event;
       }
 
@@ -249,10 +256,11 @@ void main() {
     test('does not dispatch for unsupported message types', () async {
       bool dispatched = false;
 
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {
         dispatched = true;
       }
 
@@ -264,15 +272,18 @@ void main() {
     // ── cache side-effect ─────────────────────────────────────────────────────
 
     test('message is cached after guild message dispatch', () async {
-      void dispatch<T extends Object>(
-          {required Event event,
-          required T payload,
-          bool Function(String?)? constraint}) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
       await packet.listen(_buildMessage(_guildMessagePayload()), dispatch);
 
-      final messageCacheKey =
-          marshaller.cacheKey.message(_channelId, _messageId);
+      final messageCacheKey = marshaller.cacheKey.message(
+        _channelId,
+        _messageId,
+      );
       final cached = await cache.get(messageCacheKey);
       expect(cached, isNotNull);
     });

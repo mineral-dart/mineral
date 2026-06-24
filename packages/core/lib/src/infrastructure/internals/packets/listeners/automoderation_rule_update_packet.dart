@@ -13,23 +13,30 @@ final class AutoModerationRuleUpdatePacket implements ListenablePacket {
   final MarshallerContract _marshaller;
 
   AutoModerationRuleUpdatePacket({required MarshallerContract marshaller})
-      : _marshaller = marshaller;
+    : _marshaller = marshaller;
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final ruleId = Snowflake.parse(message.payload['id']);
-    final ruleCacheKey = _marshaller.cacheKey
-        .guildRules(message.payload['guild_id'] as Object, ruleId.value);
+    final ruleCacheKey = _marshaller.cacheKey.guildRules(
+      message.payload['guild_id'] as Object,
+      ruleId.value,
+    );
     final rawBeforeRule = await _marshaller.cache?.get(ruleCacheKey);
     final before = await Helper.createOrNullAsync<AutoModerationRule>(
-        field: rawBeforeRule,
-        fn: () async =>
-            await _marshaller.serializers.rules.serialize(rawBeforeRule!));
+      field: rawBeforeRule,
+      fn: () async =>
+          await _marshaller.serializers.rules.serialize(rawBeforeRule!),
+    );
 
-    final rawAfterRule =
-        await _marshaller.serializers.rules.normalize(message.payload as Map<String, dynamic>);
+    final rawAfterRule = await _marshaller.serializers.rules.normalize(
+      message.payload as Map<String, dynamic>,
+    );
     final after = await _marshaller.serializers.rules.serialize(rawAfterRule);
 
-    dispatch<GuildRuleUpdateArgs>(event: Event.guildRuleUpdate, payload: (before: before, after: after));
+    dispatch<GuildRuleUpdateArgs>(
+      event: Event.guildRuleUpdate,
+      payload: (before: before, after: after),
+    );
   }
 }

@@ -7,16 +7,13 @@ final class Section implements MessageComponent {
   final Button? _button;
   final Thumbnail? _thumbnail;
 
-  Section({
-    required this.builder,
-    Button? button,
-    Thumbnail? thumbnail,
-  })  : assert(
-          button == null || thumbnail == null,
-          'Accessory must be either a button or a thumbnail, not both.',
-        ),
-        _button = button,
-        _thumbnail = thumbnail;
+  Section({required this.builder, Button? button, Thumbnail? thumbnail})
+    : assert(
+        button == null || thumbnail == null,
+        'Accessory must be either a button or a thumbnail, not both.',
+      ),
+      _button = button,
+      _thumbnail = thumbnail;
 
   @override
   Map<String, dynamic> toJson() {
