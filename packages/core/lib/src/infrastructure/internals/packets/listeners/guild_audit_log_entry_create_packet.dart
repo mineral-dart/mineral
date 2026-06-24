@@ -1,7 +1,7 @@
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/src/api/server/audit_log/audit_log.dart';
-import 'package:mineral/src/api/server/audit_log/audit_log_action.dart';
+import 'package:mineral/src/api/guild/audit_log/audit_log.dart';
+import 'package:mineral/src/api/guild/audit_log/audit_log_action.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/_default.dart';
@@ -10,6 +10,7 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_log
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/channel.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/channel_overwrite.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/emoji.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/guild.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/guild_scheduled_event.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/integration.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/invite.dart';
@@ -17,7 +18,6 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_log
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/message.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/other.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/role.dart';
-import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/server.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/stage_instance.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/sticker.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/audit_logs/thread.dart';
@@ -56,8 +56,8 @@ final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
       AuditLogType.roleUpdate => roleUpdateAuditLogHandler(payload, ctx),
       AuditLogType.roleDelete => roleDeleteAuditLogHandler(payload, ctx),
 
-      // Server
-      AuditLogType.guildUpdate => serverUpdateAuditLogHandler(payload, ctx),
+      // Guild
+      AuditLogType.guildUpdate => guildUpdateAuditLogHandler(payload, ctx),
 
       // Channel
       AuditLogType.channelCreate => channelCreateAuditLogHandler(payload, ctx),
@@ -185,8 +185,8 @@ final class GuildAuditLogEntryCreatePacket implements ListenablePacket {
       logger.warn('Audit log action not found ${action.type}');
     }
 
-    dispatch<ServerAuditLogArgs>(
-      event: Event.serverAuditLog,
+    dispatch<GuildAuditLogArgs>(
+      event: Event.guildAuditLog,
       payload: (audit: auditLog),
     );
   }

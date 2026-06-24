@@ -25,8 +25,8 @@ final class ChannelCreatePacket implements ListenablePacket {
         await _marshaller.serializers.channels.serialize(rawChannel);
 
     return switch (channel) {
-      ServerChannel() => dispatch<ServerChannelCreateArgs>(
-          event: Event.serverChannelCreate, payload: (channel: channel)),
+      GuildChannel() => dispatch<GuildChannelCreateArgs>(
+          event: Event.guildChannelCreate, payload: (channel: channel)),
       PrivateChannel() => dispatch<PrivateChannelCreateArgs>(
           event: Event.privateChannelCreate, payload: (channel: channel)),
       _ => _logger

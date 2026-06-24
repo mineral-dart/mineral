@@ -40,6 +40,6 @@ final class FakeResponse<T> implements Response<T> {
       FakeResponse(200, body, bodyString: '{}');
 
   /// Convenience: a 500 response.
-  static FakeResponse<Map<String, dynamic>> serverError() =>
-      FakeResponse(500, const {}, bodyString: 'Internal Server Error');
+  static FakeResponse<Map<String, dynamic>> guildError() =>
+      FakeResponse(500, const {}, bodyString: 'Internal Guild Error');
 }

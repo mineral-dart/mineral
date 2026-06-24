@@ -3,7 +3,7 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 enum TypingType {
-  server,
+  guild,
   private,
 }
 
@@ -12,8 +12,8 @@ final class Typing {
   final EntityContext _ctx;
   DataStoreContract get _datastore => _ctx.datastore;
 
-  /// The ID of the server where the typing occurred.
-  final Snowflake? serverId;
+  /// The ID of the guild where the typing occurred.
+  final Snowflake? guildId;
 
   /// The ID of the channel where the typing occurred.
   final Snowflake channelId;
@@ -26,14 +26,14 @@ final class Typing {
 
   Typing({
     required EntityContext ctx,
-    required this.serverId,
+    required this.guildId,
     required this.channelId,
     required this.userId,
     required this.timestamp,
   }) : _ctx = ctx;
 
   TypingType get type =>
-      serverId == null ? TypingType.private : TypingType.server;
+      guildId == null ? TypingType.private : TypingType.guild;
 
   /// Represents a typing indicator in a channel.
   ///
@@ -66,23 +66,23 @@ final class Typing {
   /// Parameters:
   /// - [force] Whether to force fetch the member from the API instead of cache. Defaults to false.
   Future<Member?> resolveMember({bool force = false}) {
-    return _datastore.member.get(serverId!.value, userId.value, force);
+    return _datastore.member.get(guildId!.value, userId.value, force);
   }
 
-  /// Resolves the server where the typing occurred.
+  /// Resolves the guild where the typing occurred.
   ///
   /// Example:
   /// ```dart
   /// client.events.typing((Typing typing) async {
-  ///   final server = await typing.resolveServer();
-  ///   print('Someone is typing in ${server?.name}');
+  ///   final guild = await typing.resolveServer();
+  ///   print('Someone is typing in ${guild?.name}');
   /// });
   /// ```
   ///
   /// Parameters:
-  /// - [force] Whether to force fetch the server from the API instead of cache. Defaults to false.
-  Future<Server?> resolveServer({bool force = false}) {
-    return _datastore.server.get(serverId!.value, force);
+  /// - [force] Whether to force fetch the guild from the API instead of cache. Defaults to false.
+  Future<Guild?> resolveServer({bool force = false}) {
+    return _datastore.guild.get(guildId!.value, force);
   }
 
   /// Resolves the channel where the typing occurred.

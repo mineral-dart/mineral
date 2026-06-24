@@ -51,13 +51,13 @@ final class WelcomeProvider extends Provider {
 
 ### Welcoming a new member
 
-React to a member joining the server and send a message in the system channel.
+React to a member joining the guild and send a message in the system channel.
 
 ```dart
-final class OnMemberJoin extends ServerMemberAddEvent {
+final class OnMemberJoin extends GuildMemberAddEvent {
   @override
-  Future<void> handle(Member member, Server server) async {
-    final channel = await server.channels.resolveSystemChannel();
+  Future<void> handle(Member member, Guild guild) async {
+    final channel = await guild.channels.resolveSystemChannel();
     await channel?.send(MessageBuilder.text('Welcome, ${member.username}!'));
   }
 }
@@ -71,7 +71,7 @@ Declare a `/say` command that repeats a message back to the user.
 
 ```dart
 final class SayCommand implements CommandDeclaration {
-  Future<void> handle(ServerCommandContext ctx, CommandOptions options) async {
+  Future<void> handle(GuildCommandContext ctx, CommandOptions options) async {
     final message = options.require<String>('message');
     await ctx.interaction.reply(builder: MessageBuilder.text(message));
   }
@@ -94,12 +94,12 @@ final class SayCommand implements CommandDeclaration {
 Bind a button to a handler by its `customId`. Mineral routes the click automatically — no switch statement, no manual dispatch.
 
 ```dart
-final class FeedbackButton extends ServerButtonClickEvent {
+final class FeedbackButton extends GuildButtonClickEvent {
   @override
   String? get customId => 'open_feedback';
 
   @override
-  Future<void> handle(ServerButtonContext ctx) async {
+  Future<void> handle(GuildButtonContext ctx) async {
     await ctx.interaction.reply(
       builder: MessageBuilder.text('Thanks for your feedback!'),
     );

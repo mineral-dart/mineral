@@ -3,17 +3,17 @@ import 'dart:async';
 import 'package:mineral/api.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/domains/common/kernel.dart';
+import 'package:mineral/src/domains/events/buckets/guild_bucket.dart';
 import 'package:mineral/src/domains/events/buckets/private_bucket.dart';
-import 'package:mineral/src/domains/events/buckets/server_bucket.dart';
 
 final class EventBucket {
   final Kernel _kernel;
 
-  late final ServerBucket server;
+  late final GuildBucket guild;
   late final PrivateBucket private;
 
   EventBucket(this._kernel) {
-    server = ServerBucket(this);
+    guild = GuildBucket(this);
     private = PrivateBucket(this);
   }
 

@@ -20,15 +20,15 @@ final class GuildMemberRemovePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final server =
-        await _dataStore.server.get(message.payload['guild_id'] as Object, false);
+    final guild =
+        await _dataStore.guild.get(message.payload['guild_id'] as Object, false);
     final userId =
         (message.payload['user'] as Map<String, dynamic>)['id'] as Object;
     final user = await _dataStore.user.get(userId, false);
 
-    final memberCacheKey = _marshaller.cacheKey.member(server.id.value, userId);
+    final memberCacheKey = _marshaller.cacheKey.member(guild.id.value, userId);
     await _marshaller.cache.invalidate(memberCacheKey);
 
-    dispatch<ServerMemberRemoveArgs>(event: Event.serverMemberRemove, payload: (user: user, server: server));
+    dispatch<GuildMemberRemoveArgs>(event: Event.guildMemberRemove, payload: (user: user, guild: guild));
   }
 }

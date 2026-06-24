@@ -15,7 +15,7 @@ import 'package:mineral/src/api/common/components/text_display.dart';
 ///
 /// ```dart
 /// final builder = MessageBuilder()
-///   ..addText('# Welcome to our server!')
+///   ..addText('# Welcome to our guild!')
 ///   ..addSeparator()
 ///   ..addText('Please read the rules before posting.')
 ///   ..addButtons([

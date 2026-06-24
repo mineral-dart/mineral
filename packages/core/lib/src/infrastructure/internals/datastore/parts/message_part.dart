@@ -275,7 +275,7 @@ final class MessagePart extends BasePart implements MessagePartContract {
 
   @override
   Future<PollAnswerVote> getPollVotes(
-    Snowflake? serverId,
+    Snowflake? guildId,
     Snowflake channelId,
     Snowflake messageId,
     int answerId,
@@ -289,7 +289,7 @@ final class MessagePart extends BasePart implements MessagePartContract {
     body['id'] = answerId;
     body['message_id'] = messageId.value;
     body['channel_id'] = channelId.value;
-    body['server_id'] = serverId?.value;
+    body['guild_id'] = guildId?.value;
 
     final answerPayload =
         await marshaller.serializers.pollAnswerVote.normalize(body);

@@ -10,11 +10,11 @@ final class GuildScheduledEventPart extends BasePart
 
   @override
   Future<Map<Snowflake, GuildScheduledEvent>> fetchForServer(
-    Object serverId, {
+    Object guildId, {
     bool? withUserCount,
   }) async {
     final req = Request.json(
-      endpoint: '/guilds/$serverId/scheduled-events',
+      endpoint: '/guilds/$guildId/scheduled-events',
       queryParameters: {
         if (withUserCount != null) 'with_user_count': withUserCount.toString(),
       },
@@ -33,12 +33,12 @@ final class GuildScheduledEventPart extends BasePart
 
   @override
   Future<GuildScheduledEvent?> get(
-    Object serverId,
+    Object guildId,
     Object id,
     bool force, {
     bool? withUserCount,
   }) async {
-    final cacheKey = marshaller.cacheKey.scheduledEvent(serverId, id);
+    final cacheKey = marshaller.cacheKey.scheduledEvent(guildId, id);
 
     final cached = await marshaller.cache?.get(cacheKey);
     if (!force && cached != null) {
@@ -46,7 +46,7 @@ final class GuildScheduledEventPart extends BasePart
     }
 
     final req = Request.json(
-      endpoint: '/guilds/$serverId/scheduled-events/$id',
+      endpoint: '/guilds/$guildId/scheduled-events/$id',
       queryParameters: {
         if (withUserCount != null) 'with_user_count': withUserCount.toString(),
       },
@@ -60,7 +60,7 @@ final class GuildScheduledEventPart extends BasePart
 
   @override
   Future<GuildScheduledEvent> create({
-    required Object serverId,
+    required Object guildId,
     required String name,
     required GuildScheduledEventPrivacyLevel privacyLevel,
     required DateTime scheduledStartTime,
@@ -86,7 +86,7 @@ final class GuildScheduledEventPart extends BasePart
     };
 
     final req = Request.json(
-      endpoint: '/guilds/$serverId/scheduled-events',
+      endpoint: '/guilds/$guildId/scheduled-events',
       body: body,
       headers: {DiscordHeader.auditLogReason(reason)},
     );
@@ -100,7 +100,7 @@ final class GuildScheduledEventPart extends BasePart
 
   @override
   Future<GuildScheduledEvent?> update({
-    required Object serverId,
+    required Object guildId,
     required Object id,
     Object? channelId,
     GuildScheduledEventEntityMetadata? entityMetadata,
@@ -130,7 +130,7 @@ final class GuildScheduledEventPart extends BasePart
     };
 
     final req = Request.json(
-      endpoint: '/guilds/$serverId/scheduled-events/$id',
+      endpoint: '/guilds/$guildId/scheduled-events/$id',
       body: body,
       headers: {DiscordHeader.auditLogReason(reason)},
     );
@@ -144,12 +144,12 @@ final class GuildScheduledEventPart extends BasePart
 
   @override
   Future<void> delete({
-    required Object serverId,
+    required Object guildId,
     required Object id,
     String? reason,
   }) async {
     final req = Request.json(
-      endpoint: '/guilds/$serverId/scheduled-events/$id',
+      endpoint: '/guilds/$guildId/scheduled-events/$id',
       headers: {DiscordHeader.auditLogReason(reason)},
     );
     await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
@@ -157,7 +157,7 @@ final class GuildScheduledEventPart extends BasePart
 
   @override
   Future<List<GuildScheduledEventUser>> fetchUsers({
-    required Object serverId,
+    required Object guildId,
     required Object id,
     int? limit,
     bool? withMember,
@@ -165,7 +165,7 @@ final class GuildScheduledEventPart extends BasePart
     Object? after,
   }) async {
     final req = Request.json(
-      endpoint: '/guilds/$serverId/scheduled-events/$id/users',
+      endpoint: '/guilds/$guildId/scheduled-events/$id/users',
       queryParameters: {
         if (limit != null) 'limit': limit.toString(),
         if (withMember != null) 'with_member': withMember.toString(),

@@ -84,7 +84,7 @@ void main() {
     });
 
     group('fetchForServer', () {
-      test('sends GET to /guilds/:serverId/webhooks', () async {
+      test('sends GET to /guilds/:guildId/webhooks', () async {
         rebuildWith([
           FakeResponse<List<Map<String, dynamic>>>(200, [webhookResponse()]),
         ]);

@@ -48,7 +48,7 @@ void main() {
 
     test('uses a disabled TTL policy', () {
       expect(config.ttlPolicy.ttlFor('users/123'), isNull);
-      expect(config.ttlPolicy.ttlFor('server/1/members/2'), isNull);
+      expect(config.ttlPolicy.ttlFor('guild/1/members/2'), isNull);
     });
   });
 

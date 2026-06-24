@@ -2,7 +2,7 @@
 ///
 /// Rules are matched in declaration order; the first match wins. A rule whose
 /// pattern starts with `/` matches any key that *contains* that path segment
-/// (e.g. `/members/` matches `server/123/members/456`). Any other pattern is
+/// (e.g. `/members/` matches `guild/123/members/456`). Any other pattern is
 /// treated as a prefix (e.g. `users/` matches `users/789`).
 ///
 /// `null` TTL means "never expire".
@@ -46,7 +46,7 @@ final class CacheTtlPolicy {
 
 const _defaultRules = <_Rule>[
   // Top-level prefixes for entities that contain sub-paths matching segment
-  // rules below (e.g. 'voice_states/server/.../members/...') must be matched
+  // rules below (e.g. 'voice_states/guild/.../members/...') must be matched
   // before the segment rules to take priority over them.
   _Rule._prefix('ref:', null),
   _Rule._prefix('voice_states/', Duration(minutes: 5)),
@@ -55,7 +55,7 @@ const _defaultRules = <_Rule>[
   _Rule._segment('/emojis/', Duration(hours: 12)),
   _Rule._segment('/stickers/', Duration(hours: 12)),
   _Rule._segment('/messages/', Duration(minutes: 10)),
-  _Rule._prefix('server/', Duration(hours: 4)),
+  _Rule._prefix('guild/', Duration(hours: 4)),
   _Rule._prefix('channels/', Duration(hours: 2)),
   _Rule._prefix('users/', Duration(hours: 1)),
   _Rule._prefix('threads/', Duration(hours: 2)),

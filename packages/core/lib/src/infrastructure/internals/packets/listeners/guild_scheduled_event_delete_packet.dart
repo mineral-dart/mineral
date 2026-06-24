@@ -19,16 +19,16 @@ final class GuildScheduledEventDeletePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final server = await _dataStore.server
+    final guild = await _dataStore.guild
         .get(message.payload['guild_id'] as Object, false);
 
     final raw = await _marshaller.serializers.scheduledEvent
         .normalize(message.payload as Map<String, dynamic>);
     final event = await _marshaller.serializers.scheduledEvent.serialize(raw);
 
-    dispatch<ServerScheduledEventDeleteArgs>(
-      event: Event.serverScheduledEventDelete,
-      payload: (server: server, event: event),
+    dispatch<GuildScheduledEventDeleteArgs>(
+      event: Event.guildScheduledEventDelete,
+      payload: (guild: guild, event: event),
     );
   }
 }

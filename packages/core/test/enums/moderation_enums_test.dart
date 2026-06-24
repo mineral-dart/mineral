@@ -1,7 +1,7 @@
-import 'package:mineral/src/api/server/moderation/enums/action_type.dart';
-import 'package:mineral/src/api/server/moderation/enums/auto_moderation_event_type.dart';
-import 'package:mineral/src/api/server/moderation/enums/keyword_preset_type.dart';
-import 'package:mineral/src/api/server/moderation/enums/trigger_type.dart';
+import 'package:mineral/src/api/guild/moderation/enums/action_type.dart';
+import 'package:mineral/src/api/guild/moderation/enums/auto_moderation_event_type.dart';
+import 'package:mineral/src/api/guild/moderation/enums/keyword_preset_type.dart';
+import 'package:mineral/src/api/guild/moderation/enums/trigger_type.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
 import 'package:test/test.dart';
 

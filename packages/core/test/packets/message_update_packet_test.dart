@@ -15,7 +15,7 @@ void main() {
     late FakeMarshaller marshaller;
     late MessageUpdatePacket packet;
 
-    /// A minimal raw Discord MESSAGE_UPDATE payload for a server (guild) message.
+    /// A minimal raw Discord MESSAGE_UPDATE payload for a guild (guild) message.
     Map<String, dynamic> rawServerPayload() => {
           'id': '111222333444555666',
           'channel_id': '777888999000111222',
@@ -66,9 +66,9 @@ void main() {
       expect(packet.packetType.name, equals('MESSAGE_UPDATE'));
     });
 
-    // ── server branch ────────────────────────────────────────────────────────
+    // ── guild branch ────────────────────────────────────────────────────────
 
-    test('dispatches Event.serverMessageUpdate for guild messages', () async {
+    test('dispatches Event.guildMessageUpdate for guild messages', () async {
       Event? capturedEvent;
       Object? capturedPayload;
 
@@ -82,23 +82,23 @@ void main() {
 
       await packet.listen(buildMessage(rawServerPayload()), dispatch);
 
-      expect(capturedEvent, equals(Event.serverMessageUpdate));
-      expect(capturedPayload, isA<ServerMessageUpdateArgs>());
+      expect(capturedEvent, equals(Event.guildMessageUpdate));
+      expect(capturedPayload, isA<GuildMessageUpdateArgs>());
 
-      final args = capturedPayload as ServerMessageUpdateArgs;
+      final args = capturedPayload as GuildMessageUpdateArgs;
       expect(args.after.id, equals(Snowflake('111222333444555666')));
       expect(args.after.content, equals('edited content'));
     });
 
-    test('before is null on cache miss (server message)', () async {
-      ServerMessageUpdateArgs? capturedArgs;
+    test('before is null on cache miss (guild message)', () async {
+      GuildMessageUpdateArgs? capturedArgs;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverMessageUpdate) {
-          capturedArgs = payload as ServerMessageUpdateArgs;
+        if (event == Event.guildMessageUpdate) {
+          capturedArgs = payload as GuildMessageUpdateArgs;
         }
       }
 
@@ -108,7 +108,7 @@ void main() {
       expect(capturedArgs!.before, isNull);
     });
 
-    test('before is populated when server message is already in cache',
+    test('before is populated when guild message is already in cache',
         () async {
       // Pre-populate the cache with the old message state (normalized format).
       final messageCacheKey = marshaller.cacheKey
@@ -119,20 +119,20 @@ void main() {
         'content': 'original content',
         'embeds': <Map<String, dynamic>>[],
         'channel_id': '777888999000111222',
-        'server_id': '123456789012345678',
+        'guild_id': '123456789012345678',
         'author_is_bot': false,
         'timestamp': '2024-06-01T12:00:00.000Z',
         'edited_timestamp': null,
       });
 
-      ServerMessageUpdateArgs? capturedArgs;
+      GuildMessageUpdateArgs? capturedArgs;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverMessageUpdate) {
-          capturedArgs = payload as ServerMessageUpdateArgs;
+        if (event == Event.guildMessageUpdate) {
+          capturedArgs = payload as GuildMessageUpdateArgs;
         }
       }
 
@@ -196,7 +196,7 @@ void main() {
         'content': 'original DM content',
         'embeds': <Map<String, dynamic>>[],
         'channel_id': '777888999000111222',
-        'server_id': null,
+        'guild_id': null,
         'author_is_bot': false,
         'timestamp': '2024-06-01T12:00:00.000Z',
         'edited_timestamp': null,

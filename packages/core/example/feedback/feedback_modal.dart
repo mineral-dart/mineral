@@ -2,14 +2,14 @@ import 'package:mineral/api.dart';
 import 'package:mineral/container.dart';
 import 'package:mineral/events.dart';
 
-final class FeedbackModal extends ServerModalSubmitEvent<Map<String, String>>
+final class FeedbackModal extends GuildModalSubmitEvent<Map<String, String>>
     with Logger {
   @override
   String? get customId => 'submit_feedback';
 
   @override
   Future<void> handle(
-      ServerModalContext ctx, Map<String, String> data) async {
+      GuildModalContext ctx, Map<String, String> data) async {
     final subject = data['subject'] ?? '(no subject)';
     final body = data['body'] ?? '';
     final email = data['email'];

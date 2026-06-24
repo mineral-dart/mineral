@@ -4,7 +4,7 @@ import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class MessageCommandContext extends CommandContext {
   final Message target;
-  final Server? server;
+  final Guild? guild;
 
   MessageCommandContext({
     required super.id,
@@ -13,7 +13,7 @@ final class MessageCommandContext extends CommandContext {
     required super.version,
     required super.ctx,
     required this.target,
-    this.server,
+    this.guild,
     super.channel,
   });
 
@@ -49,9 +49,9 @@ final class MessageCommandContext extends CommandContext {
     final raw =
         await marshaller.serializers.message.normalize(enrichedMessageJson);
     final target = await marshaller.serializers.message.serialize(raw);
-    Server? server;
+    Guild? guild;
     if (guildId != null) {
-      server = await datastore.server.get(guildId, false);
+      guild = await datastore.guild.get(guildId, false);
     }
 
     final channelId = payload['channel_id'] as String?;
@@ -63,7 +63,7 @@ final class MessageCommandContext extends CommandContext {
       token: payload['token'] as String,
       version: payload['version'] as int,
       target: target,
-      server: server,
+      guild: guild,
       channel: channelId != null
           ? await datastore.channel.get(channelId, false)
           : null,

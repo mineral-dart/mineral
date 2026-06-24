@@ -44,16 +44,16 @@ final class MessageDeleteBulkPacket implements ListenablePacket {
       await _marshaller.cache.invalidate(messageCacheKey);
     }
 
-    final server = await _dataStore.server.get(guildId.value, false);
+    final guild = await _dataStore.guild.get(guildId.value, false);
     final channel = await _dataStore.channel.get(channelId.value, false);
-    if (channel is! ServerChannel) {
+    if (channel is! GuildChannel) {
       return;
     }
 
-    dispatch<ServerMessageDeleteBulkArgs>(
-        event: Event.serverMessageDeleteBulk,
+    dispatch<GuildMessageDeleteBulkArgs>(
+        event: Event.guildMessageDeleteBulk,
         payload: (
-          server: server,
+          guild: guild,
           channel: channel,
           messageIds: messageIds,
           messages: messages,

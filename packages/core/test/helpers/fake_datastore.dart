@@ -24,7 +24,7 @@ final class FakeDataStore implements DataStoreContract {
   ChannelPartContract get channel => throw UnimplementedError('channel');
 
   @override
-  ServerPartContract get server => throw UnimplementedError('server');
+  GuildPartContract get guild => throw UnimplementedError('guild');
 
   @override
   MemberPartContract get member => throw UnimplementedError('member');

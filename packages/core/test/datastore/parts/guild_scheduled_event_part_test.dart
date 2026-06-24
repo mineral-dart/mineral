@@ -55,7 +55,7 @@ void main() {
     }
 
     group('fetchForServer', () {
-      test('sends GET to /guilds/:serverId/scheduled-events', () async {
+      test('sends GET to /guilds/:guildId/scheduled-events', () async {
         rebuildWith([
           FakeResponse<List<Map<String, dynamic>>>(200, [eventResponse()]),
         ]);
@@ -71,7 +71,7 @@ void main() {
     });
 
     group('get', () {
-      test('sends GET to /guilds/:serverId/scheduled-events/:id', () async {
+      test('sends GET to /guilds/:guildId/scheduled-events/:id', () async {
         rebuildWith(
             [FakeResponse<Map<String, dynamic>>(200, eventResponse())]);
 
@@ -89,12 +89,12 @@ void main() {
     });
 
     group('create', () {
-      test('sends POST to /guilds/:serverId/scheduled-events', () async {
+      test('sends POST to /guilds/:guildId/scheduled-events', () async {
         rebuildWith(
             [FakeResponse<Map<String, dynamic>>(200, eventResponse())]);
 
         final result = await part.create(
-          serverId: '222222222222222222',
+          guildId: '222222222222222222',
           channelId: '333333333333333333',
           name: 'Stage event',
           privacyLevel: GuildScheduledEventPrivacyLevel.guildOnly,
@@ -111,12 +111,12 @@ void main() {
     });
 
     group('update', () {
-      test('sends PATCH to /guilds/:serverId/scheduled-events/:id', () async {
+      test('sends PATCH to /guilds/:guildId/scheduled-events/:id', () async {
         rebuildWith(
             [FakeResponse<Map<String, dynamic>>(200, eventResponse())]);
 
         await part.update(
-          serverId: '222222222222222222',
+          guildId: '222222222222222222',
           id: '111111111111111111',
           name: 'Renamed event',
         );
@@ -131,9 +131,9 @@ void main() {
     });
 
     group('delete', () {
-      test('sends DELETE to /guilds/:serverId/scheduled-events/:id', () async {
+      test('sends DELETE to /guilds/:guildId/scheduled-events/:id', () async {
         await part.delete(
-          serverId: '222222222222222222',
+          guildId: '222222222222222222',
           id: '111111111111111111',
         );
 
@@ -147,7 +147,7 @@ void main() {
     });
 
     group('fetchUsers', () {
-      test('sends GET to /guilds/:serverId/scheduled-events/:id/users',
+      test('sends GET to /guilds/:guildId/scheduled-events/:id/users',
           () async {
         rebuildWith([
           FakeResponse<List<Map<String, dynamic>>>(200, [
@@ -159,7 +159,7 @@ void main() {
         ]);
 
         final result = await part.fetchUsers(
-          serverId: '222222222222222222',
+          guildId: '222222222222222222',
           id: '111111111111111111',
         );
 

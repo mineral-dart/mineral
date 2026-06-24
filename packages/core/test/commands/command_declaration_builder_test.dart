@@ -59,8 +59,8 @@ void main() {
     });
 
     group('setContext', () {
-      test('defaults to server context', () {
-        expect(builder.context, CommandContextType.server);
+      test('defaults to guild context', () {
+        expect(builder.context, CommandContextType.guild);
       });
 
       test('changes to global context', () {

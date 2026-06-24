@@ -24,9 +24,9 @@ void main() {
     tearDown(() => restoreIoc());
 
     group('ban', () {
-      test('sends PUT to /guilds/:serverId/bans/:memberId', () async {
+      test('sends PUT to /guilds/:guildId/bans/:memberId', () async {
         await member.ban(
-          serverId: '222',
+          guildId: '222',
           memberId: '111',
           deleteSince: null,
         );
@@ -38,8 +38,8 @@ void main() {
     });
 
     group('kick', () {
-      test('sends DELETE to /guilds/:serverId/members/:memberId', () async {
-        await member.kick(serverId: '222', memberId: '111');
+      test('sends DELETE to /guilds/:guildId/members/:memberId', () async {
+        await member.kick(guildId: '222', memberId: '111');
 
         expect(http.calls, hasLength(1));
         expect(http.calls.single.method, equals('DELETE'));

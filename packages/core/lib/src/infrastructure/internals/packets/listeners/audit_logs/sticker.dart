@@ -1,6 +1,6 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/src/api/server/audit_log/actions/sticker.dart';
-import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/api/guild/audit_log/actions/sticker.dart';
+import 'package:mineral/src/api/guild/audit_log/audit_log.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 Future<AuditLog> stickerCreateAuditLogHandler(
@@ -9,7 +9,7 @@ Future<AuditLog> stickerCreateAuditLogHandler(
       .get(json['guild_id'] as String, json['target_id'] as String, false);
 
   return StickerCreateAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     stickerId: Snowflake.parse(json['target_id']),
     sticker: sticker!,
@@ -23,7 +23,7 @@ Future<AuditLog> stickerUpdateAuditLogHandler(
       .get(json['guild_id'] as String, json['target_id'] as String, false);
 
   return StickerUpdateAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     stickerId: Snowflake.parse(json['target_id']),
     changes: List<Map<String, dynamic>>.from(json['changes'] as Iterable<dynamic>)
@@ -37,7 +37,7 @@ Future<AuditLog> stickerUpdateAuditLogHandler(
 Future<AuditLog> stickerDeleteAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   return StickerDeleteAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     stickerId: Snowflake.parse(json['target_id']),
     ctx: ctx,

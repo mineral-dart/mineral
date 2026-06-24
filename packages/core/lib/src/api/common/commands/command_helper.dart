@@ -5,7 +5,7 @@ import 'package:mineral/src/infrastructure/io/exceptions/command_name_exception.
 final class CommandHelper {
   // Note: allows Devanagari (\u0900-\u097F) and Thai (\u0E00-\u0E7F) per Discord spec.
   // Full Unicode homoglyph protection (NFC/NFD normalisation) requires an external
-  // package and is not enforced here — Discord validates names server-side.
+  // package and is not enforced here — Discord validates names guild-side.
   final _regex = RegExp(
     r"^[-_'a-z0-9\u0900-\u097F\u0E00-\u0E7F]{1,32}$",
     unicode: true,

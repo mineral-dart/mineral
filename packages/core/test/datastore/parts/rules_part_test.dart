@@ -24,7 +24,7 @@ void main() {
     tearDown(() => restoreIoc());
 
     group('delete', () {
-      test('sends DELETE to /guilds/:serverId/auto-moderation/rules/:ruleId',
+      test('sends DELETE to /guilds/:guildId/auto-moderation/rules/:ruleId',
           () async {
         await rules.delete('222', '333');
 

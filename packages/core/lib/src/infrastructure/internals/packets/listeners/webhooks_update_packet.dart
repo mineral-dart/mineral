@@ -1,6 +1,6 @@
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/src/api/server/channels/server_channel.dart';
+import 'package:mineral/src/api/guild/channels/guild_channel.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -16,13 +16,13 @@ final class WebhooksUpdatePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final server =
-        await _dataStore.server.get(message.payload['guild_id'] as Object, false);
+    final guild =
+        await _dataStore.guild.get(message.payload['guild_id'] as Object, false);
     final channel =
-        await _dataStore.channel.get<ServerChannel>(message.payload['channel_id'] as Object, false);
+        await _dataStore.channel.get<GuildChannel>(message.payload['channel_id'] as Object, false);
 
-    dispatch<ServerWebhooksUpdateArgs>(
-        event: Event.serverWebhooksUpdate,
-        payload: (server: server, channel: channel));
+    dispatch<GuildWebhooksUpdateArgs>(
+        event: Event.guildWebhooksUpdate,
+        payload: (guild: guild, channel: channel));
   }
 }

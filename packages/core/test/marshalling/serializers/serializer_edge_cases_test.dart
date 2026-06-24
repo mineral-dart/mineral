@@ -112,7 +112,7 @@ void main() {
         expect(result['author_id'], isNull);
         expect(result['author_is_bot'], isNull);
         expect(result['content'], isNull);
-        expect(result['server_id'], isNull);
+        expect(result['guild_id'], isNull);
         expect(result['timestamp'], isNull);
         expect(result['edited_timestamp'], isNull);
       });
@@ -236,7 +236,7 @@ void main() {
         // The serializer handles null emoji by defaulting name to '' and
         // animated to false, so no TypeError is thrown.
         final payload = {
-          'server_id': '987654321',
+          'guild_id': '987654321',
           'channel_id': '111222333',
           'author_id': '444555666',
           'message_id': '777888999',
@@ -254,7 +254,7 @@ void main() {
 
       test('handles emoji with null id (unicode emoji)', () async {
         final payload = {
-          'server_id': '987654321',
+          'guild_id': '987654321',
           'channel_id': '111222333',
           'author_id': '444555666',
           'message_id': '777888999',

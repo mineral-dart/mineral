@@ -24,7 +24,7 @@ void main() {
     tearDown(() => restoreIoc());
 
     group('delete', () {
-      test('sends DELETE to /guilds/:serverId/stickers/:stickerId', () async {
+      test('sends DELETE to /guilds/:guildId/stickers/:stickerId', () async {
         await sticker.delete('222', '111');
 
         expect(http.calls, hasLength(1));

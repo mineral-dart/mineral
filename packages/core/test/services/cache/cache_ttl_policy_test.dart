@@ -9,34 +9,34 @@ void main() {
       expect(policy.ttlFor('users/789'), const Duration(hours: 1));
     });
 
-    test('servers are cached for 4 hours', () {
-      expect(policy.ttlFor('server/123'), const Duration(hours: 4));
+    test('guilds are cached for 4 hours', () {
+      expect(policy.ttlFor('guild/123'), const Duration(hours: 4));
     });
 
-    test('members override the parent server rule (30 min)', () {
+    test('members override the parent guild rule (30 min)', () {
       expect(
-        policy.ttlFor('server/123/members/456'),
+        policy.ttlFor('guild/123/members/456'),
         const Duration(minutes: 30),
       );
     });
 
     test('roles are cached for 4 hours via segment match', () {
       expect(
-        policy.ttlFor('server/123/roles/456'),
+        policy.ttlFor('guild/123/roles/456'),
         const Duration(hours: 4),
       );
     });
 
     test('emojis are cached for 12 hours', () {
       expect(
-        policy.ttlFor('server/123/emojis/456'),
+        policy.ttlFor('guild/123/emojis/456'),
         const Duration(hours: 12),
       );
     });
 
     test('stickers are cached for 12 hours', () {
       expect(
-        policy.ttlFor('server/123/stickers/456'),
+        policy.ttlFor('guild/123/stickers/456'),
         const Duration(hours: 12),
       );
     });
@@ -65,7 +65,7 @@ void main() {
 
     test('voice states are cached for 5 minutes', () {
       expect(
-        policy.ttlFor('voice_states/server/123/members/456'),
+        policy.ttlFor('voice_states/guild/123/members/456'),
         const Duration(minutes: 5),
       );
     });
@@ -88,7 +88,7 @@ void main() {
 
     test('returns null for any key', () {
       expect(policy.ttlFor('users/789'), isNull);
-      expect(policy.ttlFor('server/123/members/456'), isNull);
+      expect(policy.ttlFor('guild/123/members/456'), isNull);
       expect(policy.ttlFor('whatever'), isNull);
     });
   });
@@ -100,7 +100,7 @@ void main() {
       });
 
       expect(policy.ttlFor('users/789'), const Duration(seconds: 30));
-      expect(policy.ttlFor('server/123'), const Duration(hours: 4));
+      expect(policy.ttlFor('guild/123'), const Duration(hours: 4));
     });
 
     test('segment override (leading slash) wins over base segment rules', () {
@@ -109,7 +109,7 @@ void main() {
       });
 
       expect(
-        policy.ttlFor('server/123/members/456'),
+        policy.ttlFor('guild/123/members/456'),
         const Duration(seconds: 5),
       );
     });

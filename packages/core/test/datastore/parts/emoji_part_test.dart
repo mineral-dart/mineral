@@ -24,7 +24,7 @@ void main() {
     tearDown(() => restoreIoc());
 
     group('delete', () {
-      test('sends DELETE to /guilds/:serverId/emojis/:emojiId', () async {
+      test('sends DELETE to /guilds/:guildId/emojis/:emojiId', () async {
         await emoji.delete('222', '111');
 
         expect(http.calls, hasLength(1));

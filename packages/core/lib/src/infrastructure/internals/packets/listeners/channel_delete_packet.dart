@@ -25,6 +25,6 @@ final class ChannelDeletePacket implements ListenablePacket {
     final channelCacheKey = _marshaller.cacheKey.channel(channel.id.value);
     await _marshaller.cache.invalidate(channelCacheKey);
 
-    dispatch<ServerChannelDeleteArgs>(event: Event.serverChannelDelete, payload: (channel: channel as ServerChannel));
+    dispatch<GuildChannelDeleteArgs>(event: Event.guildChannelDelete, payload: (channel: channel as GuildChannel));
   }
 }

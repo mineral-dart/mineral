@@ -5,7 +5,7 @@ import '../payloads/test_payloads.dart';
 /// Marker interface for test-friendly bot listeners.
 ///
 /// Real Mineral listeners extend `ListenableEvent` and receive fully
-/// constructed domain types (`Member`, `Server`, ...). Materializing those
+/// constructed domain types (`Member`, `Guild`, ...). Materializing those
 /// types in a test requires every Discord field — overkill for unit-style
 /// tests of bot behaviour.
 ///
@@ -21,9 +21,9 @@ abstract interface class TestBotListener {
 /// Listener invoked when a member joins a guild.
 abstract class OnMemberJoinListener implements TestBotListener {
   @override
-  String get name => 'serverMemberAdd';
+  String get name => 'guildMemberAdd';
 
-  FutureOr<void> handle(TestMember member, TestGuild server);
+  FutureOr<void> handle(TestMember member, TestGuild guild);
 }
 
 /// Listener invoked when a slash command (or sub-command path) is dispatched.

@@ -134,18 +134,18 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
   }
 
   @override
-  Future<Presence> getMemberPresence(String serverId, String id) {
+  Future<Presence> getMemberPresence(String guildId, String id) {
     final completer = Completer<Presence>();
     final uid = _uuid.v4();
     final message = ShardMessageBuilder()
       ..setOpCode(OpCode.requestGuildMember)
-      ..append('guild_id', serverId)
+      ..append('guild_id', guildId)
       ..append('user_ids', [id])
       ..append('limit', 0)
       ..append('presences', true)
       ..append('nonce', uid);
 
-    final targetIndex = _shardForGuild(serverId);
+    final targetIndex = _shardForGuild(guildId);
     final targetShard = shards[targetIndex];
 
     if (targetShard != null) {
@@ -157,7 +157,7 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
       targetShard.client.send(json.encode(message.toJson()));
     } else {
       _logger.warn(
-        'Shard $targetIndex not found for guild $serverId, broadcasting',
+        'Shard $targetIndex not found for guild $guildId, broadcasting',
       );
       send(WebsocketIsolateMessageTransfert.request(
         payload: message.toJson(),

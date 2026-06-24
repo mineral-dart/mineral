@@ -19,6 +19,6 @@ final class AutomoderationRuleCreatePacket implements ListenablePacket {
         await _marshaller.serializers.rules.normalize(message.payload as Map<String, dynamic>);
     final rule = await _marshaller.serializers.rules.serialize(rawRule);
 
-    dispatch<ServerRuleCreateArgs>(event: Event.serverRuleCreate, payload: (rule: rule));
+    dispatch<GuildRuleCreateArgs>(event: Event.guildRuleCreate, payload: (rule: rule));
   }
 }

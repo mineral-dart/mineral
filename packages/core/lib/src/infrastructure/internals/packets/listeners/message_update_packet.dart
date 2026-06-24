@@ -33,12 +33,12 @@ final class MessageUpdatePacket implements ListenablePacket {
         .normalize(payload);
     final after = await _marshaller.serializers.message.serialize(rawAfter);
 
-    final serverId = Snowflake.nullable(payload['guild_id']);
-    switch (serverId) {
+    final guildId = Snowflake.nullable(payload['guild_id']);
+    switch (guildId) {
       case String():
-        dispatch<ServerMessageUpdateArgs>(
-            event: Event.serverMessageUpdate,
-            payload: (before: before as ServerMessage?, after: after as ServerMessage));
+        dispatch<GuildMessageUpdateArgs>(
+            event: Event.guildMessageUpdate,
+            payload: (before: before as GuildMessage?, after: after as GuildMessage));
       default:
         dispatch<PrivateMessageUpdateArgs>(
             event: Event.privateMessageUpdate,

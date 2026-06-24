@@ -34,7 +34,7 @@ final class BotActions {
   /// Modals opened in response to an interaction.
   List<ModalShown> get modals => _all.whereType<ModalShown>().toList();
 
-  /// Bans produced by `server.members.ban(...)`.
+  /// Bans produced by `guild.members.ban(...)`.
   List<MemberBanned> get bans => _all.whereType<MemberBanned>().toList();
 
   /// Role assignments produced by `member.roles.add(...)`.

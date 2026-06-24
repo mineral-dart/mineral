@@ -1,7 +1,7 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/src/api/server/guild_scheduled_event.dart';
+import 'package:mineral/src/api/guild/guild_scheduled_event.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -21,7 +21,7 @@ final class GuildScheduledEventUpdatePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final server = await _dataStore.server
+    final guild = await _dataStore.guild
         .get(message.payload['guild_id'] as Object, false);
 
     // Retrieve the cached version as "before"
@@ -40,9 +40,9 @@ final class GuildScheduledEventUpdatePacket implements ListenablePacket {
     final after =
         await _marshaller.serializers.scheduledEvent.serialize(rawAfter);
 
-    dispatch<ServerScheduledEventUpdateArgs>(
-      event: Event.serverScheduledEventUpdate,
-      payload: (server: server, before: before, after: after),
+    dispatch<GuildScheduledEventUpdateArgs>(
+      event: Event.guildScheduledEventUpdate,
+      payload: (guild: guild, before: before, after: after),
     );
   }
 }

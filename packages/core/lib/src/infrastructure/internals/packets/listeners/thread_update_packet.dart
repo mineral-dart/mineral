@@ -22,7 +22,7 @@ final class ThreadUpdatePacket implements ListenablePacket {
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
 
-    final server = await _dataStore.server.get(payload['guild_id'] as Object, false);
+    final guild = await _dataStore.guild.get(payload['guild_id'] as Object, false);
     final threadCacheKey = _marshaller.cacheKey.thread(payload['id'] as Object);
 
     final beforeRaw = await _marshaller.cache?.getOrFail(threadCacheKey);
@@ -33,6 +33,6 @@ final class ThreadUpdatePacket implements ListenablePacket {
     final afterRaw = await _marshaller.serializers.channels.normalize(payload);
     final after = await _marshaller.serializers.channels.serialize(afterRaw);
 
-    dispatch<ServerThreadUpdateArgs>(event: Event.serverThreadUpdate, payload: (server: server, before: before as ThreadChannel?, after: after as ThreadChannel));
+    dispatch<GuildThreadUpdateArgs>(event: Event.guildThreadUpdate, payload: (guild: guild, before: before as ThreadChannel?, after: after as ThreadChannel));
   }
 }

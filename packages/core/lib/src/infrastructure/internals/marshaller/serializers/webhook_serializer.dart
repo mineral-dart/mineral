@@ -1,5 +1,5 @@
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/api/server/webhook.dart';
+import 'package:mineral/src/api/guild/webhook.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
@@ -39,7 +39,7 @@ final class WebhookSerializer implements SerializerContract<Webhook> {
       ctx: _ctx,
       id: Snowflake.parse(json['id']),
       type: WebhookType.of(json['type'] as int),
-      serverId: json['guild_id'] != null
+      guildId: json['guild_id'] != null
           ? Snowflake.parse(json['guild_id'])
           : null,
       channelId: json['channel_id'] != null
@@ -62,7 +62,7 @@ final class WebhookSerializer implements SerializerContract<Webhook> {
     return {
       'id': webhook.id.value,
       'type': webhook.type.value,
-      'guild_id': webhook.serverId?.value,
+      'guild_id': webhook.guildId?.value,
       'channel_id': webhook.channelId?.value,
       'user_id': webhook.userId?.value,
       'name': webhook.name,

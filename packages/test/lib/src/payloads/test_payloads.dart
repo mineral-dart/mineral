@@ -1,7 +1,7 @@
 /// Lightweight, framework-agnostic wrappers used by builders and recorders.
 ///
 /// These types stand in for the corresponding Mineral domain objects (`User`,
-/// `Server`, `Member`, `Role`, `Channel`) at the boundary between user tests
+/// `Guild`, `Member`, `Role`, `Channel`) at the boundary between user tests
 /// and the framework. Simulators convert them to real Mineral types when
 /// invoking command/event/component dispatchers.
 library;
@@ -51,7 +51,7 @@ final class TestUser {
   String toString() => 'TestUser(id: $id, username: $username)';
 }
 
-/// A test-only stand-in for [Server].
+/// A test-only stand-in for [Guild].
 final class TestGuild {
   final String id;
   final String name;
@@ -113,7 +113,6 @@ final class TestRole {
         'mentionable': false,
         'flags': 0,
         'guild_id': guildId,
-        'server_id': guildId,
       };
 
   @override

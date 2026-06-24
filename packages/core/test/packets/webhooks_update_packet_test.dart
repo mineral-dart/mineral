@@ -2,8 +2,8 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/services.dart';
-import 'package:mineral/src/api/server/managers/rules_manager.dart';
-import 'package:mineral/src/api/server/managers/threads_manager.dart';
+import 'package:mineral/src/api/guild/managers/rules_manager.dart';
+import 'package:mineral/src/api/guild/managers/threads_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
@@ -20,7 +20,7 @@ import '../helpers/fake_websocket_orchestrator.dart';
 // ── Test IDs ──────────────────────────────────────────────────────────────────
 
 const _channelId = '111222333444555666';
-const _serverId = '123456789012345678';
+const _guildId = '123456789012345678';
 
 // ── Fake data store helpers ───────────────────────────────────────────────────
 
@@ -33,7 +33,7 @@ final class _DeferredDataStore implements DataStoreContract {
   @override
   ChannelPartContract get channel => _resolve().channel;
   @override
-  ServerPartContract get server => _resolve().server;
+  GuildPartContract get guild => _resolve().guild;
   @override
   MessagePartContract get message => _resolve().message;
   @override
@@ -82,21 +82,21 @@ final class _DeferredDataStore implements DataStoreContract {
   HttpClientContract get client => _resolve().client;
 }
 
-/// Minimal [DataStoreContract] that wires channel and server parts.
+/// Minimal [DataStoreContract] that wires channel and guild parts.
 final class _FakeDataStore implements DataStoreContract {
   final ChannelPartContract _channelPart;
-  final ServerPartContract _serverPart;
+  final GuildPartContract _guildPart;
 
   _FakeDataStore({
     required ChannelPartContract channelPart,
-    required ServerPartContract serverPart,
+    required GuildPartContract guildPart,
   })  : _channelPart = channelPart,
-        _serverPart = serverPart;
+        _guildPart = guildPart;
 
   @override
   ChannelPartContract get channel => _channelPart;
   @override
-  ServerPartContract get server => _serverPart;
+  GuildPartContract get guild => _guildPart;
 
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
@@ -163,12 +163,12 @@ final class _FakeChannelPart implements ChannelPartContract {
 
   @override
   Future<Map<Snowflake, T>> fetch<T extends Channel>(
-          Object serverId, bool force) async =>
+          Object guildId, bool force) async =>
       {};
 
   @override
   Future<T> create<T extends Channel>(
-          Object? serverId, ChannelBuilderContract builder,
+          Object? guildId, ChannelBuilderContract builder,
           {String? reason}) =>
       throw UnimplementedError();
 
@@ -180,24 +180,24 @@ final class _FakeChannelPart implements ChannelPartContract {
   @override
   Future<T?> update<T extends Channel>(
           Object id, ChannelBuilderContract builder,
-          {Object? serverId, String? reason}) =>
+          {Object? guildId, String? reason}) =>
       throw UnimplementedError();
 
   @override
   Future<void> delete(Object id, String? reason) async {}
 }
 
-/// [ServerPartContract] that returns a pre-built [Server].
-final class _FakeServerPart implements ServerPartContract {
-  final Server _server;
+/// [GuildPartContract] that returns a pre-built [Guild].
+final class _FakeServerPart implements GuildPartContract {
+  final Guild _guild;
 
-  _FakeServerPart(this._server);
-
-  @override
-  Future<Server> get(Object id, bool force) async => _server;
+  _FakeServerPart(this._guild);
 
   @override
-  Future<Server> update(Object id, Map<String, dynamic> payload,
+  Future<Guild> get(Object id, bool force) async => _guild;
+
+  @override
+  Future<Guild> update(Object id, Map<String, dynamic> payload,
           [String? reason]) =>
       throw UnimplementedError();
 
@@ -216,7 +216,7 @@ final class _NoopDs implements DataStoreContract {
   @override
   ChannelPartContract get channel => throw UnimplementedError();
   @override
-  ServerPartContract get server => throw UnimplementedError();
+  GuildPartContract get guild => throw UnimplementedError();
   @override
   MessagePartContract get message => throw UnimplementedError();
   @override
@@ -263,15 +263,15 @@ final class _NoopDs implements DataStoreContract {
 
 // ── Domain object builders ────────────────────────────────────────────────────
 
-ServerTextChannel _buildServerTextChannel(EntityContext ctx) =>
-    ServerTextChannel(
+GuildTextChannel _buildServerTextChannel(EntityContext ctx) =>
+    GuildTextChannel(
       ChannelProperties(
         ctx: ctx,
         id: Snowflake.parse(_channelId),
         type: ChannelType.guildText,
         name: 'general',
         description: null,
-        serverId: Snowflake.parse(_serverId),
+        guildId: Snowflake.parse(_guildId),
         categoryId: null,
         position: null,
         nsfw: false,
@@ -298,24 +298,24 @@ ServerTextChannel _buildServerTextChannel(EntityContext ctx) =>
         defaultSortOrder: null,
         defaultForumLayout: null,
         threads: ThreadsManager(
-          Snowflake.parse(_serverId),
+          Snowflake.parse(_guildId),
           Snowflake.parse(_channelId),
           ctx: ctx,
         ),
       ),
     );
 
-Server _buildServer(EntityContext ctx) {
-  final id = Snowflake.parse(_serverId);
-  return Server(
+Guild _buildServer(EntityContext ctx) {
+  final id = Snowflake.parse(_guildId);
+  return Guild(
     ctx: ctx,
     id: id,
-    name: 'Test Server',
+    name: 'Test Guild',
     ownerId: Snowflake.parse('000000000000000001'),
     description: null,
     applicationId: null,
     members: MemberManager(id, ctx: ctx),
-    settings: ServerSettings(
+    settings: GuildSettings(
       bitfieldPermission: null,
       afkTimeout: null,
       hasWidgetEnabled: false,
@@ -326,7 +326,7 @@ Server _buildServer(EntityContext ctx) {
       mfaLevel: MfaLevel.none,
       systemChannelFlags: [],
       vanityUrlCode: null,
-      subscription: ServerSubscription(
+      subscription: GuildSubscription(
         tier: PremiumTier.none,
         subscriptionCount: null,
         hasEnabledProgressBar: false,
@@ -347,7 +347,7 @@ Server _buildServer(EntityContext ctx) {
       safetyAlertsChannelId: null,
     ),
     threads: ThreadsManager(id, null, ctx: ctx),
-    assets: ServerAsset(
+    assets: GuildAsset(
       id,
       ctx: ctx,
       emojis: EmojiManager(id, ctx: ctx),
@@ -367,7 +367,7 @@ ShardMessage<dynamic> _buildShardMessage() => ShardMessage(
       opCode: OpCode.dispatch,
       sequence: 1,
       payload: {
-        'guild_id': _serverId,
+        'guild_id': _guildId,
         'channel_id': _channelId,
       },
     );
@@ -384,13 +384,13 @@ void main() {
       expect(packet.packetType.name, equals('WEBHOOKS_UPDATE'));
     });
 
-    // ── server branch ───────────────────────────────────────────────────────
+    // ── guild branch ───────────────────────────────────────────────────────
 
-    group('dispatches serverWebhooksUpdate with resolved server and channel',
+    group('dispatches guildWebhooksUpdate with resolved guild and channel',
         () {
       late WebhooksUpdatePacket packet;
-      late Server server;
-      late ServerTextChannel channel;
+      late Guild guild;
+      late GuildTextChannel channel;
 
       setUp(() {
         late _FakeDataStore ds;
@@ -403,17 +403,17 @@ void main() {
         );
 
         channel = _buildServerTextChannel(ctx);
-        server = _buildServer(ctx);
+        guild = _buildServer(ctx);
 
         ds = _FakeDataStore(
           channelPart: _FakeChannelPart(channel),
-          serverPart: _FakeServerPart(server),
+          guildPart: _FakeServerPart(guild),
         );
 
         packet = WebhooksUpdatePacket(dataStore: ds);
       });
 
-      test('dispatches Event.serverWebhooksUpdate', () async {
+      test('dispatches Event.guildWebhooksUpdate', () async {
         Event? capturedEvent;
 
         void dispatch<T extends Object>(
@@ -425,10 +425,10 @@ void main() {
 
         await packet.listen(_buildShardMessage(), dispatch);
 
-        expect(capturedEvent, equals(Event.serverWebhooksUpdate));
+        expect(capturedEvent, equals(Event.guildWebhooksUpdate));
       });
 
-      test('payload is ServerWebhooksUpdateArgs', () async {
+      test('payload is GuildWebhooksUpdateArgs', () async {
         Object? capturedPayload;
 
         void dispatch<T extends Object>(
@@ -440,37 +440,37 @@ void main() {
 
         await packet.listen(_buildShardMessage(), dispatch);
 
-        expect(capturedPayload, isA<ServerWebhooksUpdateArgs>());
+        expect(capturedPayload, isA<GuildWebhooksUpdateArgs>());
       });
 
-      test('payload carries the resolved server', () async {
-        ServerWebhooksUpdateArgs? args;
+      test('payload carries the resolved guild', () async {
+        GuildWebhooksUpdateArgs? args;
 
         void dispatch<T extends Object>(
             {required Event event,
             required T payload,
             bool Function(String?)? constraint}) {
-          if (event == Event.serverWebhooksUpdate) {
-            args = payload as ServerWebhooksUpdateArgs;
+          if (event == Event.guildWebhooksUpdate) {
+            args = payload as GuildWebhooksUpdateArgs;
           }
         }
 
         await packet.listen(_buildShardMessage(), dispatch);
 
         expect(args, isNotNull);
-        expect(args!.server.id, equals(Snowflake.parse(_serverId)));
-        expect(args!.server.name, equals('Test Server'));
+        expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
+        expect(args!.guild.name, equals('Test Guild'));
       });
 
       test('payload carries the resolved channel', () async {
-        ServerWebhooksUpdateArgs? args;
+        GuildWebhooksUpdateArgs? args;
 
         void dispatch<T extends Object>(
             {required Event event,
             required T payload,
             bool Function(String?)? constraint}) {
-          if (event == Event.serverWebhooksUpdate) {
-            args = payload as ServerWebhooksUpdateArgs;
+          if (event == Event.guildWebhooksUpdate) {
+            args = payload as GuildWebhooksUpdateArgs;
           }
         }
 

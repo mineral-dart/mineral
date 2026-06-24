@@ -29,8 +29,8 @@ abstract class BaseMessageReaction {
   Future<T> resolveMessage<T extends BaseMessage>({bool force = false});
 }
 
-abstract interface class ServerMessageReaction extends BaseMessageReaction {
-  Snowflake? get serverId;
+abstract interface class GuildMessageReaction extends BaseMessageReaction {
+  Snowflake? get guildId;
 
   Future<Member?> resolveMember();
 }
@@ -40,12 +40,12 @@ abstract interface class PrivateMessageReaction extends BaseMessageReaction {
 }
 
 final class MessageReaction
-    implements ServerMessageReaction, PrivateMessageReaction {
+    implements GuildMessageReaction, PrivateMessageReaction {
   final EntityContext _ctx;
   DataStoreContract get _datastore => _ctx.datastore;
 
   @override
-  final Snowflake? serverId;
+  final Snowflake? guildId;
 
   @override
   final Snowflake channelId;
@@ -67,7 +67,7 @@ final class MessageReaction
 
   MessageReaction({
     required EntityContext ctx,
-    required this.serverId,
+    required this.guildId,
     required this.channelId,
     required this.userId,
     required this.messageId,
@@ -92,9 +92,9 @@ final class MessageReaction
   /// ```
   @override
   Future<Member?> resolveMember() =>
-      _datastore.member.get(serverId!.value, userId.value, true);
+      _datastore.member.get(guildId!.value, userId.value, true);
 
-  /// Get related [ServerVoiceChannel]
+  /// Get related [GuildVoiceChannel]
   /// ```dart
   /// final channel = await reaction.resolveChannel();
   /// ```

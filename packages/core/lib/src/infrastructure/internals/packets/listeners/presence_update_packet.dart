@@ -21,6 +21,6 @@ final class PresenceUpdatePacket implements ListenablePacket {
         .get(payload['guild_id'] as Object, (payload['user'] as Map<String, dynamic>)['id'] as Object, false);
     final presence = Presence.fromJson(payload);
 
-    dispatch<ServerPresenceUpdateArgs>(event: Event.serverPresenceUpdate, payload: (member: member!, presence: presence));
+    dispatch<GuildPresenceUpdateArgs>(event: Event.guildPresenceUpdate, payload: (member: member!, presence: presence));
   }
 }

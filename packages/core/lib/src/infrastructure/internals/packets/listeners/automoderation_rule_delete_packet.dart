@@ -21,9 +21,9 @@ final class AutomoderationRuleDeletePacket implements ListenablePacket {
     final rule = await _marshaller.serializers.rules.serialize(rawRule);
 
     final ruleCacheKey = _marshaller.cacheKey
-        .serverRules(payload['guild_id'] as Object, payload['id'] as Object);
+        .guildRules(payload['guild_id'] as Object, payload['id'] as Object);
     await _marshaller.cache.invalidate(ruleCacheKey);
 
-    dispatch<ServerRuleDeleteArgs>(event: Event.serverRuleDelete, payload: (rule: rule));
+    dispatch<GuildRuleDeleteArgs>(event: Event.guildRuleDelete, payload: (rule: rule));
   }
 }

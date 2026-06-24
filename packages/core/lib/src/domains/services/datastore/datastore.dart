@@ -10,7 +10,7 @@ abstract class DataStoreContract {
 
   ChannelPartContract get channel;
 
-  ServerPartContract get server;
+  GuildPartContract get guild;
 
   MemberPartContract get member;
 

@@ -26,7 +26,7 @@ void main() {
         expect(status.isError(405), isTrue);
       });
 
-      test('returns true for 500 Internal Server Error', () {
+      test('returns true for 500 Internal Guild Error', () {
         expect(status.isError(500), isTrue);
       });
 
@@ -76,7 +76,7 @@ void main() {
         expect(status.isSuccess(400), isFalse);
       });
 
-      test('returns false for 500 Internal Server Error', () {
+      test('returns false for 500 Internal Guild Error', () {
         expect(status.isSuccess(500), isFalse);
       });
 

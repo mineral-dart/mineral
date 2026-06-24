@@ -23,7 +23,7 @@ final class StickerSerializer implements SerializerContract<Sticker> {
       'asset': json['asset'],
       'format_type': json['format_type'],
       'sort_value': json['sort_value'],
-      'server_id': json['guild_id'],
+      'guild_id': json['guild_id'],
     };
 
     final cacheKey = _marshaller.cacheKey.sticker(json['guild_id'] as String, json['id'] as String);
@@ -47,7 +47,7 @@ final class StickerSerializer implements SerializerContract<Sticker> {
       formatType: FormatType.values
           .firstWhere((element) => element.value == json['format_type']),
       sortValue: json['sort_value'] as int?,
-      serverId: Snowflake.parse(json['server_id']),
+      guildId: Snowflake.parse(json['guild_id']),
     );
   }
 
@@ -64,7 +64,7 @@ final class StickerSerializer implements SerializerContract<Sticker> {
       'asset': sticker.asset,
       'format_type': sticker.formatType?.value,
       'sort_value': sticker.sortValue,
-      'server_id': sticker.serverId,
+      'guild_id': sticker.guildId,
     };
   }
 }

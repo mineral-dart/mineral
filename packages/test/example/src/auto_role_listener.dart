@@ -23,7 +23,7 @@ final class AutoRoleListener extends OnMemberJoinListener {
 
     await dataStore.role.add(
       memberId: member.id,
-      serverId: server.id,
+      guildId: server.id,
       roleId: testStore,
       reason: 'auto-role on join',
     );

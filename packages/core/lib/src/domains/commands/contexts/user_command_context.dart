@@ -1,15 +1,15 @@
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
+import 'package:mineral/src/api/guild/guild.dart';
+import 'package:mineral/src/api/guild/member.dart';
 import 'package:mineral/src/api/private/user.dart';
-import 'package:mineral/src/api/server/member.dart';
-import 'package:mineral/src/api/server/server.dart';
 import 'package:mineral/src/domains/commands/command_context.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 final class UserCommandContext extends CommandContext {
   final User target;
   final Member? targetMember;
-  final Server? server;
+  final Guild? guild;
 
   UserCommandContext({
     required super.id,
@@ -19,7 +19,7 @@ final class UserCommandContext extends CommandContext {
     required super.ctx,
     required this.target,
     this.targetMember,
-    this.server,
+    this.guild,
     super.channel,
   });
 
@@ -46,10 +46,10 @@ final class UserCommandContext extends CommandContext {
     final target = await marshaller.serializers.user.serialize(raw);
 
     final guildId = payload['guild_id'] as String?;
-    Server? server;
+    Guild? guild;
     Member? targetMember;
     if (guildId != null) {
-      server = await datastore.server.get(guildId, false);
+      guild = await datastore.guild.get(guildId, false);
       targetMember = await datastore.member.get(guildId, targetId, false);
     }
 
@@ -63,7 +63,7 @@ final class UserCommandContext extends CommandContext {
       version: payload['version'] as int,
       target: target,
       targetMember: targetMember,
-      server: server,
+      guild: guild,
       channel:
           channelId != null ? await datastore.channel.get(channelId, false) : null,
     );

@@ -7,15 +7,15 @@ import 'package:mineral/src/api/common/message_reaction.dart';
 import 'package:mineral/src/api/common/polls/poll.dart';
 import 'package:mineral/src/api/common/polls/poll_answer_vote.dart';
 import 'package:mineral/src/api/common/sticker.dart';
+import 'package:mineral/src/api/guild/guild.dart';
+import 'package:mineral/src/api/guild/guild_scheduled_event.dart';
+import 'package:mineral/src/api/guild/invite.dart';
+import 'package:mineral/src/api/guild/member.dart';
+import 'package:mineral/src/api/guild/moderation/auto_moderation_rule.dart';
+import 'package:mineral/src/api/guild/role.dart';
+import 'package:mineral/src/api/guild/voice_state.dart';
+import 'package:mineral/src/api/guild/webhook.dart';
 import 'package:mineral/src/api/private/user.dart';
-import 'package:mineral/src/api/server/guild_scheduled_event.dart';
-import 'package:mineral/src/api/server/invite.dart';
-import 'package:mineral/src/api/server/member.dart';
-import 'package:mineral/src/api/server/moderation/auto_moderation_rule.dart';
-import 'package:mineral/src/api/server/role.dart';
-import 'package:mineral/src/api/server/server.dart';
-import 'package:mineral/src/api/server/voice_state.dart';
-import 'package:mineral/src/api/server/webhook.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/channel_permission_overwrite_serializer.dart';
@@ -23,6 +23,7 @@ import 'package:mineral/src/infrastructure/internals/marshaller/serializers/chan
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/embed_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/emoji_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/guild_scheduled_event_serializer.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/serializers/guild_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/invite_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/member_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/message_reaction_serializer.dart';
@@ -31,7 +32,6 @@ import 'package:mineral/src/infrastructure/internals/marshaller/serializers/poll
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/poll_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/role_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/rule_serializer.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/serializers/server_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/sticker_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/user_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/voice_state_serializer.dart';
@@ -41,7 +41,7 @@ import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer
 final class SerializerBucket {
   final SerializerContract<Channel> channels;
 
-  final SerializerContract<Server> server;
+  final SerializerContract<Guild> guild;
 
   final SerializerContract<Member> member;
 
@@ -78,7 +78,7 @@ final class SerializerBucket {
 
   SerializerBucket(MarshallerContract marshaller, EntityContext ctx)
       : channels = ChannelSerializer(marshaller, ctx),
-        server = ServerSerializer(marshaller, ctx),
+        guild = GuildSerializer(marshaller, ctx),
         member = MemberSerializer(marshaller, ctx),
         user = UserSerializer(marshaller, ctx),
         role = RoleSerializer(marshaller, ctx),

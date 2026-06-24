@@ -1,8 +1,8 @@
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/api/server/moderation/auto_moderation_rule.dart';
-import 'package:mineral/src/api/server/moderation/enums/action_type.dart';
-import 'package:mineral/src/api/server/moderation/enums/auto_moderation_event_type.dart';
-import 'package:mineral/src/api/server/moderation/enums/trigger_type.dart';
+import 'package:mineral/src/api/guild/moderation/auto_moderation_rule.dart';
+import 'package:mineral/src/api/guild/moderation/enums/action_type.dart';
+import 'package:mineral/src/api/guild/moderation/enums/auto_moderation_event_type.dart';
+import 'package:mineral/src/api/guild/moderation/enums/trigger_type.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/rule_serializer.dart';
 import 'package:test/test.dart';
@@ -22,7 +22,7 @@ void main() {
 
     Map<String, dynamic> normalizedPayload() => {
           'id': '100200300',
-          'serverId': '987654321',
+          'guildId': '987654321',
           'name': 'No Profanity',
           'creatorId': '444555666',
           'eventType': 1,
@@ -72,7 +72,7 @@ void main() {
 
         expect(rule, isA<AutoModerationRule>());
         expect(rule.id, equals(Snowflake('100200300')));
-        expect(rule.serverId, equals(Snowflake('987654321')));
+        expect(rule.guildId, equals(Snowflake('987654321')));
         expect(rule.name, equals('No Profanity'));
         expect(rule.creatorId, equals(Snowflake('444555666')));
         expect(rule.enabled, isTrue);
@@ -153,17 +153,17 @@ void main() {
     });
 
     group('normalize()', () {
-      test('writes to cache with serverRules key', () async {
+      test('writes to cache with guildRules key', () async {
         await serializer.normalize(rawDiscordPayload());
 
-        final expectedKey = CacheKey().serverRules('987654321', '100200300');
+        final expectedKey = CacheKey().guildRules('987654321', '100200300');
         expect(cache.store.containsKey(expectedKey), isTrue);
       });
 
-      test('renames guild_id to serverId', () async {
+      test('renames guild_id to guildId', () async {
         final result = await serializer.normalize(rawDiscordPayload());
 
-        expect(result, containsPair('serverId', '987654321'));
+        expect(result, containsPair('guildId', '987654321'));
         expect(result.containsKey('guild_id'), isFalse);
       });
 

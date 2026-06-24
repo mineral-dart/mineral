@@ -1,7 +1,7 @@
 import 'package:mineral/src/api/common/permissions.dart';
 import 'package:mineral/src/api/common/premium_tier.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/api/server/member.dart';
+import 'package:mineral/src/api/guild/member.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/member_serializer.dart';
 import 'package:test/test.dart';
@@ -30,7 +30,7 @@ void main() {
           'global_name': 'TestUser',
           'discriminator': '0',
           'assets': {
-            'server_id': '987654321',
+            'guild_id': '987654321',
             'member_id': '444555666',
             'avatar': null,
             'avatar_decoration': null,
@@ -49,7 +49,7 @@ void main() {
           'joined_at': '2024-01-15T10:30:00.000Z',
           'permissions': '8',
           'accent_color': null,
-          'server_id': '987654321',
+          'guild_id': '987654321',
         };
 
     Map<String, dynamic> rawDiscordPayload() => {
@@ -93,7 +93,7 @@ void main() {
         expect(member.mfaEnabled, isFalse);
         expect(member.locale, equals('en-US'));
         expect(member.publicFlags, equals(64));
-        expect(member.serverId, equals(Snowflake('987654321')));
+        expect(member.guildId, equals(Snowflake('987654321')));
       });
 
       test('parses permissions from String', () async {
@@ -157,7 +157,7 @@ void main() {
         expect(result['is_bot'], isFalse);
         expect(result['is_pending'], isFalse);
         expect(result['locale'], equals('en-US'));
-        expect(result['server_id'], equals('987654321'));
+        expect(result['guild_id'], equals('987654321'));
       });
 
       test('roles are serialized as list of Snowflake values', () async {
@@ -187,18 +187,17 @@ void main() {
         expect(result['is_bot'], isFalse);
       });
 
-      test('renames guild_id to server_id', () async {
+      test('renames guild_id to guild_id', () async {
         final result = await serializer.normalize(rawDiscordPayload());
 
-        expect(result, containsPair('server_id', '987654321'));
-        expect(result.containsKey('guild_id'), isFalse);
+        expect(result, containsPair('guild_id', '987654321'));
       });
 
       test('builds assets sub-map', () async {
         final result = await serializer.normalize(rawDiscordPayload());
 
         expect(result['assets'], isA<Map>());
-        expect(result['assets']['server_id'], equals('987654321'));
+        expect(result['assets']['guild_id'], equals('987654321'));
         expect(result['assets']['member_id'], equals('444555666'));
       });
 
@@ -225,7 +224,7 @@ void main() {
         expect(result['username'], equals('testuser'));
         expect(result['is_bot'], equals(json['is_bot']));
         expect(result['locale'], equals(json['locale']));
-        expect(result['server_id'], equals(Snowflake('987654321').value));
+        expect(result['guild_id'], equals(Snowflake('987654321').value));
       });
     });
   });

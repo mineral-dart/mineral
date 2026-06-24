@@ -3,8 +3,8 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/api/common/types/interaction_type.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
+import 'package:mineral/src/domains/components/modal/contexts/guild_modal_context.dart';
 import 'package:mineral/src/domains/components/modal/contexts/private_modal_context.dart';
-import 'package:mineral/src/domains/components/modal/contexts/server_modal_context.dart';
 import 'package:mineral/src/domains/events/event.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
@@ -62,7 +62,7 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
           if (customId.contains('user_select')) {
             // Resolve User instances
             if (guildId != null) {
-              // Resolve to Members in server context (match native select behavior)
+              // Resolve to Members in guild context (match native select behavior)
               parameters[customId] = await Future.wait(values
                   .map((id) => _dataStore.member.get(guildId, id, false)));
             } else {
@@ -121,14 +121,14 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
       }
 
       final event = switch (interactionContext) {
-        InteractionContextType.server => Event.serverModalSubmit,
+        InteractionContextType.guild => Event.guildModalSubmit,
         InteractionContextType.privateChannel => Event.privateModalSubmit,
         _ => null
       };
 
       final ctx = await switch (interactionContext) {
-        InteractionContextType.server =>
-          ServerModalContext.fromMap(_dataStore, _entityContext, payload),
+        InteractionContextType.guild =>
+          GuildModalContext.fromMap(_dataStore, _entityContext, payload),
         InteractionContextType.privateChannel =>
           PrivateModalContext.fromMap(_marshaller, _entityContext, payload),
         _ => null

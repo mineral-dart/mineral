@@ -7,7 +7,7 @@ import 'package:mineral/src/api/common/commands/command_type.dart';
 final class CommandBuilder {
   String? _name;
   String? _description;
-  CommandContextType context = CommandContextType.server;
+  CommandContextType context = CommandContextType.guild;
   final List<CommandOption> _options = [];
   final List<SubCommandBuilder> _subCommands = [];
   final List<CommandGroupBuilder> _groups = [];

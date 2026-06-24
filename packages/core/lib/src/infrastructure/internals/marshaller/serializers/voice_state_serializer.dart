@@ -12,7 +12,7 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
   @override
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {
     final payload = {
-      'server_id': json['guild_id'],
+      'guild_id': json['guild_id'],
       'channel_id': json['channel_id'],
       'user_id': json['user_id'],
       'session_id': json['session_id'],
@@ -37,7 +37,7 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
   Future<VoiceState> serialize(Map<String, dynamic> json) async {
     return VoiceState(
         ctx: _ctx,
-        serverId: Snowflake.parse(json['server_id']),
+        guildId: Snowflake.parse(json['guild_id']),
         channelId: Snowflake.nullable(json['channel_id'] as String?),
         userId: Snowflake.parse(json['user_id']),
         sessionId: json['session_id'] as String?,
@@ -56,7 +56,7 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
   @override
   Map<String, dynamic> deserialize(VoiceState state) {
     return {
-      'server_id': state.serverId.value,
+      'guild_id': state.guildId.value,
       'channel_id': state.channelId?.value,
       'user_id': state.userId.value,
       'session_id': state.sessionId,

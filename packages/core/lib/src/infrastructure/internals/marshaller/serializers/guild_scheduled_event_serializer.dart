@@ -1,5 +1,5 @@
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/api/server/guild_scheduled_event.dart';
+import 'package:mineral/src/api/guild/guild_scheduled_event.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
@@ -50,7 +50,7 @@ final class GuildScheduledEventSerializer
     return GuildScheduledEvent(
       ctx: _ctx,
       id: Snowflake.parse(json['id']),
-      serverId: Snowflake.parse(json['guild_id']),
+      guildId: Snowflake.parse(json['guild_id']),
       channelId: json['channel_id'] != null
           ? Snowflake.parse(json['channel_id'])
           : null,
@@ -84,7 +84,7 @@ final class GuildScheduledEventSerializer
   Map<String, dynamic> deserialize(GuildScheduledEvent event) {
     return {
       'id': event.id.value,
-      'guild_id': event.serverId.value,
+      'guild_id': event.guildId.value,
       'channel_id': event.channelId?.value,
       'creator_id': event.creatorId?.value,
       'name': event.name,

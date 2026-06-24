@@ -13,7 +13,7 @@ import '../recorders/handler_error.dart';
 ///
 /// The simulator routes synthetic events through this registry rather than
 /// the real Mineral dispatchers, which keeps the test framework decoupled
-/// from heavyweight `Member`/`Server` construction.
+/// from heavyweight `Member`/`Guild` construction.
 final class ListenerRegistry {
   final List<OnMemberJoinListener> _onMemberJoin = [];
   final Map<String, OnCommandListener> _onCommand = {};
@@ -56,7 +56,7 @@ final class Simulator {
 
   Future<void> simulateMemberJoin(TestMember member, TestGuild guild) async {
     for (final listener in _registry.memberJoinListeners()) {
-      await _runEvent('serverMemberAdd', () => listener.handle(member, guild));
+      await _runEvent('guildMemberAdd', () => listener.handle(member, guild));
     }
   }
 

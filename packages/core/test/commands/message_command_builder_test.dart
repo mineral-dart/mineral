@@ -33,9 +33,9 @@ void main() {
       expect(builder.name, equals('Report Message'));
     });
 
-    test('default context is server', () {
+    test('default context is guild', () {
       final builder = MessageCommandBuilder();
-      expect(builder.context, equals(CommandContextType.server));
+      expect(builder.context, equals(CommandContextType.guild));
     });
 
     test('setContext mutates context', () {

@@ -44,9 +44,9 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
       final selectMenuType = ComponentType.values
           .firstWhereOrNull((e) => e.value == data['component_type']);
 
-      final serverId = Snowflake.nullable(payload['guild_id'] as String?);
-      final SelectContext ctx = await switch (serverId) {
-        String() => ServerSelectContext.fromMap(
+      final guildId = Snowflake.nullable(payload['guild_id'] as String?);
+      final SelectContext ctx = await switch (guildId) {
+        String() => GuildSelectContext.fromMap(
                 _dataStore, _entityContext, payload)
             as Future<SelectContext>,
         _ => PrivateSelectContext.fromMap(
@@ -73,7 +73,7 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
 
   Future<void> _dispatchChannelSelectMenu(SelectContext ctx,
       Map<String, dynamic> payload, DispatchEvent dispatch) async {
-    final serverChannels =
+    final guildChannels =
         await _dataStore.channel.fetch(payload['guild_id'] as String, false);
 
     final data = payload['data'] as Map<String, dynamic>;
@@ -82,16 +82,16 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
         Map.from(resolvedData['channels'] as Map<dynamic, dynamic>).keys;
 
     final channels =
-        channelIds.map((id) => serverChannels[id]).whereType<ServerChannel>();
+        channelIds.map((id) => guildChannels[id]).whereType<GuildChannel>();
 
     _interactiveComponentManager.dispatch(ctx.customId, [ctx, channels]);
 
     return switch (ctx) {
-      ServerSelectContext() => dispatch<ServerChannelSelectArgs>(
-          event: Event.serverChannelSelect,
+      GuildSelectContext() => dispatch<GuildChannelSelectArgs>(
+          event: Event.guildChannelSelect,
           payload: (
             ctx: ctx,
-            channels: channels.whereType<ServerChannel>().toList()
+            channels: channels.whereType<GuildChannel>().toList()
           ),
           constraint: (String? customId) => customId == ctx.customId),
       PrivateSelectContext() => null,
@@ -101,7 +101,7 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
 
   Future<void> _dispatchRoleSelectMenu(SelectContext ctx,
       Map<String, dynamic> payload, DispatchEvent dispatch) async {
-    final serverRoles =
+    final guildRoles =
         await _dataStore.role.fetch(payload['guild_id'] as String, false);
 
     final data = payload['data'] as Map<String, dynamic>;
@@ -109,12 +109,12 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
     final roleIds =
         Map.from(resolvedData['roles'] as Map<dynamic, dynamic>).keys;
 
-    final resolvedRoles = roleIds.map((id) => serverRoles[id]);
+    final resolvedRoles = roleIds.map((id) => guildRoles[id]);
 
-    dispatch<ServerRoleSelectArgs>(
-        event: Event.serverRoleSelect,
+    dispatch<GuildRoleSelectArgs>(
+        event: Event.guildRoleSelect,
         payload: (
-          ctx: ctx as ServerSelectContext,
+          ctx: ctx as GuildSelectContext,
           roles: resolvedRoles.whereType<Role>().toList()
         ),
         constraint: (String? customId) => customId == ctx.customId);
@@ -130,7 +130,7 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
         Map.from(resolvedData['users'] as Map<dynamic, dynamic>).keys;
 
     final event = switch (ctx) {
-      ServerSelectContext() => Event.serverMemberSelect,
+      GuildSelectContext() => Event.guildMemberSelect,
       PrivateSelectContext() => Event.privateUserSelect,
       _ => null,
     };
@@ -141,7 +141,7 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
     }
 
     final resolvedResource = await switch (ctx) {
-      ServerSelectContext() => Future.wait(userIds.map((id) {
+      GuildSelectContext() => Future.wait(userIds.map((id) {
           return _dataStore.member
               .get(payload['guild_id'] as String, id as String, false);
         })),
@@ -154,7 +154,7 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
         .dispatch(ctx.customId, [ctx, resolvedResource]);
 
     return switch (ctx) {
-      ServerSelectContext() => dispatch(
+      GuildSelectContext() => dispatch(
           event: event,
           payload: (
             ctx: ctx,
@@ -202,9 +202,9 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
 
     _interactiveComponentManager.dispatch(ctx.customId, [ctx, mentionables]);
 
-    dispatch<ServerMentionableSelectArgs>(
-      event: Event.serverMentionableSelect,
-      payload: (ctx: ctx as ServerSelectContext, mentionables: mentionables),
+    dispatch<GuildMentionableSelectArgs>(
+      event: Event.guildMentionableSelect,
+      payload: (ctx: ctx as GuildSelectContext, mentionables: mentionables),
       constraint: (String? customId) => customId == ctx.customId,
     );
   }
@@ -217,8 +217,8 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
     _interactiveComponentManager.dispatch(ctx.customId, [ctx, resolvedText]);
 
     return switch (ctx) {
-      ServerSelectContext() => dispatch<ServerTextSelectArgs>(
-          event: Event.serverTextSelect,
+      GuildSelectContext() => dispatch<GuildTextSelectArgs>(
+          event: Event.guildTextSelect,
           payload: (ctx: ctx, values: resolvedText),
           constraint: (String? customId) => customId == ctx.customId),
       PrivateSelectContext() => dispatch<PrivateTextSelectArgs>(

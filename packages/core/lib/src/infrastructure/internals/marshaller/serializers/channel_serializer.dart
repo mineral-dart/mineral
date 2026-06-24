@@ -4,14 +4,14 @@ import 'package:collection/collection.dart';
 import 'package:mineral/api.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/guild_announcement_channel_factory.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/guild_category_channel_factory.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/guild_forum_channel_factory.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/guild_public_thread_channel_factory.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/guild_stage_channel_factory.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/guild_text_channel_factory.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/guild_voice_channel_factory.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/private_channel_factory.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/server_announcement_channel_factory.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/server_category_channel_factory.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/server_forum_channel_factory.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/server_public_thread_channel_factory.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/server_stage_channel_factory.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/server_text_channel_factory.dart';
-import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/server_voice_channel_factory.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/factories/channels/unknown_channel_factory.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/channel_factory.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
@@ -24,14 +24,14 @@ final class ChannelSerializer<T extends Channel?>
   ChannelSerializer(this._marshaller, this._ctx);
 
   final List<ChannelFactoryContract> _factories = [
-    ServerTextChannelFactory(),
-    ServerVoiceChannelFactory(),
-    ServerCategoryChannelFactory(),
-    ServerAnnouncementChannelFactory(),
-    ServerForumChannelFactory(),
-    ServerStageChannelFactory(),
+    GuildTextChannelFactory(),
+    GuildVoiceChannelFactory(),
+    GuildCategoryChannelFactory(),
+    GuildAnnouncementChannelFactory(),
+    GuildForumChannelFactory(),
+    GuildStageChannelFactory(),
     PrivateChannelFactory(),
-    ServerPublicThreadChannelFactory(),
+    GuildPublicThreadChannelFactory(),
     UnknownChannelFactory(),
   ];
 

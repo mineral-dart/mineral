@@ -34,7 +34,7 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
     final payload = message.payload as Map<String, dynamic>;
     if (type == InteractionType.messageComponent &&
         componentType == ComponentType.button) {
-      final serverId = Snowflake.nullable((payload['guild'] as Map<String, dynamic>?)?['id'] as String?);
+      final guildId = Snowflake.nullable((payload['guild'] as Map<String, dynamic>?)?['id'] as String?);
 
       final type = ComponentType.values.firstWhereOrNull(
           (e) => e.value == (payload['data'] as Map<String, dynamic>)['component_type']);
@@ -45,7 +45,7 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
         return;
       }
 
-      return switch (serverId) {
+      return switch (guildId) {
         String() => _handleServerButton(payload, dispatch),
         _ => _handlePrivateButton(payload, dispatch),
       };
@@ -65,7 +65,7 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
       return;
     }
 
-    final ctx = ServerButtonContext(
+    final ctx = GuildButtonContext(
       ctx: _ctx,
       id: Snowflake.parse(payload['id']),
       applicationId: Snowflake.parse(payload['application_id']),
@@ -76,8 +76,8 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
       messageId: Snowflake.parse((payload['message'] as Map<String, dynamic>)['id']),
     );
 
-    dispatch<ServerButtonClickArgs>(
-        event: Event.serverButtonClick,
+    dispatch<GuildButtonClickArgs>(
+        event: Event.guildButtonClick,
         payload: (ctx: ctx),
         constraint: (String? customId) => customId == ctx.customId);
 

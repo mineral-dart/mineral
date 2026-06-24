@@ -1,8 +1,8 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
-import 'package:mineral/src/api/server/channels/private_thread_channel.dart';
-import 'package:mineral/src/api/server/channels/public_thread_channel.dart';
+import 'package:mineral/src/api/guild/channels/private_thread_channel.dart';
+import 'package:mineral/src/api/guild/channels/public_thread_channel.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 import 'package:mineral/src/infrastructure/internals/http/discord_header.dart';
 
@@ -10,9 +10,9 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
   ThreadPart(super.marshaller, super.dataStore);
 
   @override
-  Future<ThreadResult> fetchActives(Object serverId) async {
-    final guildId = Snowflake.parse(serverId);
-    final request = Request.json(endpoint: '/guilds/$guildId/threads/active');
+  Future<ThreadResult> fetchActives(Object guildId) async {
+    final parsedGuildId = Snowflake.parse(guildId);
+    final request = Request.json(endpoint: '/guilds/$parsedGuildId/threads/active');
     final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(request);
 
     final channels = await result.map((element) async {
@@ -22,7 +22,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
 
     return ThreadResult(channels
         .asMap()
-        .map((key, value) => MapEntry(value.id, value as ServerChannel)));
+        .map((key, value) => MapEntry(value.id, value as GuildChannel)));
   }
 
   @override
@@ -59,9 +59,9 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
 
   @override
   Future<T> createWithoutMessage<T extends ThreadChannel>(
-      Object? serverId, Object? channelId, ThreadChannelBuilder builder,
+      Object? guildId, Object? channelId, ThreadChannelBuilder builder,
       {String? reason}) async {
-    final guildId = serverId != null ? Snowflake.parse(serverId) : null;
+    final parsedGuildId = guildId != null ? Snowflake.parse(guildId) : null;
     final req = Request.json(
         endpoint: '/channels/$channelId/threads',
         body: builder.build(),
@@ -72,7 +72,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
       ...raw,
-      'guild_id': guildId,
+      'guild_id': parsedGuildId,
     });
     if (serialized is! T) {
       throw SerializationException(
@@ -83,10 +83,10 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
   }
 
   @override
-  Future<T> createFromMessage<T extends ThreadChannel>(Object? serverId,
+  Future<T> createFromMessage<T extends ThreadChannel>(Object? guildId,
       Object? channelId, Object? messageId, ThreadChannelBuilder builder,
       {String? reason}) async {
-    final guildId = serverId != null ? Snowflake.parse(serverId) : null;
+    final parsedGuildId = guildId != null ? Snowflake.parse(guildId) : null;
     final req = Request.json(
         endpoint: '/channels/$channelId/messages/$messageId/threads',
         body: builder.build(),
@@ -97,7 +97,7 @@ final class ThreadPart extends BasePart implements ThreadPartContract {
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
       ...raw,
-      'guild_id': guildId,
+      'guild_id': parsedGuildId,
     });
     if (serialized is! T) {
       throw SerializationException(

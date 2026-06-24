@@ -1,7 +1,7 @@
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
+import 'package:mineral/src/api/guild/channels/guild_channel.dart';
 import 'package:mineral/src/api/private/channels/private_channel.dart';
-import 'package:mineral/src/api/server/channels/server_channel.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -25,7 +25,7 @@ final class ChannelPinsUpdatePacket implements ListenablePacket {
         await _dataStore.channel.get(message.payload['channel_id'] as Object, false);
 
     return switch (channel) {
-      ServerChannel() => registerServerChannelPins(channel, dispatch),
+      GuildChannel() => registerServerChannelPins(channel, dispatch),
       PrivateChannel() => registerPrivateChannelPins(channel, dispatch),
       _ => _logger
           .warn("Unknown channel type: $channel contact Mineral's core team.")
@@ -33,10 +33,10 @@ final class ChannelPinsUpdatePacket implements ListenablePacket {
   }
 
   Future<void> registerServerChannelPins(
-      ServerChannel channel, DispatchEvent dispatch) async {
-    final server = await _dataStore.server.get(channel.serverId.value, false);
+      GuildChannel channel, DispatchEvent dispatch) async {
+    final guild = await _dataStore.guild.get(channel.guildId.value, false);
 
-    dispatch<ServerChannelPinsUpdateArgs>(event: Event.serverChannelPinsUpdate, payload: (server: server, channel: channel));
+    dispatch<GuildChannelPinsUpdateArgs>(event: Event.guildChannelPinsUpdate, payload: (guild: guild, channel: channel));
   }
 
   Future<void> registerPrivateChannelPins(

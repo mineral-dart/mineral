@@ -23,14 +23,14 @@ final class EmojiSerializer implements SerializerContract<Emoji> {
       'roles': json['roles'] != null
           ? List.from(json['roles'] as Iterable<dynamic>)
               .map((element) => _marshaller.cacheKey
-                  .serverEmoji(json['guild_id'] as String, (element as Map<String, dynamic>)['id'] as String))
+                  .guildEmoji(json['guild_id'] as String, (element as Map<String, dynamic>)['id'] as String))
               .toList()
           : <String>[],
-      'server_id': json['guild_id'],
+      'guild_id': json['guild_id'],
     };
 
     final cacheKey =
-        _marshaller.cacheKey.serverEmoji(json['guild_id'] as String, json['id'] as String);
+        _marshaller.cacheKey.guildEmoji(json['guild_id'] as String, json['id'] as String);
     await _marshaller.cache?.put(cacheKey, payload);
 
     return payload;
@@ -44,7 +44,7 @@ final class EmojiSerializer implements SerializerContract<Emoji> {
     }).wait;
 
     return Emoji(
-      Snowflake.parse(json['server_id']),
+      Snowflake.parse(json['guild_id']),
       ctx: _ctx,
       id: Snowflake.parse(json['id']),
       name: json['name'] as String,
@@ -66,7 +66,7 @@ final class EmojiSerializer implements SerializerContract<Emoji> {
       'managed': emoji.managed,
       'animated': emoji.animated,
       'available': emoji.available,
-      'server_id': emoji.serverId.value,
+      'guild_id': emoji.guildId.value,
     };
   }
 }

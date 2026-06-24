@@ -1,6 +1,6 @@
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/src/api/server/guild_application_command_permissions.dart';
+import 'package:mineral/src/api/guild/guild_application_command_permissions.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -19,15 +19,15 @@ final class ApplicationCommandPermissionsUpdatePacket
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final server = await _dataStore.server
+    final guild = await _dataStore.guild
         .get(message.payload['guild_id'] as Object, false);
 
     final permissions = GuildApplicationCommandPermissions.fromJson(
         Map<String, dynamic>.from(message.payload as Map));
 
-    dispatch<ServerApplicationCommandPermissionsUpdateArgs>(
-      event: Event.serverApplicationCommandPermissionsUpdate,
-      payload: (server: server, permissions: permissions),
+    dispatch<GuildApplicationCommandPermissionsUpdateArgs>(
+      event: Event.guildApplicationCommandPermissionsUpdate,
+      payload: (guild: guild, permissions: permissions),
     );
   }
 }

@@ -1,12 +1,12 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/events.dart';
 
-final class FeedbackButton extends ServerButtonClickEvent {
+final class FeedbackButton extends GuildButtonClickEvent {
   @override
   String? get customId => 'open_feedback';
 
   @override
-  Future<void> handle(ServerButtonContext ctx) async {
+  Future<void> handle(GuildButtonContext ctx) async {
     final modal = ModalBuilder('submit_feedback')
       ..setTitle('Share your feedback')
       ..addText('All feedback is reviewed by the team.')

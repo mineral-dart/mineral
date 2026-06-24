@@ -1,8 +1,8 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/src/api/server/moderation/enums/action_type.dart';
-import 'package:mineral/src/api/server/moderation/enums/auto_moderation_event_type.dart';
-import 'package:mineral/src/api/server/moderation/enums/trigger_type.dart';
-import 'package:mineral/src/api/server/moderation/trigger_metadata.dart';
+import 'package:mineral/src/api/guild/moderation/enums/action_type.dart';
+import 'package:mineral/src/api/guild/moderation/enums/auto_moderation_event_type.dart';
+import 'package:mineral/src/api/guild/moderation/enums/trigger_type.dart';
+import 'package:mineral/src/api/guild/moderation/trigger_metadata.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
@@ -16,7 +16,7 @@ final class RuleSerializer implements SerializerContract<AutoModerationRule> {
   Future<Map<String, dynamic>> normalize(Map<String, dynamic> json) async {
     final payload = {
       'id': json['id'],
-      'serverId': json['guild_id'],
+      'guildId': json['guild_id'],
       'name': json['name'],
       'creatorId': json['creator_id'],
       'eventType': json['event_type'],
@@ -31,7 +31,7 @@ final class RuleSerializer implements SerializerContract<AutoModerationRule> {
     };
 
     final cacheKey =
-        _marshaller.cacheKey.serverRules(json['guild_id'] as String, json['id'] as String);
+        _marshaller.cacheKey.guildRules(json['guild_id'] as String, json['id'] as String);
     await _marshaller.cache?.put(cacheKey, payload);
 
     return payload;
@@ -41,7 +41,7 @@ final class RuleSerializer implements SerializerContract<AutoModerationRule> {
   Future<AutoModerationRule> serialize(Map<String, dynamic> json) async {
     return AutoModerationRule(
       id: Snowflake.parse(json['id']),
-      serverId: Snowflake.parse(json['serverId']),
+      guildId: Snowflake.parse(json['guildId']),
       name: json['name'] as String,
       creatorId: Snowflake.parse(json['creatorId']),
       eventTypes: findInEnum(AutoModerationEventType.values, json['eventType'],
@@ -67,7 +67,7 @@ final class RuleSerializer implements SerializerContract<AutoModerationRule> {
   Map<String, dynamic> deserialize(AutoModerationRule rule) {
     return {
       'id': rule.id,
-      'server_id': rule.serverId.toString(),
+      'guild_id': rule.guildId.toString(),
       'name': rule.name,
       'creator_id': rule.creatorId.toString(),
       'event_type': rule.eventTypes.value,

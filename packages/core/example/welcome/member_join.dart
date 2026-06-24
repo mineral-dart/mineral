@@ -1,10 +1,10 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/events.dart';
 
-final class MemberJoin extends ServerMemberAddEvent {
+final class MemberJoin extends GuildMemberAddEvent {
   @override
-  Future<void> handle(Member member, Server server) async {
-    final systemChannel = await server.channels.resolveSystemChannel();
+  Future<void> handle(Member member, Guild guild) async {
+    final systemChannel = await guild.channels.resolveSystemChannel();
     if (systemChannel == null) {
       return;
     }
@@ -12,7 +12,7 @@ final class MemberJoin extends ServerMemberAddEvent {
     final displayName = member.nickname ?? member.globalName ?? member.username;
 
     final message = MessageBuilder.text(
-      '👋 Welcome to **${server.name}**, $displayName!',
+      '👋 Welcome to **${guild.name}**, $displayName!',
     )
       ..addButton(Button.primary(
         'welcome:${member.id.value}',

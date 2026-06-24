@@ -16,7 +16,7 @@ final class MessageReactionRemoveEmojiPacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final serverId = Snowflake.nullable(message.payload['guild_id']);
+    final guildId = Snowflake.nullable(message.payload['guild_id']);
     final channelId = Snowflake.parse(message.payload['channel_id']);
     final messageId = Snowflake.parse(message.payload['message_id']);
     final emojiPayload = message.payload['emoji'] as Map<String, dynamic>?;
@@ -26,28 +26,28 @@ final class MessageReactionRemoveEmojiPacket implements ListenablePacket {
       (emojiPayload?['animated'] as bool?) ?? false,
     );
 
-    if (serverId != null) {
-      await _server(dispatch, serverId, channelId, messageId, emoji);
+    if (guildId != null) {
+      await _guild(dispatch, guildId, channelId, messageId, emoji);
     } else {
       await _private(dispatch, channelId, messageId, emoji);
     }
   }
 
-  Future<void> _server(
+  Future<void> _guild(
       DispatchEvent dispatch,
-      Snowflake serverId,
+      Snowflake guildId,
       Snowflake channelId,
       Snowflake messageId,
       PartialEmoji emoji) async {
     final channel =
-        await _dataStore.channel.get<ServerTextChannel>(channelId.value, false);
+        await _dataStore.channel.get<GuildTextChannel>(channelId.value, false);
     final message = await channel?.messages.get(messageId);
-    final server = await _dataStore.server.get(serverId.value, false);
+    final guild = await _dataStore.guild.get(guildId.value, false);
 
-    dispatch<ServerMessageReactionRemoveEmojiArgs>(
-        event: Event.serverMessageReactionRemoveEmoji,
+    dispatch<GuildMessageReactionRemoveEmojiArgs>(
+        event: Event.guildMessageReactionRemoveEmoji,
         payload: (
-          server: server,
+          guild: guild,
           channel: channel!,
           message: message! as Message,
           emoji: emoji

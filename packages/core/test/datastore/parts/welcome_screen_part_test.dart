@@ -11,7 +11,7 @@ import '../../helpers/ioc_test_helper.dart';
 const _guildId = '123456789012345678';
 
 Map<String, dynamic> _welcomeScreenPayload({
-  String? description = 'Welcome to our server!',
+  String? description = 'Welcome to our guild!',
   List<Map<String, dynamic>>? channels,
 }) =>
     {

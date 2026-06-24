@@ -24,11 +24,11 @@ void main() {
     tearDown(() => restoreIoc());
 
     group('add', () {
-      test('sends PUT to /guilds/:serverId/members/:memberId/roles/:roleId',
+      test('sends PUT to /guilds/:guildId/members/:memberId/roles/:roleId',
           () async {
         await role.add(
           memberId: '111',
-          serverId: '222',
+          guildId: '222',
           roleId: '333',
           reason: null,
         );
@@ -43,11 +43,11 @@ void main() {
     });
 
     group('remove', () {
-      test('sends DELETE to /guilds/:serverId/members/:memberId/roles/:roleId',
+      test('sends DELETE to /guilds/:guildId/members/:memberId/roles/:roleId',
           () async {
         await role.remove(
           memberId: '111',
-          serverId: '222',
+          guildId: '222',
           roleId: '333',
           reason: null,
         );
@@ -62,10 +62,10 @@ void main() {
     });
 
     group('delete', () {
-      test('sends DELETE to /guilds/:serverId/roles/:id', () async {
+      test('sends DELETE to /guilds/:guildId/roles/:id', () async {
         await role.delete(
           id: '333',
-          serverId: '222',
+          guildId: '222',
           reason: null,
         );
 
@@ -76,10 +76,10 @@ void main() {
     });
 
     group('sync', () {
-      test('sends PATCH to /guilds/:serverId/members/:memberId', () async {
+      test('sends PATCH to /guilds/:guildId/members/:memberId', () async {
         await role.sync(
           memberId: '111',
-          serverId: '222',
+          guildId: '222',
           roleIds: ['333', '444'],
           reason: null,
         );

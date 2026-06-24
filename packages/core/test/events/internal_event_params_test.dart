@@ -24,7 +24,7 @@ void main() {
 
     test('constraint can be null', () {
       final params = InternalEventParams(
-        Event.serverMessageCreate,
+        Event.guildMessageCreate,
         'message',
         null,
       );
@@ -40,12 +40,12 @@ void main() {
     test('works with different event types', () {
       final readyParams = InternalEventParams(Event.ready, (bot: 'bot'), null);
       final msgParams = InternalEventParams(
-          Event.serverMessageCreate, (message: 'msg'), null);
+          Event.guildMessageCreate, (message: 'msg'), null);
       final voiceParams = InternalEventParams(
           Event.voiceStateUpdate, (before: 'before', after: 'after'), null);
 
       expect(readyParams.event, Event.ready);
-      expect(msgParams.event, Event.serverMessageCreate);
+      expect(msgParams.event, Event.guildMessageCreate);
       expect(voiceParams.event, Event.voiceStateUpdate);
       final vp = voiceParams.payload as ({String before, String after});
       expect(vp.before, 'before');

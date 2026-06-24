@@ -164,7 +164,7 @@ void main() {
 
     test('known values resolve correctly', () {
       expect(findInEnum(InteractionContextType.values, 0),
-          InteractionContextType.server);
+          InteractionContextType.guild);
       expect(findInEnum(InteractionContextType.values, 1),
           InteractionContextType.botPrivate);
       expect(findInEnum(InteractionContextType.values, 2),

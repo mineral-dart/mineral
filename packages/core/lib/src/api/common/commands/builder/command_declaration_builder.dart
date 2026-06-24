@@ -23,7 +23,7 @@ final class CommandDeclarationBuilder implements CommandBuilder {
   Map<String, String>? _nameLocalizations;
   String? _description;
   Map<String, String>? _descriptionLocalizations;
-  CommandContextType context = CommandContextType.server;
+  CommandContextType context = CommandContextType.guild;
   List<ApplicationIntegrationType>? integrationTypes;
   List<InteractionContextType>? interactionContexts;
   final List<CommandOption> options = [];

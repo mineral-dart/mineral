@@ -1,6 +1,6 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/src/api/server/audit_log/actions/invite.dart';
-import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/api/guild/audit_log/actions/invite.dart';
+import 'package:mineral/src/api/guild/audit_log/audit_log.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 Future<AuditLog> inviteCreateAuditLogHandler(
@@ -8,7 +8,7 @@ Future<AuditLog> inviteCreateAuditLogHandler(
   final changes = json['changes'] as List<dynamic>;
   final options = json['options'] as Map<String, dynamic>?;
   return InviteCreateAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     inviteCode: (changes[0] as Map<String, dynamic>)['new_value'] as String,
     maxAge: options?['max_age'] as int? ?? 0,
@@ -22,7 +22,7 @@ Future<AuditLog> inviteCreateAuditLogHandler(
 Future<AuditLog> inviteUpdateAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   return InviteUpdateAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     inviteCode: json['target_id'] as String,
     changes: List<Map<String, dynamic>>.from(json['changes'] as Iterable<dynamic>)
@@ -40,7 +40,7 @@ Future<AuditLog> inviteDeleteAuditLogHandler(
   ) as Map<String, dynamic>;
 
   return InviteDeleteAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     inviteCode: code['old_value'] as String? ?? 'Unknown',
     channelId: Snowflake.nullable(options?['channel_id'] as String?),

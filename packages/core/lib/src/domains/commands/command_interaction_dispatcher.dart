@@ -89,10 +89,10 @@ final class CommandInteractionDispatcher
       return;
     }
 
-    final serverId = Snowflake.nullable(dataData['guild_id'] as String?);
-    final commandContext = await switch (serverId) {
+    final guildId = Snowflake.nullable(dataData['guild_id'] as String?);
+    final commandContext = await switch (guildId) {
       String() =>
-        ServerCommandContext.fromMap(_marshaller, _dataStore, _ctx, data),
+        GuildCommandContext.fromMap(_marshaller, _dataStore, _ctx, data),
       _ => GlobalCommandContext.fromMap(_marshaller, _dataStore, _ctx, data),
     };
 
@@ -116,8 +116,8 @@ final class CommandInteractionDispatcher
 
         optionValues[opt['name'] as String] = await switch (type) {
           CommandOptionType.user => switch (commandContext) {
-              ServerCommandContext() => _dataStore.member
-                  .get(commandContext.server.id.value, opt['value'] as String, false),
+              GuildCommandContext() => _dataStore.member
+                  .get(commandContext.guild.id.value, opt['value'] as String, false),
               _ => _dataStore.user.get(opt['value'] as String, false),
             },
           CommandOptionType.channel =>

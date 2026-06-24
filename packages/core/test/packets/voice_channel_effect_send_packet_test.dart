@@ -3,8 +3,8 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/api/common/permissions.dart';
-import 'package:mineral/src/api/server/managers/rules_manager.dart';
-import 'package:mineral/src/api/server/managers/threads_manager.dart';
+import 'package:mineral/src/api/guild/managers/rules_manager.dart';
+import 'package:mineral/src/api/guild/managers/threads_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
@@ -20,7 +20,7 @@ import '../helpers/fake_websocket_orchestrator.dart';
 
 // ── Test IDs ─────────────────────────────────────────────────────────────────
 
-const _serverId = '123456789012345678';
+const _guildId = '123456789012345678';
 const _channelId = '234567890123456789';
 const _userId = '345678901234567890';
 const _emojiId = '999888777666555444';
@@ -36,7 +36,7 @@ final class _NoopDs implements DataStoreContract {
   @override
   ChannelPartContract get channel => throw UnimplementedError();
   @override
-  ServerPartContract get server => throw UnimplementedError();
+  GuildPartContract get guild => throw UnimplementedError();
   @override
   MessagePartContract get message => throw UnimplementedError();
   @override
@@ -94,7 +94,7 @@ final class _DeferredDataStore implements DataStoreContract {
   @override
   ChannelPartContract get channel => _resolve().channel;
   @override
-  ServerPartContract get server => _resolve().server;
+  GuildPartContract get guild => _resolve().guild;
   @override
   MemberPartContract get member => _resolve().member;
   @override
@@ -145,21 +145,21 @@ final class _DeferredDataStore implements DataStoreContract {
 
 final class _FakeDataStore implements DataStoreContract {
   final ChannelPartContract _channelPart;
-  final ServerPartContract _serverPart;
+  final GuildPartContract _guildPart;
   final MemberPartContract _memberPart;
 
   _FakeDataStore({
     required ChannelPartContract channelPart,
-    required ServerPartContract serverPart,
+    required GuildPartContract guildPart,
     required MemberPartContract memberPart,
   })  : _channelPart = channelPart,
-        _serverPart = serverPart,
+        _guildPart = guildPart,
         _memberPart = memberPart;
 
   @override
   ChannelPartContract get channel => _channelPart;
   @override
-  ServerPartContract get server => _serverPart;
+  GuildPartContract get guild => _guildPart;
   @override
   MemberPartContract get member => _memberPart;
 
@@ -230,13 +230,13 @@ final class _FakeChannelPart implements ChannelPartContract {
       throw UnimplementedError(invocation.memberName.toString());
 }
 
-final class _FakeServerPart implements ServerPartContract {
-  final Server _server;
+final class _FakeServerPart implements GuildPartContract {
+  final Guild _guild;
 
-  _FakeServerPart(this._server);
+  _FakeServerPart(this._guild);
 
   @override
-  Future<Server> get(Object id, bool force) async => _server;
+  Future<Guild> get(Object id, bool force) async => _guild;
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
@@ -249,7 +249,7 @@ final class _FakeMemberPart implements MemberPartContract {
   _FakeMemberPart(this._member);
 
   @override
-  Future<Member?> get(Object serverId, Object id, bool force) async => _member;
+  Future<Member?> get(Object guildId, Object id, bool force) async => _member;
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
@@ -265,17 +265,17 @@ EntityContext _buildCtx(DataStoreContract dataStore) => EntityContext(
       runtimeState: RuntimeState(),
     );
 
-Server _buildServer(EntityContext ctx) {
-  final id = Snowflake.parse(_serverId);
-  return Server(
+Guild _buildServer(EntityContext ctx) {
+  final id = Snowflake.parse(_guildId);
+  return Guild(
     ctx: ctx,
     id: id,
-    name: 'Test Server',
+    name: 'Test Guild',
     ownerId: Snowflake.parse('000000000000000001'),
     description: null,
     applicationId: null,
     members: MemberManager(id, ctx: ctx),
-    settings: ServerSettings(
+    settings: GuildSettings(
       bitfieldPermission: null,
       afkTimeout: null,
       hasWidgetEnabled: false,
@@ -286,7 +286,7 @@ Server _buildServer(EntityContext ctx) {
       mfaLevel: MfaLevel.none,
       systemChannelFlags: [],
       vanityUrlCode: null,
-      subscription: ServerSubscription(
+      subscription: GuildSubscription(
         tier: PremiumTier.none,
         subscriptionCount: null,
         hasEnabledProgressBar: false,
@@ -307,7 +307,7 @@ Server _buildServer(EntityContext ctx) {
       safetyAlertsChannelId: null,
     ),
     threads: ThreadsManager(id, null, ctx: ctx),
-    assets: ServerAsset(
+    assets: GuildAsset(
       id,
       ctx: ctx,
       emojis: EmojiManager(id, ctx: ctx),
@@ -320,14 +320,14 @@ Server _buildServer(EntityContext ctx) {
   );
 }
 
-ServerVoiceChannel _buildVoiceChannel(EntityContext ctx) => ServerVoiceChannel(
+GuildVoiceChannel _buildVoiceChannel(EntityContext ctx) => GuildVoiceChannel(
       ChannelProperties(
         ctx: ctx,
         id: Snowflake.parse(_channelId),
         type: ChannelType.guildVoice,
         name: 'general-voice',
         description: null,
-        serverId: Snowflake.parse(_serverId),
+        guildId: Snowflake.parse(_guildId),
         categoryId: null,
         position: null,
         nsfw: false,
@@ -354,7 +354,7 @@ ServerVoiceChannel _buildVoiceChannel(EntityContext ctx) => ServerVoiceChannel(
         defaultSortOrder: null,
         defaultForumLayout: null,
         threads: ThreadsManager(
-          Snowflake.parse(_serverId),
+          Snowflake.parse(_guildId),
           Snowflake.parse(_channelId),
           ctx: ctx,
         ),
@@ -363,7 +363,7 @@ ServerVoiceChannel _buildVoiceChannel(EntityContext ctx) => ServerVoiceChannel(
 
 Member _buildMember(EntityContext ctx) {
   final memberId = Snowflake.parse(_userId);
-  final serverId = Snowflake.parse(_serverId);
+  final guildId = Snowflake.parse(_guildId);
   return Member(
     ctx: ctx,
     id: memberId,
@@ -379,7 +379,7 @@ Member _buildMember(EntityContext ctx) {
     flags: MemberFlagsManager([], ctx: ctx),
     premiumSince: null,
     publicFlags: null,
-    roles: MemberRoleManager([], serverId, memberId, ctx: ctx),
+    roles: MemberRoleManager([], guildId, memberId, ctx: ctx),
     isBot: false,
     isPending: false,
     timeout: MemberTimeout(duration: null),
@@ -389,7 +389,7 @@ Member _buildMember(EntityContext ctx) {
     joinedAt: null,
     permissions: Permissions.fromInt(0),
     accentColor: null,
-    serverId: serverId,
+    guildId: guildId,
   );
 }
 
@@ -402,7 +402,7 @@ ShardMessage<dynamic> _shardMessage(Map<String, dynamic> payload) =>
       sequence: 1,
       payload: {
         'channel_id': _channelId,
-        'guild_id': _serverId,
+        'guild_id': _guildId,
         'user_id': _userId,
         ...payload,
       },
@@ -421,7 +421,7 @@ void main() {
             _buildCtx(_NoopDs()),
           ),
         ),
-        serverPart: _FakeServerPart(
+        guildPart: _FakeServerPart(
           _buildServer(
             _buildCtx(_NoopDs()),
           ),
@@ -454,20 +454,20 @@ void main() {
           runtimeState: RuntimeState(),
         );
 
-        final server = _buildServer(ctx);
+        final guild = _buildServer(ctx);
         final channel = _buildVoiceChannel(ctx);
         final member = _buildMember(ctx);
 
         ds = _FakeDataStore(
           channelPart: _FakeChannelPart(channel),
-          serverPart: _FakeServerPart(server),
+          guildPart: _FakeServerPart(guild),
           memberPart: _FakeMemberPart(member),
         );
 
         packet = VoiceChannelEffectSendPacket(dataStore: ds);
       });
 
-      test('dispatches Event.serverVoiceChannelEffectSend', () async {
+      test('dispatches Event.guildVoiceChannelEffectSend', () async {
         Event? capturedEvent;
         Object? capturedPayload;
 
@@ -488,19 +488,19 @@ void main() {
           dispatch,
         );
 
-        expect(capturedEvent, equals(Event.serverVoiceChannelEffectSend));
-        expect(capturedPayload, isA<ServerVoiceChannelEffectSendArgs>());
+        expect(capturedEvent, equals(Event.guildVoiceChannelEffectSend));
+        expect(capturedPayload, isA<GuildVoiceChannelEffectSendArgs>());
       });
 
       test('payload carries emoji, animationType=premium, animationId', () async {
-        ServerVoiceChannelEffectSendArgs? args;
+        GuildVoiceChannelEffectSendArgs? args;
 
         void dispatch<T extends Object>(
             {required Event event,
             required T payload,
             bool Function(String?)? constraint}) {
-          if (event == Event.serverVoiceChannelEffectSend) {
-            args = payload as ServerVoiceChannelEffectSendArgs;
+          if (event == Event.guildVoiceChannelEffectSend) {
+            args = payload as GuildVoiceChannelEffectSendArgs;
           }
         }
 
@@ -526,14 +526,14 @@ void main() {
       });
 
       test('payload carries unicode emoji and basic animationType', () async {
-        ServerVoiceChannelEffectSendArgs? args;
+        GuildVoiceChannelEffectSendArgs? args;
 
         void dispatch<T extends Object>(
             {required Event event,
             required T payload,
             bool Function(String?)? constraint}) {
-          if (event == Event.serverVoiceChannelEffectSend) {
-            args = payload as ServerVoiceChannelEffectSendArgs;
+          if (event == Event.guildVoiceChannelEffectSend) {
+            args = payload as GuildVoiceChannelEffectSendArgs;
           }
         }
 
@@ -553,15 +553,15 @@ void main() {
             equals(VoiceChannelEffectAnimationType.basic));
       });
 
-      test('channel is ServerVoiceChannel (ServerChannel subtype)', () async {
-        ServerVoiceChannelEffectSendArgs? args;
+      test('channel is GuildVoiceChannel (GuildChannel subtype)', () async {
+        GuildVoiceChannelEffectSendArgs? args;
 
         void dispatch<T extends Object>(
             {required Event event,
             required T payload,
             bool Function(String?)? constraint}) {
-          if (event == Event.serverVoiceChannelEffectSend) {
-            args = payload as ServerVoiceChannelEffectSendArgs;
+          if (event == Event.guildVoiceChannelEffectSend) {
+            args = payload as GuildVoiceChannelEffectSendArgs;
           }
         }
 
@@ -574,9 +574,9 @@ void main() {
           dispatch,
         );
 
-        expect(args!.channel, isA<ServerVoiceChannel>());
+        expect(args!.channel, isA<GuildVoiceChannel>());
         expect(args!.member, isA<Member>());
-        expect(args!.server, isA<Server>());
+        expect(args!.guild, isA<Guild>());
       });
     });
 
@@ -595,29 +595,29 @@ void main() {
           runtimeState: RuntimeState(),
         );
 
-        final server = _buildServer(ctx);
+        final guild = _buildServer(ctx);
         final channel = _buildVoiceChannel(ctx);
         final member = _buildMember(ctx);
 
         ds = _FakeDataStore(
           channelPart: _FakeChannelPart(channel),
-          serverPart: _FakeServerPart(server),
+          guildPart: _FakeServerPart(guild),
           memberPart: _FakeMemberPart(member),
         );
 
         packet = VoiceChannelEffectSendPacket(dataStore: ds);
       });
 
-      test('dispatches Event.serverVoiceChannelEffectSend with sound payload',
+      test('dispatches Event.guildVoiceChannelEffectSend with sound payload',
           () async {
-        ServerVoiceChannelEffectSendArgs? args;
+        GuildVoiceChannelEffectSendArgs? args;
 
         void dispatch<T extends Object>(
             {required Event event,
             required T payload,
             bool Function(String?)? constraint}) {
-          if (event == Event.serverVoiceChannelEffectSend) {
-            args = payload as ServerVoiceChannelEffectSendArgs;
+          if (event == Event.guildVoiceChannelEffectSend) {
+            args = payload as GuildVoiceChannelEffectSendArgs;
           }
         }
 
@@ -653,13 +653,13 @@ void main() {
           runtimeState: RuntimeState(),
         );
 
-        final server = _buildServer(ctx);
+        final guild = _buildServer(ctx);
         final channel = _buildVoiceChannel(ctx);
         final member = _buildMember(ctx);
 
         ds = _FakeDataStore(
           channelPart: _FakeChannelPart(channel),
-          serverPart: _FakeServerPart(server),
+          guildPart: _FakeServerPart(guild),
           memberPart: _FakeMemberPart(member),
         );
 
@@ -667,14 +667,14 @@ void main() {
       });
 
       test('all optional fields null when absent from payload', () async {
-        ServerVoiceChannelEffectSendArgs? args;
+        GuildVoiceChannelEffectSendArgs? args;
 
         void dispatch<T extends Object>(
             {required Event event,
             required T payload,
             bool Function(String?)? constraint}) {
-          if (event == Event.serverVoiceChannelEffectSend) {
-            args = payload as ServerVoiceChannelEffectSendArgs;
+          if (event == Event.guildVoiceChannelEffectSend) {
+            args = payload as GuildVoiceChannelEffectSendArgs;
           }
         }
 

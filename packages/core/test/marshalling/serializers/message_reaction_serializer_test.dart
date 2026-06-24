@@ -18,7 +18,7 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'server_id': '987654321',
+          'guild_id': '987654321',
           'channel_id': '111222333',
           'author_id': '444555666',
           'message_id': '777888999',
@@ -50,7 +50,7 @@ void main() {
         final reaction = await serializer.serialize(normalizedPayload());
 
         expect(reaction, isA<MessageReaction>());
-        expect(reaction.serverId, equals(Snowflake('987654321')));
+        expect(reaction.guildId, equals(Snowflake('987654321')));
         expect(reaction.channelId, equals(Snowflake('111222333')));
         expect(reaction.userId, equals(Snowflake('444555666')));
         expect(reaction.messageId, equals(Snowflake('777888999')));
@@ -90,20 +90,19 @@ void main() {
         expect(reaction.type, equals(MessageReactionType.burst));
       });
 
-      test('handles nullable serverId', () async {
-        final payload = normalizedPayload()..['server_id'] = null;
+      test('handles nullable guildId', () async {
+        final payload = normalizedPayload()..['guild_id'] = null;
         final reaction = await serializer.serialize(payload);
 
-        expect(reaction.serverId, isNull);
+        expect(reaction.guildId, isNull);
       });
     });
 
     group('normalize()', () {
-      test('renames guild_id to server_id', () async {
+      test('renames guild_id to guild_id', () async {
         final result = await serializer.normalize(rawDiscordPayload());
 
-        expect(result, containsPair('server_id', '987654321'));
-        expect(result.containsKey('guild_id'), isFalse);
+        expect(result, containsPair('guild_id', '987654321'));
       });
 
       test('renames user_id to author_id', () async {
@@ -128,7 +127,7 @@ void main() {
 
     group('deserialize()', () {
       // Anomaly: deserialize maps fields in a semantically inconsistent way
-      // ('id' receives serverId, 'content' receives userId, etc.)
+      // ('id' receives guildId, 'content' receives userId, etc.)
       test('produces a map with emoji sub-map', () async {
         final reaction = await serializer.serialize(normalizedPayload());
         final result = await serializer.deserialize(reaction);

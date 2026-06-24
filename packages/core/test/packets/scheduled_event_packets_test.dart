@@ -2,8 +2,8 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/services.dart';
-import 'package:mineral/src/api/server/managers/rules_manager.dart';
-import 'package:mineral/src/api/server/managers/threads_manager.dart';
+import 'package:mineral/src/api/guild/managers/rules_manager.dart';
+import 'package:mineral/src/api/guild/managers/threads_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
@@ -26,7 +26,7 @@ import '../helpers/fake_websocket_orchestrator.dart';
 
 // ── IDs ───────────────────────────────────────────────────────────────────────
 
-const _serverId = '123456789012345678';
+const _guildId = '123456789012345678';
 const _eventId = '111222333444555666';
 const _userId = '999888777666555444';
 const _channelId = '777888999000111222';
@@ -34,17 +34,17 @@ const _channelId = '777888999000111222';
 // ── Stub DataStore ────────────────────────────────────────────────────────────
 
 final class _FakeDataStore implements DataStoreContract {
-  final ServerPartContract _serverPart;
+  final GuildPartContract _guildPart;
   final UserPartContract _userPart;
 
   _FakeDataStore({
-    required ServerPartContract serverPart,
+    required GuildPartContract guildPart,
     UserPartContract? userPart,
-  })  : _serverPart = serverPart,
+  })  : _guildPart = guildPart,
         _userPart = userPart ?? _ThrowUserPart();
 
   @override
-  ServerPartContract get server => _serverPart;
+  GuildPartContract get guild => _guildPart;
 
   @override
   UserPartContract get user => _userPart;
@@ -93,12 +93,12 @@ final class _ThrowUserPart implements UserPartContract {
   Future<User?> get(Object id, bool force) => throw UnimplementedError();
 }
 
-final class _FakeServerPart implements ServerPartContract {
-  final Server _server;
-  _FakeServerPart(this._server);
+final class _FakeServerPart implements GuildPartContract {
+  final Guild _guild;
+  _FakeServerPart(this._guild);
 
   @override
-  Future<Server> get(Object id, bool force) async => _server;
+  Future<Guild> get(Object id, bool force) async => _guild;
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
@@ -149,17 +149,17 @@ final class _NullDataStore implements DataStoreContract {
 
 // ── Domain object builders ────────────────────────────────────────────────────
 
-Server _buildServer(EntityContext ctx) {
-  final id = Snowflake.parse(_serverId);
-  return Server(
+Guild _buildServer(EntityContext ctx) {
+  final id = Snowflake.parse(_guildId);
+  return Guild(
     ctx: ctx,
     id: id,
-    name: 'Test Server',
+    name: 'Test Guild',
     ownerId: Snowflake.parse('000000000000000001'),
     description: null,
     applicationId: null,
     members: MemberManager(id, ctx: ctx),
-    settings: ServerSettings(
+    settings: GuildSettings(
       bitfieldPermission: null,
       afkTimeout: null,
       hasWidgetEnabled: false,
@@ -170,7 +170,7 @@ Server _buildServer(EntityContext ctx) {
       mfaLevel: MfaLevel.none,
       systemChannelFlags: [],
       vanityUrlCode: null,
-      subscription: ServerSubscription(
+      subscription: GuildSubscription(
         tier: PremiumTier.none,
         subscriptionCount: null,
         hasEnabledProgressBar: false,
@@ -191,7 +191,7 @@ Server _buildServer(EntityContext ctx) {
       safetyAlertsChannelId: null,
     ),
     threads: ThreadsManager(id, null, ctx: ctx),
-    assets: ServerAsset(
+    assets: GuildAsset(
       id,
       ctx: ctx,
       emojis: EmojiManager(id, ctx: ctx),
@@ -232,7 +232,7 @@ User _buildUser(EntityContext ctx) => User(
 
 Map<String, dynamic> _scheduledEventPayload() => {
       'id': _eventId,
-      'guild_id': _serverId,
+      'guild_id': _guildId,
       'channel_id': _channelId,
       'creator_id': null,
       'name': 'Test Event',
@@ -274,7 +274,7 @@ ShardMessage<dynamic> _buildUserAddMessage() => ShardMessage(
       opCode: OpCode.dispatch,
       sequence: 4,
       payload: {
-        'guild_id': _serverId,
+        'guild_id': _guildId,
         'guild_scheduled_event_id': _eventId,
         'user_id': _userId,
       },
@@ -285,7 +285,7 @@ ShardMessage<dynamic> _buildUserRemoveMessage() => ShardMessage(
       opCode: OpCode.dispatch,
       sequence: 5,
       payload: {
-        'guild_id': _serverId,
+        'guild_id': _guildId,
         'guild_scheduled_event_id': _eventId,
         'user_id': _userId,
       },
@@ -301,7 +301,7 @@ void main() {
       final marshaller = _FakeMarshaller();
       final packet = GuildScheduledEventCreatePacket(
         marshaller: marshaller,
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.guildScheduledEventCreate));
       expect(packet.packetType.name, equals('GUILD_SCHEDULED_EVENT_CREATE'));
@@ -311,7 +311,7 @@ void main() {
       final marshaller = _FakeMarshaller();
       final packet = GuildScheduledEventUpdatePacket(
         marshaller: marshaller,
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.guildScheduledEventUpdate));
       expect(packet.packetType.name, equals('GUILD_SCHEDULED_EVENT_UPDATE'));
@@ -321,7 +321,7 @@ void main() {
       final marshaller = _FakeMarshaller();
       final packet = GuildScheduledEventDeletePacket(
         marshaller: marshaller,
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.guildScheduledEventDelete));
       expect(packet.packetType.name, equals('GUILD_SCHEDULED_EVENT_DELETE'));
@@ -329,7 +329,7 @@ void main() {
 
     test('GuildScheduledEventUserAddPacket has correct packetType', () {
       final packet = GuildScheduledEventUserAddPacket(
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.guildScheduledEventUserAdd));
       expect(packet.packetType.name, equals('GUILD_SCHEDULED_EVENT_USER_ADD'));
@@ -337,7 +337,7 @@ void main() {
 
     test('GuildScheduledEventUserRemovePacket has correct packetType', () {
       final packet = GuildScheduledEventUserRemovePacket(
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(
           packet.packetType, equals(PacketType.guildScheduledEventUserRemove));
@@ -359,7 +359,7 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      // We need a deferred setup since marshaller/server depend on each other
+      // We need a deferred setup since marshaller/guild depend on each other
       late _FakeDataStore dsFinal;
       marshaller = _FakeMarshaller(
         entityContext: EntityContext(
@@ -369,12 +369,12 @@ void main() {
           runtimeState: RuntimeState(),
         ),
       );
-      final server = _buildServer(ctx);
-      dsFinal = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      dsFinal = _FakeDataStore(guildPart: _FakeServerPart(guild));
       ds = dsFinal;
     });
 
-    test('dispatches Event.serverScheduledEventCreate', () async {
+    test('dispatches Event.guildScheduledEventCreate', () async {
       final packet =
           GuildScheduledEventCreatePacket(marshaller: marshaller, dataStore: ds);
       Event? capturedEvent;
@@ -387,32 +387,32 @@ void main() {
       }
 
       await packet.listen(_buildCreateMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverScheduledEventCreate));
+      expect(capturedEvent, equals(Event.guildScheduledEventCreate));
     });
 
-    test('payload carries server and correctly serialized GuildScheduledEvent',
+    test('payload carries guild and correctly serialized GuildScheduledEvent',
         () async {
       final packet =
           GuildScheduledEventCreatePacket(marshaller: marshaller, dataStore: ds);
-      ServerScheduledEventCreateArgs? args;
+      GuildScheduledEventCreateArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverScheduledEventCreate) {
-          args = payload as ServerScheduledEventCreateArgs;
+        if (event == Event.guildScheduledEventCreate) {
+          args = payload as GuildScheduledEventCreateArgs;
         }
       }
 
       await packet.listen(_buildCreateMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
-      expect(args!.server.name, equals('Test Server'));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
+      expect(args!.guild.name, equals('Test Guild'));
       final e = args!.event;
       expect(e.id, equals(Snowflake.parse(_eventId)));
-      expect(e.serverId, equals(Snowflake.parse(_serverId)));
+      expect(e.guildId, equals(Snowflake.parse(_guildId)));
       expect(e.name, equals('Test Event'));
       expect(e.status, equals(GuildScheduledEventStatus.scheduled));
       expect(e.entityType, equals(GuildScheduledEventEntityType.voice));
@@ -447,12 +447,12 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      final server = _buildServer(ctx);
-      dsFinal = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      dsFinal = _FakeDataStore(guildPart: _FakeServerPart(guild));
       ds = dsFinal;
     });
 
-    test('dispatches Event.serverScheduledEventUpdate', () async {
+    test('dispatches Event.guildScheduledEventUpdate', () async {
       final packet =
           GuildScheduledEventUpdatePacket(marshaller: marshaller, dataStore: ds);
       Event? capturedEvent;
@@ -465,20 +465,20 @@ void main() {
       }
 
       await packet.listen(_buildUpdateMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverScheduledEventUpdate));
+      expect(capturedEvent, equals(Event.guildScheduledEventUpdate));
     });
 
     test('before is null when no cache entry exists', () async {
       final packet =
           GuildScheduledEventUpdatePacket(marshaller: marshaller, dataStore: ds);
-      ServerScheduledEventUpdateArgs? args;
+      GuildScheduledEventUpdateArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverScheduledEventUpdate) {
-          args = payload as ServerScheduledEventUpdateArgs;
+        if (event == Event.guildScheduledEventUpdate) {
+          args = payload as GuildScheduledEventUpdateArgs;
         }
       }
 
@@ -490,21 +490,21 @@ void main() {
 
     test('before is populated when cache entry exists', () async {
       // Pre-populate cache with the "before" event data
-      final cacheKey = marshaller.cacheKey.scheduledEvent(_serverId, _eventId);
+      final cacheKey = marshaller.cacheKey.scheduledEvent(_guildId, _eventId);
       final beforePayload = Map<String, dynamic>.from(_scheduledEventPayload())
         ..['name'] = 'Old Event Name';
       await cache.put(cacheKey, beforePayload);
 
       final packet =
           GuildScheduledEventUpdatePacket(marshaller: marshaller, dataStore: ds);
-      ServerScheduledEventUpdateArgs? args;
+      GuildScheduledEventUpdateArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverScheduledEventUpdate) {
-          args = payload as ServerScheduledEventUpdateArgs;
+        if (event == Event.guildScheduledEventUpdate) {
+          args = payload as GuildScheduledEventUpdateArgs;
         }
       }
 
@@ -514,7 +514,7 @@ void main() {
       expect(args!.before, isNotNull);
       expect(args!.before!.name, equals('Old Event Name'));
       expect(args!.after.name, equals('Test Event'));
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
     });
   });
 
@@ -540,12 +540,12 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      final server = _buildServer(ctx);
-      dsFinal = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      dsFinal = _FakeDataStore(guildPart: _FakeServerPart(guild));
       ds = dsFinal;
     });
 
-    test('dispatches Event.serverScheduledEventDelete', () async {
+    test('dispatches Event.guildScheduledEventDelete', () async {
       final packet =
           GuildScheduledEventDeletePacket(marshaller: marshaller, dataStore: ds);
       Event? capturedEvent;
@@ -558,27 +558,27 @@ void main() {
       }
 
       await packet.listen(_buildDeleteMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverScheduledEventDelete));
+      expect(capturedEvent, equals(Event.guildScheduledEventDelete));
     });
 
-    test('payload carries server and correctly serialized GuildScheduledEvent',
+    test('payload carries guild and correctly serialized GuildScheduledEvent',
         () async {
       final packet =
           GuildScheduledEventDeletePacket(marshaller: marshaller, dataStore: ds);
-      ServerScheduledEventDeleteArgs? args;
+      GuildScheduledEventDeleteArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverScheduledEventDelete) {
-          args = payload as ServerScheduledEventDeleteArgs;
+        if (event == Event.guildScheduledEventDelete) {
+          args = payload as GuildScheduledEventDeleteArgs;
         }
       }
 
       await packet.listen(_buildDeleteMessage(), dispatch);
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
       expect(args!.event.id, equals(Snowflake.parse(_eventId)));
       expect(args!.event.name, equals('Test Event'));
     });
@@ -599,13 +599,13 @@ void main() {
       late _FakeDataStore dsFinal;
       final user = _buildUser(ctx);
       dsFinal = _FakeDataStore(
-        serverPart: _FakeServerPart(_buildServer(ctx)),
+        guildPart: _FakeServerPart(_buildServer(ctx)),
         userPart: _FakeUserPart(user),
       );
       ds = dsFinal;
     });
 
-    test('dispatches Event.serverScheduledEventUserAdd', () async {
+    test('dispatches Event.guildScheduledEventUserAdd', () async {
       final packet = GuildScheduledEventUserAddPacket(dataStore: ds);
       Event? capturedEvent;
 
@@ -617,26 +617,26 @@ void main() {
       }
 
       await packet.listen(_buildUserAddMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverScheduledEventUserAdd));
+      expect(capturedEvent, equals(Event.guildScheduledEventUserAdd));
     });
 
-    test('payload carries server, eventId, and user', () async {
+    test('payload carries guild, eventId, and user', () async {
       final packet = GuildScheduledEventUserAddPacket(dataStore: ds);
-      ServerScheduledEventUserAddArgs? args;
+      GuildScheduledEventUserAddArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverScheduledEventUserAdd) {
-          args = payload as ServerScheduledEventUserAddArgs;
+        if (event == Event.guildScheduledEventUserAdd) {
+          args = payload as GuildScheduledEventUserAddArgs;
         }
       }
 
       await packet.listen(_buildUserAddMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
       expect(args!.eventId, equals(Snowflake.parse(_eventId)));
       expect(args!.user.id, equals(Snowflake.parse(_userId)));
     });
@@ -657,13 +657,13 @@ void main() {
       late _FakeDataStore dsFinal;
       final user = _buildUser(ctx);
       dsFinal = _FakeDataStore(
-        serverPart: _FakeServerPart(_buildServer(ctx)),
+        guildPart: _FakeServerPart(_buildServer(ctx)),
         userPart: _FakeUserPart(user),
       );
       ds = dsFinal;
     });
 
-    test('dispatches Event.serverScheduledEventUserRemove', () async {
+    test('dispatches Event.guildScheduledEventUserRemove', () async {
       final packet = GuildScheduledEventUserRemovePacket(dataStore: ds);
       Event? capturedEvent;
 
@@ -675,26 +675,26 @@ void main() {
       }
 
       await packet.listen(_buildUserRemoveMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverScheduledEventUserRemove));
+      expect(capturedEvent, equals(Event.guildScheduledEventUserRemove));
     });
 
-    test('payload carries server, eventId, and user', () async {
+    test('payload carries guild, eventId, and user', () async {
       final packet = GuildScheduledEventUserRemovePacket(dataStore: ds);
-      ServerScheduledEventUserRemoveArgs? args;
+      GuildScheduledEventUserRemoveArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverScheduledEventUserRemove) {
-          args = payload as ServerScheduledEventUserRemoveArgs;
+        if (event == Event.guildScheduledEventUserRemove) {
+          args = payload as GuildScheduledEventUserRemoveArgs;
         }
       }
 
       await packet.listen(_buildUserRemoveMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
       expect(args!.eventId, equals(Snowflake.parse(_eventId)));
       expect(args!.user.id, equals(Snowflake.parse(_userId)));
     });
@@ -703,13 +703,13 @@ void main() {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-final class _DummyServerPart implements ServerPartContract {
+final class _DummyServerPart implements GuildPartContract {
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw UnimplementedError(invocation.memberName.toString());
 
   @override
-  Future<Server> get(Object id, bool force) => throw UnimplementedError();
+  Future<Guild> get(Object id, bool force) => throw UnimplementedError();
 }
 
 /// A [DataStoreContract] that resolves lazily, used to break circular init deps.
@@ -718,7 +718,7 @@ final class _LazyDataStore implements DataStoreContract {
   _LazyDataStore(this._resolve);
 
   @override
-  ServerPartContract get server => _resolve().server;
+  GuildPartContract get guild => _resolve().guild;
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>

@@ -17,16 +17,16 @@ final class GuildSoundboardSoundsUpdatePacket implements ListenablePacket {
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
-    final server =
-        await _dataStore.server.get(payload['guild_id'] as Object, false);
+    final guild =
+        await _dataStore.guild.get(payload['guild_id'] as Object, false);
 
     final rawSounds = (payload['soundboard_sounds'] as List<dynamic>)
         .cast<Map<String, dynamic>>();
     final sounds = rawSounds.map(SoundboardSound.fromJson).toList();
 
-    dispatch<ServerSoundboardSoundsUpdateArgs>(
-      event: Event.serverSoundboardSoundsUpdate,
-      payload: (server: server, sounds: sounds),
+    dispatch<GuildSoundboardSoundsUpdateArgs>(
+      event: Event.guildSoundboardSoundsUpdate,
+      payload: (guild: guild, sounds: sounds),
     );
   }
 }

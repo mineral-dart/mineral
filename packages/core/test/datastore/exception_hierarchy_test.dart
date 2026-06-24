@@ -14,8 +14,8 @@ void main() {
 
       test('SerializationException contains descriptive message', () {
         final exception =
-            SerializationException('Expected ServerTextChannel but got Message');
-        expect(exception.message, contains('ServerTextChannel'));
+            SerializationException('Expected GuildTextChannel but got Message');
+        expect(exception.message, contains('GuildTextChannel'));
         expect(exception.toString(), contains('SerializationException'));
       });
 

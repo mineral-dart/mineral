@@ -18,14 +18,14 @@ final class VoiceChannelEffectSendPacket implements ListenablePacket {
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
 
-    final serverId = payload['guild_id'] as String;
+    final guildId = payload['guild_id'] as String;
     final channelId = payload['channel_id'] as String;
     final userId = payload['user_id'] as String;
 
-    final server = await _dataStore.server.get(serverId, false);
+    final guild = await _dataStore.guild.get(guildId, false);
     final channel =
-        await _dataStore.channel.get<ServerChannel>(channelId, false);
-    final member = await _dataStore.member.get(serverId, userId, false);
+        await _dataStore.channel.get<GuildChannel>(channelId, false);
+    final member = await _dataStore.member.get(guildId, userId, false);
 
     if (channel == null || member == null) {
       return;
@@ -58,10 +58,10 @@ final class VoiceChannelEffectSendPacket implements ListenablePacket {
 
     final soundVolume = payload['sound_volume'] as double?;
 
-    dispatch<ServerVoiceChannelEffectSendArgs>(
-        event: Event.serverVoiceChannelEffectSend,
+    dispatch<GuildVoiceChannelEffectSendArgs>(
+        event: Event.guildVoiceChannelEffectSend,
         payload: (
-          server: server,
+          guild: guild,
           channel: channel,
           member: member,
           emoji: emoji,

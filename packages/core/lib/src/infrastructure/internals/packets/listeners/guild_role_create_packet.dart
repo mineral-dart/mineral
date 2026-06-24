@@ -19,14 +19,14 @@ final class GuildRoleCreatePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final server =
-        await _dataStore.server.get(message.payload['guild_id'] as Object, false);
+    final guild =
+        await _dataStore.guild.get(message.payload['guild_id'] as Object, false);
     final rawRole = await _marshaller.serializers.role.normalize({
       ...(message.payload['role'] as Map<String, dynamic>),
-      'guild_id': server.id,
+      'guild_id': guild.id,
     });
 
     final role = await _marshaller.serializers.role.serialize(rawRole);
-    dispatch<ServerRoleCreateArgs>(event: Event.serverRoleCreate, payload: (server: server, role: role));
+    dispatch<GuildRoleCreateArgs>(event: Event.guildRoleCreate, payload: (guild: guild, role: role));
   }
 }

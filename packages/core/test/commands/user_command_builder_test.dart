@@ -33,9 +33,9 @@ void main() {
       expect(builder.name, equals('Get User Info'));
     });
 
-    test('default context is server', () {
+    test('default context is guild', () {
       final builder = UserCommandBuilder();
-      expect(builder.context, equals(CommandContextType.server));
+      expect(builder.context, equals(CommandContextType.guild));
     });
 
     test('setContext mutates context', () {

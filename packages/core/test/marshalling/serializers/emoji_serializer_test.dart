@@ -28,7 +28,7 @@ void main() {
           'available': true,
           'animated': false,
           'roles': <String>[],
-          'server_id': '987654321',
+          'guild_id': '987654321',
         };
 
     Map<String, dynamic> rawDiscordPayload() => {
@@ -53,11 +53,11 @@ void main() {
         expect(emoji.available, isTrue);
         expect(emoji.animated, isFalse);
         expect(emoji.roles, isEmpty);
-        expect(emoji.serverId, equals(Snowflake('987654321')));
+        expect(emoji.guildId, equals(Snowflake('987654321')));
       });
 
       test('resolves roles from cache', () async {
-        final roleKey = CacheKey().serverRole('987654321', '111111111');
+        final roleKey = CacheKey().guildRole('987654321', '111111111');
         cache.store[roleKey] = {
           'id': '111111111',
           'name': 'Moderator',
@@ -68,7 +68,7 @@ void main() {
           'managed': false,
           'mentionable': false,
           'flags': 0,
-          'server_id': '987654321',
+          'guild_id': '987654321',
         };
 
         final payload = normalizedPayloadWithoutRoles()..['roles'] = [roleKey];
@@ -91,15 +91,15 @@ void main() {
         expect(result['available'], isTrue);
         expect(result['animated'], isFalse);
         expect(result['roles'], isEmpty);
-        expect(result['server_id'], equals(Snowflake('987654321').value));
+        expect(result['guild_id'], equals(Snowflake('987654321').value));
       });
     });
 
     group('normalize()', () {
-      test('writes to cache with serverEmoji key', () async {
+      test('writes to cache with guildEmoji key', () async {
         await serializer.normalize(rawDiscordPayload());
 
-        final expectedKey = CacheKey().serverEmoji('987654321', '100200300');
+        final expectedKey = CacheKey().guildEmoji('987654321', '100200300');
         expect(cache.store.containsKey(expectedKey), isTrue);
       });
 
@@ -110,11 +110,10 @@ void main() {
         expect(result['roles'], isEmpty);
       });
 
-      test('renames guild_id to server_id', () async {
+      test('renames guild_id to guild_id', () async {
         final result = await serializer.normalize(rawDiscordPayload());
 
-        expect(result, containsPair('server_id', '987654321'));
-        expect(result.containsKey('guild_id'), isFalse);
+        expect(result, containsPair('guild_id', '987654321'));
       });
     });
   });

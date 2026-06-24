@@ -20,7 +20,7 @@ final class PollAnswerVoteSerializer
       'users': json['users'],
       'message_id': json['message_id'],
       'channel_id': json['channel_id'],
-      'server_id': json['server_id'],
+      'guild_id': json['guild_id'],
     };
 
     return payload;
@@ -31,22 +31,22 @@ final class PollAnswerVoteSerializer
     final List<User> voters = [];
     final message = await _datastore.message
         .get<Message>(json['channel_id'] as Object, json['message_id'] as Object, false);
-    Server? server;
+    Guild? guild;
     for (final voter in json['users'] as Iterable<dynamic>) {
       final payload = await _marshaller.serializers.user.normalize(voter as Map<String, dynamic>);
       final user = await _marshaller.serializers.user.serialize(payload);
       voters.add(user);
     }
 
-    if (json['server_id'] != null) {
-      server = await _datastore.server.get(json['server_id'] as Object, false);
+    if (json['guild_id'] != null) {
+      guild = await _datastore.guild.get(json['guild_id'] as Object, false);
     }
 
     return PollAnswerVote(
       id: json['id'] as int,
       voters: voters,
       message: message!,
-      server: server,
+      guild: guild,
     );
   }
 
@@ -61,7 +61,7 @@ final class PollAnswerVoteSerializer
       'users': users,
       'message_id': answer.message.id.value,
       'channel_id': answer.message.channelId.value,
-      'server_id': answer.server?.id,
+      'guild_id': answer.guild?.id,
     };
   }
 }

@@ -47,11 +47,11 @@ final class _FakeChannelPart implements ChannelPartContract {
   Future<T?> get<T extends Channel>(Object id, bool force) async => null;
   @override
   Future<Map<Snowflake, T>> fetch<T extends Channel>(
-          Object serverId, bool force) async =>
+          Object guildId, bool force) async =>
       {};
   @override
   Future<T> create<T extends Channel>(
-          Object? serverId, ChannelBuilderContract builder,
+          Object? guildId, ChannelBuilderContract builder,
           {String? reason}) =>
       throw UnimplementedError();
   @override
@@ -61,7 +61,7 @@ final class _FakeChannelPart implements ChannelPartContract {
   @override
   Future<T?> update<T extends Channel>(
           Object id, ChannelBuilderContract builder,
-          {Object? serverId, String? reason}) =>
+          {Object? guildId, String? reason}) =>
       throw UnimplementedError();
   @override
   Future<void> delete(Object id, String? reason) async {}
@@ -75,7 +75,7 @@ final class _FakeDataStore implements DataStoreContract {
   @override
   ChannelPartContract get channel => _FakeChannelPart();
   @override
-  ServerPartContract get server => throw UnimplementedError();
+  GuildPartContract get guild => throw UnimplementedError();
   @override
   MemberPartContract get member => throw UnimplementedError();
   @override

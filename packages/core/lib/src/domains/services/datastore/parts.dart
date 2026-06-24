@@ -1,34 +1,34 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/src/api/common/polls/poll_answer_vote.dart';
-import 'package:mineral/src/api/server/channels/private_thread_channel.dart';
-import 'package:mineral/src/api/server/channels/public_thread_channel.dart';
-import 'package:mineral/src/api/server/moderation/enums/auto_moderation_event_type.dart';
-import 'package:mineral/src/api/server/moderation/enums/trigger_type.dart';
-import 'package:mineral/src/api/server/moderation/trigger_metadata.dart';
+import 'package:mineral/src/api/guild/channels/private_thread_channel.dart';
+import 'package:mineral/src/api/guild/channels/public_thread_channel.dart';
+import 'package:mineral/src/api/guild/moderation/enums/auto_moderation_event_type.dart';
+import 'package:mineral/src/api/guild/moderation/enums/trigger_type.dart';
+import 'package:mineral/src/api/guild/moderation/trigger_metadata.dart';
 
 abstract interface class DataStorePart {}
 
 abstract interface class ChannelPartContract implements DataStorePart {
   Future<Map<Snowflake, T>> fetch<T extends Channel>(
-      Object serverId, bool force);
+      Object guildId, bool force);
 
   Future<T?> get<T extends Channel>(Object id, bool force);
 
   Future<T> create<T extends Channel>(
-      Object? serverId, ChannelBuilderContract builder,
+      Object? guildId, ChannelBuilderContract builder,
       {String? reason});
 
   Future<PrivateChannel?> createPrivateChannel(Object id, String recipientId);
 
   Future<T?> update<T extends Channel>(
       Object id, ChannelBuilderContract builder,
-      {Object? serverId, String? reason});
+      {Object? guildId, String? reason});
 
   Future<void> delete(Object id, String? reason);
 }
 
 abstract interface class ThreadPartContract implements DataStorePart {
-  Future<ThreadResult> fetchActives(Object serverId);
+  Future<ThreadResult> fetchActives(Object guildId);
 
   Future<Map<Snowflake, PublicThreadChannel>> fetchPublicArchived(
       Object channelId);
@@ -37,10 +37,10 @@ abstract interface class ThreadPartContract implements DataStorePart {
       Object channelId);
 
   Future<T> createWithoutMessage<T extends ThreadChannel>(
-      Object? serverId, Object? channelId, ThreadChannelBuilder builder,
+      Object? guildId, Object? channelId, ThreadChannelBuilder builder,
       {String? reason});
 
-  Future<T> createFromMessage<T extends ThreadChannel>(Object? serverId,
+  Future<T> createFromMessage<T extends ThreadChannel>(Object? guildId,
       Object? channelId, Object? messageId, ThreadChannelBuilder builder,
       {String? reason});
 }
@@ -74,26 +74,26 @@ abstract interface class InteractionPartContract implements DataStorePart {
 }
 
 abstract interface class MemberPartContract implements DataStorePart {
-  Future<Map<Snowflake, Member>> fetch(Object serverId, bool force);
+  Future<Map<Snowflake, Member>> fetch(Object guildId, bool force);
 
-  Future<Member?> get(Object serverId, Object id, bool force);
+  Future<Member?> get(Object guildId, Object id, bool force);
 
   Future<Member> update(
-      {required Object serverId,
+      {required Object guildId,
       required String memberId,
       required Map<String, dynamic> payload,
       String? reason});
 
   Future<void> ban(
-      {required Object serverId,
+      {required Object guildId,
       required Duration? deleteSince,
       required String memberId,
       String? reason});
 
   Future<void> kick(
-      {required Object serverId, required String memberId, String? reason});
+      {required Object guildId, required String memberId, String? reason});
 
-  Future<VoiceState?> getVoiceState(Object serverId, String userId, bool force);
+  Future<VoiceState?> getVoiceState(Object guildId, String userId, bool force);
 }
 
 abstract interface class MessagePartContract implements DataStorePart {
@@ -103,7 +103,7 @@ abstract interface class MessagePartContract implements DataStorePart {
   Future<T?> get<T extends BaseMessage>(
       Object channelId, Object id, bool force);
 
-  Future<PollAnswerVote> getPollVotes(Snowflake? serverId, Snowflake channelId,
+  Future<PollAnswerVote> getPollVotes(Snowflake? guildId, Snowflake channelId,
       Snowflake messageId, int answerId);
 
   Future<T> update<T extends Message>({
@@ -121,7 +121,7 @@ abstract interface class MessagePartContract implements DataStorePart {
   Future<void> delete(Snowflake channelId, Snowflake id);
 
   Future<T> send<T extends Message>(
-      String? serverId, String channelId, MessageBuilder builder);
+      String? guildId, String channelId, MessageBuilder builder);
 
   Future<T> sendPoll<T extends Message>(String channelId, Poll poll);
 
@@ -133,7 +133,7 @@ abstract interface class MessagePartContract implements DataStorePart {
   /// Posts a `message_reference` with `type: 1` (FORWARD) to [targetChannelId].
   /// [messageId] is the id of the message being forwarded.
   /// [sourceChannelId] is the channel the original message lives in.
-  /// [guildId] is optional; include it for server messages.
+  /// [guildId] is optional; include it for guild messages.
   Future<T> forward<T extends Message>(
     Snowflake targetChannelId, {
     required Snowflake messageId,
@@ -143,12 +143,12 @@ abstract interface class MessagePartContract implements DataStorePart {
 }
 
 abstract interface class RolePartContract implements DataStorePart {
-  Future<Map<Snowflake, Role>> fetch(Object serverId, bool force);
+  Future<Map<Snowflake, Role>> fetch(Object guildId, bool force);
 
-  Future<Role?> get(Object serverId, Object id, bool force);
+  Future<Role?> get(Object guildId, Object id, bool force);
 
   Future<Role> create(
-      Object serverId,
+      Object guildId,
       String name,
       List<Permission> permissions,
       Color color,
@@ -158,47 +158,47 @@ abstract interface class RolePartContract implements DataStorePart {
 
   Future<void> add(
       {required String memberId,
-      required Object serverId,
+      required Object guildId,
       required String roleId,
       required String? reason});
 
   Future<void> remove(
       {required String memberId,
-      required Object serverId,
+      required Object guildId,
       required String roleId,
       required String? reason});
 
   Future<void> sync(
       {required String memberId,
-      required Object serverId,
+      required Object guildId,
       required List<String> roleIds,
       required String? reason});
 
   Future<Role?> update(
       {required Object id,
-      required Object serverId,
+      required Object guildId,
       required Map<String, dynamic> payload,
       required String? reason});
 
   Future<void> delete(
-      {required Object id, required String serverId, required String? reason});
+      {required Object id, required String guildId, required String? reason});
 }
 
-abstract interface class ServerPartContract implements DataStorePart {
-  Future<Server> get(Object id, bool force);
+abstract interface class GuildPartContract implements DataStorePart {
+  Future<Guild> get(Object id, bool force);
 
-  Future<Server> update(
+  Future<Guild> update(
       Object id, Map<String, dynamic> payload, String? reason);
 
   Future<void> delete(Object id, String? reason);
 }
 
 abstract interface class StickerPartContract implements DataStorePart {
-  Future<Map<Snowflake, Sticker>> fetch(Object serverId, bool force);
+  Future<Map<Snowflake, Sticker>> fetch(Object guildId, bool force);
 
-  Future<Sticker?> get(Object serverId, Object id, bool force);
+  Future<Sticker?> get(Object guildId, Object id, bool force);
 
-  Future<void> delete(Object serverId, Object stickerId);
+  Future<void> delete(Object guildId, Object stickerId);
 }
 
 abstract interface class UserPartContract implements DataStorePart {
@@ -206,30 +206,30 @@ abstract interface class UserPartContract implements DataStorePart {
 }
 
 abstract interface class EmojiPartContract implements DataStorePart {
-  Future<Map<Snowflake, Emoji>> fetch(Object serverId, bool force);
+  Future<Map<Snowflake, Emoji>> fetch(Object guildId, bool force);
 
-  Future<Emoji?> get(Object serverId, Object id, bool force);
+  Future<Emoji?> get(Object guildId, Object id, bool force);
 
   Future<Emoji> create(
-      Object serverId, String name, Image image, List<Object> roles,
+      Object guildId, String name, Image image, List<Object> roles,
       {String? reason});
 
   Future<Emoji?> update(
       {required Object id,
-      required Object serverId,
+      required Object guildId,
       required Map<String, dynamic> payload,
       required String? reason});
 
-  Future<void> delete(Object serverId, String emojiId, {String? reason});
+  Future<void> delete(Object guildId, String emojiId, {String? reason});
 }
 
 abstract interface class RulesPartContract implements DataStorePart {
-  Future<Map<Snowflake, AutoModerationRule>> fetch(Object serverId, bool force);
+  Future<Map<Snowflake, AutoModerationRule>> fetch(Object guildId, bool force);
 
-  Future<AutoModerationRule?> get(Object serverId, Object id, bool force);
+  Future<AutoModerationRule?> get(Object guildId, Object id, bool force);
 
   Future<AutoModerationRule> create(
-      {required Object serverId,
+      {required Object guildId,
       required String name,
       required AutoModerationEventType eventType,
       required TriggerType triggerType,
@@ -242,11 +242,11 @@ abstract interface class RulesPartContract implements DataStorePart {
 
   Future<AutoModerationRule?> update(
       {required Object id,
-      required Object serverId,
+      required Object guildId,
       required Map<String, dynamic> payload,
       required String? reason});
 
-  Future<void> delete(Object serverId, Object ruleId, {String? reason});
+  Future<void> delete(Object guildId, Object ruleId, {String? reason});
 }
 
 abstract interface class ReactionPartContract implements DataStorePart {
@@ -269,7 +269,7 @@ abstract interface class ReactionPartContract implements DataStorePart {
 abstract interface class WebhookPartContract implements DataStorePart {
   Future<Map<Snowflake, Webhook>> fetchForChannel(Object channelId);
 
-  Future<Map<Snowflake, Webhook>> fetchForServer(Object serverId);
+  Future<Map<Snowflake, Webhook>> fetchForServer(Object guildId);
 
   Future<Webhook?> get(Object id, bool force);
 
@@ -349,13 +349,13 @@ abstract interface class WebhookPartContract implements DataStorePart {
 abstract interface class GuildScheduledEventPartContract
     implements DataStorePart {
   Future<Map<Snowflake, GuildScheduledEvent>> fetchForServer(
-      Object serverId, {bool? withUserCount});
+      Object guildId, {bool? withUserCount});
 
   Future<GuildScheduledEvent?> get(
-      Object serverId, Object id, bool force, {bool? withUserCount});
+      Object guildId, Object id, bool force, {bool? withUserCount});
 
   Future<GuildScheduledEvent> create({
-    required Object serverId,
+    required Object guildId,
     required String name,
     required GuildScheduledEventPrivacyLevel privacyLevel,
     required DateTime scheduledStartTime,
@@ -369,7 +369,7 @@ abstract interface class GuildScheduledEventPartContract
   });
 
   Future<GuildScheduledEvent?> update({
-    required Object serverId,
+    required Object guildId,
     required Object id,
     Object? channelId,
     GuildScheduledEventEntityMetadata? entityMetadata,
@@ -385,13 +385,13 @@ abstract interface class GuildScheduledEventPartContract
   });
 
   Future<void> delete({
-    required Object serverId,
+    required Object guildId,
     required Object id,
     String? reason,
   });
 
   Future<List<GuildScheduledEventUser>> fetchUsers({
-    required Object serverId,
+    required Object guildId,
     required Object id,
     int? limit,
     bool? withMember,
@@ -433,10 +433,10 @@ abstract interface class ApplicationEmojiPartContract implements DataStorePart {
 }
 
 abstract interface class WelcomeScreenPartContract implements DataStorePart {
-  Future<WelcomeScreen> fetch(Object serverId);
+  Future<WelcomeScreen> fetch(Object guildId);
 
   Future<WelcomeScreen> update(
-    Object serverId, {
+    Object guildId, {
     bool? enabled,
     List<Map<String, dynamic>>? welcomeChannels,
     String? description,
@@ -445,10 +445,10 @@ abstract interface class WelcomeScreenPartContract implements DataStorePart {
 }
 
 abstract interface class OnboardingPartContract implements DataStorePart {
-  Future<Onboarding> fetch(Object serverId);
+  Future<Onboarding> fetch(Object guildId);
 
   Future<Onboarding> update(
-    Object serverId, {
+    Object guildId, {
     List<OnboardingPrompt>? prompts,
     List<Object>? defaultChannelIds,
     bool? enabled,
@@ -458,26 +458,26 @@ abstract interface class OnboardingPartContract implements DataStorePart {
 }
 
 abstract interface class TemplatePartContract implements DataStorePart {
-  Future<Map<String, GuildTemplate>> fetchForServer(Object serverId);
+  Future<Map<String, GuildTemplate>> fetchForServer(Object guildId);
 
   Future<GuildTemplate> getByCode(String code);
 
   Future<GuildTemplate> create(
-    Object serverId, {
+    Object guildId, {
     required String name,
     String? description,
   });
 
-  Future<GuildTemplate> sync(Object serverId, String code);
+  Future<GuildTemplate> sync(Object guildId, String code);
 
   Future<GuildTemplate> update(
-    Object serverId,
+    Object guildId,
     String code, {
     String? name,
     String? description,
   });
 
-  Future<GuildTemplate> delete(Object serverId, String code);
+  Future<GuildTemplate> delete(Object guildId, String code);
 }
 
 abstract interface class StageInstancePartContract implements DataStorePart {
@@ -508,12 +508,12 @@ abstract interface class StageInstancePartContract implements DataStorePart {
 abstract interface class SoundboardPartContract implements DataStorePart {
   Future<List<SoundboardSound>> fetchDefault();
 
-  Future<Map<Snowflake, SoundboardSound>> fetchForServer(Object serverId);
+  Future<Map<Snowflake, SoundboardSound>> fetchForServer(Object guildId);
 
-  Future<SoundboardSound> get(Object serverId, Object soundId);
+  Future<SoundboardSound> get(Object guildId, Object soundId);
 
   Future<SoundboardSound> create(
-    Object serverId, {
+    Object guildId, {
     required String name,
     required String sound,
     double? volume,
@@ -523,7 +523,7 @@ abstract interface class SoundboardPartContract implements DataStorePart {
   });
 
   Future<SoundboardSound> update(
-    Object serverId,
+    Object guildId,
     Object soundId, {
     String? name,
     double? volume,
@@ -532,7 +532,7 @@ abstract interface class SoundboardPartContract implements DataStorePart {
     String? reason,
   });
 
-  Future<void> delete(Object serverId, Object soundId, {String? reason});
+  Future<void> delete(Object guildId, Object soundId, {String? reason});
 
   Future<void> sendToChannel(
     Object channelId, {
