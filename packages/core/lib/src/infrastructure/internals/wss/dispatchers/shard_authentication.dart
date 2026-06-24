@@ -85,7 +85,7 @@ final class ShardAuthentication implements ShardAuthenticationContract {
       return; // handled — do not propagate
     }
     shard.logger.error('Unexpected heartbeat error: $error\n$stack');
-    throw error;
+    Error.throwWithStackTrace(error, stack);
   }
 
   void createHeartbeatTimer(int interval) {
