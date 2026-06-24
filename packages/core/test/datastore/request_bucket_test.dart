@@ -89,5 +89,77 @@ void main() {
       // Bucket state recorded; remaining=4 means not exhausted.
       expect(bucket.registry.globalLockedUntil, isNull);
     });
+
+    test('429 on webhook route logs redacted token, not the raw credential',
+        () async {
+      const webhookToken = 'supersecretwebhooktoken';
+      const webhookId = '111111111111111111';
+      final http = FakeHttpClient([
+        FakeResponse<Map<String, dynamic>>(
+          429,
+          const {'global': false, 'retry_after': 0.0},
+          bodyString: '{"global":false,"retry_after":0.0}',
+        ),
+        FakeResponse.ok(),
+      ]);
+      final bucket = RequestBucket(http, logger: logger);
+      await bucket.post<Map<String, dynamic>>(
+        Request.json(endpoint: '/webhooks/$webhookId/$webhookToken'),
+      );
+
+      expect(logger.warnings, hasLength(1));
+      final logLine = logger.warnings.single;
+      // Token must not appear in the log
+      expect(logLine, isNot(contains(webhookToken)));
+      // Redaction marker must be present
+      expect(logLine, contains('***'));
+      // Webhook id must still appear (it is not a secret)
+      expect(logLine, contains(webhookId));
+    });
+
+    test('429 on interaction route logs redacted token, not the raw credential',
+        () async {
+      const interactionToken = 'supersecretinteractiontoken';
+      const interactionId = '222222222222222222';
+      final http = FakeHttpClient([
+        FakeResponse<Map<String, dynamic>>(
+          429,
+          const {'global': false, 'retry_after': 0.0},
+          bodyString: '{"global":false,"retry_after":0.0}',
+        ),
+        FakeResponse.ok(),
+      ]);
+      final bucket = RequestBucket(http, logger: logger);
+      await bucket.post<Map<String, dynamic>>(
+        Request.json(
+            endpoint: '/interactions/$interactionId/$interactionToken'),
+      );
+
+      expect(logger.warnings, hasLength(1));
+      final logLine = logger.warnings.single;
+      expect(logLine, isNot(contains(interactionToken)));
+      expect(logLine, contains('***'));
+    });
+
+    test('429 on normal route logs full route without masking', () async {
+      final http = FakeHttpClient([
+        FakeResponse<Map<String, dynamic>>(
+          429,
+          const {'global': false, 'retry_after': 0.0},
+          bodyString: '{"global":false,"retry_after":0.0}',
+        ),
+        FakeResponse.ok(),
+      ]);
+      final bucket = RequestBucket(http, logger: logger);
+      await bucket.get<Map<String, dynamic>>(
+        Request.json(endpoint: '/channels/111111111111111111/messages'),
+      );
+
+      expect(logger.warnings, hasLength(1));
+      final logLine = logger.warnings.single;
+      expect(logLine, contains('channels'));
+      expect(logLine, contains('messages'));
+      expect(logLine, isNot(contains('***')));
+    });
   });
 }

@@ -80,6 +80,43 @@ final class RouteKey {
     return true;
   }
 
+  /// Returns a human-readable representation of this route with sensitive
+  /// credential segments redacted.
+  ///
+  /// The raw token that follows the webhook/interaction id is masked with
+  /// `***` so that it is never exposed in log output (CWE-532).
+  /// Bucketing identity ([normalizedPath], [==], [hashCode]) is unaffected.
+  String get redactedString {
+    final redacted = _redactTokenSegments(normalizedPath);
+    return '$method $redacted';
+  }
+
+  /// Replaces the token segment that immediately follows a webhook or
+  /// interaction id with `***`.
+  ///
+  /// Patterns handled:
+  ///   `/webhooks/<id>/<token>[/...]`   — id kept as raw snowflake (major param)
+  ///   `/interactions/{id}/<token>[/...]` — id normalised to `{id}` placeholder
+  static String _redactTokenSegments(String path) {
+    final segments = path.split('/');
+    // segments[0] is always '' because path starts with '/'
+    final out = <String>[];
+    for (var i = 0; i < segments.length; i++) {
+      final segment = segments[i];
+      if (i >= 3) {
+        final routeClass = segments[i - 2]; // e.g. 'webhooks' or 'interactions'
+        // For webhooks the id is raw (major param); for interactions it is
+        // normalised to '{id}'.  Either way, position i is the token segment.
+        if (routeClass == 'webhooks' || routeClass == 'interactions') {
+          out.add('***');
+          continue;
+        }
+      }
+      out.add(segment);
+    }
+    return out.join('/');
+  }
+
   @override
   String toString() => '$method $normalizedPath';
 
