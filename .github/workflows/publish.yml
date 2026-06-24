@@ -9,24 +9,77 @@ on:
 
 jobs:
   publish:
+    environment: pub-dev
     permissions:
       id-token: write # Required for OIDC authentication
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@v1
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1
         with:
           sdk: stable
-      - name: Install dependencies
+
+      # ── mineral (packages/core) ──────────────────────────────────────────
+      - name: "core: Install dependencies"
+        if: startsWith(github.ref, 'refs/tags/core-v')
         run: dart pub get
+        working-directory: packages/core
+      - name: "core: Analyze"
+        if: startsWith(github.ref, 'refs/tags/core-v')
+        run: dart analyze
+        working-directory: packages/core
+      - name: "core: Test"
+        if: startsWith(github.ref, 'refs/tags/core-v')
+        run: dart test
+        working-directory: packages/core
+      - name: "core: Dry-run publish"
+        if: startsWith(github.ref, 'refs/tags/core-v')
+        run: dart pub publish --dry-run
+        working-directory: packages/core
       - name: Publish mineral
         if: startsWith(github.ref, 'refs/tags/core-v')
         run: dart pub publish --force
         working-directory: packages/core
+
+      # ── mineral_cache (packages/cache) ───────────────────────────────────
+      - name: "cache: Install dependencies"
+        if: startsWith(github.ref, 'refs/tags/cache-v')
+        run: dart pub get
+        working-directory: packages/cache
+      - name: "cache: Analyze"
+        if: startsWith(github.ref, 'refs/tags/cache-v')
+        run: dart analyze
+        working-directory: packages/cache
+      - name: "cache: Test"
+        if: startsWith(github.ref, 'refs/tags/cache-v')
+        run: dart test
+        working-directory: packages/cache
+      - name: "cache: Dry-run publish"
+        if: startsWith(github.ref, 'refs/tags/cache-v')
+        run: dart pub publish --dry-run
+        working-directory: packages/cache
       - name: Publish mineral_cache
         if: startsWith(github.ref, 'refs/tags/cache-v')
         run: dart pub publish --force
         working-directory: packages/cache
+
+      # ── mineral_test (packages/test) ─────────────────────────────────────
+      - name: "test: Install dependencies"
+        if: startsWith(github.ref, 'refs/tags/test-v')
+        run: dart pub get
+        working-directory: packages/test
+      - name: "test: Analyze"
+        if: startsWith(github.ref, 'refs/tags/test-v')
+        run: dart analyze
+        working-directory: packages/test
+      - name: "test: Test"
+        if: startsWith(github.ref, 'refs/tags/test-v')
+        run: dart test
+        working-directory: packages/test
+      - name: "test: Dry-run publish"
+        if: startsWith(github.ref, 'refs/tags/test-v')
+        run: dart pub publish --dry-run
+        working-directory: packages/test
       - name: Publish mineral_test
         if: startsWith(github.ref, 'refs/tags/test-v')
         run: dart pub publish --force
