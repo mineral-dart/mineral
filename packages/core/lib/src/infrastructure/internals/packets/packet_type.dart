@@ -96,7 +96,13 @@ enum PacketType implements PacketTypeContract {
 
   subscriptionCreate('SUBSCRIPTION_CREATE'),
   subscriptionUpdate('SUBSCRIPTION_UPDATE'),
-  subscriptionDelete('SUBSCRIPTION_DELETE');
+  subscriptionDelete('SUBSCRIPTION_DELETE'),
+
+  guildSoundboardSoundCreate('GUILD_SOUNDBOARD_SOUND_CREATE'),
+  guildSoundboardSoundUpdate('GUILD_SOUNDBOARD_SOUND_UPDATE'),
+  guildSoundboardSoundDelete('GUILD_SOUNDBOARD_SOUND_DELETE'),
+  guildSoundboardSoundsUpdate('GUILD_SOUNDBOARD_SOUNDS_UPDATE'),
+  soundboardSounds('SOUNDBOARD_SOUNDS');
 
   @override
   final String name;

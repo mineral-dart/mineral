@@ -391,6 +391,27 @@ enum Event implements EnhancedEnum<Type>, EventType {
   ]),
   subscriptionDelete(SubscriptionDeleteEvent, [
     ['Subscription', 'subscription']
+  ]),
+
+  serverSoundboardSoundCreate(ServerSoundboardSoundCreateEvent, [
+    ['Server', 'server'],
+    ['SoundboardSound', 'sound']
+  ]),
+  serverSoundboardSoundUpdate(ServerSoundboardSoundUpdateEvent, [
+    ['Server', 'server'],
+    ['SoundboardSound', 'sound']
+  ]),
+  serverSoundboardSoundDelete(ServerSoundboardSoundDeleteEvent, [
+    ['Server', 'server'],
+    ['Snowflake', 'soundId']
+  ]),
+  serverSoundboardSoundsUpdate(ServerSoundboardSoundsUpdateEvent, [
+    ['Server', 'server'],
+    ['List<SoundboardSound>', 'sounds']
+  ]),
+  serverSoundboardSounds(ServerSoundboardSoundsEvent, [
+    ['Server', 'server'],
+    ['List<SoundboardSound>', 'sounds']
   ]);
 
   @override

@@ -43,6 +43,9 @@ final class Server {
   ScheduledEventManager get scheduledEvents =>
       ScheduledEventManager(id, ctx: _ctx);
 
+  /// Access this server's soundboard sounds.
+  SoundboardManager get soundboardSounds => SoundboardManager(id, ctx: _ctx);
+
   /// Set the server's name.
   ///
   /// ```dart

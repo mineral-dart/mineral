@@ -14,6 +14,7 @@ import 'package:mineral/src/infrastructure/internals/datastore/parts/reaction_pa
 import 'package:mineral/src/infrastructure/internals/datastore/parts/role_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/rules_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/server_part.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/soundboard_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/stage_instance_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/sticker_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/template_part.dart';
@@ -93,6 +94,9 @@ final class DataStore implements DataStoreContract {
   @override
   late final MonetizationPart monetization;
 
+  @override
+  late final SoundboardPart soundboard;
+
   DataStore({
     required this.client,
     required MarshallerContract marshaller,
@@ -121,5 +125,6 @@ final class DataStore implements DataStoreContract {
     template = TemplatePart(marshaller, this);
     stageInstance = StageInstancePart(marshaller, this);
     monetization = MonetizationPart(marshaller, this);
+    soundboard = SoundboardPart(marshaller, this);
   }
 }

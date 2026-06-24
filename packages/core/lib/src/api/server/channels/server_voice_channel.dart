@@ -43,4 +43,19 @@ final class ServerVoiceChannel extends ServerChannel {
 
   Future<void> setVideoQuality(VideoQuality quality, {String? reason}) =>
       methods.setVideoQuality(quality, reason);
+
+  /// Send a soundboard sound to this voice channel.
+  ///
+  /// ```dart
+  /// await voiceChannel.sendSoundboardSound(soundId);
+  /// ```
+  Future<void> sendSoundboardSound(
+    Snowflake soundId, {
+    Snowflake? sourceGuildId,
+  }) =>
+      properties.ctx.datastore.soundboard.sendToChannel(
+        properties.id.value,
+        soundId: soundId.value,
+        sourceGuildId: sourceGuildId?.value,
+      );
 }

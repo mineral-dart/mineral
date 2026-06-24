@@ -918,3 +918,80 @@ abstract class ServerStageInstanceDeleteEvent extends BaseListenableEvent {
 
   FutureOr<void> handle(Server server, StageInstance instance);
 }
+
+typedef ServerSoundboardSoundCreateArgs = ({
+  Server server,
+  SoundboardSound sound
+});
+
+abstract class ServerSoundboardSoundCreateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverSoundboardSoundCreate;
+
+  @override
+  Function get handler => (ServerSoundboardSoundCreateArgs p) =>
+      handle(p.server, p.sound);
+
+  FutureOr<void> handle(Server server, SoundboardSound sound);
+}
+
+typedef ServerSoundboardSoundUpdateArgs = ({
+  Server server,
+  SoundboardSound sound
+});
+
+abstract class ServerSoundboardSoundUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverSoundboardSoundUpdate;
+
+  @override
+  Function get handler => (ServerSoundboardSoundUpdateArgs p) =>
+      handle(p.server, p.sound);
+
+  FutureOr<void> handle(Server server, SoundboardSound sound);
+}
+
+typedef ServerSoundboardSoundDeleteArgs = ({Server server, Snowflake soundId});
+
+abstract class ServerSoundboardSoundDeleteEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverSoundboardSoundDelete;
+
+  @override
+  Function get handler => (ServerSoundboardSoundDeleteArgs p) =>
+      handle(p.server, p.soundId);
+
+  FutureOr<void> handle(Server server, Snowflake soundId);
+}
+
+typedef ServerSoundboardSoundsUpdateArgs = ({
+  Server server,
+  List<SoundboardSound> sounds
+});
+
+abstract class ServerSoundboardSoundsUpdateEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverSoundboardSoundsUpdate;
+
+  @override
+  Function get handler => (ServerSoundboardSoundsUpdateArgs p) =>
+      handle(p.server, p.sounds);
+
+  FutureOr<void> handle(Server server, List<SoundboardSound> sounds);
+}
+
+typedef ServerSoundboardSoundsArgs = ({
+  Server server,
+  List<SoundboardSound> sounds
+});
+
+abstract class ServerSoundboardSoundsEvent extends BaseListenableEvent {
+  @override
+  Event get event => Event.serverSoundboardSounds;
+
+  @override
+  Function get handler =>
+      (ServerSoundboardSoundsArgs p) => handle(p.server, p.sounds);
+
+  FutureOr<void> handle(Server server, List<SoundboardSound> sounds);
+}

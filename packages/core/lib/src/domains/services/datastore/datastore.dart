@@ -49,4 +49,6 @@ abstract class DataStoreContract {
   StageInstancePartContract get stageInstance;
 
   MonetizationPartContract get monetization;
+
+  SoundboardPartContract get soundboard;
 }

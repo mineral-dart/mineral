@@ -76,6 +76,8 @@ final class _NoopDs implements DataStoreContract {
   @override
   StageInstancePartContract get stageInstance => throw UnimplementedError();
   @override
+  SoundboardPartContract get soundboard => throw UnimplementedError();
+  @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
   HttpClientContract get client => throw UnimplementedError();
@@ -132,6 +134,8 @@ final class _DeferredDataStore implements DataStoreContract {
   StageInstancePartContract get stageInstance => throw UnimplementedError();
   @override
   MonetizationPartContract get monetization => throw UnimplementedError();
+  @override
+  SoundboardPartContract get soundboard => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
@@ -193,6 +197,8 @@ final class _FakeDataStore implements DataStoreContract {
   TemplatePartContract get template => throw UnimplementedError();
   @override
   StageInstancePartContract get stageInstance => throw UnimplementedError();
+  @override
+  SoundboardPartContract get soundboard => throw UnimplementedError();
   @override
   RequestBucket get requestBucket => throw UnimplementedError();
   @override
