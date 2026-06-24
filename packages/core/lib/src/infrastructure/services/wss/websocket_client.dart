@@ -97,7 +97,7 @@ final class WebsocketClientImpl implements WebsocketClient {
 
       if (_onOpen != null) {
         final firstMessage = await stream?.first;
-        _handleMessage(_onOpen, firstMessage);
+        await _handleMessage(_onOpen, firstMessage);
       }
     } on io.WebSocketException catch (err) {
       _logger.error('WebSocket connection failed: $err');
@@ -112,7 +112,7 @@ final class WebsocketClientImpl implements WebsocketClient {
   Future<void> disconnect({int? code = 1000, String? reason}) async {
     _refillTimer?.cancel();
     _sendQueue.clear();
-    _channelListener?.cancel();
+    await _channelListener?.cancel();
     await _channel?.close(code, reason);
   }
 

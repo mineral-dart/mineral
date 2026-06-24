@@ -115,7 +115,7 @@ final class ShardAuthentication implements ShardAuthenticationContract {
     final message = ShardMessageBuilder()
       ..setOpCode(OpCode.heartbeat)
       ..setPayload(sequence);
-    shard.client.send(message.build());
+    await shard.client.send(message.build());
 
     attempts++;
   }
