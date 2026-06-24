@@ -82,13 +82,13 @@ final class ClientBuilder {
     env.defineOf(AppEnv.new);
   }
 
-  void _createCache() {
+  Future<void> _createCache() async {
     if (_cache case final CacheProviderContract cache) {
-      cache.init();
+      await cache.init();
     }
   }
 
-  Client build() {
+  Future<Client> build() async {
     _validateEnvironment();
 
     final logLevel = env.get(AppEnv.logLevel);
@@ -110,7 +110,7 @@ final class ClientBuilder {
     final dataStoreLogger = labelled('datastore');
     final marshallerLogger = labelled('marshaller');
 
-    _createCache();
+    await _createCache();
 
     final token = env.get<String>(AppEnv.token, defaultValue: _token);
     final intent = env.get<int>(AppEnv.intent, defaultValue: _intent);
