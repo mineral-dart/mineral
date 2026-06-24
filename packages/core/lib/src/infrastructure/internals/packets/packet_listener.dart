@@ -35,6 +35,10 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_sch
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_user_add_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_scheduled_event_user_remove_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_soundboard_sound_create_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_soundboard_sound_delete_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_soundboard_sound_update_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_soundboard_sounds_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_stickers_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/guild_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/integration_create_packet.dart';
@@ -58,6 +62,7 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/message_r
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/presence_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/ready_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/soundboard_sounds_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/stage_instance_create_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/stage_instance_delete_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/stage_instance_update_packet.dart';
@@ -215,5 +220,11 @@ final class PacketListener implements PacketListenerContract {
     subscribe(SubscriptionCreatePacket());
     subscribe(SubscriptionUpdatePacket());
     subscribe(SubscriptionDeletePacket());
+
+    subscribe(GuildSoundboardSoundCreatePacket(dataStore: ds));
+    subscribe(GuildSoundboardSoundUpdatePacket(dataStore: ds));
+    subscribe(GuildSoundboardSoundDeletePacket(dataStore: ds));
+    subscribe(GuildSoundboardSoundsUpdatePacket(dataStore: ds));
+    subscribe(SoundboardSoundsPacket(dataStore: ds));
   }
 }

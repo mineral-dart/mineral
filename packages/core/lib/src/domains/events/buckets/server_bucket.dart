@@ -414,4 +414,44 @@ final class ServerBucket {
           Event.serverStageInstanceDelete,
           (ServerStageInstanceDeleteArgs p) =>
               handle(p.server, p.instance));
+
+  void soundboardSoundCreate(
+          FutureOr<void> Function(Server server, SoundboardSound sound)
+              handle) =>
+      _events.make(
+          Event.serverSoundboardSoundCreate,
+          (ServerSoundboardSoundCreateArgs p) =>
+              handle(p.server, p.sound));
+
+  void soundboardSoundUpdate(
+          FutureOr<void> Function(Server server, SoundboardSound sound)
+              handle) =>
+      _events.make(
+          Event.serverSoundboardSoundUpdate,
+          (ServerSoundboardSoundUpdateArgs p) =>
+              handle(p.server, p.sound));
+
+  void soundboardSoundDelete(
+          FutureOr<void> Function(Server server, Snowflake soundId)
+              handle) =>
+      _events.make(
+          Event.serverSoundboardSoundDelete,
+          (ServerSoundboardSoundDeleteArgs p) =>
+              handle(p.server, p.soundId));
+
+  void soundboardSoundsUpdate(
+          FutureOr<void> Function(Server server, List<SoundboardSound> sounds)
+              handle) =>
+      _events.make(
+          Event.serverSoundboardSoundsUpdate,
+          (ServerSoundboardSoundsUpdateArgs p) =>
+              handle(p.server, p.sounds));
+
+  void soundboardSounds(
+          FutureOr<void> Function(Server server, List<SoundboardSound> sounds)
+              handle) =>
+      _events.make(
+          Event.serverSoundboardSounds,
+          (ServerSoundboardSoundsArgs p) =>
+              handle(p.server, p.sounds));
 }

@@ -505,6 +505,42 @@ abstract interface class StageInstancePartContract implements DataStorePart {
   });
 }
 
+abstract interface class SoundboardPartContract implements DataStorePart {
+  Future<List<SoundboardSound>> fetchDefault();
+
+  Future<Map<Snowflake, SoundboardSound>> fetchForServer(Object serverId);
+
+  Future<SoundboardSound> get(Object serverId, Object soundId);
+
+  Future<SoundboardSound> create(
+    Object serverId, {
+    required String name,
+    required String sound,
+    double? volume,
+    Object? emojiId,
+    String? emojiName,
+    String? reason,
+  });
+
+  Future<SoundboardSound> update(
+    Object serverId,
+    Object soundId, {
+    String? name,
+    double? volume,
+    Object? emojiId,
+    String? emojiName,
+    String? reason,
+  });
+
+  Future<void> delete(Object serverId, Object soundId, {String? reason});
+
+  Future<void> sendToChannel(
+    Object channelId, {
+    required Object soundId,
+    Object? sourceGuildId,
+  });
+}
+
 abstract interface class MonetizationPartContract implements DataStorePart {
   Future<List<Sku>> fetchSkus(Object applicationId);
 

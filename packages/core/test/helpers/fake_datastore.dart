@@ -89,4 +89,8 @@ final class FakeDataStore implements DataStoreContract {
   @override
   MonetizationPartContract get monetization =>
       throw UnimplementedError('monetization');
+
+  @override
+  SoundboardPartContract get soundboard =>
+      throw UnimplementedError('soundboard');
 }
