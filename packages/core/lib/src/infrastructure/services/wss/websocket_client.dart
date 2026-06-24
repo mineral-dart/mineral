@@ -101,11 +101,10 @@ final class WebsocketClientImpl implements WebsocketClient {
       }
     } on io.WebSocketException catch (err) {
       _logger.error('WebSocket connection failed: $err');
-      _onError?.call({
-        'error': err,
-        'code': _channel?.closeCode,
-        'reason': _channel?.closeReason
-      });
+      _onClose?.call(1006);
+    } on io.SocketException catch (err) {
+      _logger.error('Socket connection failed: $err');
+      _onClose?.call(1006);
     }
   }
 

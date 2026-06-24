@@ -210,6 +210,52 @@ void main() {
       });
     });
 
+    group('connect failure synthetic code (H3 fix)', () {
+      // When WebsocketClientImpl.connect() catches a WebSocketException or
+      // SocketException it calls _onClose(1006) — the same code that onDone
+      // uses for an abnormal closure. This group asserts that code 1006
+      // arriving through dispatch() triggers the reconnect path, not a no-op.
+
+      test('code 1006 is not a no-op (does not leave warnings empty)', () {
+        final shard = _createShard(logger: logger)
+          ..client = FakeWebsocketClient();
+        final networkError = ShardNetworkError(shard);
+
+        _dispatchSilently(() => networkError.dispatch(1006));
+
+        expect(logger.warnings, isNotEmpty,
+            reason: 'A connect failure must not silently hang');
+      });
+
+      test('code 1006 invalidates session and triggers reconnect', () {
+        final shard = _createShard(logger: logger)
+          ..client = FakeWebsocketClient();
+        shard.authentication.setupRequirements({
+          'session_id': 'stale-session',
+          'resume_gateway_url': 'wss://old-url',
+        });
+        final networkError = ShardNetworkError(shard);
+
+        _dispatchSilently(() => networkError.dispatch(1006));
+
+        expect(shard.authentication.sessionId, isNull,
+            reason: 'Session must be invalidated on connect failure');
+        expect(shard.authentication.resumeUrl, isNull,
+            reason: 'Resume URL must be cleared on connect failure');
+      });
+
+      test('code 1006 disconnects the client before reconnecting', () {
+        final fakeClient = FakeWebsocketClient();
+        final shard = _createShard(logger: logger)..client = fakeClient;
+        final networkError = ShardNetworkError(shard);
+
+        _dispatchSilently(() => networkError.dispatch(1006));
+
+        expect(fakeClient.disconnected, isTrue,
+            reason: 'Client must be disconnected before reconnect attempt');
+      });
+    });
+
     group('unknown codes', () {
       test('logs warning about unknown code', () {
         final shard = _createShard(logger: logger)
