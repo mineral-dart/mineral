@@ -52,6 +52,8 @@ linter:
     use_is_even_rather_than_modulo: true
     use_named_constants: true
     use_string_buffers: true
+    unawaited_futures: true
+    only_throw_errors: true
 
     # analyzer:
     #   exclude:
