@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:io' as io;
 
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/infrastructure/io/exceptions/serialization_exception.dart';
 import 'package:mineral/src/infrastructure/services/wss/interceptor.dart';
 import 'package:mineral/src/infrastructure/services/wss/websocket_message.dart';
 import 'package:mineral/src/infrastructure/services/wss/websocket_requested_message.dart';
@@ -122,11 +123,14 @@ final class WebsocketClientImpl implements WebsocketClient {
   }
 
   Future<void> _handleMessage(dynamic callback, dynamic message) async {
-    final interceptedMessage = await _handleMessageInterceptors(
-        WebsocketMessageImpl(
-            channelName: name, originalContent: message, content: message));
-
-    callback(interceptedMessage);
+    try {
+      final interceptedMessage = await _handleMessageInterceptors(
+          WebsocketMessageImpl(
+              channelName: name, originalContent: message, content: message));
+      callback(interceptedMessage);
+    } on SerializationException catch (e) {
+      _logger.warn('Dropping malformed gateway frame: $e');
+    }
   }
 
   @override
