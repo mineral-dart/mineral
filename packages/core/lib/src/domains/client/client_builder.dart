@@ -132,7 +132,6 @@ final class ClientBuilder {
         version: shardVersion,
         encoding: wsEncodingStrategy.strategy(logger: wssLogger));
 
-    final packetListener = PacketListener();
     final eventListener = EventListener();
     final providerManager = ProviderManager(logger: logger);
     final globalStateManager = GlobalStateManager();
@@ -161,6 +160,20 @@ final class ClientBuilder {
       dataStore: dataStore,
       marshaller: marshaller,
       ctx: entityContext,
+    );
+
+    // PacketListener is constructed here — after all its dependencies are
+    // available but before Kernel, because Kernel takes PacketListener as a
+    // required argument. The only field that cannot be passed here is `kernel`
+    // itself (genuine cycle), which is wired via the setter below.
+    final packetListener = PacketListener(
+      marshaller: marshaller,
+      dataStore: dataStore,
+      interactiveComponent: interactiveComponent,
+      commandManager: commandManager,
+      entityContext: entityContext,
+      runtimeState: runtimeState,
+      cacheConfig: _cacheConfig,
     );
 
     final kernel = Kernel(
@@ -221,15 +234,9 @@ final class ClientBuilder {
       ..require<InteractiveComponentManagerContract>()
       ..validateBindings();
 
+    // Wire the one field that could not be passed at construction time (cycle).
     packetListener
       ..kernel = appState.kernel
-      ..marshaller = appState.marshaller
-      ..dataStore = appState.dataStore
-      ..interactiveComponent = appState.interactiveComponent
-      ..commandManager = appState.commandManager
-      ..entityContext = entityContext
-      ..runtimeState = runtimeState
-      ..cacheConfig = appState.cacheConfig
       ..init();
 
     eventListener.kernel = appState.kernel;

@@ -1,10 +1,10 @@
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/domains/services/datastore/parts.dart';
+import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
 import 'package:mineral/src/domains/services/http/http.dart';
-import 'package:mineral/src/infrastructure/internals/datastore/parts/thread_part.dart';
-import 'package:mineral/src/infrastructure/internals/datastore/request_bucket.dart';
 
 abstract class DataStoreContract {
-  RequestBucket get requestBucket;
+  RequestBucketContract get requestBucket;
 
   HttpClientContract get client;
 
@@ -30,7 +30,7 @@ abstract class DataStoreContract {
 
   ReactionPartContract get reaction;
 
-  ThreadPart get thread;
+  ThreadPartContract get thread;
 
   InvitePartContract get invite;
 
