@@ -78,8 +78,14 @@ void main() {
       expect(policy.ttlFor('ref:users/789'), isNull);
     });
 
-    test('unknown keys fall through to null (no expiry)', () {
-      expect(policy.ttlFor('foo/bar'), isNull);
+    test('webhooks are cached for 1 hour', () {
+      expect(policy.ttlFor('webhooks/123456789'), const Duration(hours: 1));
+    });
+
+    test('unlisted key families fall through to the conservative 1-hour default',
+        () {
+      expect(policy.ttlFor('foo/bar'), const Duration(hours: 1));
+      expect(policy.ttlFor('arbitrary/unlisted/key'), const Duration(hours: 1));
     });
   });
 
