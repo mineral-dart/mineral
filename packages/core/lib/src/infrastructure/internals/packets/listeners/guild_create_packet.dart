@@ -61,8 +61,8 @@ final class GuildCreatePacket implements ListenablePacket {
     }).wait;
 
     final rawServer =
-        await _marshaller.serializers.server.normalize(payload);
-    final server = await _marshaller.serializers.server.serialize(rawServer);
+        await _marshaller.serializers.guild.normalize(payload);
+    final guild = await _marshaller.serializers.guild.serialize(rawServer);
 
     // Bot is created at runtime by ReadyPacket and published to the shared
     // [RuntimeState]. If GUILD_CREATE arrives before READY (shouldn't happen
@@ -71,8 +71,8 @@ final class GuildCreatePacket implements ListenablePacket {
         (throw StateError(
             'GUILD_CREATE received before READY; bot identity not set.'));
 
-    await _commandManager.registerServer(bot, server);
+    await _commandManager.registerServer(bot, guild);
 
-    dispatch<ServerCreateArgs>(event: Event.serverCreate, payload: (server: server));
+    dispatch<GuildCreateArgs>(event: Event.guildCreate, payload: (guild: guild));
   }
 }

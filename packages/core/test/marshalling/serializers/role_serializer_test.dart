@@ -1,6 +1,6 @@
 import 'package:mineral/src/api/common/permission.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/api/server/role.dart';
+import 'package:mineral/src/api/guild/role.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/role_serializer.dart';
 import 'package:test/test.dart';
@@ -32,7 +32,7 @@ void main() {
           'managed': false,
           'mentionable': true,
           'flags': 0,
-          'server_id': '987654321',
+          'guild_id': '987654321',
         };
 
     Map<String, dynamic> rawDiscordPayload() => {
@@ -61,7 +61,7 @@ void main() {
         expect(role.managed, isFalse);
         expect(role.mentionable, isTrue);
         expect(role.flags, equals(0));
-        expect(role.serverId, equals(Snowflake('987654321')));
+        expect(role.guildId, equals(Snowflake('987654321')));
       });
 
       test('parses permissions from String', () async {
@@ -139,18 +139,17 @@ void main() {
     });
 
     group('normalize()', () {
-      test('writes to cache with serverRole key', () async {
+      test('writes to cache with guildRole key', () async {
         await serializer.normalize(rawDiscordPayload());
 
-        final expectedKey = CacheKey().serverRole('987654321', '123456789');
+        final expectedKey = CacheKey().guildRole('987654321', '123456789');
         expect(cache.store.containsKey(expectedKey), isTrue);
       });
 
-      test('renames guild_id to server_id', () async {
+      test('renames guild_id to guild_id', () async {
         final result = await serializer.normalize(rawDiscordPayload());
 
-        expect(result, containsPair('server_id', '987654321'));
-        expect(result.containsKey('guild_id'), isFalse);
+        expect(result, containsPair('guild_id', '987654321'));
       });
 
       test('preserves all fields in cached payload', () async {

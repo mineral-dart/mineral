@@ -20,24 +20,24 @@ final class MessagePollVoteAddPacket implements ListenablePacket {
     final user = await _dataStore.user.get(payload['user_id'] as String, false);
 
     if (payload['guild_id'] != null) {
-      await _server(payload, user!, dispatch);
+      await _guild(payload, user!, dispatch);
     } else {
       await _private(payload, user!, dispatch);
     }
   }
 
-  Future<void> _server(
+  Future<void> _guild(
       Map<String, dynamic> payload, User user, DispatchEvent dispatch) async {
-    final server = await _dataStore.server.get(payload['guild_id'] as String, false);
-    final message = await _dataStore.message.get<ServerMessage>(
+    final guild = await _dataStore.guild.get(payload['guild_id'] as String, false);
+    final message = await _dataStore.message.get<GuildMessage>(
         payload['channel_id'] as String, payload['message_id'] as String, false);
     final answer = await _dataStore.message.getPollVotes(
-        server.id,
+        guild.id,
         Snowflake.parse(payload['channel_id']),
         message!.id,
         payload['answer_id'] as int);
 
-    dispatch<ServerPollVoteAddArgs>(event: Event.serverPollVoteAdd, payload: (answer: answer, user: user));
+    dispatch<GuildPollVoteAddArgs>(event: Event.guildPollVoteAdd, payload: (answer: answer, user: user));
   }
 
   Future<void> _private(

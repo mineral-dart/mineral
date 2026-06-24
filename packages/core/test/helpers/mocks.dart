@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/api/common/bot/bot.dart';
-import 'package:mineral/src/api/server/server.dart';
+import 'package:mineral/src/api/guild/guild.dart';
 import 'package:mineral/src/domains/commands/command_builder.dart';
 import 'package:mineral/src/domains/events/event_dispatcher.dart';
 import 'package:mineral/src/domains/events/event_listener.dart';
@@ -55,7 +55,7 @@ final class FakeCommandInteractionManager
   Future<void> registerGlobal(Bot bot) async {}
 
   @override
-  Future<void> registerServer(Bot bot, Server server) async {}
+  Future<void> registerServer(Bot bot, Guild guild) async {}
 
   @override
   void addCommand(CommandBuilder command) {}

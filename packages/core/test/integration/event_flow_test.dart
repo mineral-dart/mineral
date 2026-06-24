@@ -34,26 +34,26 @@ void main() {
           .listen((e) => readyPayloads.add(e.payload));
 
       dispatcher
-          .controllerFor(Event.serverMemberAdd)
+          .controllerFor(Event.guildMemberAdd)
           .stream
           .listen((e) => memberAddPayloads.add(e.payload));
 
       dispatcher
-          .controllerFor(Event.serverMessageCreate)
+          .controllerFor(Event.guildMessageCreate)
           .stream
           .listen((e) => messagePayloads.add(e.payload));
 
       dispatcher
         ..dispatch(event: Event.ready, payload: (bot: 'bot-instance'))
         ..dispatch(
-            event: Event.serverMemberAdd,
-            payload: (server: 'guild-1', member: 'user-42'))
+            event: Event.guildMemberAdd,
+            payload: (guild: 'guild-1', member: 'user-42'))
         ..dispatch(
-            event: Event.serverMessageCreate,
+            event: Event.guildMessageCreate,
             payload: (channel: 'channel-5', text: 'hello'))
         ..dispatch(event: Event.ready, payload: (bot: 'bot-reconnect'))
         ..dispatch(
-            event: Event.serverMessageCreate,
+            event: Event.guildMessageCreate,
             payload: (channel: 'channel-5', text: 'world'));
 
       await Future.delayed(Duration(milliseconds: 50));
@@ -63,8 +63,8 @@ void main() {
       expect((readyPayloads[1] as ({String bot})).bot, 'bot-reconnect');
 
       expect(memberAddPayloads, hasLength(1));
-      final ma = memberAddPayloads[0] as ({String server, String member});
-      expect(ma.server, 'guild-1');
+      final ma = memberAddPayloads[0] as ({String guild, String member});
+      expect(ma.guild, 'guild-1');
       expect(ma.member, 'user-42');
 
       expect(messagePayloads, hasLength(2));
@@ -73,15 +73,15 @@ void main() {
     test('passes payload accurately through the dispatch chain', () async {
       final captured = <InternalEventParams>[];
 
-      dispatcher.controllerFor(Event.serverUpdate).stream.listen(captured.add);
+      dispatcher.controllerFor(Event.guildUpdate).stream.listen(captured.add);
 
-      final complexPayload = (before: 'before-state', after: {'name': 'My Server', 'id': 123});
-      dispatcher.dispatch(event: Event.serverUpdate, payload: complexPayload);
+      final complexPayload = (before: 'before-state', after: {'name': 'My Guild', 'id': 123});
+      dispatcher.dispatch(event: Event.guildUpdate, payload: complexPayload);
 
       await Future.delayed(Duration(milliseconds: 50));
 
       expect(captured, hasLength(1));
-      expect(captured.first.event, Event.serverUpdate);
+      expect(captured.first.event, Event.guildUpdate);
       final p = captured.first.payload as ({String before, Map after});
       expect(p.before, 'before-state');
       expect(p.after['id'], 123);
@@ -93,7 +93,7 @@ void main() {
       final modalSubmits = <String>[];
 
       // Button listener filtered to 'btn-confirm'
-      dispatcher.controllerFor(Event.serverButtonClick).stream.where((e) {
+      dispatcher.controllerFor(Event.guildButtonClick).stream.where((e) {
         return switch (e.constraint) {
           final bool Function(String?) constraint => constraint('btn-confirm'),
           _ => true
@@ -101,7 +101,7 @@ void main() {
       }).listen((e) => buttonClicks.add(e.payload as String));
 
       // Modal listener filtered to 'modal-settings'
-      dispatcher.controllerFor(Event.serverModalSubmit).stream.where((e) {
+      dispatcher.controllerFor(Event.guildModalSubmit).stream.where((e) {
         return switch (e.constraint) {
           final bool Function(String?) constraint =>
             constraint('modal-settings'),
@@ -112,26 +112,26 @@ void main() {
       // Dispatch button and modal events with various constraints
       dispatcher
         ..dispatch(
-          event: Event.serverButtonClick,
+          event: Event.guildButtonClick,
           payload: 'click-1',
           constraint: (id) => id == 'btn-confirm',
         )
         ..dispatch(
-          event: Event.serverButtonClick,
+          event: Event.guildButtonClick,
           payload: 'click-2',
           constraint: (id) => id == 'btn-cancel',
         )
         ..dispatch(
-          event: Event.serverButtonClick,
+          event: Event.guildButtonClick,
           payload: 'click-3',
         )
         ..dispatch(
-          event: Event.serverModalSubmit,
+          event: Event.guildModalSubmit,
           payload: 'submit-1',
           constraint: (id) => id == 'modal-settings',
         )
         ..dispatch(
-          event: Event.serverModalSubmit,
+          event: Event.guildModalSubmit,
           payload: 'submit-2',
           constraint: (id) => id == 'modal-profile',
         );
@@ -149,35 +149,35 @@ void main() {
       final allReceived = <String>[];
 
       dispatcher
-          .controllerFor(Event.serverMemberAdd)
+          .controllerFor(Event.guildMemberAdd)
           .stream
           .listen((e) => allReceived.add(e.payload as String));
 
       // First cycle
       dispatcher
-        ..dispatch(event: Event.serverMemberAdd, payload: 'user-1')
-        ..dispatch(event: Event.serverMemberAdd, payload: 'user-2');
+        ..dispatch(event: Event.guildMemberAdd, payload: 'user-1')
+        ..dispatch(event: Event.guildMemberAdd, payload: 'user-2');
 
       await Future.delayed(Duration(milliseconds: 50));
       expect(allReceived, ['user-1', 'user-2']);
 
       // Second cycle
       dispatcher
-        ..dispatch(event: Event.serverMemberAdd, payload: 'user-3')
-        ..dispatch(event: Event.serverMemberAdd, payload: 'user-4');
+        ..dispatch(event: Event.guildMemberAdd, payload: 'user-3')
+        ..dispatch(event: Event.guildMemberAdd, payload: 'user-4');
 
       await Future.delayed(Duration(milliseconds: 50));
       expect(allReceived, ['user-1', 'user-2', 'user-3', 'user-4']);
 
       // Third cycle with a different event interleaved
       dispatcher
-          .controllerFor(Event.serverMemberRemove)
+          .controllerFor(Event.guildMemberRemove)
           .stream
           .listen((e) => allReceived.add('removed:${e.payload}'));
 
       dispatcher
-        ..dispatch(event: Event.serverMemberAdd, payload: 'user-5')
-        ..dispatch(event: Event.serverMemberRemove, payload: 'user-1');
+        ..dispatch(event: Event.guildMemberAdd, payload: 'user-5')
+        ..dispatch(event: Event.guildMemberRemove, payload: 'user-1');
 
       await Future.delayed(Duration(milliseconds: 50));
       expect(allReceived,
@@ -194,14 +194,14 @@ void main() {
           .listen((e) => readyEvents.add(e.payload as String));
 
       dispatcher
-          .controllerFor(Event.serverMessageCreate)
+          .controllerFor(Event.guildMessageCreate)
           .stream
           .listen((e) => messageEvents.add(e.payload as String));
 
       // Dispatch before dispose
       dispatcher
         ..dispatch(event: Event.ready, payload: 'bot-1')
-        ..dispatch(event: Event.serverMessageCreate, payload: 'msg-1');
+        ..dispatch(event: Event.guildMessageCreate, payload: 'msg-1');
 
       await Future.delayed(Duration(milliseconds: 50));
       expect(readyEvents, ['bot-1']);
@@ -213,7 +213,7 @@ void main() {
         // Dispatch after dispose -- controllers are closed and cleared,
         // so dispatch should be a no-op (no controller found).
         ..dispatch(event: Event.ready, payload: 'bot-2')
-        ..dispatch(event: Event.serverMessageCreate, payload: 'msg-2');
+        ..dispatch(event: Event.guildMessageCreate, payload: 'msg-2');
 
       await Future.delayed(Duration(milliseconds: 50));
 
@@ -226,14 +226,14 @@ void main() {
       final listener1 = <String>[];
       final listener2 = <String>[];
 
-      final controller = dispatcher.controllerFor(Event.serverMessageCreate);
+      final controller = dispatcher.controllerFor(Event.guildMessageCreate);
 
       final sub1 =
           controller.stream.listen((e) => listener1.add(e.payload as String));
       controller.stream.listen((e) => listener2.add(e.payload as String));
 
       // Both receive first dispatch
-      dispatcher.dispatch(event: Event.serverMessageCreate, payload: 'msg-1');
+      dispatcher.dispatch(event: Event.guildMessageCreate, payload: 'msg-1');
 
       await Future.delayed(Duration(milliseconds: 50));
       expect(listener1, ['msg-1']);
@@ -243,7 +243,7 @@ void main() {
       await sub1.cancel();
 
       // Only listener2 receives second dispatch
-      dispatcher.dispatch(event: Event.serverMessageCreate, payload: 'msg-2');
+      dispatcher.dispatch(event: Event.guildMessageCreate, payload: 'msg-2');
 
       await Future.delayed(Duration(milliseconds: 50));
       expect(listener1, ['msg-1']);
@@ -255,12 +255,12 @@ void main() {
       final received = <String>[];
 
       final sub = dispatcher
-          .controllerFor(Event.serverBanAdd)
+          .controllerFor(Event.guildBanAdd)
           .stream
           .listen((e) => received.add(e.payload as String));
 
       // Step 1: dispatch and confirm receipt
-      dispatcher.dispatch(event: Event.serverBanAdd, payload: 'ban-user-1');
+      dispatcher.dispatch(event: Event.guildBanAdd, payload: 'ban-user-1');
       await Future.delayed(Duration(milliseconds: 50));
       expect(received, ['ban-user-1']);
 
@@ -268,7 +268,7 @@ void main() {
       await sub.cancel();
 
       // Step 3: dispatch again
-      dispatcher.dispatch(event: Event.serverBanAdd, payload: 'ban-user-2');
+      dispatcher.dispatch(event: Event.guildBanAdd, payload: 'ban-user-2');
       await Future.delayed(Duration(milliseconds: 50));
 
       // Step 4: verify no new delivery
@@ -277,9 +277,9 @@ void main() {
     });
 
     test('dispatch to event with no listeners is a silent no-op', () async {
-      // No listener registered for serverDelete
+      // No listener registered for guildDelete
       // This should not throw or cause any side effects
-      dispatcher.dispatch(event: Event.serverDelete, payload: 'guild-99');
+      dispatcher.dispatch(event: Event.guildDelete, payload: 'guild-99');
       await Future.delayed(Duration(milliseconds: 50));
 
       // Verify other events still work after dispatching to empty event

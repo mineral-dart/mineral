@@ -42,7 +42,7 @@ final class ModBanListener extends OnCommandListener {
     }
 
     await dataStore.member.ban(
-      serverId: guild.id,
+      guildId: guild.id,
       memberId: target.id,
       deleteSince: null,
       reason: reason,

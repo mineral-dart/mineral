@@ -3,7 +3,7 @@ import 'package:mineral/contracts.dart';
 
 /// Shared base for button interaction contexts.
 ///
-/// Holds the [channelId] and [messageId] that are common to both server and
+/// Holds the [channelId] and [messageId] that are common to both guild and
 /// private button interactions, and provides the default [resolveChannel] /
 /// [resolveMessage] implementations that return the more-specific sub-types
 /// in concrete subclasses via covariant return types.
@@ -25,15 +25,15 @@ abstract class ButtonContextBase extends ComponentContextBase
     required super.ctx,
   });
 
-  Future<ServerChannel> resolveChannel({bool force = false}) async {
+  Future<GuildChannel> resolveChannel({bool force = false}) async {
     final channel =
-        await _dataStore.channel.get<ServerChannel>(channelId.value, force);
+        await _dataStore.channel.get<GuildChannel>(channelId.value, force);
     return channel!;
   }
 
-  Future<ServerMessage> resolveMessage({bool force = false}) async {
+  Future<GuildMessage> resolveMessage({bool force = false}) async {
     final message = await _dataStore.message
-        .get<ServerMessage>(channelId.value, messageId.value, force);
+        .get<GuildMessage>(channelId.value, messageId.value, force);
     return message!;
   }
 }

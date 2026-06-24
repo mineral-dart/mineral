@@ -19,7 +19,7 @@ final class MessageReactionSerializer<T extends Message>
       'content': json['content'],
       'embeds': json['embeds'],
       'channel_id': json['channel_id'],
-      'server_id': json['guild_id'],
+      'guild_id': json['guild_id'],
       'emoji': json['emoji'],
       'message_id': json['message_id'],
       'timestamp': json['timestamp'],
@@ -33,7 +33,7 @@ final class MessageReactionSerializer<T extends Message>
   Future<MessageReaction> serialize(Map<String, dynamic> json) async {
     return MessageReaction(
         ctx: _ctx,
-        serverId: Snowflake.nullable(json['server_id']),
+        guildId: Snowflake.nullable(json['guild_id']),
         channelId: Snowflake.parse(json['channel_id']),
         userId: Snowflake.parse(json['author_id']),
         messageId: Snowflake.parse(json['message_id']),
@@ -48,12 +48,12 @@ final class MessageReactionSerializer<T extends Message>
   @override
   Future<Map<String, dynamic>> deserialize(MessageReaction object) async {
     return {
-      'id': object.serverId?.value,
+      'id': object.guildId?.value,
       'author_id': object.channelId.value,
       'content': object.userId.value,
       'embeds': object.messageId.value,
       'channel_id': object.channelId?.value,
-      'server_id': object.emoji.id,
+      'guild_id': object.emoji.id,
       'emoji': {
         'id': object.emoji.id,
         'name': object.emoji.name,

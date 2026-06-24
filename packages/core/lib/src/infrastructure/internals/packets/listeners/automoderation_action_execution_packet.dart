@@ -2,9 +2,9 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 
-import 'package:mineral/src/api/server/moderation/action_metadata.dart';
-import 'package:mineral/src/api/server/moderation/enums/action_type.dart';
-import 'package:mineral/src/api/server/moderation/enums/trigger_type.dart';
+import 'package:mineral/src/api/guild/moderation/action_metadata.dart';
+import 'package:mineral/src/api/guild/moderation/enums/action_type.dart';
+import 'package:mineral/src/api/guild/moderation/enums/trigger_type.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
@@ -23,8 +23,8 @@ final class AutomoderationActionExecutionPacket implements ListenablePacket {
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
-    final server =
-        await _dataStore.server.get(payload['guild_id'] as String, false);
+    final guild =
+        await _dataStore.guild.get(payload['guild_id'] as String, false);
     final member = await _dataStore.member.get(
         payload['guild_id'] as String, payload['user_id'] as String, false);
 
@@ -45,7 +45,7 @@ final class AutomoderationActionExecutionPacket implements ListenablePacket {
       ruleId: Snowflake.parse(payload['rule_id']),
       channelId: Snowflake.parse(payload['channel_id']),
       messageId: Snowflake.nullable(payload['message_id']),
-      server: server,
+      guild: guild,
       member: member!,
       action: action,
       triggerType: triggerType,
@@ -54,7 +54,7 @@ final class AutomoderationActionExecutionPacket implements ListenablePacket {
       matchedKeyword: payload['matched_keyword'] as String?,
     );
 
-    dispatch<ServerRuleExecutionArgs>(
-        event: Event.serverRuleExecution, payload: (execution: ruleExecution));
+    dispatch<GuildRuleExecutionArgs>(
+        event: Event.guildRuleExecution, payload: (execution: ruleExecution));
   }
 }

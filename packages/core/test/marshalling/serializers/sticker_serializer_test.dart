@@ -30,7 +30,7 @@ void main() {
           'asset': null,
           'format_type': 1,
           'sort_value': 5,
-          'server_id': '987654321',
+          'guild_id': '987654321',
         };
 
     Map<String, dynamic> rawDiscordPayload() => {
@@ -61,7 +61,7 @@ void main() {
         expect(sticker.tags, equals('cool,fun'));
         expect(sticker.formatType, equals(FormatType.standard));
         expect(sticker.sortValue, equals(5));
-        expect(sticker.serverId, equals(Snowflake('987654321')));
+        expect(sticker.guildId, equals(Snowflake('987654321')));
       });
 
       test('resolves StickerType.standard for type 1', () {
@@ -93,7 +93,7 @@ void main() {
         expect(result['tags'], equals('cool,fun'));
         expect(result['format_type'], equals(FormatType.standard.value));
         expect(result['sort_value'], equals(5));
-        expect(result['server_id'], equals(Snowflake('987654321')));
+        expect(result['guild_id'], equals(Snowflake('987654321')));
       });
     });
 
@@ -105,11 +105,10 @@ void main() {
         expect(cache.store.containsKey(expectedKey), isTrue);
       });
 
-      test('renames guild_id to server_id', () async {
+      test('renames guild_id to guild_id', () async {
         final result = await serializer.normalize(rawDiscordPayload());
 
-        expect(result, containsPair('server_id', '987654321'));
-        expect(result.containsKey('guild_id'), isFalse);
+        expect(result, containsPair('guild_id', '987654321'));
       });
     });
 

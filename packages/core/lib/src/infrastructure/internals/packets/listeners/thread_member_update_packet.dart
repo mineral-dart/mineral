@@ -17,15 +17,15 @@ final class ThreadMemberUpdatePacket implements ListenablePacket {
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
-    final server =
-        await _dataStore.server.get(payload['guild_id'] as Object, false);
+    final guild =
+        await _dataStore.guild.get(payload['guild_id'] as Object, false);
     final thread = await _dataStore.channel.get(payload['id'] as Object, false);
 
     final member = await _dataStore.member
-        .get(server.id.value, payload['user_id'] as Object, false);
+        .get(guild.id.value, payload['user_id'] as Object, false);
 
-    dispatch<ServerThreadMemberArgs>(
-        event: Event.serverThreadMemberUpdate,
-        payload: (thread: thread! as ThreadChannel, server: server, member: member!));
+    dispatch<GuildThreadMemberArgs>(
+        event: Event.guildThreadMemberUpdate,
+        payload: (thread: thread! as ThreadChannel, guild: guild, member: member!));
   }
 }

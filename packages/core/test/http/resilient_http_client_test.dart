@@ -35,7 +35,7 @@ void main() {
       });
     });
 
-    group('retries on transient server errors', () {
+    group('retries on transient guild errors', () {
       for (final code in [500, 502, 503, 504]) {
         test('retries on $code and succeeds on next attempt', () async {
           final inner = FakeHttpClient([code, 200]);

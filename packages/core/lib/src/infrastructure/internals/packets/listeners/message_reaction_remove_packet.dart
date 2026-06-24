@@ -20,11 +20,11 @@ final class MessageReactionRemovePacket implements ListenablePacket {
         await _marshaller.serializers.reaction.normalize(message.payload as Map<String, dynamic>);
     final reaction = await _marshaller.serializers.reaction.serialize(raw);
 
-    final serverId = Snowflake.nullable(message.payload['guild_id']);
-    switch (serverId) {
+    final guildId = Snowflake.nullable(message.payload['guild_id']);
+    switch (guildId) {
       case String():
-        dispatch<ServerMessageReactionRemoveArgs>(
-            event: Event.serverMessageReactionRemove,
+        dispatch<GuildMessageReactionRemoveArgs>(
+            event: Event.guildMessageReactionRemove,
             payload: (reaction: reaction));
       default:
         dispatch<PrivateMessageReactionRemoveArgs>(

@@ -30,7 +30,7 @@ void main() {
 
       dispatcher
         ..dispatch(event: Event.ready, payload: 'bot')
-        ..dispatch(event: Event.serverMessageCreate, payload: 'msg')
+        ..dispatch(event: Event.guildMessageCreate, payload: 'msg')
         ..dispatch(event: Event.ready, payload: 'bot2');
 
       await Future.delayed(Duration(milliseconds: 50));
@@ -43,26 +43,26 @@ void main() {
       final receivedPayloads = <Object>[];
 
       dispatcher
-          .controllerFor(Event.serverMemberAdd)
+          .controllerFor(Event.guildMemberAdd)
           .stream
           .listen((e) => receivedPayloads.add(e.payload));
 
       dispatcher.dispatch(
-          event: Event.serverMemberAdd,
-          payload: (server: 'server1', member: 'member1'));
+          event: Event.guildMemberAdd,
+          payload: (guild: 'guild1', member: 'member1'));
 
       await Future.delayed(Duration(milliseconds: 50));
 
       expect(receivedPayloads, hasLength(1));
-      final p = receivedPayloads.first as ({String server, String member});
-      expect(p.server, 'server1');
+      final p = receivedPayloads.first as ({String guild, String member});
+      expect(p.guild, 'guild1');
       expect(p.member, 'member1');
     });
 
     test('constraint filters on customId', () async {
       final received = <InternalEventParams>[];
 
-      dispatcher.controllerFor(Event.serverButtonClick).stream.where((e) {
+      dispatcher.controllerFor(Event.guildButtonClick).stream.where((e) {
         return switch (e.constraint) {
           final bool Function(String?) constraint => constraint('btn-save'),
           _ => true
@@ -72,19 +72,19 @@ void main() {
       // This one matches the constraint
       dispatcher
         ..dispatch(
-          event: Event.serverButtonClick,
+          event: Event.guildButtonClick,
           payload: 'ctx1',
           constraint: (id) => id == 'btn-save',
         )
         // This one does NOT match
         ..dispatch(
-          event: Event.serverButtonClick,
+          event: Event.guildButtonClick,
           payload: 'ctx2',
           constraint: (id) => id == 'btn-delete',
         )
         // This one has no constraint (should pass)
         ..dispatch(
-          event: Event.serverButtonClick,
+          event: Event.guildButtonClick,
           payload: 'ctx3',
         );
 
@@ -136,13 +136,13 @@ void main() {
           .toList();
 
       final messageFuture = dispatcher
-          .controllerFor(Event.serverMessageCreate)
+          .controllerFor(Event.guildMessageCreate)
           .stream
           .first;
 
       dispatcher
         ..dispatch(event: Event.ready, payload: 'bot')
-        ..dispatch(event: Event.serverMessageCreate, payload: 'msg')
+        ..dispatch(event: Event.guildMessageCreate, payload: 'msg')
         ..dispatch(event: Event.ready, payload: 'bot');
 
       final readyEvents = await readyFuture;
@@ -150,7 +150,7 @@ void main() {
 
       expect(readyEvents, hasLength(2));
       expect(readyEvents.every((e) => e.event == Event.ready), isTrue);
-      expect(messageEvent.event, Event.serverMessageCreate);
+      expect(messageEvent.event, Event.guildMessageCreate);
     });
   });
 }

@@ -21,8 +21,8 @@ final class ThreadMembersUpdatePacket implements ListenablePacket {
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
-    final server =
-        await _dataStore.server.get(payload['guild_id'] as String, false);
+    final guild =
+        await _dataStore.guild.get(payload['guild_id'] as String, false);
     final thread = await _dataStore.channel
         .get<ThreadChannel>(payload['id'] as String, false);
 
@@ -38,8 +38,8 @@ final class ThreadMembersUpdatePacket implements ListenablePacket {
         member = await _marshaller.serializers.member.serialize(rawMember);
       }
 
-      dispatch<ServerThreadMemberArgs>(
-          event: Event.serverThreadMemberAdd, payload: (thread: thread!, server: server, member: member!));
+      dispatch<GuildThreadMemberArgs>(
+          event: Event.guildThreadMemberAdd, payload: (thread: thread!, guild: guild, member: member!));
     }).wait;
 
     await List.from(payload['removed_member_ids'] as Iterable<dynamic>).map((element) async {
@@ -54,9 +54,9 @@ final class ThreadMembersUpdatePacket implements ListenablePacket {
         member = await _marshaller.serializers.member.serialize(rawMember);
       }
 
-      dispatch<ServerThreadMemberArgs>(
-          event: Event.serverThreadMemberRemove,
-          payload: (thread: thread!, server: server, member: member!));
+      dispatch<GuildThreadMemberArgs>(
+          event: Event.guildThreadMemberRemove,
+          payload: (thread: thread!, guild: guild, member: member!));
     }).wait;
   }
 }

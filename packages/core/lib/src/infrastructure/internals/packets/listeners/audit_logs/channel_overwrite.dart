@@ -1,13 +1,13 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/src/api/server/audit_log/actions/channel_overwrite.dart';
-import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/api/guild/audit_log/actions/channel_overwrite.dart';
+import 'package:mineral/src/api/guild/audit_log/audit_log.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 Future<AuditLog> channelOverwriteCreateAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   final options = json['options'] as Map<String, dynamic>?;
   return ChannelOverwriteCreateAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     channelId:
         Snowflake.parse(options?['channel_id'] ?? json['target_id']),
@@ -24,7 +24,7 @@ Future<AuditLog> channelOverwriteUpdateAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   final options = json['options'] as Map<String, dynamic>?;
   return ChannelOverwriteUpdateAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     channelId:
         Snowflake.parse(options?['channel_id'] ?? json['target_id']),
@@ -41,7 +41,7 @@ Future<AuditLog> channelOverwriteDeleteAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   final options = json['options'] as Map<String, dynamic>?;
   return ChannelOverwriteDeleteAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.parse(json['user_id']),
     channelId:
         Snowflake.parse(options?['channel_id'] ?? json['target_id']),

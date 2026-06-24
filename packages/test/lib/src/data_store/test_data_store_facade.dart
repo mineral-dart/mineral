@@ -73,7 +73,7 @@ final class TestDataStoreFacade {
   void _apply(RecordedAction action) {
     switch (action) {
       case RoleAssigned():
-        final key = _memberKey(action.serverId, action.memberId);
+        final key = _memberKey(action.guildId, action.memberId);
         final member = _members[key];
         final role = _roles[action.roleId];
         if (member != null && role != null && !member.roles.contains(role)) {
@@ -86,7 +86,7 @@ final class TestDataStoreFacade {
           );
         }
       case RoleRemoved():
-        final key = _memberKey(action.serverId, action.memberId);
+        final key = _memberKey(action.guildId, action.memberId);
         final member = _members[key];
         if (member != null) {
           _members[key] = TestMember(
@@ -98,7 +98,7 @@ final class TestDataStoreFacade {
           );
         }
       case MemberBanned():
-        _members.remove(_memberKey(action.serverId, action.memberId));
+        _members.remove(_memberKey(action.guildId, action.memberId));
       case SentMessage():
       case InteractionReply():
       case ModalShown():

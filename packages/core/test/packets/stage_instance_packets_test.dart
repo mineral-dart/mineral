@@ -2,8 +2,8 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/services.dart';
-import 'package:mineral/src/api/server/managers/rules_manager.dart';
-import 'package:mineral/src/api/server/managers/threads_manager.dart';
+import 'package:mineral/src/api/guild/managers/rules_manager.dart';
+import 'package:mineral/src/api/guild/managers/threads_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
@@ -21,20 +21,20 @@ import '../helpers/fake_websocket_orchestrator.dart';
 
 // ── IDs ───────────────────────────────────────────────────────────────────────
 
-const _serverId = '123456789012345678';
+const _guildId = '123456789012345678';
 const _channelId = '111222333444555666';
 const _instanceId = '999888777666555444';
 
 // ── Minimal DataStoreContract stubs ──────────────────────────────────────────
 
 final class _FakeDataStore implements DataStoreContract {
-  final ServerPartContract _serverPart;
+  final GuildPartContract _guildPart;
 
-  _FakeDataStore({required ServerPartContract serverPart})
-      : _serverPart = serverPart;
+  _FakeDataStore({required GuildPartContract guildPart})
+      : _guildPart = guildPart;
 
   @override
-  ServerPartContract get server => _serverPart;
+  GuildPartContract get guild => _guildPart;
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
@@ -77,21 +77,21 @@ final class _FakeDataStore implements DataStoreContract {
   HttpClientContract get client => throw UnimplementedError();
 }
 
-final class _FakeServerPart implements ServerPartContract {
-  final Server _server;
-  _FakeServerPart(this._server);
+final class _FakeServerPart implements GuildPartContract {
+  final Guild _guild;
+  _FakeServerPart(this._guild);
 
   @override
-  Future<Server> get(Object id, bool force) async => _server;
+  Future<Guild> get(Object id, bool force) async => _guild;
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw UnimplementedError(invocation.memberName.toString());
 }
 
-final class _DummyServerPart implements ServerPartContract {
+final class _DummyServerPart implements GuildPartContract {
   @override
-  Future<Server> get(Object id, bool force) => throw UnimplementedError();
+  Future<Guild> get(Object id, bool force) => throw UnimplementedError();
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
@@ -106,17 +106,17 @@ final class _NullDataStore implements DataStoreContract {
 
 // ── Domain object builder ─────────────────────────────────────────────────────
 
-Server _buildServer(EntityContext ctx) {
-  final id = Snowflake.parse(_serverId);
-  return Server(
+Guild _buildServer(EntityContext ctx) {
+  final id = Snowflake.parse(_guildId);
+  return Guild(
     ctx: ctx,
     id: id,
-    name: 'Test Server',
+    name: 'Test Guild',
     ownerId: Snowflake.parse('000000000000000001'),
     description: null,
     applicationId: null,
     members: MemberManager(id, ctx: ctx),
-    settings: ServerSettings(
+    settings: GuildSettings(
       bitfieldPermission: null,
       afkTimeout: null,
       hasWidgetEnabled: false,
@@ -127,7 +127,7 @@ Server _buildServer(EntityContext ctx) {
       mfaLevel: MfaLevel.none,
       systemChannelFlags: [],
       vanityUrlCode: null,
-      subscription: ServerSubscription(
+      subscription: GuildSubscription(
         tier: PremiumTier.none,
         subscriptionCount: null,
         hasEnabledProgressBar: false,
@@ -148,7 +148,7 @@ Server _buildServer(EntityContext ctx) {
       safetyAlertsChannelId: null,
     ),
     threads: ThreadsManager(id, null, ctx: ctx),
-    assets: ServerAsset(
+    assets: GuildAsset(
       id,
       ctx: ctx,
       emojis: EmojiManager(id, ctx: ctx),
@@ -169,7 +169,7 @@ Map<String, dynamic> _stageInstancePayload({
 }) =>
     {
       'id': _instanceId,
-      'guild_id': _serverId,
+      'guild_id': _guildId,
       'channel_id': _channelId,
       'topic': topic,
       'privacy_level': privacyLevel,
@@ -204,7 +204,7 @@ void main() {
   group('PacketType identity', () {
     test('StageInstanceCreatePacket has correct packetType', () {
       final packet = StageInstanceCreatePacket(
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.stageInstanceCreate));
       expect(packet.packetType.name, equals('STAGE_INSTANCE_CREATE'));
@@ -212,7 +212,7 @@ void main() {
 
     test('StageInstanceUpdatePacket has correct packetType', () {
       final packet = StageInstanceUpdatePacket(
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.stageInstanceUpdate));
       expect(packet.packetType.name, equals('STAGE_INSTANCE_UPDATE'));
@@ -220,7 +220,7 @@ void main() {
 
     test('StageInstanceDeletePacket has correct packetType', () {
       final packet = StageInstanceDeletePacket(
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.stageInstanceDelete));
       expect(packet.packetType.name, equals('STAGE_INSTANCE_DELETE'));
@@ -239,11 +239,11 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      final server = _buildServer(ctx);
-      ds = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      ds = _FakeDataStore(guildPart: _FakeServerPart(guild));
     });
 
-    test('dispatches Event.serverStageInstanceCreate', () async {
+    test('dispatches Event.guildStageInstanceCreate', () async {
       final packet = StageInstanceCreatePacket(dataStore: ds);
       Event? capturedEvent;
 
@@ -255,30 +255,30 @@ void main() {
       }
 
       await packet.listen(_buildCreateMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverStageInstanceCreate));
+      expect(capturedEvent, equals(Event.guildStageInstanceCreate));
     });
 
-    test('payload carries server and correctly parsed StageInstance', () async {
+    test('payload carries guild and correctly parsed StageInstance', () async {
       final packet = StageInstanceCreatePacket(dataStore: ds);
-      ServerStageInstanceCreateArgs? args;
+      GuildStageInstanceCreateArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverStageInstanceCreate) {
-          args = payload as ServerStageInstanceCreateArgs;
+        if (event == Event.guildStageInstanceCreate) {
+          args = payload as GuildStageInstanceCreateArgs;
         }
       }
 
       await packet.listen(_buildCreateMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
-      expect(args!.server.name, equals('Test Server'));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
+      expect(args!.guild.name, equals('Test Guild'));
       final instance = args!.instance;
       expect(instance.id, equals(Snowflake.parse(_instanceId)));
-      expect(instance.guildId, equals(Snowflake.parse(_serverId)));
+      expect(instance.guildId, equals(Snowflake.parse(_guildId)));
       expect(instance.channelId, equals(Snowflake.parse(_channelId)));
       expect(instance.topic, equals('Test Stage'));
       expect(instance.privacyLevel, equals(StagePrivacyLevel.guildOnly));
@@ -297,11 +297,11 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      final server = _buildServer(ctx);
-      ds = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      ds = _FakeDataStore(guildPart: _FakeServerPart(guild));
     });
 
-    test('dispatches Event.serverStageInstanceUpdate', () async {
+    test('dispatches Event.guildStageInstanceUpdate', () async {
       final packet = StageInstanceUpdatePacket(dataStore: ds);
       Event? capturedEvent;
 
@@ -313,26 +313,26 @@ void main() {
       }
 
       await packet.listen(_buildUpdateMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverStageInstanceUpdate));
+      expect(capturedEvent, equals(Event.guildStageInstanceUpdate));
     });
 
-    test('payload carries server and correctly parsed StageInstance', () async {
+    test('payload carries guild and correctly parsed StageInstance', () async {
       final packet = StageInstanceUpdatePacket(dataStore: ds);
-      ServerStageInstanceUpdateArgs? args;
+      GuildStageInstanceUpdateArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverStageInstanceUpdate) {
-          args = payload as ServerStageInstanceUpdateArgs;
+        if (event == Event.guildStageInstanceUpdate) {
+          args = payload as GuildStageInstanceUpdateArgs;
         }
       }
 
       await packet.listen(_buildUpdateMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
       final instance = args!.instance;
       expect(instance.id, equals(Snowflake.parse(_instanceId)));
       expect(instance.topic, equals('Updated Topic'));
@@ -351,11 +351,11 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      final server = _buildServer(ctx);
-      ds = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      ds = _FakeDataStore(guildPart: _FakeServerPart(guild));
     });
 
-    test('dispatches Event.serverStageInstanceDelete', () async {
+    test('dispatches Event.guildStageInstanceDelete', () async {
       final packet = StageInstanceDeletePacket(dataStore: ds);
       Event? capturedEvent;
 
@@ -367,26 +367,26 @@ void main() {
       }
 
       await packet.listen(_buildDeleteMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverStageInstanceDelete));
+      expect(capturedEvent, equals(Event.guildStageInstanceDelete));
     });
 
-    test('payload carries server and correctly parsed StageInstance', () async {
+    test('payload carries guild and correctly parsed StageInstance', () async {
       final packet = StageInstanceDeletePacket(dataStore: ds);
-      ServerStageInstanceDeleteArgs? args;
+      GuildStageInstanceDeleteArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverStageInstanceDelete) {
-          args = payload as ServerStageInstanceDeleteArgs;
+        if (event == Event.guildStageInstanceDelete) {
+          args = payload as GuildStageInstanceDeleteArgs;
         }
       }
 
       await packet.listen(_buildDeleteMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
       final instance = args!.instance;
       expect(instance.id, equals(Snowflake.parse(_instanceId)));
       expect(instance.topic, equals('Test Stage'));

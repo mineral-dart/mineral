@@ -4,15 +4,15 @@ import 'package:mineral/api.dart';
 
 /// Shared base for select-menu interaction contexts.
 ///
-/// Provides the [messageId] and [channelId] fields shared by both server and
+/// Provides the [messageId] and [channelId] fields shared by both guild and
 /// private select interactions.
 ///
 /// Concrete subclasses narrow the return type of [resolveMessage] to the
-/// context-appropriate message interface ([PrivateMessage] or [ServerMessage])
+/// context-appropriate message interface ([PrivateMessage] or [GuildMessage])
 /// via Dart's covariant return type mechanism.
 ///
 /// `resolveChannel` is intentionally left to each subclass because the
-/// server variant exposes a generic `resolveChannel<T extends Channel>()`
+/// guild variant exposes a generic `resolveChannel<T extends Channel>()`
 /// signature that cannot share a non-generic abstract declaration.
 abstract class SelectContextBase extends ComponentContextBase
     implements SelectContext {
@@ -32,7 +32,7 @@ abstract class SelectContextBase extends ComponentContextBase
 
   /// Resolves the message that triggered this select interaction, if available.
   ///
-  /// Returns [PrivateMessage] in [PrivateSelectContext] and [ServerMessage]
-  /// in [ServerSelectContext].
+  /// Returns [PrivateMessage] in [PrivateSelectContext] and [GuildMessage]
+  /// in [GuildSelectContext].
   FutureOr<BaseMessage?> resolveMessage({bool force = false});
 }

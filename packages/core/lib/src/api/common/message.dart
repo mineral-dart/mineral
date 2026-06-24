@@ -61,28 +61,28 @@ abstract interface class BaseMessage {
   Future<T> forward<T extends Message>(Snowflake targetChannelId);
 }
 
-abstract interface class ServerMessage implements BaseMessage {
-  Snowflake get serverId;
+abstract interface class GuildMessage implements BaseMessage {
+  Snowflake get guildId;
 
   Future<Member> resolveMember({bool force = false});
 
-  /// Resolve the server where the message was sent.
+  /// Resolve the guild where the message was sent.
   /// ```dart
-  /// final server = await message.resolveServer();
+  /// final guild = await message.resolveServer();
   /// ```
-  /// This will return a [Server] object.
-  /// If the server is not cached, you can force the fetch by passing `force: true`.
+  /// This will return a [Guild] object.
+  /// If the guild is not cached, you can force the fetch by passing `force: true`.
   /// ```dart
-  /// final server = await message.resolveServer(force: true);
+  /// final guild = await message.resolveServer(force: true);
   /// ```
-  Future<Server> resolveServer({bool force = false});
+  Future<Guild> resolveServer({bool force = false});
 }
 
 abstract interface class PrivateMessage implements BaseMessage {
   Future<User> resolveUser({bool force = false});
 }
 
-final class Message implements ServerMessage, PrivateMessage, BaseMessage {
+final class Message implements GuildMessage, PrivateMessage, BaseMessage {
   final EntityContext _ctx;
   DataStoreContract get _datastore => _ctx.datastore;
   final MessageProperties _properties;
@@ -106,7 +106,7 @@ final class Message implements ServerMessage, PrivateMessage, BaseMessage {
   Snowflake get channelId => _properties.channelId;
 
   @override
-  Snowflake get serverId => _properties.serverId!;
+  Snowflake get guildId => _properties.guildId!;
 
   @override
   Snowflake? get authorId => _properties.authorId;
@@ -141,7 +141,7 @@ final class Message implements ServerMessage, PrivateMessage, BaseMessage {
   @override
   Future<Member> resolveMember({bool force = false}) async {
     final member =
-        await _datastore.member.get(serverId!.value, authorId!.value, force);
+        await _datastore.member.get(guildId!.value, authorId!.value, force);
     return member!;
   }
 
@@ -158,8 +158,8 @@ final class Message implements ServerMessage, PrivateMessage, BaseMessage {
   }
 
   @override
-  Future<Server> resolveServer({bool force = false}) =>
-      _datastore.server.get(serverId!.value, force);
+  Future<Guild> resolveServer({bool force = false}) =>
+      _datastore.guild.get(guildId!.value, force);
 
   @override
   Future<T> reply<T extends Message>(MessageBuilder builder) async {
@@ -229,5 +229,5 @@ final class Message implements ServerMessage, PrivateMessage, BaseMessage {
   Future<T> createThread<T extends ThreadChannel>(
           ThreadChannelBuilder builder) =>
       _datastore.thread.createFromMessage<T>(
-          serverId.value, channelId.value, id?.value, builder);
+          guildId.value, channelId.value, id?.value, builder);
 }

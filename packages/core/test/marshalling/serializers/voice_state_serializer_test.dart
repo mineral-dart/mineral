@@ -1,5 +1,5 @@
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/api/server/voice_state.dart';
+import 'package:mineral/src/api/guild/voice_state.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/voice_state_serializer.dart';
 import 'package:test/test.dart';
@@ -22,7 +22,7 @@ void main() {
     });
 
     Map<String, dynamic> normalizedPayload() => {
-          'server_id': '987654321',
+          'guild_id': '987654321',
           'channel_id': '111222333',
           'user_id': '444555666',
           'session_id': 'sess_abc123',
@@ -56,7 +56,7 @@ void main() {
         final state = await serializer.serialize(normalizedPayload());
 
         expect(state, isA<VoiceState>());
-        expect(state.serverId, equals(Snowflake('987654321')));
+        expect(state.guildId, equals(Snowflake('987654321')));
         expect(state.channelId, equals(Snowflake('111222333')));
         expect(state.userId, equals(Snowflake('444555666')));
         expect(state.sessionId, equals('sess_abc123'));
@@ -93,7 +93,7 @@ void main() {
         final state = await serializer.serialize(normalizedPayload());
         final result = serializer.deserialize(state);
 
-        expect(result['server_id'], equals(Snowflake('987654321').value));
+        expect(result['guild_id'], equals(Snowflake('987654321').value));
         expect(result['channel_id'], equals(Snowflake('111222333').value));
         expect(result['user_id'], equals(Snowflake('444555666').value));
         expect(result['session_id'], equals('sess_abc123'));
@@ -131,11 +131,10 @@ void main() {
         expect(cache.store.containsKey(expectedKey), isTrue);
       });
 
-      test('renames guild_id to server_id', () async {
+      test('renames guild_id to guild_id', () async {
         final result = await serializer.normalize(rawDiscordPayload());
 
-        expect(result, containsPair('server_id', '987654321'));
-        expect(result.containsKey('guild_id'), isFalse);
+        expect(result, containsPair('guild_id', '987654321'));
       });
     });
   });

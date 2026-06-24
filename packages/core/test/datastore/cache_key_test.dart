@@ -9,61 +9,61 @@ void main() {
       cacheKey = CacheKey();
     });
 
-    group('server', () {
-      test('generates server key', () {
-        expect(cacheKey.server('123'), 'server/123');
+    group('guild', () {
+      test('generates guild key', () {
+        expect(cacheKey.guild('123'), 'guild/123');
       });
 
       test('works with numeric id', () {
-        expect(cacheKey.server(456), 'server/456');
+        expect(cacheKey.guild(456), 'guild/456');
       });
     });
 
-    group('serverAssets', () {
-      test('generates server assets key', () {
-        expect(cacheKey.serverAssets('123'), 'server/123/assets');
+    group('guildAssets', () {
+      test('generates guild assets key', () {
+        expect(cacheKey.guildAssets('123'), 'guild/123/assets');
       });
 
       test('generates ref key when ref is true', () {
         expect(
-            cacheKey.serverAssets('123', ref: true), 'ref:server/123/assets');
+            cacheKey.guildAssets('123', ref: true), 'ref:guild/123/assets');
       });
 
       test('generates non-ref key by default', () {
-        expect(cacheKey.serverAssets('123').startsWith('ref:'), isFalse);
+        expect(cacheKey.guildAssets('123').startsWith('ref:'), isFalse);
       });
     });
 
-    group('serverSettings', () {
-      test('generates server settings key', () {
-        expect(cacheKey.serverSettings('123'), 'server/123/settings');
+    group('guildSettings', () {
+      test('generates guild settings key', () {
+        expect(cacheKey.guildSettings('123'), 'guild/123/settings');
       });
 
       test('generates ref key when ref is true', () {
-        expect(cacheKey.serverSettings('123', ref: true),
-            'ref:server/123/settings');
+        expect(cacheKey.guildSettings('123', ref: true),
+            'ref:guild/123/settings');
       });
     });
 
-    group('serverRules', () {
-      test('generates server rules key', () {
-        expect(cacheKey.serverRules('123', '456'), 'server/123/rules/456');
+    group('guildRules', () {
+      test('generates guild rules key', () {
+        expect(cacheKey.guildRules('123', '456'), 'guild/123/rules/456');
       });
 
       test('generates ref key when ref is true', () {
-        expect(cacheKey.serverRules('123', '456', ref: true),
-            'ref:server/123/rules/456');
+        expect(cacheKey.guildRules('123', '456', ref: true),
+            'ref:guild/123/rules/456');
       });
     });
 
-    group('serverSubscription', () {
-      test('generates server subscription key', () {
-        expect(cacheKey.serverSubscription('123'), 'server/123/subscriptions');
+    group('guildSubscription', () {
+      test('generates guild subscription key', () {
+        expect(cacheKey.guildSubscription('123'), 'guild/123/subscriptions');
       });
 
       test('generates ref key when ref is true', () {
-        expect(cacheKey.serverSubscription('123', ref: true),
-            'ref:server/123/subscriptions');
+        expect(cacheKey.guildSubscription('123', ref: true),
+            'ref:guild/123/subscriptions');
       });
     });
 
@@ -82,38 +82,38 @@ void main() {
         expect(cacheKey.channelPermission('789'), 'channels/789/permissions');
       });
 
-      test('works with serverId parameter', () {
-        expect(cacheKey.channelPermission('789', serverId: '123'),
+      test('works with guildId parameter', () {
+        expect(cacheKey.channelPermission('789', guildId: '123'),
             'channels/789/permissions');
       });
     });
 
-    group('serverRole', () {
-      test('generates server role key', () {
-        expect(cacheKey.serverRole('123', '456'), 'server/123/roles/456');
+    group('guildRole', () {
+      test('generates guild role key', () {
+        expect(cacheKey.guildRole('123', '456'), 'guild/123/roles/456');
       });
     });
 
     group('member', () {
       test('generates member key', () {
-        expect(cacheKey.member('123', '456'), 'server/123/members/456');
+        expect(cacheKey.member('123', '456'), 'guild/123/members/456');
       });
 
       test('generates ref key when ref is true', () {
         expect(cacheKey.member('123', '456', ref: true),
-            'ref:server/123/members/456');
+            'ref:guild/123/members/456');
       });
     });
 
     group('memberAssets', () {
       test('generates member assets key', () {
         expect(cacheKey.memberAssets('123', '456'),
-            'server/123/members/456/assets');
+            'guild/123/members/456/assets');
       });
 
       test('generates ref key when ref is true', () {
         expect(cacheKey.memberAssets('123', '456', ref: true),
-            'ref:server/123/members/456/assets');
+            'ref:guild/123/members/456/assets');
       });
     });
 
@@ -130,7 +130,7 @@ void main() {
     group('voiceState', () {
       test('generates voice state key', () {
         expect(cacheKey.voiceState('123', '456'),
-            'voice_states/server/123/members/456');
+            'voice_states/guild/123/members/456');
       });
     });
 
@@ -150,9 +150,9 @@ void main() {
       });
     });
 
-    group('serverEmoji', () {
-      test('generates server emoji key', () {
-        expect(cacheKey.serverEmoji('123', '456'), 'server/123/emojis/456');
+    group('guildEmoji', () {
+      test('generates guild emoji key', () {
+        expect(cacheKey.guildEmoji('123', '456'), 'guild/123/emojis/456');
       });
     });
 
@@ -201,7 +201,7 @@ void main() {
 
     group('sticker', () {
       test('generates sticker key', () {
-        expect(cacheKey.sticker('123', '456'), 'server/123/stickers/456');
+        expect(cacheKey.sticker('123', '456'), 'guild/123/stickers/456');
       });
     });
 
@@ -214,10 +214,10 @@ void main() {
     group('ref pattern consistency', () {
       test('all ref keys start with ref:', () {
         final refKeys = [
-          cacheKey.serverAssets('1', ref: true),
-          cacheKey.serverSettings('1', ref: true),
-          cacheKey.serverRules('1', '2', ref: true),
-          cacheKey.serverSubscription('1', ref: true),
+          cacheKey.guildAssets('1', ref: true),
+          cacheKey.guildSettings('1', ref: true),
+          cacheKey.guildRules('1', '2', ref: true),
+          cacheKey.guildSubscription('1', ref: true),
           cacheKey.member('1', '2', ref: true),
           cacheKey.memberAssets('1', '2', ref: true),
           cacheKey.user('1', ref: true),
@@ -232,10 +232,10 @@ void main() {
 
       test('non-ref keys do not start with ref:', () {
         final nonRefKeys = [
-          cacheKey.serverAssets('1'),
-          cacheKey.serverSettings('1'),
-          cacheKey.serverRules('1', '2'),
-          cacheKey.serverSubscription('1'),
+          cacheKey.guildAssets('1'),
+          cacheKey.guildSettings('1'),
+          cacheKey.guildRules('1', '2'),
+          cacheKey.guildSubscription('1'),
           cacheKey.member('1', '2'),
           cacheKey.memberAssets('1', '2'),
           cacheKey.user('1'),
@@ -250,9 +250,9 @@ void main() {
     });
 
     group('hierarchical nesting', () {
-      test('member key contains server key', () {
+      test('member key contains guild key', () {
         final memberKey = cacheKey.member('123', '456');
-        expect(memberKey, contains(cacheKey.server('123')));
+        expect(memberKey, contains(cacheKey.guild('123')));
       });
 
       test('memberAssets key contains member key', () {
@@ -265,19 +265,19 @@ void main() {
         expect(messageKey, contains(cacheKey.channel('789')));
       });
 
-      test('serverRole key contains server key', () {
-        final roleKey = cacheKey.serverRole('123', '456');
-        expect(roleKey, contains(cacheKey.server('123')));
+      test('guildRole key contains guild key', () {
+        final roleKey = cacheKey.guildRole('123', '456');
+        expect(roleKey, contains(cacheKey.guild('123')));
       });
 
-      test('serverEmoji key contains server key', () {
-        final emojiKey = cacheKey.serverEmoji('123', '456');
-        expect(emojiKey, contains(cacheKey.server('123')));
+      test('guildEmoji key contains guild key', () {
+        final emojiKey = cacheKey.guildEmoji('123', '456');
+        expect(emojiKey, contains(cacheKey.guild('123')));
       });
 
-      test('sticker key contains server key', () {
+      test('sticker key contains guild key', () {
         final stickerKey = cacheKey.sticker('123', '456');
-        expect(stickerKey, contains(cacheKey.server('123')));
+        expect(stickerKey, contains(cacheKey.guild('123')));
       });
 
       test('userAssets key contains user key', () {

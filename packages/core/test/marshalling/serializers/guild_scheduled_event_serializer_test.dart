@@ -45,7 +45,7 @@ void main() {
       expect(result['name'], equals('Stage event'));
       expect(
           cache.store.containsKey(
-              'server/222222222222222222/scheduled-events/111111111111111111'),
+              'guild/222222222222222222/scheduled-events/111111111111111111'),
           isTrue);
     });
 
@@ -70,7 +70,7 @@ void main() {
       final raw = await serializer.normalize(discordPayload());
       final event = await serializer.serialize(raw);
       expect(event.id.value, equals('111111111111111111'));
-      expect(event.serverId.value, equals('222222222222222222'));
+      expect(event.guildId.value, equals('222222222222222222'));
       expect(event.name, equals('Stage event'));
       expect(event.status, equals(GuildScheduledEventStatus.scheduled));
       expect(event.entityType,

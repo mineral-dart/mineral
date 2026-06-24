@@ -1,12 +1,12 @@
 import 'package:mineral/api.dart';
-import 'package:mineral/src/api/server/audit_log/actions/member.dart';
-import 'package:mineral/src/api/server/audit_log/audit_log.dart';
+import 'package:mineral/src/api/guild/audit_log/actions/member.dart';
+import 'package:mineral/src/api/guild/audit_log/audit_log.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 
 Future<AuditLog> memberKickAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   return MemberKickAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.nullable(json['user_id']),
     memberId: Snowflake.nullable(json['target_id']),
     reason: json['reason'] as String?,
@@ -18,7 +18,7 @@ Future<AuditLog> memberPruneAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   final options = json['options'] as Map<String, dynamic>?;
   return MemberPruneAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.nullable(json['user_id']),
     deleteMemberDays: options?['delete_member_days'] as int? ?? 0,
     membersRemoved: options?['members_removed'] as int? ?? 0,
@@ -29,7 +29,7 @@ Future<AuditLog> memberPruneAuditLogHandler(
 Future<AuditLog> memberBanAddAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   return MemberBanAddAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.nullable(json['user_id']),
     memberId: Snowflake.nullable(json['target_id']),
     reason: json['reason'] as String?,
@@ -40,7 +40,7 @@ Future<AuditLog> memberBanAddAuditLogHandler(
 Future<AuditLog> memberBanRemoveAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   return MemberBanRemoveAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.nullable(json['user_id']),
     memberId: Snowflake.nullable(json['target_id']),
     ctx: ctx,
@@ -50,7 +50,7 @@ Future<AuditLog> memberBanRemoveAuditLogHandler(
 Future<AuditLog> memberUpdateAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   return MemberUpdateAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.nullable(json['user_id']),
     memberId: Snowflake.nullable(json['target_id']),
     changes: List<Map<String, dynamic>>.from(json['changes'] as Iterable<dynamic>)
@@ -63,7 +63,7 @@ Future<AuditLog> memberUpdateAuditLogHandler(
 Future<AuditLog> memberRoleUpdateAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   return MemberRoleUpdateAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.nullable(json['user_id']),
     memberId: Snowflake.nullable(json['target_id']),
     changes: List<Map<String, dynamic>>.from(json['changes'] as Iterable<dynamic>)
@@ -76,7 +76,7 @@ Future<AuditLog> memberRoleUpdateAuditLogHandler(
 Future<AuditLog> memberMoveAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   return MemberMoveAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.nullable(json['user_id']),
     memberId: Snowflake.nullable(json['target_id']),
     channelId: Snowflake.nullable(json['options']?['channel_id']),
@@ -87,7 +87,7 @@ Future<AuditLog> memberMoveAuditLogHandler(
 Future<AuditLog> memberDisconnectAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   return MemberDisconnectAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.nullable(json['user_id']),
     memberId: Snowflake.nullable(json['target_id']),
     ctx: ctx,
@@ -97,7 +97,7 @@ Future<AuditLog> memberDisconnectAuditLogHandler(
 Future<AuditLog> botAddAuditLogHandler(
     Map<String, dynamic> json, EntityContext ctx) async {
   return BotAddAuditLog(
-    serverId: Snowflake.parse(json['guild_id']),
+    guildId: Snowflake.parse(json['guild_id']),
     userId: Snowflake.nullable(json['user_id']),
     botId: Snowflake.nullable(json['target_id']),
     ctx: ctx,

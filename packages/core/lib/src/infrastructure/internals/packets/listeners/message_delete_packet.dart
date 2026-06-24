@@ -37,16 +37,16 @@ final class MessageDeletePacket implements ListenablePacket {
     final guildId = Snowflake.nullable(payload['guild_id']);
     switch (guildId) {
       case Snowflake():
-        final server = await _dataStore.server.get(guildId.value, false);
+        final guild = await _dataStore.guild.get(guildId.value, false);
         final channel =
             await _dataStore.channel.get(channelId.value, false);
-        if (channel is! ServerChannel) {
+        if (channel is! GuildChannel) {
           return;
         }
-        dispatch<ServerMessageDeleteArgs>(
-            event: Event.serverMessageDelete,
+        dispatch<GuildMessageDeleteArgs>(
+            event: Event.guildMessageDelete,
             payload: (
-              server: server,
+              guild: guild,
               channel: channel,
               messageId: messageId,
               message: cachedMessage,

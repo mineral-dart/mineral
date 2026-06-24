@@ -1,7 +1,7 @@
 import 'package:mineral/src/api/common/color.dart';
 import 'package:mineral/src/api/common/permissions.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/api/server/role.dart';
+import 'package:mineral/src/api/guild/role.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
 import 'package:mineral/src/domains/services/marshaller/marshaller.dart';
@@ -25,11 +25,11 @@ final class RoleSerializer implements SerializerContract<Role> {
       'managed': json['managed'],
       'mentionable': json['mentionable'],
       'flags': json['flags'],
-      'server_id': json['guild_id'],
+      'guild_id': json['guild_id'],
     };
 
     final cacheKey =
-        _marshaller.cacheKey.serverRole(json['guild_id'] as String, json['id'] as String);
+        _marshaller.cacheKey.guildRole(json['guild_id'] as String, json['id'] as String);
     await _marshaller.cache?.put(cacheKey, payload);
 
     return payload;
@@ -53,7 +53,7 @@ final class RoleSerializer implements SerializerContract<Role> {
         flags: json['flags'] as int,
         icon: json['icon'] as String?,
         unicodeEmoji: json['unicode_emoji'] as String?,
-        serverId: Snowflake.parse(json['server_id']),
+        guildId: Snowflake.parse(json['guild_id']),
       );
 
   @override

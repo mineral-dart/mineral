@@ -13,7 +13,7 @@ final class Sticker {
   final FormatType? formatType;
   final bool isAvailable;
   final int? sortValue;
-  final Snowflake? serverId;
+  final Snowflake? guildId;
 
   Sticker({
     required this.id,
@@ -26,6 +26,6 @@ final class Sticker {
     this.asset,
     this.formatType,
     this.sortValue,
-    this.serverId,
+    this.guildId,
   });
 }

@@ -15,12 +15,12 @@ final class GuildIntegrationsUpdatePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final server = await _dataStore.server
+    final guild = await _dataStore.guild
         .get(message.payload['guild_id'] as Object, false);
 
-    dispatch<ServerIntegrationsUpdateArgs>(
-      event: Event.serverIntegrationsUpdate,
-      payload: (server: server),
+    dispatch<GuildIntegrationsUpdateArgs>(
+      event: Event.guildIntegrationsUpdate,
+      payload: (guild: guild),
     );
   }
 }

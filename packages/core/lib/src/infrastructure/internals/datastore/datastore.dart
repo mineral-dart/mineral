@@ -3,6 +3,7 @@ import 'package:mineral/src/domains/services/http/http.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/application_emoji_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/channel_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/emoji_part.dart';
+import 'package:mineral/src/infrastructure/internals/datastore/parts/guild_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/guild_scheduled_event_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/interaction_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/invite_part.dart';
@@ -13,7 +14,6 @@ import 'package:mineral/src/infrastructure/internals/datastore/parts/onboarding_
 import 'package:mineral/src/infrastructure/internals/datastore/parts/reaction_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/role_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/rules_part.dart';
-import 'package:mineral/src/infrastructure/internals/datastore/parts/server_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/soundboard_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/stage_instance_part.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/sticker_part.dart';
@@ -35,7 +35,7 @@ final class DataStore implements DataStoreContract {
   late final ChannelPart channel;
 
   @override
-  late final ServerPart server;
+  late final GuildPart guild;
 
   @override
   late final MemberPart member;
@@ -105,7 +105,7 @@ final class DataStore implements DataStoreContract {
   }) {
     requestBucket = RequestBucket(client, logger: httpLogger);
     channel = ChannelPart(marshaller, this);
-    server = ServerPart(marshaller, this);
+    guild = GuildPart(marshaller, this);
     member = MemberPart(marshaller, this);
     user = UserPart(marshaller, this);
     role = RolePart(marshaller, this);

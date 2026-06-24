@@ -1,5 +1,5 @@
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/api/server/invite.dart';
+import 'package:mineral/src/api/guild/invite.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/cache_key.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/invite_serializer.dart';
 import 'package:test/test.dart';
@@ -26,7 +26,7 @@ void main() {
           'code': 'abc123',
           'createdAt': '2024-01-15T10:30:00.000Z',
           'expiresAt': '2024-01-16T10:30:00.000Z',
-          'serverId': '987654321',
+          'guildId': '987654321',
           'inviterId': '444555666',
           'maxAge': 86400,
           'maxUses': 10,
@@ -53,9 +53,9 @@ void main() {
 
         expect(invite, isA<Invite>());
         expect(invite.code, equals('abc123'));
-        expect(invite.type, equals(InviteType.server));
+        expect(invite.type, equals(InviteType.guild));
         expect(invite.channelId, equals(Snowflake('111222333')));
-        expect(invite.serverId, equals(Snowflake('987654321')));
+        expect(invite.guildId, equals(Snowflake('987654321')));
         expect(invite.inviterId, equals(Snowflake('444555666')));
         expect(invite.maxAge, equals(Duration(seconds: 86400)));
         expect(invite.maxUses, equals(10));
@@ -86,7 +86,7 @@ void main() {
         final result = serializer.deserialize(invite);
 
         expect(result['code'], equals('abc123'));
-        expect(result['type'], equals(InviteType.server.value));
+        expect(result['type'], equals(InviteType.guild.value));
         expect(result['maxAge'], equals(86400));
         expect(result['maxUses'], equals(10));
         expect(result['temporary'], isFalse);
@@ -106,7 +106,7 @@ void main() {
         final result = await serializer.normalize(rawDiscordPayload());
 
         expect(result['channelId'], equals('111222333'));
-        expect(result['serverId'], equals('987654321'));
+        expect(result['guildId'], equals('987654321'));
         expect(result['inviterId'], equals('444555666'));
         expect(result['code'], equals('abc123'));
         expect(result['maxAge'], equals(86400));

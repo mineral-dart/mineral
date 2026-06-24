@@ -6,13 +6,13 @@ final class Emoji extends PartialEmoji {
   final EntityContext _ctx;
   DataStoreContract get _datastore => _ctx.datastore;
 
-  final Snowflake serverId;
+  final Snowflake guildId;
   final Map<Snowflake, Role> roles;
   final bool managed;
   final bool available;
 
   Emoji(
-    this.serverId, {
+    this.guildId, {
     required EntityContext ctx,
     required Snowflake id,
     required String name,
@@ -30,7 +30,7 @@ final class Emoji extends PartialEmoji {
   Future<void> setImage(Image image, {String? reason}) async {
     await _datastore.emoji.update(
       id: id!.value,
-      serverId: serverId.value,
+      guildId: guildId.value,
       reason: reason,
       payload: {'image': image.base64},
     );
@@ -43,7 +43,7 @@ final class Emoji extends PartialEmoji {
   Future<void> setName(String name, {String? reason}) async {
     await _datastore.emoji.update(
       id: id!.value,
-      serverId: serverId.value,
+      guildId: guildId.value,
       reason: reason,
       payload: {'name': name.replaceAll(' ', '_')},
     );
@@ -56,7 +56,7 @@ final class Emoji extends PartialEmoji {
   Future<void> setRoles(List<Snowflake> roles, {String? reason}) async {
     await _datastore.emoji.update(
       id: id!.value,
-      serverId: serverId.value,
+      guildId: guildId.value,
       reason: reason,
       payload: {'roles': roles.map((element) => element.value).toList()},
     );
@@ -69,7 +69,7 @@ final class Emoji extends PartialEmoji {
   Future<void> addRole(Snowflake role, {String? reason}) async {
     await _datastore.emoji.update(
       id: id!.value,
-      serverId: serverId.value,
+      guildId: guildId.value,
       reason: reason,
       payload: {
         'roles': [...roles.keys.map((e) => e.value), role.value]
@@ -84,7 +84,7 @@ final class Emoji extends PartialEmoji {
   Future<void> removeRole(Snowflake role, {String? reason}) async {
     await _datastore.emoji.update(
       id: id!.value,
-      serverId: serverId.value,
+      guildId: guildId.value,
       reason: reason,
       payload: {
         'roles': roles.keys
@@ -106,7 +106,7 @@ final class Emoji extends PartialEmoji {
       String? reason}) async {
     await _datastore.emoji.update(
       id: id!.value,
-      serverId: serverId.value,
+      guildId: guildId.value,
       reason: reason,
       payload: {
         if (name != null) 'name': name.replaceAll(' ', '_'),
@@ -123,7 +123,7 @@ final class Emoji extends PartialEmoji {
   Future<void> delete({String? reason}) {
     return switch (id) {
       Snowflake(:final value) =>
-        _datastore.emoji.delete(serverId.value, value, reason: reason),
+        _datastore.emoji.delete(guildId.value, value, reason: reason),
       _ => throw Exception('Unknown emoji id: $id'),
     };
   }

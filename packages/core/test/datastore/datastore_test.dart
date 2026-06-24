@@ -42,7 +42,7 @@ void main() {
 
     test('all parts are initialized', () {
       expect(dataStore.channel, isNotNull);
-      expect(dataStore.server, isNotNull);
+      expect(dataStore.guild, isNotNull);
       expect(dataStore.member, isNotNull);
       expect(dataStore.user, isNotNull);
       expect(dataStore.role, isNotNull);

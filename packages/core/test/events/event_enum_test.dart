@@ -45,9 +45,9 @@ void main() {
         expect(Event.ready.parameters[0][1], 'bot');
       });
 
-      test('serverMessageCreate has ServerMessage parameter', () {
-        expect(Event.serverMessageCreate.parameters[0][0], 'ServerMessage');
-        expect(Event.serverMessageCreate.parameters[0][1], 'message');
+      test('guildMessageCreate has GuildMessage parameter', () {
+        expect(Event.guildMessageCreate.parameters[0][0], 'GuildMessage');
+        expect(Event.guildMessageCreate.parameters[0][1], 'message');
       });
 
       test('privateMessageCreate has PrivateMessage parameter', () {
@@ -55,10 +55,10 @@ void main() {
         expect(Event.privateMessageCreate.parameters[0][1], 'message');
       });
 
-      test('serverMemberAdd has Server and Member parameters', () {
-        expect(Event.serverMemberAdd.parameters, hasLength(2));
-        expect(Event.serverMemberAdd.parameters[0][0], 'Server');
-        expect(Event.serverMemberAdd.parameters[1][0], 'Member');
+      test('guildMemberAdd has Guild and Member parameters', () {
+        expect(Event.guildMemberAdd.parameters, hasLength(2));
+        expect(Event.guildMemberAdd.parameters[0][0], 'Guild');
+        expect(Event.guildMemberAdd.parameters[1][0], 'Member');
       });
 
       test('voiceStateUpdate has before and after VoiceState parameters', () {
@@ -67,30 +67,30 @@ void main() {
         expect(Event.voiceStateUpdate.parameters[1][1], 'after');
       });
 
-      test('serverUpdate has before and after Server parameters', () {
-        expect(Event.serverUpdate.parameters, hasLength(2));
-        expect(Event.serverUpdate.parameters[0][0], 'Server');
-        expect(Event.serverUpdate.parameters[0][1], 'before');
-        expect(Event.serverUpdate.parameters[1][0], 'Server');
-        expect(Event.serverUpdate.parameters[1][1], 'after');
+      test('guildUpdate has before and after Guild parameters', () {
+        expect(Event.guildUpdate.parameters, hasLength(2));
+        expect(Event.guildUpdate.parameters[0][0], 'Guild');
+        expect(Event.guildUpdate.parameters[0][1], 'before');
+        expect(Event.guildUpdate.parameters[1][0], 'Guild');
+        expect(Event.guildUpdate.parameters[1][1], 'after');
       });
 
-      test('serverButtonClick has ServerButtonContext parameter', () {
-        expect(Event.serverButtonClick.parameters[0][0], 'ServerButtonContext');
-        expect(Event.serverButtonClick.parameters[0][1], 'ctx');
+      test('guildButtonClick has GuildButtonContext parameter', () {
+        expect(Event.guildButtonClick.parameters[0][0], 'GuildButtonContext');
+        expect(Event.guildButtonClick.parameters[0][1], 'ctx');
       });
 
-      test('serverModalSubmit has ServerModalContext parameter', () {
-        expect(Event.serverModalSubmit.parameters[0][0], 'ServerModalContext');
-        expect(Event.serverModalSubmit.parameters[0][1], 'ctx');
+      test('guildModalSubmit has GuildModalContext parameter', () {
+        expect(Event.guildModalSubmit.parameters[0][0], 'GuildModalContext');
+        expect(Event.guildModalSubmit.parameters[0][1], 'ctx');
       });
     });
 
     group('event categories', () {
-      test('server events exist', () {
-        final serverEvents =
-            Event.values.where((e) => e.name.startsWith('server'));
-        expect(serverEvents.length, greaterThanOrEqualTo(40));
+      test('guild events exist', () {
+        final guildEvents =
+            Event.values.where((e) => e.name.startsWith('guild'));
+        expect(guildEvents.length, greaterThanOrEqualTo(40));
       });
 
       test('private events exist', () {

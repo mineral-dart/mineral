@@ -7,10 +7,10 @@ final class TemplatePart extends BasePart implements TemplatePartContract {
   TemplatePart(super.marshaller, super.dataStore);
 
   @override
-  Future<Map<String, GuildTemplate>> fetchForServer(Object serverId) async {
-    final guildId = Snowflake.parse(serverId);
+  Future<Map<String, GuildTemplate>> fetchForServer(Object guildId) async {
+    final parsedGuildId = Snowflake.parse(guildId);
     final req =
-        Request.json(endpoint: '/guilds/$guildId/templates');
+        Request.json(endpoint: '/guilds/$parsedGuildId/templates');
     final result =
         await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
     final templates = result.map(GuildTemplate.fromJson).toList();
@@ -27,26 +27,26 @@ final class TemplatePart extends BasePart implements TemplatePartContract {
 
   @override
   Future<GuildTemplate> create(
-    Object serverId, {
+    Object guildId, {
     required String name,
     String? description,
   }) async {
-    final guildId = Snowflake.parse(serverId);
+    final parsedGuildId = Snowflake.parse(guildId);
     final body = <String, dynamic>{
       'name': name,
       if (description != null) 'description': description,
     };
-    final req = Request.json(endpoint: '/guilds/$guildId/templates', body: body);
+    final req = Request.json(endpoint: '/guilds/$parsedGuildId/templates', body: body);
     final result =
         await dataStore.requestBucket.post<Map<String, dynamic>>(req);
     return GuildTemplate.fromJson(result);
   }
 
   @override
-  Future<GuildTemplate> sync(Object serverId, String code) async {
-    final guildId = Snowflake.parse(serverId);
+  Future<GuildTemplate> sync(Object guildId, String code) async {
+    final parsedGuildId = Snowflake.parse(guildId);
     final req =
-        Request.json(endpoint: '/guilds/$guildId/templates/$code');
+        Request.json(endpoint: '/guilds/$parsedGuildId/templates/$code');
     final result =
         await dataStore.requestBucket.put<Map<String, dynamic>>(req);
     return GuildTemplate.fromJson(result);
@@ -54,28 +54,28 @@ final class TemplatePart extends BasePart implements TemplatePartContract {
 
   @override
   Future<GuildTemplate> update(
-    Object serverId,
+    Object guildId,
     String code, {
     String? name,
     String? description,
   }) async {
-    final guildId = Snowflake.parse(serverId);
+    final parsedGuildId = Snowflake.parse(guildId);
     final body = <String, dynamic>{
       if (name != null) 'name': name,
       if (description != null) 'description': description,
     };
     final req = Request.json(
-        endpoint: '/guilds/$guildId/templates/$code', body: body);
+        endpoint: '/guilds/$parsedGuildId/templates/$code', body: body);
     final result =
         await dataStore.requestBucket.patch<Map<String, dynamic>>(req);
     return GuildTemplate.fromJson(result);
   }
 
   @override
-  Future<GuildTemplate> delete(Object serverId, String code) async {
-    final guildId = Snowflake.parse(serverId);
+  Future<GuildTemplate> delete(Object guildId, String code) async {
+    final parsedGuildId = Snowflake.parse(guildId);
     final req =
-        Request.json(endpoint: '/guilds/$guildId/templates/$code');
+        Request.json(endpoint: '/guilds/$parsedGuildId/templates/$code');
     final result =
         await dataStore.requestBucket.delete<Map<String, dynamic>>(req);
     return GuildTemplate.fromJson(result);

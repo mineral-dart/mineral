@@ -45,6 +45,6 @@ final class FakeWebsocketOrchestrator extends WebsocketOrchestratorContract {
   @override
   Future<void> createShards(RunningStrategy strategy) async {}
   @override
-  Future<Presence> getMemberPresence(String serverId, String id) =>
+  Future<Presence> getMemberPresence(String guildId, String id) =>
       throw UnimplementedError();
 }

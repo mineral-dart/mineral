@@ -2,7 +2,7 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
 
 /// Bundle of dependencies injected into Discord entities (Member, Role,
-/// Server, Channel, Message, …) at construction by the marshaller's
+/// Guild, Channel, Message, …) at construction by the marshaller's
 /// serializers.
 ///
 /// Entities receive this bundle via their constructor and read

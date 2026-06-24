@@ -66,8 +66,8 @@ void main() {
   });
 
   group('CommandContextType', () {
-    test('server has value 0', () {
-      expect(CommandContextType.server.value, 0);
+    test('guild has value 0', () {
+      expect(CommandContextType.guild.value, 0);
     });
 
     test('global has value 1', () {

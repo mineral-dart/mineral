@@ -19,7 +19,7 @@ final class AutoModerationRuleUpdatePacket implements ListenablePacket {
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final ruleId = Snowflake.parse(message.payload['id']);
     final ruleCacheKey = _marshaller.cacheKey
-        .serverRules(message.payload['guild_id'] as Object, ruleId.value);
+        .guildRules(message.payload['guild_id'] as Object, ruleId.value);
     final rawBeforeRule = await _marshaller.cache?.get(ruleCacheKey);
     final before = await Helper.createOrNullAsync<AutoModerationRule>(
         field: rawBeforeRule,
@@ -30,6 +30,6 @@ final class AutoModerationRuleUpdatePacket implements ListenablePacket {
         await _marshaller.serializers.rules.normalize(message.payload as Map<String, dynamic>);
     final after = await _marshaller.serializers.rules.serialize(rawAfterRule);
 
-    dispatch<ServerRuleUpdateArgs>(event: Event.serverRuleUpdate, payload: (before: before, after: after));
+    dispatch<GuildRuleUpdateArgs>(event: Event.guildRuleUpdate, payload: (before: before, after: after));
   }
 }

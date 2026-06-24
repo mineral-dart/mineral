@@ -27,7 +27,7 @@ void main() {
           'content': 'Hello world!',
           'embeds': <Map<String, dynamic>>[],
           'channel_id': '111222333',
-          'server_id': '987654321',
+          'guild_id': '987654321',
           'author_is_bot': false,
           'timestamp': '2024-01-15T10:30:00.000Z',
           'edited_timestamp': null,
@@ -74,8 +74,8 @@ void main() {
         expect(message.updatedAt, isNull);
       });
 
-      test('handles nullable server_id', () async {
-        final payload = normalizedPayload()..['server_id'] = null;
+      test('handles nullable guild_id', () async {
+        final payload = normalizedPayload()..['guild_id'] = null;
         final message = await serializer.serialize(payload);
 
         expect(message, isA<Message>());
@@ -119,7 +119,7 @@ void main() {
         expect(result['content'], equals('Hello world!'));
         expect(result['channel_id'], equals('111222333'));
         expect(result['author_id'], equals('444555666'));
-        expect(result['server_id'], equals('987654321'));
+        expect(result['guild_id'], equals('987654321'));
         expect(result['author_is_bot'], isFalse);
       });
 
@@ -151,11 +151,10 @@ void main() {
         expect(result['author_is_bot'], isFalse);
       });
 
-      test('renames guild_id to server_id', () async {
+      test('renames guild_id to guild_id', () async {
         final result = await serializer.normalize(rawDiscordPayload());
 
-        expect(result, containsPair('server_id', '987654321'));
-        expect(result.containsKey('guild_id'), isFalse);
+        expect(result, containsPair('guild_id', '987654321'));
       });
     });
 

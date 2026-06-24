@@ -20,13 +20,13 @@ final class GuildStickersUpdatePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final server =
-        await _dataStore.server.get(message.payload['guild_id'] as Object, false);
+    final guild =
+        await _dataStore.guild.get(message.payload['guild_id'] as Object, false);
 
     final stickers =
         await List.from(message.payload['stickers'] as Iterable<dynamic>).map((element) async {
       final raw = await _marshaller.serializers.sticker.normalize({
-        'server_id': server.id,
+        'guild_id': guild.id,
         ...(element as Map<String, dynamic>),
       });
 
@@ -35,10 +35,10 @@ final class GuildStickersUpdatePacket implements ListenablePacket {
 
     final freshKeys = stickers
         .map((s) =>
-            _marshaller.cacheKey.sticker(server.id.value, s.id.value))
+            _marshaller.cacheKey.sticker(guild.id.value, s.id.value))
         .toSet();
     final cachedKeys = (await _marshaller.cache
-                ?.whereKeyStartsWith('${_marshaller.cacheKey.server(server.id.value)}/stickers/'))
+                ?.whereKeyStartsWith('${_marshaller.cacheKey.guild(guild.id.value)}/stickers/'))
             ?.keys
             .toSet() ??
         const <String>{};
@@ -46,8 +46,8 @@ final class GuildStickersUpdatePacket implements ListenablePacket {
       await _marshaller.cache.invalidate(key);
     }
 
-    dispatch<ServerStickersUpdateArgs>(event: Event.serverStickersUpdate, payload: (
-      server: server,
+    dispatch<GuildStickersUpdateArgs>(event: Event.guildStickersUpdate, payload: (
+      guild: guild,
       stickers: stickers.asMap().map((_, value) => MapEntry(value.id, value)),
     ));
   }

@@ -116,12 +116,12 @@ void main() {
           's': 2,
           'd': {
             'id': '456',
-            'name': 'Test Server',
+            'name': 'Test Guild',
           },
         });
 
         expect(message.type, 'GUILD_CREATE');
-        expect(message.payload['name'], 'Test Server');
+        expect(message.payload['name'], 'Test Guild');
       });
     });
 

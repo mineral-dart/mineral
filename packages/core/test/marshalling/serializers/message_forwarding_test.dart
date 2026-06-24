@@ -32,7 +32,7 @@ void main() {
           'content': '',
           'embeds': <Map<String, dynamic>>[],
           'channel_id': '777888999000111222',
-          'server_id': '123456789012345678',
+          'guild_id': '123456789012345678',
           'author_is_bot': false,
           'timestamp': '2024-06-01T12:00:00.000Z',
           'edited_timestamp': null,
@@ -62,7 +62,7 @@ void main() {
           'content': 'Hello world!',
           'embeds': <Map<String, dynamic>>[],
           'channel_id': '777888999000111222',
-          'server_id': '123456789012345678',
+          'guild_id': '123456789012345678',
           'author_is_bot': false,
           'timestamp': '2024-06-01T12:00:00.000Z',
           'edited_timestamp': null,
@@ -213,7 +213,7 @@ void main() {
     late FakeMarshaller marshaller;
     late MessagePart messagePart;
 
-    /// A minimal Discord message payload that the server would return after
+    /// A minimal Discord message payload that the guild would return after
     /// receiving a forward request. It looks like a forwarded message.
     Map<String, dynamic> fakeForwardResponse() => {
           'id': '222333444555666777',

@@ -53,7 +53,7 @@
 ///
 /// ## Intent Categories
 ///
-/// ### Guild (Server) Events
+/// ### Guild (Guild) Events
 /// - [guilds]: Guild create/update/delete, channel create/update/delete, role create/update/delete
 /// - [guildMembers]: Member join/update/remove (privileged)
 /// - [guildModeration]: Ban/unban events

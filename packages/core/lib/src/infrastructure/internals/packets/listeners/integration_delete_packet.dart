@@ -16,16 +16,16 @@ final class IntegrationDeletePacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final server = await _dataStore.server
+    final guild = await _dataStore.guild
         .get(message.payload['guild_id'] as Object, false);
 
     final integrationId = Snowflake.parse(message.payload['id']);
     final applicationId = Snowflake.nullable(message.payload['application_id']);
 
-    dispatch<ServerIntegrationDeleteArgs>(
-      event: Event.serverIntegrationDelete,
+    dispatch<GuildIntegrationDeleteArgs>(
+      event: Event.guildIntegrationDelete,
       payload: (
-        server: server,
+        guild: guild,
         integrationId: integrationId,
         applicationId: applicationId
       ),

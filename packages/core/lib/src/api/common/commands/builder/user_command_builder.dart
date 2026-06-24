@@ -15,7 +15,7 @@ final class UserCommandBuilder implements CommandBuilder {
 
   String? name;
   Map<String, String>? _nameLocalizations;
-  CommandContextType context = CommandContextType.server;
+  CommandContextType context = CommandContextType.guild;
   List<ApplicationIntegrationType>? integrationTypes;
   List<InteractionContextType>? interactionContexts;
   CommandHandler<UserCommandContext>? handle;

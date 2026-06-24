@@ -16,7 +16,7 @@ final class GuildScheduledEventUserAddPacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final server = await _dataStore.server
+    final guild = await _dataStore.guild
         .get(message.payload['guild_id'] as Object, false);
 
     final eventId =
@@ -26,9 +26,9 @@ final class GuildScheduledEventUserAddPacket implements ListenablePacket {
         .get(message.payload['user_id'] as Object, false);
 
     if (user case User()) {
-      dispatch<ServerScheduledEventUserAddArgs>(
-        event: Event.serverScheduledEventUserAdd,
-        payload: (server: server, eventId: eventId, user: user),
+      dispatch<GuildScheduledEventUserAddArgs>(
+        event: Event.guildScheduledEventUserAdd,
+        payload: (guild: guild, eventId: eventId, user: user),
       );
     }
   }

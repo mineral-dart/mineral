@@ -44,12 +44,12 @@ final class User implements UserClient {
     required this.presence,
   }) : _ctx = ctx;
 
-  /// Resolve the user as [Member] from [Server] id.
+  /// Resolve the user as [Member] from [Guild] id.
   /// ```dart
   /// final member = await user.toMember('240561194958716928');
   /// ```
-  Future<Member?> toMember(String serverId) =>
-      _datastore.member.get(serverId, id.value, false);
+  Future<Member?> toMember(String guildId) =>
+      _datastore.member.get(guildId, id.value, false);
 
   @override
   String toString() => '<@$id>';

@@ -39,7 +39,7 @@ final class Bot {
   })  : _wss = wss,
         _ctx = ctx;
 
-  /// Manager for application-owned emojis (usable across all servers).
+  /// Manager for application-owned emojis (usable across all guilds).
   /// ```dart
   /// final emojis = await bot.emojis.fetch();
   /// ```

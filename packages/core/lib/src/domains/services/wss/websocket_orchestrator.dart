@@ -29,7 +29,7 @@ abstract class WebsocketOrchestratorContract {
   void setBotPresence(
       List<BotActivity>? activity, StatusType? status, bool? afk);
 
-  Future<Presence> getMemberPresence(String serverId, String id);
+  Future<Presence> getMemberPresence(String guildId, String id);
 
   Future<Map<String, dynamic>> getWebsocketEndpoint();
 

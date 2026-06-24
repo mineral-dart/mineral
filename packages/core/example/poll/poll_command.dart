@@ -1,7 +1,7 @@
 import 'package:mineral/api.dart';
 
 final class PollCommand implements CommandDeclaration {
-  Future<void> create(ServerCommandContext ctx, CommandOptions options) async {
+  Future<void> create(GuildCommandContext ctx, CommandOptions options) async {
     final question = options.require<String>('question');
 
     final message = MessageBuilder.text('📊 **Poll:** $question')
@@ -14,7 +14,7 @@ final class PollCommand implements CommandDeclaration {
     await ctx.interaction.reply(builder: message);
   }
 
-  Future<void> end(ServerCommandContext ctx, CommandOptions options) async {
+  Future<void> end(GuildCommandContext ctx, CommandOptions options) async {
     await ctx.interaction.reply(
       builder: MessageBuilder.text('🔒 The poll has been closed.'),
       ephemeral: true,

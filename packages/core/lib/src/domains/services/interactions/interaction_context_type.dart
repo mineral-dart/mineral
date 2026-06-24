@@ -1,7 +1,7 @@
 import 'package:mineral/src/api/common/types/enhanced_enum.dart';
 
 enum InteractionContextType implements EnhancedEnum<int> {
-  server(0),
+  guild(0),
   botPrivate(1),
   privateChannel(2),
   unknown(-1);

@@ -16,27 +16,27 @@ final class MessageReactionRemoveAllPacket implements ListenablePacket {
 
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
-    final serverId = Snowflake.nullable(message.payload['guild_id']);
+    final guildId = Snowflake.nullable(message.payload['guild_id']);
     final channelId = Snowflake.parse(message.payload['channel_id']);
     final messageId = Snowflake.parse(message.payload['message_id']);
 
-    if (serverId != null) {
-      await _server(dispatch, serverId, channelId, messageId);
+    if (guildId != null) {
+      await _guild(dispatch, guildId, channelId, messageId);
     } else {
       await _private(dispatch, channelId, messageId);
     }
   }
 
-  Future<void> _server(DispatchEvent dispatch, Snowflake serverId,
+  Future<void> _guild(DispatchEvent dispatch, Snowflake guildId,
       Snowflake channelId, Snowflake messageId) async {
     final channel =
-        await _dataStore.channel.get<ServerTextChannel>(channelId.value, false);
+        await _dataStore.channel.get<GuildTextChannel>(channelId.value, false);
     final message = await channel?.messages.get(messageId);
-    final server = await _dataStore.server.get(serverId.value, false);
+    final guild = await _dataStore.guild.get(guildId.value, false);
 
-    dispatch<ServerMessageReactionRemoveAllArgs>(
-        event: Event.serverMessageReactionRemoveAll,
-        payload: (server: server, channel: channel!, message: message! as Message));
+    dispatch<GuildMessageReactionRemoveAllArgs>(
+        event: Event.guildMessageReactionRemoveAll,
+        payload: (guild: guild, channel: channel!, message: message! as Message));
   }
 
   Future<void> _private(

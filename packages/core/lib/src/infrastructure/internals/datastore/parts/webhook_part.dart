@@ -23,8 +23,8 @@ final class WebhookPart extends BasePart implements WebhookPartContract {
   }
 
   @override
-  Future<Map<Snowflake, Webhook>> fetchForServer(Object serverId) async {
-    final req = Request.json(endpoint: '/guilds/$serverId/webhooks');
+  Future<Map<Snowflake, Webhook>> fetchForServer(Object guildId) async {
+    final req = Request.json(endpoint: '/guilds/$guildId/webhooks');
     final result =
         await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
 

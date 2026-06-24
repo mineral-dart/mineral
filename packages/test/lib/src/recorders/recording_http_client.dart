@@ -99,14 +99,14 @@ final class RecordingHttpClient implements HttpClientContract {
       return const {};
     }
 
-    // /guilds/{serverId}/bans/{memberId}
+    // /guilds/{guildId}/bans/{memberId}
     if (segments.length == 4 &&
         segments[0] == 'guilds' &&
         segments[2] == 'bans' &&
         method == 'PUT') {
       final secs = map['delete_message_seconds'];
       _actions.record(MemberBanned(
-        serverId: segments[1],
+        guildId: segments[1],
         memberId: segments[3],
         reason: reason,
         deleteSince: secs is int ? Duration(seconds: secs) : null,
@@ -114,21 +114,21 @@ final class RecordingHttpClient implements HttpClientContract {
       return const {};
     }
 
-    // /guilds/{serverId}/members/{memberId}/roles/{roleId}
+    // /guilds/{guildId}/members/{memberId}/roles/{roleId}
     if (segments.length == 6 &&
         segments[0] == 'guilds' &&
         segments[2] == 'members' &&
         segments[4] == 'roles') {
       if (method == 'PUT') {
         _actions.record(RoleAssigned(
-          serverId: segments[1],
+          guildId: segments[1],
           memberId: segments[3],
           roleId: segments[5],
           reason: reason,
         ));
       } else if (method == 'DELETE') {
         _actions.record(RoleRemoved(
-          serverId: segments[1],
+          guildId: segments[1],
           memberId: segments[3],
           roleId: segments[5],
           reason: reason,

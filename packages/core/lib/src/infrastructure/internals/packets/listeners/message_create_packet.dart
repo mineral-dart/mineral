@@ -26,12 +26,12 @@ final class MessageCreatePacket implements ListenablePacket {
     final serializedMessage =
         await _marshaller.serializers.message.serialize(payload);
 
-    final serverId = Snowflake.nullable(message.payload['guild_id']);
-    switch (serverId) {
+    final guildId = Snowflake.nullable(message.payload['guild_id']);
+    switch (guildId) {
       case String():
-        dispatch<ServerMessageCreateArgs>(
-            event: Event.serverMessageCreate,
-            payload: (message: serializedMessage as ServerMessage));
+        dispatch<GuildMessageCreateArgs>(
+            event: Event.guildMessageCreate,
+            payload: (message: serializedMessage as GuildMessage));
       default:
         dispatch<PrivateMessageCreateArgs>(
             event: Event.privateMessageCreate,

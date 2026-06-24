@@ -5,11 +5,11 @@ import 'package:mineral/src/domains/common/entity_context.dart';
 final class ChannelMethods {
   final EntityContext _ctx;
   DataStoreContract get _datastore => _ctx.datastore;
-  final Snowflake? _serverId;
+  final Snowflake? _guildId;
 
   final Snowflake id;
 
-  ChannelMethods(this._serverId, this.id, {required EntityContext ctx})
+  ChannelMethods(this._guildId, this.id, {required EntityContext ctx})
       : _ctx = ctx;
 
   Future<void> setName(String name, String? reason) async {
@@ -17,7 +17,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -27,7 +27,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -37,7 +37,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -47,7 +47,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -57,7 +57,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -67,7 +67,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -78,7 +78,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -90,7 +90,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -100,7 +100,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -110,7 +110,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -120,7 +120,7 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
@@ -130,14 +130,14 @@ final class ChannelMethods {
     await _datastore.channel.update(
       id.value,
       builder,
-      serverId: _serverId?.value,
+      guildId: _guildId?.value,
       reason: reason,
     );
   }
 
   Future<T> send<T extends Message>(
-      {required MessageBuilder builder, Snowflake? serverId}) async {
-    return _datastore.message.send(serverId?.value, id.value, builder);
+      {required MessageBuilder builder, Snowflake? guildId}) async {
+    return _datastore.message.send(guildId?.value, id.value, builder);
   }
 
   Future<T> sendPoll<T extends Message>(Poll poll) async {

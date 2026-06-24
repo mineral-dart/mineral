@@ -31,7 +31,7 @@ void main() {
           'type': 0,
           'allow': '8',
           'deny': '0',
-          'server_id': '987654321',
+          'guild_id': '987654321',
         };
 
     group('serialize()', () {
@@ -88,7 +88,7 @@ void main() {
         await serializer.normalize(rawDiscordPayload());
 
         final expectedKey =
-            CacheKey().channelPermission('123456789', serverId: '987654321');
+            CacheKey().channelPermission('123456789', guildId: '987654321');
         expect(cache.store.containsKey(expectedKey), isTrue);
       });
 

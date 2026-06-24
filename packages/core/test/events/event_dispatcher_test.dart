@@ -36,12 +36,12 @@ void main() {
       final received = <InternalEventParams>[];
 
       dispatcher
-          .controllerFor(Event.serverButtonClick)
+          .controllerFor(Event.guildButtonClick)
           .stream
           .listen(received.add);
 
       dispatcher.dispatch(
-        event: Event.serverButtonClick,
+        event: Event.guildButtonClick,
         payload: 'ctx',
         constraint: myConstraint,
       );
@@ -62,25 +62,25 @@ void main() {
           .stream
           .listen((e) => events.add(e.event));
       dispatcher
-          .controllerFor(Event.serverMessageCreate)
+          .controllerFor(Event.guildMessageCreate)
           .stream
           .listen((e) => events.add(e.event));
       dispatcher
-          .controllerFor(Event.serverMemberAdd)
+          .controllerFor(Event.guildMemberAdd)
           .stream
           .listen((e) => events.add(e.event));
 
       dispatcher
         ..dispatch(event: Event.ready, payload: 'bot')
-        ..dispatch(event: Event.serverMessageCreate, payload: 'msg')
-        ..dispatch(event: Event.serverMemberAdd, payload: 'member');
+        ..dispatch(event: Event.guildMessageCreate, payload: 'msg')
+        ..dispatch(event: Event.guildMemberAdd, payload: 'member');
 
       await Future.delayed(Duration(milliseconds: 50));
 
       expect(events, hasLength(3));
       expect(events[0], Event.ready);
-      expect(events[1], Event.serverMessageCreate);
-      expect(events[2], Event.serverMemberAdd);
+      expect(events[1], Event.guildMessageCreate);
+      expect(events[2], Event.guildMemberAdd);
     });
 
     test('dispose closes all streams', () {

@@ -2,8 +2,8 @@ import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/channel_permission_overwrite.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
 import 'package:mineral/src/api/common/types/channel_type.dart';
+import 'package:mineral/src/api/guild/managers/threads_manager.dart';
 import 'package:mineral/src/api/private/user.dart';
-import 'package:mineral/src/api/server/managers/threads_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/utils/helper.dart';
 import 'package:mineral/src/domains/common/utils/utils.dart';
@@ -21,7 +21,7 @@ final class ChannelProperties {
   final ChannelType type;
   final String? name;
   final String? description;
-  final Snowflake? serverId;
+  final Snowflake? guildId;
   final Snowflake? categoryId;
   final int? position;
   final bool nsfw;
@@ -55,7 +55,7 @@ final class ChannelProperties {
     required this.type,
     required this.name,
     required this.description,
-    required this.serverId,
+    required this.guildId,
     required this.categoryId,
     required this.position,
     required this.nsfw,
@@ -114,7 +114,7 @@ final class ChannelProperties {
             orElse: ChannelType.unknown),
         name: element['name'] as String?,
         description: element['description'] as String?,
-        serverId: Snowflake.nullable(element['server_id'] as String?),
+        guildId: Snowflake.nullable(element['guild_id'] as String?),
         categoryId: Snowflake.nullable(element['parent_id'] as String?),
         position: element['position'] as int?,
         nsfw: element['nsfw'] as bool? ?? false,
@@ -141,7 +141,7 @@ final class ChannelProperties {
         defaultSortOrder: element['default_sort_order'] as int?,
         defaultForumLayout: element['default_forum_layout'] as int?,
         threads: ThreadsManager(
-            Snowflake.nullable(element['server_id'] as String?),
+            Snowflake.nullable(element['guild_id'] as String?),
             Snowflake.nullable(element['id'] as String?),
             ctx: ctx));
   }

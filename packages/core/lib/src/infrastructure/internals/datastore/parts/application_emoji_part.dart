@@ -10,8 +10,8 @@ final class ApplicationEmojiPart extends BasePart
   /// Builds a normalized payload suitable for [EmojiSerializer.serialize]
   /// from a raw Discord application-emoji payload (which has no [guild_id]).
   ///
-  /// We use [applicationId] as the [server_id] so the resulting [Emoji] has a
-  /// non-null [serverId] field, and we skip the cache-write path that
+  /// We use [applicationId] as the [guild_id] so the resulting [Emoji] has a
+  /// non-null [guildId] field, and we skip the cache-write path that
   /// [EmojiSerializer.normalize] would do (no caching for app emojis).
   Map<String, dynamic> _normalizePayload(
       Map<String, dynamic> raw, String applicationId) {
@@ -22,7 +22,7 @@ final class ApplicationEmojiPart extends BasePart
       'available': raw['available'] ?? true,
       'animated': raw['animated'] ?? false,
       'roles': <String>[],
-      'server_id': applicationId,
+      'guild_id': applicationId,
     };
   }
 

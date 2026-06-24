@@ -36,7 +36,7 @@ final class MemberSerializer implements SerializerContract<Member> {
       'global_name': globalName,
       'discriminator': discriminator,
       'assets': {
-        'server_id': json['guild_id'],
+        'guild_id': json['guild_id'],
         'member_id': userId,
         'avatar': avatar,
         'avatar_decoration': avatarDecorationData?['sku_id'],
@@ -55,7 +55,7 @@ final class MemberSerializer implements SerializerContract<Member> {
       'joined_at': json['joined_at'],
       'permissions': json['permissions'],
       'accent_color': json['accent_color'],
-      'server_id': json['guild_id'],
+      'guild_id': json['guild_id'],
     };
 
     final cacheKey = _marshaller.cacheKey.member(json['guild_id'] as String, userId as String);
@@ -85,14 +85,14 @@ final class MemberSerializer implements SerializerContract<Member> {
 
     final memberRoleManager = MemberRoleManager(
         List.from(json['roles'] as Iterable<dynamic>).map((e) => Snowflake.parse(e as String)).toList(),
-        Snowflake.parse(json['server_id']),
+        Snowflake.parse(json['guild_id']),
         Snowflake.parse(json['id'] as String),
         ctx: _ctx);
 
     return Member(
       ctx: _ctx,
       id: Snowflake.parse(json['id'] as String),
-      serverId: Snowflake.parse(json['server_id'] as String),
+      guildId: Snowflake.parse(json['guild_id'] as String),
       username: (json['nick'] ?? json['username']) as String,
       nickname: (json['nick'] ?? json['display_name']) as String?,
       globalName: json['global_name'] as String?,
@@ -155,7 +155,7 @@ final class MemberSerializer implements SerializerContract<Member> {
       'joined_at': member.joinedAt?.toIso8601String(),
       'permissions': listToBitfield(member.permissions.list),
       'accent_color': member.accentColor,
-      'server_id': member.serverId.value,
+      'guild_id': member.guildId.value,
     };
   }
 }

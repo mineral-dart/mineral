@@ -62,15 +62,15 @@ final class ModalShown extends RecordedAction {
   String toString() => 'ModalShown(customId: $customId)';
 }
 
-/// A member ban produced by `server.members.ban(...)`.
+/// A member ban produced by `guild.members.ban(...)`.
 final class MemberBanned extends RecordedAction {
-  final String serverId;
+  final String guildId;
   final String memberId;
   final String? reason;
   final Duration? deleteSince;
 
   const MemberBanned({
-    required this.serverId,
+    required this.guildId,
     required this.memberId,
     required this.reason,
     required this.deleteSince,
@@ -83,13 +83,13 @@ final class MemberBanned extends RecordedAction {
 
 /// A role assignment produced by `member.roles.add(...)`.
 final class RoleAssigned extends RecordedAction {
-  final String serverId;
+  final String guildId;
   final String memberId;
   final String roleId;
   final String? reason;
 
   const RoleAssigned({
-    required this.serverId,
+    required this.guildId,
     required this.memberId,
     required this.roleId,
     required this.reason,
@@ -102,13 +102,13 @@ final class RoleAssigned extends RecordedAction {
 
 /// A role removal produced by `member.roles.remove(...)`.
 final class RoleRemoved extends RecordedAction {
-  final String serverId;
+  final String guildId;
   final String memberId;
   final String roleId;
   final String? reason;
 
   const RoleRemoved({
-    required this.serverId,
+    required this.guildId,
     required this.memberId,
     required this.roleId,
     required this.reason,

@@ -1,3 +1,59 @@
+# 5.1.0
+
+## Breaking changes — `Server` → `Guild` rename
+
+All framework identifiers that used the word "server" to refer to a Discord
+guild have been renamed to "guild" for consistency with the Discord API.
+
+### Renamed classes and types
+
+- `Server` → `Guild`
+- `ServerMessage` → `GuildMessage`
+- `ServerSettings` → `GuildSettings`
+- `ServerAssets` → `GuildAssets`
+- `ServerSubscription` → `GuildSubscription`
+- `ServerChannel` → `GuildChannel`
+- `ServerTextChannel` → `GuildTextChannel`
+- `ServerVoiceChannel` → `GuildVoiceChannel`
+- `ServerAnnouncementChannel` → `GuildAnnouncementChannel`
+- `ServerCategoryChannel` → `GuildCategoryChannel`
+- `ServerForumChannel` → `GuildForumChannel`
+- `ServerStageChannel` → `GuildStageChannel`
+- `ServerCommandContext` → `GuildCommandContext`
+- `ServerButtonContext` → `GuildButtonContext`
+- `ServerModalContext` → `GuildModalContext`
+- `ServerSelectContext` → `GuildSelectContext`
+- `ServerBucket` → `GuildBucket`
+- `ServerEvents` → `GuildEvents`
+- `ServerBanAddEvent` → `GuildBanAddEvent`
+
+### Renamed fields and parameters
+
+- `serverId` → `guildId` on all entities, managers, and datastore parts
+- `resolveServer(...)` → `resolveGuild(...)` (marshaller API)
+- `client.events.server` → `client.events.guild`
+
+### Renamed event labels
+
+- `serverCreate` → `guildCreate`
+- `serverUpdate` → `guildUpdate`
+- `serverDelete` → `guildDelete`
+- All `Server*Event` metadata strings → `Guild*Event`
+
+### Cache key changes
+
+Cache keys changed from `server/...` to `guild/...`. **Deploy cache
+invalidation is required** — any persisted cache entries under `server/...`
+keys will not be read after upgrading.
+
+### Migration
+
+Search-and-replace `Server` → `Guild` (CamelCase) and `server` → `guild`
+(snake_case / camelCase prefix) across your bot source code, excluding
+HTTP-layer strings such as "internal server error".
+
+---
+
 # 5.0.0
 
 ## Highlights

@@ -9,9 +9,9 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
 
   @override
   Future<Map<Snowflake, T>> fetch<T extends Channel>(
-      Object serverId, bool force) async {
-    final guildId = Snowflake.parse(serverId);
-    final req = Request.json(endpoint: '/guilds/$guildId/channels');
+      Object guildId, bool force) async {
+    final parsedGuildId = Snowflake.parse(guildId);
+    final req = Request.json(endpoint: '/guilds/$parsedGuildId/channels');
     final result = await dataStore.requestBucket.get<List<Map<String, dynamic>>>(req);
 
     final channels = await result.map((element) async {
@@ -59,11 +59,11 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
 
   @override
   Future<T> create<T extends Channel>(
-      Object? serverId, ChannelBuilderContract builder,
+      Object? guildId, ChannelBuilderContract builder,
       {String? reason}) async {
-    final guildId = serverId != null ? Snowflake.parse(serverId) : null;
+    final parsedGuildId = guildId != null ? Snowflake.parse(guildId) : null;
     final req = Request.json(
-        endpoint: '/guilds/$guildId/channels',
+        endpoint: '/guilds/$parsedGuildId/channels',
         body: builder.build(),
         headers: {DiscordHeader.auditLogReason(reason)});
 
@@ -72,7 +72,7 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
       ...raw,
-      'guild_id': guildId,
+      'guild_id': parsedGuildId,
     });
     if (serialized is! T) {
       throw SerializationException(
@@ -100,9 +100,9 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
   @override
   Future<T?> update<T extends Channel>(
       Object id, ChannelBuilderContract builder,
-      {Object? serverId, String? reason}) async {
+      {Object? guildId, String? reason}) async {
     final channelId = Snowflake.parse(id);
-    final guildId = serverId != null ? Snowflake.parse(serverId) : null;
+    final parsedGuildId = guildId != null ? Snowflake.parse(guildId) : null;
     final req = Request.json(
         endpoint: '/channels/$channelId',
         body: builder.build(),
@@ -113,7 +113,7 @@ final class ChannelPart extends BasePart implements ChannelPartContract {
     final raw = await marshaller.serializers.channels.normalize(result);
     final serialized = await marshaller.serializers.channels.serialize({
       ...raw,
-      'guild_id': guildId,
+      'guild_id': parsedGuildId,
     });
     if (serialized is! T) {
       throw SerializationException(

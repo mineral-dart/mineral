@@ -9,7 +9,7 @@ import 'package:mineral/src/api/common/commands/builder/user_command_builder.dar
 import 'package:mineral/src/api/common/commands/command_context_type.dart';
 import 'package:mineral/src/api/common/commands/command_option.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
-import 'package:mineral/src/api/server/server.dart';
+import 'package:mineral/src/api/guild/guild.dart';
 import 'package:mineral/src/domains/commands/command_builder.dart';
 import 'package:mineral/src/domains/commands/command_interaction_dispatcher.dart';
 import 'package:mineral/src/domains/commands/command_registration.dart';
@@ -28,7 +28,7 @@ abstract class CommandInteractionManagerContract {
 
   Future<void> registerGlobal(Bot bot);
 
-  Future<void> registerServer(Bot bot, Server server);
+  Future<void> registerServer(Bot bot, Guild guild);
 
   void addCommand(CommandBuilder command);
 
@@ -282,13 +282,13 @@ final class CommandInteractionManager
   }
 
   @override
-  Future<void> registerServer(Bot bot, Server server) async {
+  Future<void> registerServer(Bot bot, Guild guild) async {
     final List<CommandBuilder> guildCommands =
-        _getContext(CommandContextType.server);
+        _getContext(CommandContextType.guild);
     final payload = _serializeCommand(guildCommands);
 
     final req = Request.json(
-        endpoint: '/applications/${bot.id}/guilds/${server.id}/commands',
+        endpoint: '/applications/${bot.id}/guilds/${guild.id}/commands',
         body: payload);
 
     final response = await _dataStore.client.put(req);

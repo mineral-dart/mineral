@@ -4,12 +4,12 @@ import 'package:mineral/events.dart';
 
 import '../global_states/vote_counter.dart';
 
-final class VoteYesButton extends ServerButtonClickEvent with State {
+final class VoteYesButton extends GuildButtonClickEvent with State {
   @override
   String? get customId => 'poll_vote:yes';
 
   @override
-  Future<void> handle(ServerButtonContext ctx) async {
+  Future<void> handle(GuildButtonContext ctx) async {
     state.read<VoteCounterContract>().voteYes();
 
     await ctx.interaction.wait();
@@ -20,12 +20,12 @@ final class VoteYesButton extends ServerButtonClickEvent with State {
   }
 }
 
-final class VoteNoButton extends ServerButtonClickEvent with State {
+final class VoteNoButton extends GuildButtonClickEvent with State {
   @override
   String? get customId => 'poll_vote:no';
 
   @override
-  Future<void> handle(ServerButtonContext ctx) async {
+  Future<void> handle(GuildButtonContext ctx) async {
     state.read<VoteCounterContract>().voteNo();
 
     await ctx.interaction.wait();
@@ -36,12 +36,12 @@ final class VoteNoButton extends ServerButtonClickEvent with State {
   }
 }
 
-final class PollResultsButton extends ServerButtonClickEvent with State {
+final class PollResultsButton extends GuildButtonClickEvent with State {
   @override
   String? get customId => 'poll_results';
 
   @override
-  Future<void> handle(ServerButtonContext ctx) async {
+  Future<void> handle(GuildButtonContext ctx) async {
     final counts = state.read<VoteCounterContract>().state;
     final yes = counts['yes'] ?? 0;
     final no = counts['no'] ?? 0;

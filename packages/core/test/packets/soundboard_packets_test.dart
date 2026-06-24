@@ -2,8 +2,8 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/services.dart';
-import 'package:mineral/src/api/server/managers/rules_manager.dart';
-import 'package:mineral/src/api/server/managers/threads_manager.dart';
+import 'package:mineral/src/api/guild/managers/rules_manager.dart';
+import 'package:mineral/src/api/guild/managers/threads_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
@@ -23,20 +23,20 @@ import '../helpers/fake_websocket_orchestrator.dart';
 
 // ── IDs ───────────────────────────────────────────────────────────────────────
 
-const _serverId = '123456789012345678';
+const _guildId = '123456789012345678';
 const _soundId = '111222333444555666';
 const _soundId2 = '222333444555666777';
 
 // ── Minimal DataStoreContract stubs ──────────────────────────────────────────
 
 final class _FakeDataStore implements DataStoreContract {
-  final ServerPartContract _serverPart;
+  final GuildPartContract _guildPart;
 
-  _FakeDataStore({required ServerPartContract serverPart})
-      : _serverPart = serverPart;
+  _FakeDataStore({required GuildPartContract guildPart})
+      : _guildPart = guildPart;
 
   @override
-  ServerPartContract get server => _serverPart;
+  GuildPartContract get guild => _guildPart;
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
@@ -79,21 +79,21 @@ final class _FakeDataStore implements DataStoreContract {
   HttpClientContract get client => throw UnimplementedError();
 }
 
-final class _FakeServerPart implements ServerPartContract {
-  final Server _server;
-  _FakeServerPart(this._server);
+final class _FakeServerPart implements GuildPartContract {
+  final Guild _guild;
+  _FakeServerPart(this._guild);
 
   @override
-  Future<Server> get(Object id, bool force) async => _server;
+  Future<Guild> get(Object id, bool force) async => _guild;
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw UnimplementedError(invocation.memberName.toString());
 }
 
-final class _DummyServerPart implements ServerPartContract {
+final class _DummyServerPart implements GuildPartContract {
   @override
-  Future<Server> get(Object id, bool force) => throw UnimplementedError();
+  Future<Guild> get(Object id, bool force) => throw UnimplementedError();
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
@@ -108,17 +108,17 @@ final class _NullDataStore implements DataStoreContract {
 
 // ── Domain object builder ─────────────────────────────────────────────────────
 
-Server _buildServer(EntityContext ctx) {
-  final id = Snowflake.parse(_serverId);
-  return Server(
+Guild _buildServer(EntityContext ctx) {
+  final id = Snowflake.parse(_guildId);
+  return Guild(
     ctx: ctx,
     id: id,
-    name: 'Test Server',
+    name: 'Test Guild',
     ownerId: Snowflake.parse('000000000000000001'),
     description: null,
     applicationId: null,
     members: MemberManager(id, ctx: ctx),
-    settings: ServerSettings(
+    settings: GuildSettings(
       bitfieldPermission: null,
       afkTimeout: null,
       hasWidgetEnabled: false,
@@ -129,7 +129,7 @@ Server _buildServer(EntityContext ctx) {
       mfaLevel: MfaLevel.none,
       systemChannelFlags: [],
       vanityUrlCode: null,
-      subscription: ServerSubscription(
+      subscription: GuildSubscription(
         tier: PremiumTier.none,
         subscriptionCount: null,
         hasEnabledProgressBar: false,
@@ -150,7 +150,7 @@ Server _buildServer(EntityContext ctx) {
       safetyAlertsChannelId: null,
     ),
     threads: ThreadsManager(id, null, ctx: ctx),
-    assets: ServerAsset(
+    assets: GuildAsset(
       id,
       ctx: ctx,
       emojis: EmojiManager(id, ctx: ctx),
@@ -176,7 +176,7 @@ Map<String, dynamic> _soundPayload({
       'name': name,
       'volume': volume,
       'available': available,
-      'guild_id': _serverId,
+      'guild_id': _guildId,
     };
 
 ShardMessage<dynamic> _buildCreateMessage() => ShardMessage(
@@ -199,7 +199,7 @@ ShardMessage<dynamic> _buildDeleteMessage() => ShardMessage(
       sequence: 3,
       payload: {
         'sound_id': _soundId,
-        'guild_id': _serverId,
+        'guild_id': _guildId,
       },
     );
 
@@ -208,7 +208,7 @@ ShardMessage<dynamic> _buildSoundsUpdateMessage() => ShardMessage(
       opCode: OpCode.dispatch,
       sequence: 4,
       payload: {
-        'guild_id': _serverId,
+        'guild_id': _guildId,
         'soundboard_sounds': [
           _soundPayload(soundId: _soundId, name: 'Alpha'),
           _soundPayload(soundId: _soundId2, name: 'Beta'),
@@ -221,7 +221,7 @@ ShardMessage<dynamic> _buildSoundboardSoundsMessage() => ShardMessage(
       opCode: OpCode.dispatch,
       sequence: 5,
       payload: {
-        'guild_id': _serverId,
+        'guild_id': _guildId,
         'soundboard_sounds': [
           _soundPayload(soundId: _soundId, name: 'Gamma'),
         ],
@@ -236,7 +236,7 @@ void main() {
   group('PacketType identity', () {
     test('GuildSoundboardSoundCreatePacket has correct packetType', () {
       final packet = GuildSoundboardSoundCreatePacket(
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.guildSoundboardSoundCreate));
       expect(packet.packetType.name, equals('GUILD_SOUNDBOARD_SOUND_CREATE'));
@@ -244,7 +244,7 @@ void main() {
 
     test('GuildSoundboardSoundUpdatePacket has correct packetType', () {
       final packet = GuildSoundboardSoundUpdatePacket(
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.guildSoundboardSoundUpdate));
       expect(packet.packetType.name, equals('GUILD_SOUNDBOARD_SOUND_UPDATE'));
@@ -252,7 +252,7 @@ void main() {
 
     test('GuildSoundboardSoundDeletePacket has correct packetType', () {
       final packet = GuildSoundboardSoundDeletePacket(
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.guildSoundboardSoundDelete));
       expect(packet.packetType.name, equals('GUILD_SOUNDBOARD_SOUND_DELETE'));
@@ -260,7 +260,7 @@ void main() {
 
     test('GuildSoundboardSoundsUpdatePacket has correct packetType', () {
       final packet = GuildSoundboardSoundsUpdatePacket(
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(
           packet.packetType, equals(PacketType.guildSoundboardSoundsUpdate));
@@ -270,7 +270,7 @@ void main() {
 
     test('SoundboardSoundsPacket has correct packetType', () {
       final packet = SoundboardSoundsPacket(
-        dataStore: _FakeDataStore(serverPart: _DummyServerPart()),
+        dataStore: _FakeDataStore(guildPart: _DummyServerPart()),
       );
       expect(packet.packetType, equals(PacketType.soundboardSounds));
       expect(packet.packetType.name, equals('SOUNDBOARD_SOUNDS'));
@@ -289,11 +289,11 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      final server = _buildServer(ctx);
-      ds = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      ds = _FakeDataStore(guildPart: _FakeServerPart(guild));
     });
 
-    test('dispatches Event.serverSoundboardSoundCreate', () async {
+    test('dispatches Event.guildSoundboardSoundCreate', () async {
       final packet = GuildSoundboardSoundCreatePacket(dataStore: ds);
       Event? capturedEvent;
 
@@ -305,32 +305,32 @@ void main() {
       }
 
       await packet.listen(_buildCreateMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverSoundboardSoundCreate));
+      expect(capturedEvent, equals(Event.guildSoundboardSoundCreate));
     });
 
-    test('payload carries server and correctly parsed SoundboardSound',
+    test('payload carries guild and correctly parsed SoundboardSound',
         () async {
       final packet = GuildSoundboardSoundCreatePacket(dataStore: ds);
-      ServerSoundboardSoundCreateArgs? args;
+      GuildSoundboardSoundCreateArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverSoundboardSoundCreate) {
-          args = payload as ServerSoundboardSoundCreateArgs;
+        if (event == Event.guildSoundboardSoundCreate) {
+          args = payload as GuildSoundboardSoundCreateArgs;
         }
       }
 
       await packet.listen(_buildCreateMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
-      expect(args!.server.name, equals('Test Server'));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
+      expect(args!.guild.name, equals('Test Guild'));
       final sound = args!.sound;
       expect(sound.soundId, equals(Snowflake.parse(_soundId)));
       expect(sound.name, equals('Created Sound'));
-      expect(sound.guildId, equals(Snowflake.parse(_serverId)));
+      expect(sound.guildId, equals(Snowflake.parse(_guildId)));
     });
   });
 
@@ -346,11 +346,11 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      final server = _buildServer(ctx);
-      ds = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      ds = _FakeDataStore(guildPart: _FakeServerPart(guild));
     });
 
-    test('dispatches Event.serverSoundboardSoundUpdate', () async {
+    test('dispatches Event.guildSoundboardSoundUpdate', () async {
       final packet = GuildSoundboardSoundUpdatePacket(dataStore: ds);
       Event? capturedEvent;
 
@@ -362,27 +362,27 @@ void main() {
       }
 
       await packet.listen(_buildUpdateMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverSoundboardSoundUpdate));
+      expect(capturedEvent, equals(Event.guildSoundboardSoundUpdate));
     });
 
-    test('payload carries server and correctly parsed SoundboardSound',
+    test('payload carries guild and correctly parsed SoundboardSound',
         () async {
       final packet = GuildSoundboardSoundUpdatePacket(dataStore: ds);
-      ServerSoundboardSoundUpdateArgs? args;
+      GuildSoundboardSoundUpdateArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverSoundboardSoundUpdate) {
-          args = payload as ServerSoundboardSoundUpdateArgs;
+        if (event == Event.guildSoundboardSoundUpdate) {
+          args = payload as GuildSoundboardSoundUpdateArgs;
         }
       }
 
       await packet.listen(_buildUpdateMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
       final sound = args!.sound;
       expect(sound.soundId, equals(Snowflake.parse(_soundId)));
       expect(sound.name, equals('Updated Sound'));
@@ -401,11 +401,11 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      final server = _buildServer(ctx);
-      ds = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      ds = _FakeDataStore(guildPart: _FakeServerPart(guild));
     });
 
-    test('dispatches Event.serverSoundboardSoundDelete', () async {
+    test('dispatches Event.guildSoundboardSoundDelete', () async {
       final packet = GuildSoundboardSoundDeletePacket(dataStore: ds);
       Event? capturedEvent;
 
@@ -417,26 +417,26 @@ void main() {
       }
 
       await packet.listen(_buildDeleteMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverSoundboardSoundDelete));
+      expect(capturedEvent, equals(Event.guildSoundboardSoundDelete));
     });
 
-    test('payload carries server and soundId (not a full sound)', () async {
+    test('payload carries guild and soundId (not a full sound)', () async {
       final packet = GuildSoundboardSoundDeletePacket(dataStore: ds);
-      ServerSoundboardSoundDeleteArgs? args;
+      GuildSoundboardSoundDeleteArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverSoundboardSoundDelete) {
-          args = payload as ServerSoundboardSoundDeleteArgs;
+        if (event == Event.guildSoundboardSoundDelete) {
+          args = payload as GuildSoundboardSoundDeleteArgs;
         }
       }
 
       await packet.listen(_buildDeleteMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
       expect(args!.soundId, equals(Snowflake.parse(_soundId)));
     });
   });
@@ -453,11 +453,11 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      final server = _buildServer(ctx);
-      ds = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      ds = _FakeDataStore(guildPart: _FakeServerPart(guild));
     });
 
-    test('dispatches Event.serverSoundboardSoundsUpdate', () async {
+    test('dispatches Event.guildSoundboardSoundsUpdate', () async {
       final packet = GuildSoundboardSoundsUpdatePacket(dataStore: ds);
       Event? capturedEvent;
 
@@ -469,26 +469,26 @@ void main() {
       }
 
       await packet.listen(_buildSoundsUpdateMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverSoundboardSoundsUpdate));
+      expect(capturedEvent, equals(Event.guildSoundboardSoundsUpdate));
     });
 
-    test('payload carries server and a list of SoundboardSounds', () async {
+    test('payload carries guild and a list of SoundboardSounds', () async {
       final packet = GuildSoundboardSoundsUpdatePacket(dataStore: ds);
-      ServerSoundboardSoundsUpdateArgs? args;
+      GuildSoundboardSoundsUpdateArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverSoundboardSoundsUpdate) {
-          args = payload as ServerSoundboardSoundsUpdateArgs;
+        if (event == Event.guildSoundboardSoundsUpdate) {
+          args = payload as GuildSoundboardSoundsUpdateArgs;
         }
       }
 
       await packet.listen(_buildSoundsUpdateMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
       expect(args!.sounds, hasLength(2));
       expect(args!.sounds[0].name, equals('Alpha'));
       expect(args!.sounds[1].name, equals('Beta'));
@@ -507,11 +507,11 @@ void main() {
         logger: FakeLogger(),
         runtimeState: RuntimeState(),
       );
-      final server = _buildServer(ctx);
-      ds = _FakeDataStore(serverPart: _FakeServerPart(server));
+      final guild = _buildServer(ctx);
+      ds = _FakeDataStore(guildPart: _FakeServerPart(guild));
     });
 
-    test('dispatches Event.serverSoundboardSounds', () async {
+    test('dispatches Event.guildSoundboardSounds', () async {
       final packet = SoundboardSoundsPacket(dataStore: ds);
       Event? capturedEvent;
 
@@ -523,26 +523,26 @@ void main() {
       }
 
       await packet.listen(_buildSoundboardSoundsMessage(), dispatch);
-      expect(capturedEvent, equals(Event.serverSoundboardSounds));
+      expect(capturedEvent, equals(Event.guildSoundboardSounds));
     });
 
-    test('payload carries server and a list of SoundboardSounds', () async {
+    test('payload carries guild and a list of SoundboardSounds', () async {
       final packet = SoundboardSoundsPacket(dataStore: ds);
-      ServerSoundboardSoundsArgs? args;
+      GuildSoundboardSoundsArgs? args;
 
       void dispatch<T extends Object>(
           {required Event event,
           required T payload,
           bool Function(String?)? constraint}) {
-        if (event == Event.serverSoundboardSounds) {
-          args = payload as ServerSoundboardSoundsArgs;
+        if (event == Event.guildSoundboardSounds) {
+          args = payload as GuildSoundboardSoundsArgs;
         }
       }
 
       await packet.listen(_buildSoundboardSoundsMessage(), dispatch);
 
       expect(args, isNotNull);
-      expect(args!.server.id, equals(Snowflake.parse(_serverId)));
+      expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
       expect(args!.sounds, hasLength(1));
       expect(args!.sounds[0].name, equals('Gamma'));
       expect(args!.sounds[0].soundId, equals(Snowflake.parse(_soundId)));

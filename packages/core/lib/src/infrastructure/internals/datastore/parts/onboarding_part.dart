@@ -9,10 +9,10 @@ final class OnboardingPart extends BasePart
   OnboardingPart(super.marshaller, super.dataStore);
 
   @override
-  Future<Onboarding> fetch(Object serverId) async {
-    final guildId = Snowflake.parse(serverId);
+  Future<Onboarding> fetch(Object guildId) async {
+    final parsedGuildId = Snowflake.parse(guildId);
     final req =
-        Request.json(endpoint: '/guilds/$guildId/onboarding');
+        Request.json(endpoint: '/guilds/$parsedGuildId/onboarding');
     final result =
         await dataStore.requestBucket.get<Map<String, dynamic>>(req);
     return Onboarding.fromJson(result);
@@ -20,14 +20,14 @@ final class OnboardingPart extends BasePart
 
   @override
   Future<Onboarding> update(
-    Object serverId, {
+    Object guildId, {
     List<OnboardingPrompt>? prompts,
     List<Object>? defaultChannelIds,
     bool? enabled,
     OnboardingMode? mode,
     String? reason,
   }) async {
-    final guildId = Snowflake.parse(serverId);
+    final parsedGuildId = Snowflake.parse(guildId);
 
     final body = <String, dynamic>{
       if (prompts != null)
@@ -40,7 +40,7 @@ final class OnboardingPart extends BasePart
     };
 
     final req = Request.json(
-      endpoint: '/guilds/$guildId/onboarding',
+      endpoint: '/guilds/$parsedGuildId/onboarding',
       body: body,
       headers: {DiscordHeader.auditLogReason(reason)},
     );

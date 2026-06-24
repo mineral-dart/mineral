@@ -156,8 +156,8 @@ void main() {
         expect(emoji, isA<Emoji>());
         expect(emoji!.name, equals('cool'));
         expect(emoji.id, equals(Snowflake.parse('555666777888999000')));
-        // serverId is set to applicationId since app emojis have no guild_id
-        expect(emoji.serverId, equals(Snowflake.parse(applicationId)));
+        // guildId is set to applicationId since app emojis have no guild_id
+        expect(emoji.guildId, equals(Snowflake.parse(applicationId)));
         expect(emoji.managed, isFalse);
         expect(emoji.available, isTrue);
         expect(emoji.animated, isFalse);

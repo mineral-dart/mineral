@@ -26,14 +26,14 @@ final class GuildMemberChunkPacket implements ListenablePacket {
   @override
   Future<void> listen(ShardMessage message, DispatchEvent dispatch) async {
     final payload = message.payload as Map<String, dynamic>;
-    final server =
-        await _dataStore.server.get(payload['guild_id'] as String, false);
+    final guild =
+        await _dataStore.guild.get(payload['guild_id'] as String, false);
 
     final members =
         await List.from(payload['members'] as Iterable<dynamic>).map((element) async {
       final raw = await _marshaller.serializers.member.normalize({
         ...(element as Map<String, dynamic>),
-        'guild_id': server.id.value,
+        'guild_id': guild.id.value,
       });
 
       return _marshaller.serializers.member.serialize(raw);
@@ -65,6 +65,6 @@ final class GuildMemberChunkPacket implements ListenablePacket {
       _wss.removeFromRequestQueue(resolver);
     }
 
-    dispatch<ServerMemberChunkArgs>(event: Event.serverMemberChunk, payload: (server: server, members: members));
+    dispatch<GuildMemberChunkArgs>(event: Event.guildMemberChunk, payload: (guild: guild, members: members));
   }
 }
