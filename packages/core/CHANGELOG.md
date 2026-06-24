@@ -1,3 +1,25 @@
+## 5.1.1
+
+### WebSocket resilience fixes
+
+- **H1** — WebSocket error handler is now always attached before the stream is
+  listened to, preventing unhandled-stream-error crashes on connection failure.
+- **H2** — Malformed or unexpected frame payloads are logged and dropped
+  instead of crashing the shard message loop.
+- **H3** — A `connect()` failure (e.g. `WebSocketException`, `SocketException`)
+  now triggers the exponential-backoff reconnect strategy rather than silently
+  hanging.
+- **H4** — `resume()` and `reconnect()` are no longer fire-and-forget. A
+  `FatalGatewayException` thrown when `maxReconnectAttempts` is exceeded is now
+  caught by a supervised `catchError` handler and routed to a private
+  `_handleFatal` helper (cancel heartbeat → disconnect client → invoke
+  `onFatalDisconnect`). The `DisconnectAction.fatal` path likewise calls
+  `_handleFatal` instead of throwing synchronously from a stream callback.
+  Heartbeat Timer callbacks in `ShardAuthentication` are supervised by the same
+  pattern via `_onHeartbeatError`. `onFatalDisconnect` is promoted to the
+  `WebsocketOrchestratorContract` interface so any implementation (including
+  test doubles) can register the callback.
+
 # 5.1.0
 
 ## Breaking changes — `Server` → `Guild` rename

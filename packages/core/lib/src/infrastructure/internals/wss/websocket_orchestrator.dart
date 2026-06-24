@@ -69,6 +69,7 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
   /// Set by [Kernel] after construction to break the otherwise-circular
   /// dependency between the orchestrator (built first) and the kernel
   /// (built later, owns dispose).
+  @override
   Future<void> Function()? onFatalDisconnect;
 
   WebsocketOrchestrator(
