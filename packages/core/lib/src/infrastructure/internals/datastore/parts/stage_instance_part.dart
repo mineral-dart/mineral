@@ -30,8 +30,7 @@ final class StageInstancePart extends BasePart
       'channel_id': Snowflake.parse(channelId).value,
       'topic': topic,
       if (privacyLevel != null) 'privacy_level': privacyLevel.value,
-      if (sendStartNotification != null)
-        'send_start_notification': sendStartNotification,
+      'send_start_notification': ?sendStartNotification,
       if (guildScheduledEventId != null)
         'guild_scheduled_event_id':
             Snowflake.parse(guildScheduledEventId).value,
@@ -57,7 +56,7 @@ final class StageInstancePart extends BasePart
     final id = Snowflake.parse(channelId);
 
     final body = <String, dynamic>{
-      if (topic != null) 'topic': topic,
+      'topic': ?topic,
       if (privacyLevel != null) 'privacy_level': privacyLevel.value,
     };
 

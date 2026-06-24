@@ -208,9 +208,9 @@ final class MemberVoiceManager {
       memberId: _memberId.value,
       reason: reason,
       payload: {
-        if (mute != null) 'mute': mute,
-        if (deafen != null) 'deaf': deafen,
-        if (channelId != null) 'channel_id': channelId,
+        'mute': ?mute,
+        'deaf': ?deafen,
+        'channel_id': ?channelId,
       },
     );
   }
