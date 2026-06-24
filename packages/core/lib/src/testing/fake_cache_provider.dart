@@ -13,6 +13,9 @@ final class FakeCacheProvider implements CacheProviderContract {
   String get name => 'fake';
 
   @override
+  CacheConfig config = CacheConfig.defaults();
+
+  @override
   FutureOr<void> init() {}
 
   @override

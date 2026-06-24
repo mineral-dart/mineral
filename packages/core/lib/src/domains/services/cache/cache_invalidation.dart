@@ -1,13 +1,12 @@
-import 'package:mineral/src/domains/container/ioc_container.dart';
-import 'package:mineral/src/domains/services/cache/cache_config.dart';
 import 'package:mineral/src/domains/services/cache/cache_provider_contract.dart';
 
 /// Removes [key] from the cache when automatic invalidation is enabled.
 ///
-/// Resolves [CacheConfig] via the IoC container and short-circuits when
-/// `invalidationEnabled` is false (e.g. `CacheConfig.legacy()`). When no
-/// `CacheConfig` is bound — typical for older tests — defaults to `true` so
-/// existing behavior is preserved.
+/// Reads [CacheConfig.invalidationEnabled] directly from the provider's own
+/// [CacheProviderContract.config] — no IoC look-up required. When the
+/// provider carries [CacheConfig.defaults] (the default), invalidation is
+/// enabled. Pass a provider configured with [CacheConfig.legacy] (or any
+/// config whose [CacheConfig.invalidationEnabled] is `false`) to suppress it.
 extension CacheInvalidation on CacheProviderContract? {
   Future<void> invalidate(String key) async {
     final cache = this;
@@ -15,9 +14,7 @@ extension CacheInvalidation on CacheProviderContract? {
       return;
     }
 
-    final enabled =
-        ioc.resolveOrNull<CacheConfig>()?.invalidationEnabled ?? true;
-    if (!enabled) {
+    if (!cache.config.invalidationEnabled) {
       return;
     }
 
