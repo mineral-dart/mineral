@@ -25,13 +25,23 @@ abstract interface class CacheProviderContract {
 
   /// Stores [object] under [key].
   ///
-  /// If [ttl] is provided, the entry expires after that duration. Providers
-  /// that support expiration (e.g. memory, Redis) honor this; providers that
-  /// don't may ignore it. A `null` [ttl] means "never expire".
+  /// [ttl] semantics (identical across all providers):
+  /// - `null` — the TTL policy attached to this provider resolves the
+  ///   duration from the key.  If the policy returns `null` the entry
+  ///   never expires.
+  /// - `Duration.zero` — treated as "no expiry" (equivalent to the policy
+  ///   returning `null`).  Do **not** pass `Duration.zero` expecting
+  ///   immediate eviction.
+  /// - Any positive [Duration] — the entry expires after that duration.
+  ///
+  /// Both providers (memory and Redis) honor these semantics identically and
+  /// store a structural deep copy of [object], so caller mutations after
+  /// `put` cannot corrupt the cached value.
   FutureOr<void> put<T>(String key, T object, {Duration? ttl});
 
   /// Stores all entries from [object]. The optional [ttl] applies uniformly
-  /// to every entry; pass `null` to skip expiration.
+  /// to every entry; pass `null` to let the TTL policy decide per key,
+  /// `Duration.zero` for no expiry.
   FutureOr<void> putMany<T>(Map<String, T> object, {Duration? ttl});
 
   FutureOr<void> remove(String key);

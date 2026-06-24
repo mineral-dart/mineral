@@ -41,7 +41,13 @@ final class CacheTtlPolicy {
 
   static const _disabled = CacheTtlPolicy._([], null);
 
-  static const _defaults = CacheTtlPolicy._(_defaultRules, null);
+  /// Conservative non-null TTL used for any key family not matched by an
+  /// explicit rule.  Chosen to match the shortest top-level family TTL
+  /// (users / invites = 1 h) so unlisted families cannot grow without bound.
+  static const _conservativeFallback = Duration(hours: 1);
+
+  static const _defaults =
+      CacheTtlPolicy._(_defaultRules, _conservativeFallback);
 }
 
 const _defaultRules = <_Rule>[
@@ -61,6 +67,7 @@ const _defaultRules = <_Rule>[
   _Rule._prefix('threads/', Duration(hours: 2)),
   _Rule._prefix('messages/', Duration(minutes: 10)),
   _Rule._prefix('invites/', Duration(hours: 1)),
+  _Rule._prefix('webhooks/', Duration(hours: 1)),
 ];
 
 final class _Rule {
