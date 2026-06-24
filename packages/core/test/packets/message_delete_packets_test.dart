@@ -2,24 +2,21 @@
 library;
 
 import 'package:mineral/api.dart';
-import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
-import 'package:mineral/services.dart';
 import 'package:mineral/src/api/guild/managers/threads_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
-import 'package:mineral/src/domains/common/runtime_state.dart';
-import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_delete_bulk_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/message_delete_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fake_cache_provider.dart';
-import '../helpers/fake_logger.dart';
 import '../helpers/fake_marshaller.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
+import '../helpers/mocks.dart';
 import 'helpers/packet_test_helpers.dart';
 
 // ── IDs ───────────────────────────────────────────────────────────────────────
@@ -58,38 +55,25 @@ void main() {
   late FakeMarshaller marshaller;
   late Guild fakeGuild;
   late GuildTextChannel fakeChannel;
-  late _FakeDataStore dataStore;
+  late MockDataStore dataStore;
 
   setUp(() {
     final wss = FakeWebsocketOrchestrator();
     cache = FakeCacheProvider();
 
-    late _FakeDataStore dsFinal;
-    marshaller = FakeMarshaller(
-      cache: cache,
-      entityContext: EntityContext(
-        datastore: LazyDataStore(() => dsFinal),
-        wss: wss,
-        logger: FakeLogger(),
-        runtimeState: RuntimeState(),
-      ),
-    );
+    dataStore = MockDataStore();
 
-    final ctx = EntityContext(
-      datastore: LazyDataStore(() => dsFinal),
-      wss: wss,
-      logger: FakeLogger(),
-      runtimeState: RuntimeState(),
-    );
-
+    final ctx = buildCtx(dataStore: dataStore, wss: wss);
     fakeGuild = buildMinimalGuild(_guildId, ctx);
     fakeChannel = _buildGuildTextChannel(ctx);
 
-    dsFinal = _FakeDataStore(
-      guildPart: FakeGuildPart(fakeGuild),
-      channelPart: FakeChannelPart(fakeChannel),
+    when(() => dataStore.guild).thenReturn(FakeGuildPart(fakeGuild));
+    when(() => dataStore.channel).thenReturn(FakeChannelPart(fakeChannel));
+
+    marshaller = FakeMarshaller(
+      cache: cache,
+      entityContext: buildCtx(dataStore: dataStore, wss: wss),
     );
-    dataStore = dsFinal;
   });
 
   // ── MESSAGE_DELETE ─────────────────────────────────────────────────────────
@@ -314,71 +298,3 @@ GuildTextChannel _buildGuildTextChannel(EntityContext ctx) => GuildTextChannel(
       ),
     );
 
-// ── Fake DataStore ────────────────────────────────────────────────────────────
-
-final class _FakeDataStore implements DataStoreContract {
-  final GuildPartContract _guildPart;
-  final ChannelPartContract _channelPart;
-
-  _FakeDataStore({
-    required GuildPartContract guildPart,
-    required ChannelPartContract channelPart,
-  })  : _guildPart = guildPart,
-        _channelPart = channelPart;
-
-  @override
-  GuildPartContract get guild => _guildPart;
-  @override
-  ChannelPartContract get channel => _channelPart;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  MonetizationPartContract get monetization => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}

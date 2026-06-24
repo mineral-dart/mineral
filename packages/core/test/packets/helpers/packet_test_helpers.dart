@@ -2,24 +2,25 @@
 ///
 /// Provides:
 /// - [buildMinimalGuild]: construct a Guild with managers wired.
-/// - [LazyDataStore]: deferred DataStoreContract for circular init.
-/// - [GuildOnlyDataStore]: minimal DataStoreContract exposing only [guild].
-/// - [GuildAndChannelDataStore]: exposes [guild] + [channel].
-/// - [GuildAndUserDataStore]: exposes [guild] + [user].
-/// - [GuildUserAndChannelDataStore]: exposes [guild], [user], [channel].
+/// - [buildMockDs]: create a [MockDataStore] with any combination of parts
+///   pre-stubbed.  Any unstubbed part raises a MissingStubError on access,
+///   which behaves exactly like the old UnimplementedError.
+/// - [buildCtx]: create an [EntityContext] backed by a [MockDataStore].
+/// - [FakeGuildPart], [FakeUserPart], [FakeChannelPart]: concrete part stubs
+///   that return a fixed domain object.
 library;
 
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
-import 'package:mineral/services.dart';
 import 'package:mineral/src/api/guild/managers/rules_manager.dart';
 import 'package:mineral/src/api/guild/managers/threads_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/domains/common/runtime_state.dart';
-import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/fake_logger.dart';
 import '../../helpers/fake_websocket_orchestrator.dart';
+import '../../helpers/mocks.dart';
 
 // ── Domain builders ───────────────────────────────────────────────────────────
 
@@ -78,277 +79,59 @@ Guild buildMinimalGuild(String guildId, EntityContext ctx) {
   );
 }
 
-/// Creates a minimal EntityContext pointing at a lazy-resolved datastore.
+// ── MockDataStore factory ─────────────────────────────────────────────────────
+
+/// Creates a [MockDataStore] with the requested parts pre-stubbed.
+///
+/// Any part not provided here will raise a [MissingStubError] if accessed —
+/// which is the same failure mode as the old `UnimplementedError` stubs.
+MockDataStore buildMockDs({
+  GuildPartContract? guild,
+  ChannelPartContract? channel,
+  UserPartContract? user,
+  MemberPartContract? member,
+  MessagePartContract? message,
+  RolePartContract? role,
+  InteractionPartContract? interaction,
+}) {
+  final ds = MockDataStore();
+  if (guild != null) {
+    when(() => ds.guild).thenReturn(guild);
+  }
+  if (channel != null) {
+    when(() => ds.channel).thenReturn(channel);
+  }
+  if (user != null) {
+    when(() => ds.user).thenReturn(user);
+  }
+  if (member != null) {
+    when(() => ds.member).thenReturn(member);
+  }
+  if (message != null) {
+    when(() => ds.message).thenReturn(message);
+  }
+  if (role != null) {
+    when(() => ds.role).thenReturn(role);
+  }
+  if (interaction != null) {
+    when(() => ds.interaction).thenReturn(interaction);
+  }
+  return ds;
+}
+
+// ── Context builder ───────────────────────────────────────────────────────────
+
+/// Creates a minimal [EntityContext] pointing at the provided datastore.
 EntityContext buildCtx({
-  required DataStoreContract Function() dataStoreRef,
+  required DataStoreContract dataStore,
   WebsocketOrchestratorContract? wss,
 }) =>
     EntityContext(
-      datastore: LazyDataStore(dataStoreRef),
+      datastore: dataStore,
       wss: wss ?? FakeWebsocketOrchestrator(),
       logger: FakeLogger(),
       runtimeState: RuntimeState(),
     );
-
-// ── Lazy DataStore ────────────────────────────────────────────────────────────
-
-final class LazyDataStore implements DataStoreContract {
-  final DataStoreContract Function() _resolve;
-  LazyDataStore(this._resolve);
-
-  @override
-  GuildPartContract get guild => _resolve().guild;
-  @override
-  ChannelPartContract get channel => _resolve().channel;
-  @override
-  UserPartContract get user => _resolve().user;
-  @override
-  MemberPartContract get member => _resolve().member;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  MonetizationPartContract get monetization => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
-
-// ── DataStore specializations ─────────────────────────────────────────────────
-
-final class GuildOnlyDataStore implements DataStoreContract {
-  final GuildPartContract _guildPart;
-  GuildOnlyDataStore(this._guildPart);
-
-  @override
-  GuildPartContract get guild => _guildPart;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  ChannelPartContract get channel => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  MonetizationPartContract get monetization => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
-
-final class GuildAndChannelDataStore implements DataStoreContract {
-  final GuildPartContract _guildPart;
-  final ChannelPartContract _channelPart;
-
-  GuildAndChannelDataStore({
-    required GuildPartContract guildPart,
-    required ChannelPartContract channelPart,
-  })  : _guildPart = guildPart,
-        _channelPart = channelPart;
-
-  @override
-  GuildPartContract get guild => _guildPart;
-  @override
-  ChannelPartContract get channel => _channelPart;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  UserPartContract get user => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  MonetizationPartContract get monetization => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
-
-final class GuildAndUserDataStore implements DataStoreContract {
-  final GuildPartContract _guildPart;
-  final UserPartContract _userPart;
-
-  GuildAndUserDataStore({
-    required GuildPartContract guildPart,
-    required UserPartContract userPart,
-  })  : _guildPart = guildPart,
-        _userPart = userPart;
-
-  @override
-  GuildPartContract get guild => _guildPart;
-  @override
-  UserPartContract get user => _userPart;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError(invocation.memberName.toString());
-
-  @override
-  ChannelPartContract get channel => throw UnimplementedError();
-  @override
-  MessagePartContract get message => throw UnimplementedError();
-  @override
-  MemberPartContract get member => throw UnimplementedError();
-  @override
-  RolePartContract get role => throw UnimplementedError();
-  @override
-  InteractionPartContract get interaction => throw UnimplementedError();
-  @override
-  StickerPartContract get sticker => throw UnimplementedError();
-  @override
-  EmojiPartContract get emoji => throw UnimplementedError();
-  @override
-  RulesPartContract get rules => throw UnimplementedError();
-  @override
-  ReactionPartContract get reaction => throw UnimplementedError();
-  @override
-  ThreadPartContract get thread => throw UnimplementedError();
-  @override
-  InvitePartContract get invite => throw UnimplementedError();
-  @override
-  WebhookPartContract get webhook => throw UnimplementedError();
-  @override
-  GuildScheduledEventPartContract get scheduledEvent =>
-      throw UnimplementedError();
-  @override
-  ApplicationEmojiPartContract get applicationEmoji =>
-      throw UnimplementedError();
-  @override
-  WelcomeScreenPartContract get welcomeScreen => throw UnimplementedError();
-  @override
-  OnboardingPartContract get onboarding => throw UnimplementedError();
-  @override
-  TemplatePartContract get template => throw UnimplementedError();
-  @override
-  StageInstancePartContract get stageInstance => throw UnimplementedError();
-  @override
-  MonetizationPartContract get monetization => throw UnimplementedError();
-  @override
-  SoundboardPartContract get soundboard => throw UnimplementedError();
-  @override
-  RequestBucketContract get requestBucket => throw UnimplementedError();
-  @override
-  HttpClientContract get client => throw UnimplementedError();
-}
 
 // ── Part stubs ────────────────────────────────────────────────────────────────
 
