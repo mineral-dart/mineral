@@ -24,6 +24,11 @@ abstract class WebsocketOrchestratorContract {
 
   Map<int, ShardContract> get shards;
 
+  /// Optional callback invoked when a shard encounters a fatal, non-recoverable
+  /// gateway error. Set by the application layer (e.g. [Kernel]) after
+  /// construction to handle teardown (dispose, exit, etc.).
+  Future<void> Function()? get onFatalDisconnect;
+
   void send(WebsocketIsolateMessageTransfert message);
 
   void setBotPresence(
