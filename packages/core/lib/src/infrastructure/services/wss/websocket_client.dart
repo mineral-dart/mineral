@@ -80,18 +80,15 @@ final class WebsocketClientImpl implements WebsocketClient {
         }
       });
 
-      if (_onError != null) {
-        stream!.handleError((err) {
-          _onError({
-            'error': err,
-            'code': _channel?.closeCode,
-            'reason': _channel?.closeReason
-          });
-        });
-      }
-
       _channelListener = stream!.listen(
         (dynamic message) => _handleMessage(_onMessage, message),
+        onError: (Object err) {
+          _onError?.call({
+            'error': err,
+            'code': _channel?.closeCode,
+            'reason': _channel?.closeReason,
+          });
+        },
         onDone: () {
           _onClose?.call(_channel?.closeCode);
         },
