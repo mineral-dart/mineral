@@ -17,11 +17,12 @@ final class RedisProvider implements CacheProviderContract {
 
   String? _password;
 
+  @override
+  CacheConfig config = CacheConfig.defaults();
+
   LoggerContract get logger => ioc.resolve<LoggerContract>();
 
-  CacheTtlPolicy get _ttlPolicy =>
-      ioc.resolveOrNull<CacheConfig>()?.ttlPolicy ??
-      CacheTtlPolicy.disabled();
+  CacheTtlPolicy get _ttlPolicy => config.ttlPolicy;
 
   RedisProvider({required String host, required int port, String? password})
       : _password = password {

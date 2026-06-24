@@ -58,7 +58,8 @@ final class ClientBuilder {
   }) {
     _cacheConfig = config ?? CacheConfig.defaults();
     ioc.bind<CacheConfig>(() => _cacheConfig);
-    _cache = ioc.make<CacheProviderContract>(() => cache(env));
+    _cache = ioc.make<CacheProviderContract>(() => cache(env))
+      ..config = _cacheConfig;
     return this;
   }
 
