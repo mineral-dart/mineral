@@ -16,13 +16,22 @@ import '../helpers/mocks.dart';
 
 /// Creates a shard with configurable maxReconnectAttempts so that
 /// resume/reconnect throw FatalGatewayException when set to 0.
-Shard _createShard({required FakeLogger logger, int maxReconnect = 0}) {
+///
+/// Pass [onFatalDisconnect] to install a fatal-disconnect callback on the
+/// orchestrator (used in H4 supervision tests).
+Shard _createShard({
+  required FakeLogger logger,
+  int maxReconnect = 0,
+  Future<void> Function()? onFatalDisconnect,
+}) {
+  final wss = FakeWebsocketOrchestrator(maxReconnectAttempts: maxReconnect)
+    ..onFatalDisconnect = onFatalDisconnect;
   return Shard(
     shardName: 'test-shard-0',
     shardIndex: 0,
     shardCount: 1,
     url: 'wss://fake',
-    wss: FakeWebsocketOrchestrator(maxReconnectAttempts: maxReconnect),
+    wss: wss,
     logger: logger,
     strategy: FakeRunningStrategy(),
   );
@@ -172,14 +181,24 @@ void main() {
     });
 
     group('fatal codes', () {
-      test('logs fatal error and disconnects for code 4004', () {
+      // H4 fix: dispatch() must NOT throw for fatal codes — _handleFatal
+      // absorbs the error and routes to onFatalDisconnect.
+
+      test('does NOT throw for code 4004 (H4 fix)', () {
         final fakeClient = FakeWebsocketClient();
         final shard = _createShard(logger: logger)..client = fakeClient;
         final networkError = ShardNetworkError(shard);
 
-        final error = _dispatchSilently(() => networkError.dispatch(4004));
+        // dispatch() must complete without throwing
+        expect(() => networkError.dispatch(4004), returnsNormally);
+      });
 
-        expect(error, isNotNull);
+      test('logs fatal error and disconnects for code 4004', () {
+        final fakeClient = FakeWebsocketClient();
+        final shard = _createShard(logger: logger)..client = fakeClient;
+
+        ShardNetworkError(shard).dispatch(4004);
+
         expect(logger.errors, contains(contains('Fatal gateway error')));
         expect(logger.errors.first, contains('4004'));
         expect(fakeClient.disconnected, isTrue);
@@ -188,11 +207,9 @@ void main() {
       test('logs fatal error and disconnects for code 4014', () {
         final fakeClient = FakeWebsocketClient();
         final shard = _createShard(logger: logger)..client = fakeClient;
-        final networkError = ShardNetworkError(shard);
 
-        final error = _dispatchSilently(() => networkError.dispatch(4014));
+        ShardNetworkError(shard).dispatch(4014);
 
-        expect(error, isNotNull);
         expect(logger.errors, contains(contains('Fatal gateway error')));
         expect(fakeClient.disconnected, isTrue);
       });
@@ -200,11 +217,9 @@ void main() {
       test('logs fatal error and disconnects for code 4010 (invalidShard)', () {
         final fakeClient = FakeWebsocketClient();
         final shard = _createShard(logger: logger)..client = fakeClient;
-        final networkError = ShardNetworkError(shard);
 
-        final error = _dispatchSilently(() => networkError.dispatch(4010));
+        ShardNetworkError(shard).dispatch(4010);
 
-        expect(error, isNotNull);
         expect(logger.errors, contains(contains('Fatal gateway error')));
         expect(fakeClient.disconnected, isTrue);
       });
@@ -275,6 +290,151 @@ void main() {
         _dispatchSilently(() => networkError.dispatch(1234));
 
         expect(fakeClient.disconnected, isTrue);
+      });
+    });
+
+    // ── H4 — supervised reconnection / fatal routed to hook ─────────────────
+
+    group('H4 — reconnect/resume supervision', () {
+      test(
+          'resume() throwing FatalGatewayException calls onFatalDisconnect '
+          'and no uncaught error escapes', () async {
+        bool fatalCalled = false;
+        final fakeClient = FakeWebsocketClient();
+        final shard = _createShard(
+          logger: logger,
+          maxReconnect: 0, // ensures resume() throws FatalGatewayException
+          onFatalDisconnect: () async {
+            fatalCalled = true;
+          },
+        )..client = fakeClient;
+
+        final uncaughtErrors = <Object>[];
+        await runZonedGuarded(
+          () async {
+            ShardNetworkError(shard).dispatch(4000); // resume code
+            // Give the fire-and-forget future time to complete.
+            await Future<void>.delayed(Duration.zero);
+          },
+          (e, _) => uncaughtErrors.add(e),
+        );
+
+        expect(uncaughtErrors, isEmpty,
+            reason: 'No error must escape the zone');
+        expect(fatalCalled, isTrue,
+            reason: 'onFatalDisconnect must be invoked');
+        expect(fakeClient.disconnected, isTrue,
+            reason: 'Client must be disconnected on fatal');
+        expect(logger.errors, contains(contains('Fatal gateway error')));
+      });
+
+      test(
+          'reconnect() throwing FatalGatewayException calls onFatalDisconnect '
+          'and no uncaught error escapes', () async {
+        bool fatalCalled = false;
+        final fakeClient = FakeWebsocketClient();
+        final shard = _createShard(
+          logger: logger,
+          maxReconnect: 0, // ensures reconnect() throws FatalGatewayException
+          onFatalDisconnect: () async {
+            fatalCalled = true;
+          },
+        )..client = fakeClient;
+
+        final uncaughtErrors = <Object>[];
+        await runZonedGuarded(
+          () async {
+            ShardNetworkError(shard).dispatch(1000); // reconnect code
+            await Future<void>.delayed(Duration.zero);
+          },
+          (e, _) => uncaughtErrors.add(e),
+        );
+
+        expect(uncaughtErrors, isEmpty,
+            reason: 'No error must escape the zone');
+        expect(fatalCalled, isTrue,
+            reason: 'onFatalDisconnect must be invoked');
+        expect(fakeClient.disconnected, isTrue,
+            reason: 'Client must be disconnected on fatal');
+        expect(logger.errors, contains(contains('Fatal gateway error')));
+      });
+
+      test(
+          'unknown-code reconnect() throwing FatalGatewayException calls '
+          'onFatalDisconnect and no uncaught error escapes', () async {
+        bool fatalCalled = false;
+        final fakeClient = FakeWebsocketClient();
+        final shard = _createShard(
+          logger: logger,
+          maxReconnect: 0,
+          onFatalDisconnect: () async {
+            fatalCalled = true;
+          },
+        )..client = fakeClient;
+
+        final uncaughtErrors = <Object>[];
+        await runZonedGuarded(
+          () async {
+            ShardNetworkError(shard).dispatch(9999); // unknown code
+            await Future<void>.delayed(Duration.zero);
+          },
+          (e, _) => uncaughtErrors.add(e),
+        );
+
+        expect(uncaughtErrors, isEmpty,
+            reason: 'No error must escape the zone');
+        expect(fatalCalled, isTrue,
+            reason: 'onFatalDisconnect must be invoked for unknown code');
+        expect(fakeClient.disconnected, isTrue);
+      });
+
+      test(
+          'DisconnectAction.fatal path calls onFatalDisconnect, disconnects '
+          'client, cancels heartbeat, and does NOT throw', () async {
+        bool fatalCalled = false;
+        final fakeClient = FakeWebsocketClient();
+        final shard = _createShard(
+          logger: logger,
+          onFatalDisconnect: () async {
+            fatalCalled = true;
+          },
+        )..client = fakeClient;
+
+        final uncaughtErrors = <Object>[];
+        await runZonedGuarded(
+          () async {
+            // dispatch() must complete without throwing
+            expect(
+              () => ShardNetworkError(shard).dispatch(4004),
+              returnsNormally,
+            );
+            await Future<void>.delayed(Duration.zero);
+          },
+          (e, _) => uncaughtErrors.add(e),
+        );
+
+        expect(uncaughtErrors, isEmpty,
+            reason: 'Fatal path must not throw from a callback');
+        expect(fatalCalled, isTrue,
+            reason: 'onFatalDisconnect must be called on fatal code');
+        expect(fakeClient.disconnected, isTrue,
+            reason: 'Client must be disconnected');
+        expect(logger.errors, contains(contains('Fatal gateway error')));
+      });
+
+      test(
+          'DisconnectAction.fatal path invokes onFatalDisconnect '
+          'even when it is null (no-op)', () {
+        final fakeClient = FakeWebsocketClient();
+        // onFatalDisconnect intentionally left null
+        final shard = _createShard(logger: logger)..client = fakeClient;
+
+        expect(
+          () => ShardNetworkError(shard).dispatch(4004),
+          returnsNormally,
+        );
+        expect(fakeClient.disconnected, isTrue);
+        expect(logger.errors, contains(contains('Fatal gateway error')));
       });
     });
   });

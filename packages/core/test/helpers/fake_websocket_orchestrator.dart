@@ -35,6 +35,10 @@ final class FakeWebsocketOrchestrator extends WebsocketOrchestratorContract {
   ShardingConfigContract get config => _config;
   @override
   Map<int, ShardContract> get shards => {};
+
+  @override
+  Future<void> Function()? onFatalDisconnect;
+
   @override
   void send(WebsocketIsolateMessageTransfert message) {}
   @override

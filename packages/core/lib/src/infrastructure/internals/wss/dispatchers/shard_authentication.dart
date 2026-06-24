@@ -68,15 +68,39 @@ final class ShardAuthentication implements ShardAuthenticationContract {
     shard.client.send(message.build());
   }
 
+  /// Handles errors from fire-and-forget heartbeat futures.
+  ///
+  /// [FatalGatewayException] → cancel heartbeat, disconnect the client, and
+  /// invoke [WebsocketOrchestrator.onFatalDisconnect] if available.
+  ///
+  /// Any other error is logged and rethrown so unexpected programming errors
+  /// are not silently discarded.
+  void _onHeartbeatError(Object error, StackTrace stack) {
+    if (error is FatalGatewayException) {
+      shard.logger.error(
+          'Fatal gateway error during heartbeat: ${error.message} (${error.code}). Cannot reconnect.');
+      cancelHeartbeat();
+      unawaited(shard.client.disconnect());
+      unawaited(shard.wss.onFatalDisconnect?.call() ?? Future<void>.value());
+      return; // handled — do not propagate
+    }
+    shard.logger.error('Unexpected heartbeat error: $error\n$stack');
+    throw error;
+  }
+
   void createHeartbeatTimer(int interval) {
     _heartbeatTimer?.cancel();
     final jitterDelay =
         Duration(milliseconds: (_random.nextDouble() * interval).toInt());
     _heartbeatTimer = Timer(jitterDelay, () {
-      heartbeat();
+      unawaited(
+        Future.sync(heartbeat).catchError(_onHeartbeatError),
+      );
       _heartbeatTimer =
           Timer.periodic(Duration(milliseconds: interval), (timer) {
-        heartbeat();
+        unawaited(
+          Future.sync(heartbeat).catchError(_onHeartbeatError),
+        );
       });
     });
   }
