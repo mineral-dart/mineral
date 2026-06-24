@@ -60,12 +60,8 @@ final class RedisProvider implements CacheProviderContract {
 
   @override
   Future<int> length() async {
-    final value = await Command(_connection).send_object(['SCAN', 0]);
-    return switch (value) {
-      List() => value.length,
-      String() => int.parse(value),
-      _ => value,
-    };
+    final keys = await _scanKeys();
+    return keys.length;
   }
 
   /// Scans all keys in the current database using the non-blocking SCAN command.
@@ -94,9 +90,14 @@ final class RedisProvider implements CacheProviderContract {
     if (keys.isEmpty) return {};
     final values = await Command(_connection).send_object(['MGET', ...keys]);
 
-    return Map.fromIterables(
-        keys.map((k) => k.toString()),
-        (values as List).map((e) => jsonDecode(e as String)));
+    final result = <String, dynamic>{};
+    final valueList = values as List;
+    for (var i = 0; i < keys.length; i++) {
+      final v = valueList[i];
+      if (v == null) continue;
+      result[keys[i].toString()] = jsonDecode(v as String);
+    }
+    return result;
   }
 
   @override
@@ -106,15 +107,13 @@ final class RedisProvider implements CacheProviderContract {
 
     final List values =
         await Command(_connection).send_object(['MGET', ...keys]);
-    final results = await List.generate(values.length, (i) async {
-      return {keys[i].toString(): jsonDecode(values[i] as String)};
-    }).wait;
 
     final Map<String, dynamic> r = {};
-    for (final result in results) {
-      r.addAll(result);
+    for (var i = 0; i < keys.length; i++) {
+      final v = values[i];
+      if (v == null) continue;
+      r[keys[i].toString()] = jsonDecode(v as String);
     }
-
     return r;
   }
 
@@ -141,6 +140,7 @@ final class RedisProvider implements CacheProviderContract {
 
   @override
   Future<List<Map<String, dynamic>?>> getMany(List<String> keys) async {
+    if (keys.isEmpty) return [];
     final values = await Command(_connection).send_object(['MGET', ...keys]);
     if (values case final List values) {
       return List<Map<String, dynamic>?>.from(
@@ -213,6 +213,7 @@ final class RedisProvider implements CacheProviderContract {
 
   @override
   Future<void> removeMany(List<String> keys) async {
+    if (keys.isEmpty) return;
     await Command(_connection).send_object(['DEL', ...keys]);
   }
 
