@@ -66,7 +66,7 @@ final class MediaItem {
     return {
       if (description != null) 'description': description,
       'url': url,
-      if (bytes != null) 'bytes': bytes!,
+      'bytes': ?bytes,
       if (spoiler != null) 'spoiler': spoiler,
       'media': {
         'url': url,

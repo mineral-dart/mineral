@@ -35,7 +35,7 @@ final class OnboardingPart extends BasePart
       if (defaultChannelIds != null)
         'default_channel_ids':
             defaultChannelIds.map((id) => id.toString()).toList(),
-      if (enabled != null) 'enabled': enabled,
+      'enabled': ?enabled,
       if (mode != null) 'mode': mode.value,
     };
 

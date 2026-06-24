@@ -20,7 +20,7 @@ final class MessagePart extends BasePart implements MessagePartContract {
       if (around != null) 'around': around.value,
       if (before != null) 'before': before.value,
       if (after != null) 'after': after.value,
-      if (limit != null) 'limit': limit,
+      'limit': ?limit,
     };
 
     final req = Request.json(

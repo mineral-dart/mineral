@@ -26,7 +26,7 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
         working-directory: packages/${{ matrix.package }}
       - name: Analyze
-        run: dart analyze --no-fatal-warnings
+        run: dart analyze
         working-directory: packages/${{ matrix.package }}
       - name: Test
         run: dart test

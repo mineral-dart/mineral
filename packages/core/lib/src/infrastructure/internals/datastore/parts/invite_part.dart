@@ -59,9 +59,9 @@ final class InvitePart extends BasePart implements InvitePartContract {
   }) async {
     final body = <String, dynamic>{
       if (maxAge != null) 'max_age': maxAge.inSeconds,
-      if (maxUses != null) 'max_uses': maxUses,
-      if (temporary != null) 'temporary': temporary,
-      if (unique != null) 'unique': unique,
+      'max_uses': ?maxUses,
+      'temporary': ?temporary,
+      'unique': ?unique,
       if (targetType != null) 'target_type': targetType.value,
       if (targetUserId != null) 'target_user_id': targetUserId.toString(),
       if (targetApplicationId != null)
