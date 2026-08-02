@@ -53,6 +53,25 @@ void main() {
       test('returns false for 429 Rate Limit', () {
         expect(status.isError(429), isFalse);
       });
+
+      test('returns true for 304 Not Modified (unenumerated by Discord)', () {
+        expect(status.isError(304), isTrue);
+      });
+
+      test('returns true for 409 Conflict (unenumerated by Discord)', () {
+        expect(status.isError(409), isTrue);
+      });
+
+      test(
+        'returns true for 413 Payload Too Large (unenumerated by Discord)',
+        () {
+          expect(status.isError(413), isTrue);
+        },
+      );
+
+      test('returns true for 501 Not Implemented', () {
+        expect(status.isError(501), isTrue);
+      });
     });
 
     group('isSuccess', () {
@@ -83,6 +102,14 @@ void main() {
       test('returns false for 429 Rate Limit', () {
         expect(status.isSuccess(429), isFalse);
       });
+
+      test('returns false for 304 Not Modified', () {
+        expect(status.isSuccess(304), isFalse);
+      });
+
+      test('returns false for 501 Not Implemented', () {
+        expect(status.isSuccess(501), isFalse);
+      });
     });
 
     group('isRateLimit', () {
@@ -100,6 +127,14 @@ void main() {
 
       test('returns false for 500', () {
         expect(status.isRateLimit(500), isFalse);
+      });
+
+      test('returns false for 304', () {
+        expect(status.isRateLimit(304), isFalse);
+      });
+
+      test('returns false for 409', () {
+        expect(status.isRateLimit(409), isFalse);
       });
     });
   });
