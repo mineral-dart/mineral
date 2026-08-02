@@ -56,8 +56,7 @@ Env _isolatedEnv() {
 
   File('${tempDir.path}/.env').writeAsStringSync(_validEnvContents);
 
-  final env = Env()
-    ..defineOf(AppEnv.new, root: tempDir, includeDartEnv: false);
+  final env = Env()..defineOf(AppEnv.new, root: tempDir, includeDartEnv: false);
   return env;
 }
 
@@ -89,22 +88,19 @@ Future<T> _withGlobalEnv<T>(Future<T> Function() body) {
 
 void main() {
   group('composeApp', () {
-    test(
-      'closes the WebsocketOrchestrator <-> Kernel cycle '
-      '(onFatalDisconnect)',
-      () {
-        final composition = composeApp(env: _isolatedEnv());
+    test('closes the WebsocketOrchestrator <-> Kernel cycle '
+        '(onFatalDisconnect)', () {
+      final composition = composeApp(env: _isolatedEnv());
 
-        expect(composition.wss.onFatalDisconnect, isNotNull);
-        // Instance-method tear-offs of the same receiver are `==`-equal in
-        // Dart; this fails if the hook were left unset (null) or wired to
-        // some other kernel's dispose.
-        expect(
-          composition.wss.onFatalDisconnect,
-          equals(composition.kernel.dispose),
-        );
-      },
-    );
+      expect(composition.wss.onFatalDisconnect, isNotNull);
+      // Instance-method tear-offs of the same receiver are `==`-equal in
+      // Dart; this fails if the hook were left unset (null) or wired to
+      // some other kernel's dispose.
+      expect(
+        composition.wss.onFatalDisconnect,
+        equals(composition.kernel.dispose),
+      );
+    });
 
     test('closes the PacketListener <-> Kernel cycle and runs init()', () {
       final composition = composeApp(env: _isolatedEnv());
@@ -128,56 +124,47 @@ void main() {
       );
     });
 
-    test(
-      'wires the same instances everywhere — no dependency silently '
-      'swapped for the wrong module',
-      () {
-        final composition = composeApp(env: _isolatedEnv());
+    test('wires the same instances everywhere — no dependency silently '
+        'swapped for the wrong module', () {
+      final composition = composeApp(env: _isolatedEnv());
 
-        expect(composition.appState.kernel, same(composition.kernel));
-        expect(composition.appState.wss, same(composition.wss));
-        expect(composition.appState.dataStore, same(composition.dataStore));
-        expect(composition.appState.marshaller, same(composition.marshaller));
-        expect(
-          composition.appState.packetListener,
-          same(composition.packetListener),
-        );
+      expect(composition.appState.kernel, same(composition.kernel));
+      expect(composition.appState.wss, same(composition.wss));
+      expect(composition.appState.dataStore, same(composition.dataStore));
+      expect(composition.appState.marshaller, same(composition.marshaller));
+      expect(
+        composition.appState.packetListener,
+        same(composition.packetListener),
+      );
 
-        expect(
-          composition.packetListener.marshaller,
-          same(composition.marshaller),
-        );
-        expect(
-          composition.packetListener.dataStore,
-          same(composition.dataStore),
-        );
-        expect(
-          composition.packetListener.commandManager,
-          same(composition.appState.commandManager),
-        );
-        expect(
-          composition.packetListener.cacheConfig,
-          same(composition.appState.cacheConfig),
-        );
-        expect(composition.kernel.wss, same(composition.wss));
-        expect(
-          composition.kernel.packetListener,
-          same(composition.packetListener),
-        );
-      },
-    );
+      expect(
+        composition.packetListener.marshaller,
+        same(composition.marshaller),
+      );
+      expect(composition.packetListener.dataStore, same(composition.dataStore));
+      expect(
+        composition.packetListener.commandManager,
+        same(composition.appState.commandManager),
+      );
+      expect(
+        composition.packetListener.cacheConfig,
+        same(composition.appState.cacheConfig),
+      );
+      expect(composition.kernel.wss, same(composition.wss));
+      expect(
+        composition.kernel.packetListener,
+        same(composition.packetListener),
+      );
+    });
 
-    test(
-      'an injected logger is used verbatim, including for labelled '
-      'subsystem loggers',
-      () {
-        final logger = FakeLogger();
-        final composition = composeApp(env: _isolatedEnv(), logger: logger);
+    test('an injected logger is used verbatim, including for labelled '
+        'subsystem loggers', () {
+      final logger = FakeLogger();
+      final composition = composeApp(env: _isolatedEnv(), logger: logger);
 
-        expect(composition.appState.logger, same(logger));
-        expect(composition.kernel.logger, same(logger));
-      },
-    );
+      expect(composition.appState.logger, same(logger));
+      expect(composition.kernel.logger, same(logger));
+    });
 
     test('an injected cache flows into both the data layer and AppState', () {
       final cache = FakeCacheProvider();
@@ -240,10 +227,7 @@ void main() {
           expect(ioc.resolve<LoggerContract>(), same(logger));
           expect(ioc.resolve<Kernel>().logger, same(logger));
           expect(ioc.resolve<DataStoreContract>(), same(client.rest));
-          expect(
-            () => ioc.resolve<MarshallerContract>(),
-            returnsNormally,
-          );
+          expect(() => ioc.resolve<MarshallerContract>(), returnsNormally);
           expect(
             () => ioc.resolve<CommandInteractionManagerContract>(),
             returnsNormally,
@@ -261,36 +245,33 @@ void main() {
       });
     });
 
-    test(
-      'still registers builder providers, handed the fully-constructed '
-      'client',
-      () async {
-        await _withGlobalEnv(() async {
-          return runWithIoc(IocContainer(), () async {
-            final calls = <String>[];
-            Client? receivedClient;
+    test('still registers builder providers, handed the fully-constructed '
+        'client', () async {
+      await _withGlobalEnv(() async {
+        return runWithIoc(IocContainer(), () async {
+          final calls = <String>[];
+          Client? receivedClient;
 
-            (ClientBuilder()
-                  ..setLogger((_) => FakeLogger())
-                  ..registerProvider((client) {
-                    receivedClient = client;
-                    return _RecordingProvider(() => calls.add('ready'));
-                  }))
-                .build();
+          (ClientBuilder()
+                ..setLogger((_) => FakeLogger())
+                ..registerProvider((client) {
+                  receivedClient = client;
+                  return _RecordingProvider(() => calls.add('ready'));
+                }))
+              .build();
 
-            expect(receivedClient, isA<Client>());
+          expect(receivedClient, isA<Client>());
 
-            // ProviderManager.register() has no externally-observable
-            // effect until ready() runs — call it directly (no gateway
-            // connection needed) to prove the provider this test registered
-            // was actually handed to the manager, not just constructed and
-            // discarded.
-            await ioc.resolve<Kernel>().providerManager.ready();
-            expect(calls, ['ready']);
-          });
+          // ProviderManager.register() has no externally-observable
+          // effect until ready() runs — call it directly (no gateway
+          // connection needed) to prove the provider this test registered
+          // was actually handed to the manager, not just constructed and
+          // discarded.
+          await ioc.resolve<Kernel>().providerManager.ready();
+          expect(calls, ['ready']);
         });
-      },
-    );
+      });
+    });
   });
 }
 

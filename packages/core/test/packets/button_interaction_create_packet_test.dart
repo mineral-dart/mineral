@@ -206,27 +206,60 @@ void main() {
     });
   });
 
-  group('ButtonInteractionCreatePacket.listen - private (DM) button clicks', () {
-    late _RecordingInteractiveComponent componentManager;
-    late ButtonInteractionCreatePacket packet;
+  group(
+    'ButtonInteractionCreatePacket.listen - private (DM) button clicks',
+    () {
+      late _RecordingInteractiveComponent componentManager;
+      late ButtonInteractionCreatePacket packet;
 
-    setUp(() {
-      componentManager = _RecordingInteractiveComponent();
-      packet = ButtonInteractionCreatePacket(
-        logger: FakeLogger(),
-        interactiveComponent: componentManager,
-        ctx: fakeEntityContext(),
+      setUp(() {
+        componentManager = _RecordingInteractiveComponent();
+        packet = ButtonInteractionCreatePacket(
+          logger: FakeLogger(),
+          interactiveComponent: componentManager,
+          ctx: fakeEntityContext(),
+        );
+      });
+
+      // Regression test for defect 1: the enum lookup compared ButtonType
+      // against targetButton['custom_id'] (always a mismatch) instead of
+      // targetButton['type'], so the handler warned and returned before ever
+      // dispatching anything.
+      test(
+        'dispatches Event.privateButtonClick for a realistic DM button click',
+        () async {
+          Event? capturedEvent;
+          PrivateButtonContext? capturedCtx;
+
+          void dispatch<T extends Object>({
+            required Event event,
+            required T payload,
+            bool Function(String?)? constraint,
+          }) {
+            capturedEvent = event;
+            capturedCtx = (payload as PrivateButtonClickArgs).ctx;
+          }
+
+          await packet.listen(_dmMsg(_dmButtonPayload()), dispatch);
+
+          expect(
+            capturedEvent,
+            equals(Event.privateButtonClick),
+            reason:
+                'a DM button click with a realistic custom_id must dispatch '
+                'Event.privateButtonClick; the enum lookup must compare '
+                "against targetButton['type'], not targetButton['custom_id']",
+          );
+          expect(capturedCtx, isNotNull);
+          expect(capturedCtx!.customId, equals('confirm_button'));
+        },
       );
-    });
 
-    // Regression test for defect 1: the enum lookup compared ButtonType
-    // against targetButton['custom_id'] (always a mismatch) instead of
-    // targetButton['type'], so the handler warned and returned before ever
-    // dispatching anything.
-    test(
-      'dispatches Event.privateButtonClick for a realistic DM button click',
-      () async {
-        Event? capturedEvent;
+      // Regression test for defect 3: Discord omits `member` on DM
+      // interactions and sends `user` at the top level instead. The old code
+      // cast payload['member'], which is null in a DM and throws.
+      test('builds PrivateButtonContext.authorId from payload["user"], not '
+          'payload["member"]', () async {
         PrivateButtonContext? capturedCtx;
 
         void dispatch<T extends Object>({
@@ -234,73 +267,43 @@ void main() {
           required T payload,
           bool Function(String?)? constraint,
         }) {
-          capturedEvent = event;
-          capturedCtx = (payload as PrivateButtonClickArgs).ctx;
-        }
-
-        await packet.listen(_dmMsg(_dmButtonPayload()), dispatch);
-
-        expect(
-          capturedEvent,
-          equals(Event.privateButtonClick),
-          reason:
-              'a DM button click with a realistic custom_id must dispatch '
-              'Event.privateButtonClick; the enum lookup must compare '
-              "against targetButton['type'], not targetButton['custom_id']",
-        );
-        expect(capturedCtx, isNotNull);
-        expect(capturedCtx!.customId, equals('confirm_button'));
-      },
-    );
-
-    // Regression test for defect 3: Discord omits `member` on DM
-    // interactions and sends `user` at the top level instead. The old code
-    // cast payload['member'], which is null in a DM and throws.
-    test(
-      'builds PrivateButtonContext.authorId from payload["user"], not '
-      'payload["member"]',
-      () async {
-        PrivateButtonContext? capturedCtx;
-
-        void dispatch<T extends Object>({
-          required Event event,
-          required T payload,
-          bool Function(String?)? constraint,
-        }) {
           capturedCtx = (payload as PrivateButtonClickArgs).ctx;
         }
 
         await packet.listen(_dmMsg(_dmButtonPayload()), dispatch);
 
         expect(capturedCtx, isNotNull);
-        expect(
-          capturedCtx!.authorId,
-          equals(Snowflake('1100000000000000004')),
-        );
-      },
-    );
+        expect(capturedCtx!.authorId, equals(Snowflake('1100000000000000004')));
+      });
 
-    // Regression test for defect 2: the private handler never called
-    // _interactiveComponentManager.dispatch, so a registered
-    // InteractiveButton would never fire for a DM button click.
-    test('dispatches the click to the interactive component manager', () async {
-      void dispatch<T extends Object>({
-        required Event event,
-        required T payload,
-        bool Function(String?)? constraint,
-      }) {}
+      // Regression test for defect 2: the private handler never called
+      // _interactiveComponentManager.dispatch, so a registered
+      // InteractiveButton would never fire for a DM button click.
+      test(
+        'dispatches the click to the interactive component manager',
+        () async {
+          void dispatch<T extends Object>({
+            required Event event,
+            required T payload,
+            bool Function(String?)? constraint,
+          }) {}
 
-      await packet.listen(_dmMsg(_dmButtonPayload()), dispatch);
+          await packet.listen(_dmMsg(_dmButtonPayload()), dispatch);
 
-      expect(componentManager.calls, hasLength(1));
-      expect(componentManager.calls.single.customId, equals('confirm_button'));
-      expect(componentManager.calls.single.params, hasLength(1));
-      expect(
-        componentManager.calls.single.params.single,
-        isA<PrivateButtonContext>(),
+          expect(componentManager.calls, hasLength(1));
+          expect(
+            componentManager.calls.single.customId,
+            equals('confirm_button'),
+          );
+          expect(componentManager.calls.single.params, hasLength(1));
+          expect(
+            componentManager.calls.single.params.single,
+            isA<PrivateButtonContext>(),
+          );
+        },
       );
-    });
-  });
+    },
+  );
 
   group('ButtonInteractionCreatePacket.listen - guild button clicks', () {
     // The guild and private paths share _resolveButtonType and

@@ -190,18 +190,22 @@ void main() {
           'guild_id': '987654321',
         };
 
-        await expectRoundTrip<Emoji>(serializer, rawDiscordPayloadWithGuildId(), {
-          'Emoji.id': (emoji) =>
-              expect(emoji.id, equals(Snowflake('100200300'))),
-          'Emoji.name': (emoji) => expect(emoji.name, equals('thumbsup')),
-          'Emoji.roles': (emoji) => expect(
-            emoji.roles.keys,
-            contains(Snowflake('41771983423143936')),
-          ),
-          'Emoji.animated': (emoji) => expect(emoji.animated, isFalse),
-          'Emoji.managed': (emoji) => expect(emoji.managed, isFalse),
-          'Emoji.available': (emoji) => expect(emoji.available, isTrue),
-        });
+        await expectRoundTrip<Emoji>(
+          serializer,
+          rawDiscordPayloadWithGuildId(),
+          {
+            'Emoji.id': (emoji) =>
+                expect(emoji.id, equals(Snowflake('100200300'))),
+            'Emoji.name': (emoji) => expect(emoji.name, equals('thumbsup')),
+            'Emoji.roles': (emoji) => expect(
+              emoji.roles.keys,
+              contains(Snowflake('41771983423143936')),
+            ),
+            'Emoji.animated': (emoji) => expect(emoji.animated, isFalse),
+            'Emoji.managed': (emoji) => expect(emoji.managed, isFalse),
+            'Emoji.available': (emoji) => expect(emoji.available, isTrue),
+          },
+        );
       });
 
       test('round-trips an emoji with an empty roles array', () async {

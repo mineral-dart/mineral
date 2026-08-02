@@ -216,19 +216,26 @@ void main() {
 
     group('round-trip (normalize -> serialize)', () {
       test('preserves fields through the real pipeline', () async {
-        await expectRoundTrip<Role>(serializer, rawDiscordPayloadWithGuildId(), {
-          'Role.id': (role) => expect(role.id, equals(Snowflake('123456789'))),
-          'Role.name': (role) => expect(role.name, equals('Admin')),
-          'Role.color': (role) => expect(role.color.toInt(), equals(16711680)),
-          'Role.hoist': (role) => expect(role.hoist, isTrue),
-          'Role.position': (role) => expect(role.position, equals(3)),
-          'Role.permissions': (role) => expect(role.permissions.raw, equals(8)),
-          'Role.managed': (role) => expect(role.managed, isFalse),
-          'Role.mentionable': (role) => expect(role.mentionable, isTrue),
-          'Role.flags': (role) => expect(role.flags, equals(0)),
-          'Role.guildId': (role) =>
-              expect(role.guildId, equals(Snowflake('987654321'))),
-        });
+        await expectRoundTrip<Role>(
+          serializer,
+          rawDiscordPayloadWithGuildId(),
+          {
+            'Role.id': (role) =>
+                expect(role.id, equals(Snowflake('123456789'))),
+            'Role.name': (role) => expect(role.name, equals('Admin')),
+            'Role.color': (role) =>
+                expect(role.color.toInt(), equals(16711680)),
+            'Role.hoist': (role) => expect(role.hoist, isTrue),
+            'Role.position': (role) => expect(role.position, equals(3)),
+            'Role.permissions': (role) =>
+                expect(role.permissions.raw, equals(8)),
+            'Role.managed': (role) => expect(role.managed, isFalse),
+            'Role.mentionable': (role) => expect(role.mentionable, isTrue),
+            'Role.flags': (role) => expect(role.flags, equals(0)),
+            'Role.guildId': (role) =>
+                expect(role.guildId, equals(Snowflake('987654321'))),
+          },
+        );
       });
     });
   });
