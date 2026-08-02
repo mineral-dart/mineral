@@ -59,12 +59,17 @@ void main() {
       'flags': 0,
     };
 
-    // What a correctly-behaving caller (e.g. RolePart.fetch,
+    // What a correctly-behaving caller (RolePart.fetch,
     // GuildRoleCreatePacket) hands to `normalize()`: the genuine Discord
-    // payload plus a `guild_id` it injected itself, since normalize() hard-
-    // requires that key. Used by tests below that exercise normalize()'s own
-    // logic rather than the guild_id-injection concern, which is covered by
-    // the round-trip group.
+    // payload plus the `guild_id` it injected itself.
+    //
+    // This is the serializer's real contract, so it is what the round-trip
+    // group exercises. Requiring guild_id is by design — Discord never sends
+    // it on a role object, and injecting it is the caller's job.
+    //
+    // The defect where a caller FORGETS to inject it (RolePart.get/create/
+    // update) is a datastore-part concern, not a serializer one; its
+    // regression tests belong in test/datastore/parts/role_part_test.dart.
     Map<String, dynamic> rawDiscordPayloadWithGuildId() => {
       ...rawDiscordPayload(),
       'guild_id': '987654321',
@@ -211,7 +216,7 @@ void main() {
 
     group('round-trip (normalize -> serialize)', () {
       test('preserves fields through the real pipeline', () async {
-        await expectRoundTrip<Role>(serializer, rawDiscordPayload(), {
+        await expectRoundTrip<Role>(serializer, rawDiscordPayloadWithGuildId(), {
           'Role.id': (role) => expect(role.id, equals(Snowflake('123456789'))),
           'Role.name': (role) => expect(role.name, equals('Admin')),
           'Role.color': (role) => expect(role.color.toInt(), equals(16711680)),

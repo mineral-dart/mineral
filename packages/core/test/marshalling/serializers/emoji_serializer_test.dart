@@ -62,11 +62,18 @@ void main() {
     // payload plus the `guild_id` it injected itself, since normalize() hard-
     // requires that key.
     //
-    // Kept separate so the two defects stay distinguishable. Fed the plain
-    // `rawDiscordPayload()`, normalize() throws on the missing `guild_id`
-    // before it ever reaches the `roles` mapping, which masks the second bug
-    // entirely. The normalize() tests below use this fixture so they fail on
-    // the `roles` element cast — the defect they are actually about.
+    // This is the serializer's real contract, so it is what every test below
+    // exercises. Requiring guild_id is by design — Discord never sends it on
+    // an emoji object, and injecting it is the caller's job.
+    //
+    // Keeping the two fixtures separate is what makes the `roles` defect
+    // visible at all: fed the bare `rawDiscordPayload()`, normalize() throws
+    // on the missing `guild_id` before it ever reaches the roles mapping, and
+    // the second bug is unreachable.
+    //
+    // The defect where a caller FORGETS to inject guild_id (EmojiPart.fetch/
+    // get) is a datastore-part concern; its regression tests belong in
+    // test/datastore/parts/emoji_part_test.dart.
     Map<String, dynamic> rawDiscordPayloadWithGuildId() => {
       ...rawDiscordPayload(),
       'guild_id': '987654321',
@@ -164,7 +171,7 @@ void main() {
 
     group('round-trip (normalize -> serialize)', () {
       test('preserves fields through the real pipeline', () async {
-        await expectRoundTrip<Emoji>(serializer, rawDiscordPayload(), {
+        await expectRoundTrip<Emoji>(serializer, rawDiscordPayloadWithGuildId(), {
           'Emoji.id': (emoji) =>
               expect(emoji.id, equals(Snowflake('100200300'))),
           'Emoji.name': (emoji) => expect(emoji.name, equals('thumbsup')),
@@ -179,7 +186,7 @@ void main() {
       });
 
       test('round-trips an emoji with an empty roles array', () async {
-        final raw = rawDiscordPayload()..['roles'] = <String>[];
+        final raw = rawDiscordPayloadWithGuildId()..['roles'] = <String>[];
 
         await expectRoundTrip<Emoji>(serializer, raw, {
           'Emoji.roles': (emoji) => expect(emoji.roles, isEmpty),
@@ -191,7 +198,7 @@ void main() {
         // to sending an empty array); the serializer must not hard-cast it.
         await expectRoundTripWithoutOptionals<Emoji>(
           serializer,
-          rawDiscordPayload(),
+          rawDiscordPayloadWithGuildId(),
           {'roles'},
         );
       });
