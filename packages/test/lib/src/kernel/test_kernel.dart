@@ -78,7 +78,7 @@ final class TestKernel {
       ..bind<DataStoreContract>(() => dataStore)
       ..bind<CommandInteractionManagerContract>(() => commandManager)
       ..bind<InteractiveComponentManagerContract>(
-        InteractiveComponentManager.new,
+        () => InteractiveComponentManager(logger: logger),
       );
 
     final restore = scopedIoc(container);
