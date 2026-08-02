@@ -3,6 +3,7 @@ import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
+import 'package:mineral/src/domains/components/buttons/button_context_base.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
@@ -64,19 +65,8 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
     Map<String, dynamic> payload,
     DispatchEvent dispatch,
   ) async {
-    final metadata = payload['message']['interaction_metadata'];
-    final targetButton = findButtonByCustomId(
-      payload,
-      (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
-    );
-    final type = ButtonType.values.firstWhereOrNull(
-      (e) => e.value == targetButton?['type'],
-    );
-
+    final type = _resolveButtonType(payload);
     if (type == null) {
-      _logger.warn(
-        'Button type ${(metadata as Map<String, dynamic>)['type']} not found',
-      );
       return;
     }
 
@@ -96,32 +86,19 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
       ),
     );
 
-    dispatch<GuildButtonClickArgs>(
+    await _dispatchButtonClick(
+      ctx: ctx,
       event: Event.guildButtonClick,
-      payload: (ctx: ctx),
-      constraint: (String? customId) => customId == ctx.customId,
+      dispatch: dispatch,
     );
-
-    await _interactiveComponentManager.dispatch(ctx.customId, [ctx]);
   }
 
   Future<void> _handlePrivateButton(
     Map<String, dynamic> payload,
     DispatchEvent dispatch,
   ) async {
-    final metadata = payload['message']['interaction_metadata'];
-    final targetButton = findButtonByCustomId(
-      payload,
-      (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
-    );
-    final type = ButtonType.values.firstWhereOrNull(
-      (e) => e.value == targetButton?['custom_id'],
-    );
-
+    final type = _resolveButtonType(payload);
     if (type == null) {
-      _logger.warn(
-        'Button type ${(metadata as Map<String, dynamic>)['type']} not found',
-      );
       return;
     }
 
@@ -134,8 +111,7 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
       customId:
           (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
       authorId: Snowflake.parse(
-        ((payload['member'] as Map<String, dynamic>)['user']
-            as Map<String, dynamic>)['id'],
+        (payload['user'] as Map<String, dynamic>)['id'],
       ),
       channelId: Snowflake.parse(payload['channel_id']),
       messageId: Snowflake.parse(
@@ -143,11 +119,50 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
       ),
     );
 
-    dispatch<PrivateButtonClickArgs>(
+    await _dispatchButtonClick(
+      ctx: ctx,
       event: Event.privateButtonClick,
+      dispatch: dispatch,
+    );
+  }
+
+  /// Resolves the [ButtonType] of the button that was clicked, or logs a
+  /// warning and returns null if it cannot be found. Shared by the guild and
+  /// private paths so the lookup can only drift in one place.
+  ButtonType? _resolveButtonType(Map<String, dynamic> payload) {
+    final metadata = payload['message']['interaction_metadata'];
+    final targetButton = findButtonByCustomId(
+      payload,
+      (payload['data'] as Map<String, dynamic>)['custom_id'] as String,
+    );
+    final type = ButtonType.values.firstWhereOrNull(
+      (e) => e.value == targetButton?['type'],
+    );
+
+    if (type == null) {
+      _logger.warn(
+        'Button type ${(metadata as Map<String, dynamic>)['type']} not found',
+      );
+    }
+    return type;
+  }
+
+  /// Dispatches the click [event] and notifies any registered
+  /// [InteractiveButton] for [ctx]. Shared by the guild and private paths so
+  /// a fix to one can no longer land without the other — this is exactly how
+  /// the private path shipped without the component-manager dispatch call.
+  Future<void> _dispatchButtonClick<TCtx extends ButtonContextBase>({
+    required TCtx ctx,
+    required Event event,
+    required DispatchEvent dispatch,
+  }) async {
+    dispatch<({TCtx ctx})>(
+      event: event,
       payload: (ctx: ctx),
       constraint: (String? customId) => customId == ctx.customId,
     );
+
+    await _interactiveComponentManager.dispatch(ctx.customId, [ctx]);
   }
 
   Map<String, dynamic>? findButtonByCustomId(
