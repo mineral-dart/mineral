@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mineral/api.dart';
 import 'package:test/test.dart';
 
@@ -48,6 +50,48 @@ void main() {
       final builder = UserCommandBuilder()
         ..setContext(CommandContextType.global);
       expect(builder.context, equals(CommandContextType.global));
+    });
+
+    group('reduceHandlers', () {
+      test('returns a single registration for the command name', () {
+        FutureOr<void> handler(
+          UserCommandContext ctx,
+          CommandOptions options,
+        ) {}
+        final builder = UserCommandBuilder()
+          ..setName('Get user info')
+          ..setHandle(handler);
+
+        final registrations = builder.reduceHandlers();
+
+        expect(registrations, hasLength(1));
+        expect(registrations.first.name, 'Get user info');
+        expect(registrations.first.handler, handler);
+        expect(registrations.first.declaredOptions, isEmpty);
+      });
+
+      test('throws InvalidCommandException naming the command when no '
+          'handler is set', () {
+        final builder = UserCommandBuilder()..setName('Get user info');
+
+        expect(
+          builder.reduceHandlers,
+          throwsA(
+            isA<InvalidCommandException>().having(
+              (e) => e.message,
+              'message',
+              contains('Get user info'),
+            ),
+          ),
+        );
+      });
+    });
+
+    group('declaration', () {
+      test('is null (user commands have no option tree)', () {
+        final builder = UserCommandBuilder()..setName('Get user info');
+        expect(builder.declaration, isNull);
+      });
     });
   });
 }

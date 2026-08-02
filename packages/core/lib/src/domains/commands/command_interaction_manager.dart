@@ -2,10 +2,6 @@ import 'dart:async';
 
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/bot/bot.dart';
-import 'package:mineral/src/api/common/commands/builder/command_declaration_builder.dart';
-import 'package:mineral/src/api/common/commands/builder/command_definition_builder.dart';
-import 'package:mineral/src/api/common/commands/builder/message_command_builder.dart';
-import 'package:mineral/src/api/common/commands/builder/user_command_builder.dart';
 import 'package:mineral/src/api/common/commands/command_context_type.dart';
 import 'package:mineral/src/api/common/commands/command_option.dart';
 import 'package:mineral/src/api/common/snowflake.dart';
@@ -84,50 +80,13 @@ final class CommandInteractionManager
       throw InvalidCommandException('Command $command already exists');
     }
 
-    final name = switch (command) {
-      final CommandDeclarationBuilder command => command.name,
-      final CommandDefinitionBuilder definition => definition.command.name,
-      final UserCommandBuilder b => b.name,
-      final MessageCommandBuilder b => b.name,
-      final _ => throw InvalidCommandException('Unknown command type'),
-    };
+    final name = command.name;
 
     if (name == null) {
       throw MissingPropertyException('Command name is required');
     }
 
-    final handlers = switch (command) {
-      final CommandDeclarationBuilder command => command.reduceHandlers(
-        command.name!,
-      ),
-      final CommandDefinitionBuilder definition =>
-        definition.command.reduceHandlers(definition.command.name!),
-      final UserCommandBuilder b => [
-        if (b.handle != null)
-          CommandRegistration(
-            name: b.name!,
-            handler: b.handle!,
-            declaredOptions: const [],
-          )
-        else
-          throw InvalidCommandException(
-            'User command "${b.name}" has no handler',
-          ),
-      ],
-      final MessageCommandBuilder b => [
-        if (b.handle != null)
-          CommandRegistration(
-            name: b.name!,
-            handler: b.handle!,
-            declaredOptions: const [],
-          )
-        else
-          throw InvalidCommandException(
-            'Message command "${b.name}" has no handler',
-          ),
-      ],
-      final _ => throw InvalidCommandException('Unknown command type'),
-    };
+    final handlers = command.reduceHandlers();
 
     commands.add(command);
     commandsHandler.addAll(handlers);
@@ -138,11 +97,7 @@ final class CommandInteractionManager
 
   /// Walks the command's option tree and registers any [AutocompleteHandler]s.
   void _registerAutocompleteHandlers(String rootName, CommandBuilder command) {
-    final declaration = switch (command) {
-      final CommandDeclarationBuilder b => b,
-      final CommandDefinitionBuilder d => d.command,
-      _ => null,
-    };
+    final declaration = command.declaration;
 
     if (declaration == null) {
       return;
@@ -343,7 +298,8 @@ final class CommandInteractionManager
     Response response, {
     required String scope,
   }) {
-    final detail = _extractValidationDetail(response.body) ?? response.bodyString;
+    final detail =
+        _extractValidationDetail(response.body) ?? response.bodyString;
 
     return InvalidCommandException(
       'Command registration failed for $scope '
@@ -385,29 +341,10 @@ final class CommandInteractionManager
   }
 
   List<CommandBuilder> _getContext(CommandContextType contextType) {
-    return commands.where((command) {
-      final context = switch (command) {
-        final CommandDeclarationBuilder command => command.context,
-        final CommandDefinitionBuilder definition => definition.command.context,
-        final UserCommandBuilder b => b.context,
-        final MessageCommandBuilder b => b.context,
-        final _ => throw InvalidCommandException('Unknown command type'),
-      };
-
-      return context == contextType;
-    }).toList();
+    return commands.where((command) => command.context == contextType).toList();
   }
 
   List<Map<String, dynamic>> _serializeCommand(List<CommandBuilder> commands) {
-    return commands.map((command) {
-      return switch (command) {
-        final CommandDeclarationBuilder command => command.toJson(),
-        final CommandDefinitionBuilder definition =>
-          definition.command.toJson(),
-        final UserCommandBuilder b => b.toJson(),
-        final MessageCommandBuilder b => b.toJson(),
-        final _ => throw InvalidCommandException('Unknown command type'),
-      };
-    }).toList();
+    return commands.map((command) => command.toJson()).toList();
   }
 }

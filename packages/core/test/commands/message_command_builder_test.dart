@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mineral/api.dart';
 import 'package:test/test.dart';
 
@@ -48,6 +50,48 @@ void main() {
       final builder = MessageCommandBuilder()
         ..setContext(CommandContextType.global);
       expect(builder.context, equals(CommandContextType.global));
+    });
+
+    group('reduceHandlers', () {
+      test('returns a single registration for the command name', () {
+        FutureOr<void> handler(
+          MessageCommandContext ctx,
+          CommandOptions options,
+        ) {}
+        final builder = MessageCommandBuilder()
+          ..setName('Report message')
+          ..setHandle(handler);
+
+        final registrations = builder.reduceHandlers();
+
+        expect(registrations, hasLength(1));
+        expect(registrations.first.name, 'Report message');
+        expect(registrations.first.handler, handler);
+        expect(registrations.first.declaredOptions, isEmpty);
+      });
+
+      test('throws InvalidCommandException naming the command when no '
+          'handler is set', () {
+        final builder = MessageCommandBuilder()..setName('Report message');
+
+        expect(
+          builder.reduceHandlers,
+          throwsA(
+            isA<InvalidCommandException>().having(
+              (e) => e.message,
+              'message',
+              contains('Report message'),
+            ),
+          ),
+        );
+      });
+    });
+
+    group('declaration', () {
+      test('is null (message commands have no option tree)', () {
+        final builder = MessageCommandBuilder()..setName('Report message');
+        expect(builder.declaration, isNull);
+      });
     });
   });
 }

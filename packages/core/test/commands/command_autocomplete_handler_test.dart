@@ -205,6 +205,78 @@ void main() {
         expect(result.choices[0].name, 'Alpha');
         expect(result.choices[1].name, 'Beta');
       });
+
+      test(
+        'registers autocomplete handler for a CommandDefinitionBuilder '
+        '(forwards through .declaration to its inner command, #478)',
+        () async {
+          String? capturedValue;
+
+          final definition = CommandDefinitionBuilder();
+          definition.command
+            ..setName('lookup')
+            ..setDescription('Look something up')
+            ..addOption(
+              Option.string(
+                name: 'query',
+                description: 'The search query',
+                autocomplete: true,
+                onAutocomplete: (ctx) {
+                  capturedValue = ctx.value;
+                  return [Choice('Result', 'result')];
+                },
+              ),
+            )
+            ..setHandle((ctx, opts) {});
+
+          manager.addCommand(definition);
+
+          await manager.handleAutocomplete({
+            'id': '888888888888888888',
+            'token': 'test-token',
+            'data': {
+              'name': 'lookup',
+              'options': [
+                {'name': 'query', 'type': 3, 'value': 'hello', 'focused': true},
+              ],
+            },
+          });
+
+          expect(capturedValue, 'hello');
+          expect(fakePart.autocompleteResults, hasLength(1));
+        },
+      );
+
+      test('does not register autocomplete handlers for a UserCommandBuilder '
+          '(declaration is null, #478)', () async {
+        final command = UserCommandBuilder()
+          ..setName('Get user info')
+          ..setHandle((ctx, opts) {});
+
+        manager.addCommand(command);
+
+        await manager.handleAutocomplete({
+          'id': '999999999999999999',
+          'token': 'tok',
+          'data': {
+            'name': 'Get user info',
+            'options': [
+              {'name': 'q', 'type': 3, 'value': 'x', 'focused': true},
+            ],
+          },
+        });
+
+        expect(fakePart.autocompleteResults, isEmpty);
+        expect(
+          logger.warnings,
+          contains(
+            contains(
+              'No autocomplete handler for command "Get user info" '
+              'option "q"',
+            ),
+          ),
+        );
+      });
     });
 
     // ── Context correctness ─────────────────────────────────────────────────

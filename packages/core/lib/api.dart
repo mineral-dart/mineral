@@ -177,7 +177,13 @@ export 'package:mineral/src/api/private/channels/private_group_channel.dart';
 export 'package:mineral/src/api/private/user.dart';
 export 'package:mineral/src/api/private/user_assets.dart';
 export 'package:mineral/src/domains/client/client.dart';
-export 'package:mineral/src/domains/client/client_builder.dart';
+// `composeApp`/`AppComposition` are hidden deliberately. They exist to make the
+// composition root testable, not to be called by bots, and `AppComposition`
+// exposes `Kernel` and the concrete `PacketListener` — internal types no barrel
+// exports, so a consumer could hold the record but not name its members.
+// `ClientBuilder` remains the public entry point.
+export 'package:mineral/src/domains/client/client_builder.dart'
+    hide AppComposition, composeApp;
 export 'package:mineral/src/domains/commands/command_context.dart';
 export 'package:mineral/src/domains/commands/command_handler.dart';
 export 'package:mineral/src/domains/commands/command_options.dart';
