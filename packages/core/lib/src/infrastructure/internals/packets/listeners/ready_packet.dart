@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
 import 'package:mineral/src/api/common/bot/bot.dart';
@@ -13,7 +11,24 @@ final class ReadyPacket implements ListenablePacket {
   @override
   PacketType get packetType => PacketType.ready;
 
-  bool isAlreadyUsed = false;
+  /// Memoizes the one-time READY initialization (cache clear + global
+  /// command registration).
+  ///
+  /// One [ReadyPacket] instance is shared by every shard, and
+  /// `PacketDispatcher.listen` runs handlers without serialization, so two
+  /// shards' READY events can both reach [listen] before either finishes.
+  /// A plain `bool` guard checked-then-set after an `await` is not enough:
+  /// both callers can observe the flag unset before either sets it.
+  ///
+  /// Assigning with `??=` closes that window because it is synchronous: the
+  /// async function underneath starts running immediately and only
+  /// *suspends* — handing back its `Future` — at its first `await`. So by
+  /// the time any code outside [listen] runs again, [_initializeOnce] is
+  /// already non-null. A second, concurrent READY sees the in-flight
+  /// `Future` and awaits *that* — joining the first call's work — rather
+  /// than skipping it or re-running it, so `dispatch<ReadyArgs>` for the
+  /// second shard doesn't fire until initialization has actually finished.
+  Future<void>? _initializeOnce;
 
   final MarshallerContract _marshaller;
   final CommandInteractionManagerContract _commandManager;
@@ -47,13 +62,23 @@ final class ReadyPacket implements ListenablePacket {
       entityContext: _entityContext,
     );
 
-    if (!isAlreadyUsed) {
-      await _commandManager.registerGlobal(bot);
-      await _maybeClearCache();
-      isAlreadyUsed = true;
-    }
+    await (_initializeOnce ??= _runOnce(bot));
 
     dispatch<ReadyArgs>(event: Event.ready, payload: (bot: bot));
+  }
+
+  Future<void> _runOnce(Bot bot) async {
+    // Clear the cache before doing anything else — in particular, before
+    // the `registerGlobal` REST round-trip below. Discord streams
+    // GUILD_CREATE immediately after READY, and since the dispatcher does
+    // not serialize handlers, a GUILD_CREATE for this shard can be
+    // processed concurrently with anything this method awaits. Any await
+    // ahead of the clear (jitter, a REST call) is a window in which
+    // GUILD_CREATE can hydrate the cache before the clear wipes it back
+    // out. Running the clear first, with nothing awaited ahead of it,
+    // closes that window.
+    await _maybeClearCache();
+    await _commandManager.registerGlobal(bot);
   }
 
   Future<void> _maybeClearCache() async {
@@ -67,11 +92,11 @@ final class ReadyPacket implements ListenablePacket {
       return;
     }
 
-    if (config.staggerClearMs > 0) {
-      final jitter = Random().nextInt(config.staggerClearMs);
-      await Future.delayed(Duration(milliseconds: jitter));
-    }
-
+    // No jitter here (the old `staggerClearMs`-based delay is gone): any
+    // delay before `clear()` only widens the race window described above.
+    // The jitter existed to avoid every shard clearing independently on
+    // reconnect; that no longer applies since [_initializeOnce] already
+    // guarantees a single clear for this client's whole lifetime.
     await cache.clear();
   }
 }
