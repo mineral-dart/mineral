@@ -240,8 +240,7 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
 
       final end = (bucket + maxConcurrency).clamp(0, totalShards);
       for (int i = bucket; i < end; i++) {
-        final url =
-            '$endpoint/?v=${config.version}&encoding=${config.encoding.encoder.value}';
+        final url = config.gatewayUrl(endpoint);
 
         final shard = Shard(
           shardName: 'shard #$i',

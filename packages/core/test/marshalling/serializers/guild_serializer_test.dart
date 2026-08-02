@@ -7,6 +7,7 @@ import 'package:test/test.dart';
 import '../../helpers/fake_cache_provider.dart';
 import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
+import '../../helpers/serializer_round_trip.dart';
 
 void main() {
   group('GuildSerializer', () {
@@ -21,22 +22,28 @@ void main() {
       );
     });
 
+    // Mirrors the shape `GuildSerializer.normalize` actually produces (assets
+    // and settings nested into sub-maps), so `serialize()` is exercised with
+    // an honest input instead of the flat shape it used to (wrongly) expect.
     Map<String, dynamic> normalizedPayload() => {
       'id': '987654321',
       'name': 'Test Guild',
       'description': 'A test guild',
       'application_id': null,
       'owner_id': '444555666',
-      'icon': null,
-      'splash': null,
-      'banner': null,
-      'discovery_splash': null,
-      'permissions': null,
-      'afk_timeout': 300,
-      'widget_enabled': false,
-      'vanity_url_code': null,
-      'max_video_channel_users': 25,
+      'assets': {
+        'icon': null,
+        'icon_hash': null,
+        'splash': null,
+        'discovery_splash': null,
+        'banner': null,
+      },
       'settings': {
+        'permissions': null,
+        'afk_timeout': 300,
+        'widget_enabled': false,
+        'vanity_url_code': null,
+        'max_video_channel_users': 25,
         'explicit_content_filter': 0,
         'verification_level': 1,
         'default_message_notifications': 0,
@@ -58,37 +65,49 @@ void main() {
       },
     };
 
+    // Mirrors the raw Discord GUILD_CREATE object exactly as Discord sends it
+    // on the wire: entirely flat, with none of the `assets` / `settings`
+    // nesting that `GuildSerializer.normalize` introduces internally. The
+    // optional/nullable fields below (icon, splash, banner, discovery_splash,
+    // permissions, afk_timeout, widget_enabled, vanity_url_code,
+    // max_video_channel_users) are given real values on purpose, because a
+    // fixture that leaves them null can't tell a correctly-plumbed field
+    // apart from one that silently resolves to null through a shape
+    // mismatch. Do not adjust this fixture to match what `serialize` happens
+    // to read — it must only ever match what Discord actually sends.
     Map<String, dynamic> rawDiscordPayload() => {
       'id': '987654321',
       'name': 'Test Guild',
-      'description': 'A test guild',
-      'application_id': null,
+      'icon': 'a_1234567890abcdef1234567890abcdef',
+      'icon_hash': '1234567890abcdef1234567890abcdef',
+      'splash': '2234567890abcdef1234567890abcdef',
+      'discovery_splash': '3234567890abcdef1234567890abcdef',
       'owner_id': '444555666',
-      'icon': null,
-      'icon_hash': null,
-      'splash': null,
-      'discovery_splash': null,
-      'banner': null,
-      'permissions': null,
+      'permissions': '2147483647',
+      'afk_channel_id': null,
       'afk_timeout': 300,
-      'widget_enabled': false,
-      'explicit_content_filter': 0,
+      'widget_enabled': true,
       'verification_level': 1,
       'default_message_notifications': 0,
+      'explicit_content_filter': 0,
+      'roles': <Map<String, dynamic>>[],
+      'emojis': <Map<String, dynamic>>[],
       'features': ['COMMUNITY'],
       'mfa_level': 0,
+      'application_id': null,
+      'system_channel_id': '111222333',
       'system_channel_flags': 0,
-      'vanity_url_code': null,
+      'rules_channel_id': null,
+      'vanity_url_code': 'test-guild',
+      'description': 'A test guild',
+      'banner': '4234567890abcdef1234567890abcdef',
       'premium_tier': 0,
       'premium_subscription_count': 0,
-      'premium_progress_bar_enabled': false,
       'preferred_locale': 'en-US',
+      'public_updates_channel_id': null,
       'max_video_channel_users': 25,
       'nsfw_level': 0,
-      'afk_channel_id': null,
-      'system_channel_id': '111222333',
-      'rules_channel_id': null,
-      'public_updates_channel_id': null,
+      'premium_progress_bar_enabled': false,
       'safety_alerts_channel_id': null,
     };
 
@@ -189,7 +208,10 @@ void main() {
         final result = await serializer.normalize(rawDiscordPayload());
 
         expect(result['assets'], isA<Map>());
-        expect(result['assets']['icon'], isNull);
+        expect(
+          result['assets']['icon'],
+          equals('a_1234567890abcdef1234567890abcdef'),
+        );
       });
     });
 
@@ -201,6 +223,43 @@ void main() {
 
         expect(result['name'], equals(json['name']));
         expect(result['description'], equals(json['description']));
+      });
+    });
+
+    group('round-trip (normalize -> serialize)', () {
+      test('preserves fields normalize nests and serialize reads flat', () async {
+        await expectRoundTrip<Guild>(serializer, rawDiscordPayload(), {
+          'Guild.assets.icon': (guild) => expect(
+            guild.assets.icon?.hash,
+            equals('a_1234567890abcdef1234567890abcdef'),
+          ),
+          'Guild.assets.splash': (guild) => expect(
+            guild.assets.splash?.hash,
+            equals('2234567890abcdef1234567890abcdef'),
+          ),
+          'Guild.assets.banner': (guild) => expect(
+            guild.assets.banner?.hash,
+            equals('4234567890abcdef1234567890abcdef'),
+          ),
+          'Guild.assets.discoverySplash': (guild) => expect(
+            guild.assets.discoverySplash?.hash,
+            equals('3234567890abcdef1234567890abcdef'),
+          ),
+          'Guild.settings.bitfieldPermission': (guild) => expect(
+            guild.settings.bitfieldPermission,
+            equals('2147483647'),
+          ),
+          'Guild.settings.afkTimeout': (guild) =>
+              expect(guild.settings.afkTimeout, equals(300)),
+          'Guild.settings.hasWidgetEnabled': (guild) =>
+              expect(guild.settings.hasWidgetEnabled, isTrue),
+          'Guild.settings.vanityUrlCode': (guild) => expect(
+            guild.settings.vanityUrlCode,
+            equals('test-guild'),
+          ),
+          'Guild.settings.maxVideoChannelUsers': (guild) =>
+              expect(guild.settings.maxVideoChannelUsers, equals(25)),
+        });
       });
     });
   });

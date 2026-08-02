@@ -45,82 +45,105 @@ final class QueueableRequest<T> {
     final route = RouteKey(method, query.url.path);
     final httpStatus = bucket.client.status;
 
-    for (var attempt = 0; attempt < _maxRateLimitRetries; attempt++) {
-      final delay = bucket.registry.delayFor(route);
-      if (delay > Duration.zero) {
-        await Future<void>.delayed(delay);
-      }
+    try {
+      for (var attempt = 0; attempt < _maxRateLimitRetries; attempt++) {
+        final delay = bucket.registry.delayFor(route);
+        if (delay > Duration.zero) {
+          await Future<void>.delayed(delay);
+        }
 
-      status = QueueableRequestStatus.pending;
-      final response = await request(query);
+        status = QueueableRequestStatus.pending;
+        final response = await request(query);
 
-      bucket.registry.updateFromHeaders(route, response.headers);
+        bucket.registry.updateFromHeaders(route, response.headers);
 
-      if (httpStatus.isSuccess(response.statusCode)) {
-        status = QueueableRequestStatus.success;
-        bucket.queue.remove(this);
-        try {
-          _onSuccess?.call(response.body);
-          completer.complete(response.body);
-          // ignore: avoid_catching_errors, surface type mismatch as a proper HttpException
-        } on TypeError catch (e) {
+        if (httpStatus.isSuccess(response.statusCode)) {
+          status = QueueableRequestStatus.success;
+          try {
+            _onSuccess?.call(response.body);
+            completer.complete(response.body);
+            // ignore: avoid_catching_errors, surface type mismatch as a proper HttpException
+          } on TypeError catch (e) {
+            completer.completeError(
+              HttpException(
+                'Response body type mismatch: expected $T, '
+                'got ${response.body.runtimeType}. $e',
+              ),
+            );
+          }
+          return;
+        } else if (httpStatus.isRateLimit(response.statusCode)) {
+          final body = response.body;
+          final isGlobal = body is Map && body['global'] == true;
+          final retryAfter = body is Map ? body['retry_after'] : null;
+          final seconds = retryAfter is num
+              ? retryAfter.toDouble()
+              : double.tryParse(retryAfter?.toString() ?? '') ?? 1.0;
+          final retryDelay = Duration(
+            milliseconds: (seconds * 1000).round() + 50,
+          );
+
+          if (isGlobal) {
+            bucket.registry.lockGlobal(retryDelay);
+          } else {
+            bucket.registry.lockRoute(route, retryDelay);
+          }
+
+          _logger.warn(
+            'Rate limit reached on ${route.redactedString} '
+            '(attempt ${attempt + 1}/$_maxRateLimitRetries, '
+            '${isGlobal ? 'global' : 'bucket'}). '
+            'Retrying in ${retryDelay.inMilliseconds}ms',
+          );
+
+          status = QueueableRequestStatus.rateLimit;
+          retryAt = DateTime.now().add(retryDelay);
+
+          _onRateLimit?.call(retryDelay);
+          await Future<void>.delayed(retryDelay);
+          continue;
+        } else if (httpStatus.isError(response.statusCode)) {
+          status = QueueableRequestStatus.error;
+          final exception =
+              _onError?.call(response) ??
+              HttpException(
+                'Request failed with status ${response.statusCode} '
+                'for $method ${route.redactedString}: ${response.bodyString}',
+              );
+          completer.completeError(exception);
+          return;
+        } else {
+          // Defense in depth: [HttpClientStatus] classifies by range, so
+          // every status should already match one of the branches above.
+          // If a future classifier ever leaves a gap, fail loudly instead
+          // of silently falling through and re-issuing the request.
+          status = QueueableRequestStatus.error;
           completer.completeError(
             HttpException(
-              'Response body type mismatch: expected $T, '
-              'got ${response.body.runtimeType}. $e',
+              'Unclassified response status ${response.statusCode} '
+              'for $method ${route.redactedString}: ${response.bodyString}',
             ),
           );
+          return;
         }
-        return;
       }
 
-      if (httpStatus.isRateLimit(response.statusCode)) {
-        final body = response.body;
-        final isGlobal = body is Map && body['global'] == true;
-        final retryAfter = body is Map ? body['retry_after'] : null;
-        final seconds = retryAfter is num
-            ? retryAfter.toDouble()
-            : double.tryParse(retryAfter?.toString() ?? '') ?? 1.0;
-        final retryDelay = Duration(
-          milliseconds: (seconds * 1000).round() + 50,
-        );
-
-        if (isGlobal) {
-          bucket.registry.lockGlobal(retryDelay);
-        } else {
-          bucket.registry.lockRoute(route, retryDelay);
-        }
-
-        _logger.warn(
-          'Rate limit reached on ${route.redactedString} '
-          '(attempt ${attempt + 1}/$_maxRateLimitRetries, '
-          '${isGlobal ? 'global' : 'bucket'}). '
-          'Retrying in ${retryDelay.inMilliseconds}ms',
-        );
-
-        status = QueueableRequestStatus.rateLimit;
-        retryAt = DateTime.now().add(retryDelay);
-
-        _onRateLimit?.call(retryDelay);
-        await Future<void>.delayed(retryDelay);
-        continue;
-      }
-
-      if (httpStatus.isError(response.statusCode)) {
+      status = QueueableRequestStatus.error;
+      completer.completeError(
+        HttpException('Rate limit retry cap ($_maxRateLimitRetries) reached'),
+      );
+    } finally {
+      bucket.queue.remove(this);
+      if (!completer.isCompleted) {
         status = QueueableRequestStatus.error;
-        bucket.queue.remove(this);
-        final exception =
-            _onError?.call(response) ?? HttpException(response.bodyString);
-        completer.completeError(exception);
-        return;
+        completer.completeError(
+          HttpException(
+            'Request for $method ${route.redactedString} terminated '
+            'without completing',
+          ),
+        );
       }
     }
-
-    status = QueueableRequestStatus.error;
-    bucket.queue.remove(this);
-    completer.completeError(
-      HttpException('Rate limit retry cap ($_maxRateLimitRetries) reached'),
-    );
   }
 }
 

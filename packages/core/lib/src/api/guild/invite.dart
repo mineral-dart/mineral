@@ -11,11 +11,24 @@ final class Invite {
 
   final Snowflake? guildId;
   final Snowflake? channelId;
-  final Snowflake inviterId;
+
+  /// The user who created the invite, when Discord reports one.
+  ///
+  /// Null for vanity-url invites, which have no inviter at all. Do not
+  /// substitute a placeholder id here: [resolveInviter] turns it into a real
+  /// `GET /users/{id}` call, so a fabricated snowflake becomes a 404 against
+  /// Discord rather than an honest absence.
+  final Snowflake? inviterId;
 
   final Duration maxAge;
   final int maxUses;
-  final DateTime createdAt;
+
+  /// When the invite was created, when Discord reports it.
+  ///
+  /// Null on the base invite object returned by `GET /invites/{code}` —
+  /// `created_at` only appears on the Invite Metadata extension used by the
+  /// guild and channel invite *list* endpoints.
+  final DateTime? createdAt;
   final DateTime? expiresAt;
   final bool isTemporary;
 
@@ -25,16 +38,20 @@ final class Invite {
     required this.code,
     required this.maxAge,
     required this.maxUses,
-    required this.inviterId,
     required this.isTemporary,
-    required this.createdAt,
+    this.inviterId,
+    this.createdAt,
     this.guildId,
     this.channelId,
     this.expiresAt,
   }) : _ctx = ctx;
 
-  Future<User?> resolveInviter() {
-    return _datastore.user.get(inviterId.value, false);
+  Future<User?> resolveInviter() async {
+    if (inviterId == null) {
+      return null;
+    }
+
+    return _datastore.user.get(inviterId!.value, false);
   }
 
   Future<T?> resolveChannel<T extends Channel>() async {

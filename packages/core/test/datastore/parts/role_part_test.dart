@@ -1,10 +1,28 @@
+import 'package:mineral/api.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/role_part.dart';
 import 'package:test/test.dart';
 
 import '../../helpers/fake_datastore.dart';
 import '../../helpers/fake_http_client.dart';
 import '../../helpers/fake_marshaller.dart';
+import '../../helpers/fake_response.dart';
 import '../../helpers/ioc_test_helper.dart';
+
+/// Mirrors the Discord wire format for a role object exactly as Discord
+/// sends it (https://discord.com/developers/docs/topics/permissions#role-object).
+/// Discord does NOT include `guild_id` here — RolePart must inject it before
+/// handing the payload to `RoleSerializer.normalize`.
+Map<String, dynamic> rawDiscordRolePayload({String id = '333'}) => {
+  'id': id,
+  'name': 'Test Role',
+  'color': 0,
+  'hoist': false,
+  'position': 1,
+  'permissions': '0',
+  'managed': false,
+  'mentionable': false,
+  'flags': 0,
+};
 
 void main() {
   group('RolePart', () {
@@ -22,6 +40,75 @@ void main() {
     });
 
     tearDown(() => restoreIoc());
+
+    group('get', () {
+      test(
+        'injects guild_id before normalize so the returned role is populated',
+        () async {
+          http = FakeHttpClient([
+            FakeResponse<Map<String, dynamic>>(200, rawDiscordRolePayload()),
+          ]);
+          dataStore = FakeDataStore(http);
+          role = RolePart(FakeMarshaller(), dataStore);
+
+          final result = await role.get('222', '333', true);
+
+          expect(result, isNotNull);
+          expect(result!.id, equals(Snowflake('333')));
+          expect(result.guildId, equals(Snowflake('222')));
+        },
+      );
+    });
+
+    group('create', () {
+      test(
+        'injects guild_id before normalize so the returned role is populated',
+        () async {
+          http = FakeHttpClient([
+            FakeResponse<Map<String, dynamic>>(200, rawDiscordRolePayload()),
+          ]);
+          dataStore = FakeDataStore(http);
+          role = RolePart(FakeMarshaller(), dataStore);
+
+          final result = await role.create(
+            '222',
+            'Test Role',
+            [],
+            Color.of(0),
+            false,
+            false,
+            null,
+          );
+
+          expect(result.id, equals(Snowflake('333')));
+          expect(result.guildId, equals(Snowflake('222')));
+        },
+      );
+    });
+
+    group('update', () {
+      test(
+        'injects guild_id before normalize so the returned role is populated',
+        () async {
+          http = FakeHttpClient([
+            FakeResponse<Map<String, dynamic>>(200, rawDiscordRolePayload()),
+          ]);
+          dataStore = FakeDataStore(http);
+          role = RolePart(FakeMarshaller(), dataStore);
+
+          final result = await role.update(
+            id: '333',
+            guildId: '222',
+            payload: {'name': 'Updated'},
+            reason: null,
+          );
+
+          expect(result, isNotNull);
+          expect(result!.id, equals(Snowflake('333')));
+          expect(result.guildId, equals(Snowflake('222')));
+        },
+      );
+    });
 
     group('add', () {
       test(

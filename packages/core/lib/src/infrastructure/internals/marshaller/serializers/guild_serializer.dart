@@ -86,46 +86,47 @@ final class GuildSerializer implements SerializerContract<Guild> {
       ctx: _ctx,
     );
 
+    final assets = payload['assets'] as Map<String, dynamic>;
     final guildAssets = GuildAsset(
       Snowflake.parse(payload['id']),
       ctx: _ctx,
       emojis: EmojiManager(Snowflake.parse(payload['id']), ctx: _ctx),
       stickers: StickerManager(Snowflake.parse(payload['id']), ctx: _ctx),
       icon: Helper.createOrNull(
-        field: payload['icon'],
+        field: assets['icon'],
         fn: () => ImageAsset([
           'icons',
-          payload['guild_id'] as String,
-        ], payload['icon'] as String),
+          payload['id'] as String,
+        ], assets['icon'] as String),
       ),
       splash: Helper.createOrNull(
-        field: payload['splash'],
+        field: assets['splash'],
         fn: () => ImageAsset([
           'splashes',
-          payload['guild_id'] as String,
-        ], payload['splash'] as String),
+          payload['id'] as String,
+        ], assets['splash'] as String),
       ),
       banner: Helper.createOrNull(
-        field: payload['banner'],
+        field: assets['banner'],
         fn: () => ImageAsset([
           'banners',
-          payload['guild_id'] as String,
-        ], payload['banner'] as String),
+          payload['id'] as String,
+        ], assets['banner'] as String),
       ),
       discoverySplash: Helper.createOrNull(
-        field: payload['discovery_splash'],
+        field: assets['discovery_splash'],
         fn: () => ImageAsset([
           'discovery-splashes',
           payload['id'] as String,
-        ], payload['discovery_splash'] as String),
+        ], assets['discovery_splash'] as String),
       ),
     );
 
     final settings = payload['settings'] as Map<String, dynamic>;
     final guildSettings = GuildSettings(
-      bitfieldPermission: payload['permissions'] as String?,
-      afkTimeout: payload['afk_timeout'] as int?,
-      hasWidgetEnabled: payload['widget_enabled'] as bool? ?? false,
+      bitfieldPermission: settings['permissions'] as String?,
+      afkTimeout: settings['afk_timeout'] as int?,
+      hasWidgetEnabled: settings['widget_enabled'] as bool? ?? false,
       explicitContentFilter: findInEnum(
         ExplicitContentFilter.values,
         settings['explicit_content_filter'],
@@ -155,7 +156,7 @@ final class GuildSerializer implements SerializerContract<Guild> {
           settings['system_channel_flags'] as int,
         ),
       ),
-      vanityUrlCode: payload['vanity_url_code'] as String?,
+      vanityUrlCode: settings['vanity_url_code'] as String?,
       subscription: GuildSubscription(
         tier: findInEnum(
           PremiumTier.values,
@@ -166,7 +167,7 @@ final class GuildSerializer implements SerializerContract<Guild> {
         hasEnabledProgressBar: settings['premium_progress_bar_enabled'] as bool,
       ),
       preferredLocale: settings['preferred_locale'] as String,
-      maxVideoChannelUsers: payload['max_video_channel_users'] as int?,
+      maxVideoChannelUsers: settings['max_video_channel_users'] as int?,
       nsfwLevel: findInEnum(
         NsfwLevel.values,
         settings['nsfw_level'],
