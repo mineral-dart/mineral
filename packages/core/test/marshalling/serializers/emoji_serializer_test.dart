@@ -7,6 +7,7 @@ import 'package:test/test.dart';
 import '../../helpers/fake_cache_provider.dart';
 import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
+import '../../helpers/serializer_round_trip.dart';
 
 void main() {
   group('EmojiSerializer', () {
@@ -31,13 +32,43 @@ void main() {
       'guild_id': '987654321',
     };
 
+    // Mirrors the Discord wire format for an emoji object exactly as Discord
+    // sends it (see
+    // https://discord.com/developers/docs/resources/emoji#emoji-object).
+    // Discord does NOT include `guild_id` here — it is never present on the
+    // wire and must be injected by the caller before the payload reaches the
+    // serializer. `roles` is an array of bare role-id (snowflake) strings,
+    // never role objects. Do not add or reshape fields here to make the
+    // serializer happy; if the serializer can't consume this shape, the
+    // serializer is wrong, not this fixture.
     Map<String, dynamic> rawDiscordPayload() => {
       'id': '100200300',
       'name': 'thumbsup',
+      'roles': ['41771983423143936'],
+      'user': {
+        'id': '41771983429993937',
+        'username': 'Luigi',
+        'discriminator': '0002',
+        'avatar': null,
+      },
+      'require_colons': true,
       'managed': false,
-      'available': true,
       'animated': false,
-      'roles': null,
+      'available': true,
+    };
+
+    // What a correctly-behaving caller (EmojiPart.create/update,
+    // GuildEmojisUpdatePacket) hands to `normalize()`: the genuine Discord
+    // payload plus the `guild_id` it injected itself, since normalize() hard-
+    // requires that key.
+    //
+    // Kept separate so the two defects stay distinguishable. Fed the plain
+    // `rawDiscordPayload()`, normalize() throws on the missing `guild_id`
+    // before it ever reaches the `roles` mapping, which masks the second bug
+    // entirely. The normalize() tests below use this fixture so they fail on
+    // the `roles` element cast — the defect they are actually about.
+    Map<String, dynamic> rawDiscordPayloadWithGuildId() => {
+      ...rawDiscordPayload(),
       'guild_id': '987654321',
     };
 
@@ -99,23 +130,70 @@ void main() {
 
     group('normalize()', () {
       test('writes to cache with guildEmoji key', () async {
-        await serializer.normalize(rawDiscordPayload());
+        await serializer.normalize(rawDiscordPayloadWithGuildId());
 
         final expectedKey = CacheKey().guildEmoji('987654321', '100200300');
         expect(cache.store.containsKey(expectedKey), isTrue);
       });
 
-      test('transforms null roles into empty list', () async {
-        final result = await serializer.normalize(rawDiscordPayload());
+      test('maps the roles array of snowflake strings', () async {
+        final result = await serializer.normalize(
+          rawDiscordPayloadWithGuildId(),
+        );
+
+        expect(result['roles'], isA<List>());
+        expect(result['roles'], hasLength(1));
+      });
+
+      test('transforms an absent roles array into an empty list', () async {
+        final raw = rawDiscordPayloadWithGuildId()..remove('roles');
+        final result = await serializer.normalize(raw);
 
         expect(result['roles'], isA<List>());
         expect(result['roles'], isEmpty);
       });
 
-      test('renames guild_id to guild_id', () async {
-        final result = await serializer.normalize(rawDiscordPayload());
+      test('passes through the guild_id injected by the caller', () async {
+        final result = await serializer.normalize(
+          rawDiscordPayloadWithGuildId(),
+        );
 
         expect(result, containsPair('guild_id', '987654321'));
+      });
+    });
+
+    group('round-trip (normalize -> serialize)', () {
+      test('preserves fields through the real pipeline', () async {
+        await expectRoundTrip<Emoji>(serializer, rawDiscordPayload(), {
+          'Emoji.id': (emoji) =>
+              expect(emoji.id, equals(Snowflake('100200300'))),
+          'Emoji.name': (emoji) => expect(emoji.name, equals('thumbsup')),
+          'Emoji.roles': (emoji) => expect(
+            emoji.roles.keys,
+            contains(Snowflake('41771983423143936')),
+          ),
+          'Emoji.animated': (emoji) => expect(emoji.animated, isFalse),
+          'Emoji.managed': (emoji) => expect(emoji.managed, isFalse),
+          'Emoji.available': (emoji) => expect(emoji.available, isTrue),
+        });
+      });
+
+      test('round-trips an emoji with an empty roles array', () async {
+        final raw = rawDiscordPayload()..['roles'] = <String>[];
+
+        await expectRoundTrip<Emoji>(serializer, raw, {
+          'Emoji.roles': (emoji) => expect(emoji.roles, isEmpty),
+        });
+      });
+
+      test('round-trips an emoji when roles is absent entirely', () async {
+        // Discord omits `roles` on some emoji payloads entirely (as opposed
+        // to sending an empty array); the serializer must not hard-cast it.
+        await expectRoundTripWithoutOptionals<Emoji>(
+          serializer,
+          rawDiscordPayload(),
+          {'roles'},
+        );
       });
     });
   });
