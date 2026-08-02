@@ -180,11 +180,9 @@ void main() {
           'registerGlobal throws on $status instead of completing silently',
           () async {
             final bucket = _RecordingRequestBucket()
-              ..failWith = FakeResponse<dynamic>(
-                status,
-                {'message': 'boom'},
-                bodyString: '{"message":"boom"}',
-              );
+              ..failWith = FakeResponse<dynamic>(status, {
+                'message': 'boom',
+              }, bodyString: '{"message":"boom"}');
             final dataStore = _RoutingDataStore(bucket);
             final marshaller = FakeMarshaller(dataStore: dataStore);
             final manager = _buildManager(
@@ -205,37 +203,32 @@ void main() {
           },
         );
 
-        test(
-          'registerServer throws on $status and names the guild instead of '
-          'completing silently',
-          () async {
-            final bucket = _RecordingRequestBucket()
-              ..failWith = FakeResponse<dynamic>(
-                status,
-                {'message': 'boom'},
-                bodyString: '{"message":"boom"}',
-              );
-            final dataStore = _RoutingDataStore(bucket);
-            final marshaller = FakeMarshaller(dataStore: dataStore);
-            final manager = _buildManager(
-              dataStore: dataStore,
-              marshaller: marshaller,
-            );
+        test('registerServer throws on $status and names the guild instead of '
+            'completing silently', () async {
+          final bucket = _RecordingRequestBucket()
+            ..failWith = FakeResponse<dynamic>(status, {
+              'message': 'boom',
+            }, bodyString: '{"message":"boom"}');
+          final dataStore = _RoutingDataStore(bucket);
+          final marshaller = FakeMarshaller(dataStore: dataStore);
+          final manager = _buildManager(
+            dataStore: dataStore,
+            marshaller: marshaller,
+          );
 
-            await expectLater(
-              () => manager.registerServer(bot, guild),
-              throwsA(
-                isA<InvalidCommandException>()
-                    .having((e) => e.message, 'message', contains('$status'))
-                    .having(
-                      (e) => e.message,
-                      'message',
-                      contains(guild.id.value),
-                    ),
-              ),
-            );
-          },
-        );
+          await expectLater(
+            () => manager.registerServer(bot, guild),
+            throwsA(
+              isA<InvalidCommandException>()
+                  .having((e) => e.message, 'message', contains('$status'))
+                  .having(
+                    (e) => e.message,
+                    'message',
+                    contains(guild.id.value),
+                  ),
+            ),
+          );
+        });
       }
     });
 
@@ -306,30 +299,26 @@ void main() {
     });
 
     group('end-to-end through the real RequestBucket', () {
-      test(
-        'registerGlobal throws on a 403 (missing applications.commands '
-        'scope)',
-        () async {
-          final http = FakeHttpClient([
-            FakeResponse<dynamic>(
-              403,
-              {'message': 'Missing Access', 'code': 50001},
-              bodyString: '{"message":"Missing Access","code":50001}',
-            ),
-          ]);
-          final dataStore = FakeDataStore(http);
-          final marshaller = FakeMarshaller(dataStore: dataStore);
-          final manager = _buildManager(
-            dataStore: dataStore,
-            marshaller: marshaller,
-          );
+      test('registerGlobal throws on a 403 (missing applications.commands '
+          'scope)', () async {
+        final http = FakeHttpClient([
+          FakeResponse<dynamic>(403, {
+            'message': 'Missing Access',
+            'code': 50001,
+          }, bodyString: '{"message":"Missing Access","code":50001}'),
+        ]);
+        final dataStore = FakeDataStore(http);
+        final marshaller = FakeMarshaller(dataStore: dataStore);
+        final manager = _buildManager(
+          dataStore: dataStore,
+          marshaller: marshaller,
+        );
 
-          await expectLater(
-            () => manager.registerGlobal(bot),
-            throwsA(isA<InvalidCommandException>()),
-          );
-        },
-      );
+        await expectLater(
+          () => manager.registerGlobal(bot),
+          throwsA(isA<InvalidCommandException>()),
+        );
+      });
 
       test('registerServer throws on a 500 and names the guild', () async {
         final http = FakeHttpClient([
@@ -366,6 +355,211 @@ void main() {
         );
 
         await manager.registerGlobal(bot);
+      });
+    });
+  });
+
+  // ── #478: CommandBuilder interface unification ───────────────────────────
+  //
+  // command_interaction_manager.dart used to re-derive name/context/toJson/
+  // handlers by exhaustive type-switching on CommandBuilder. Those switches
+  // are gone; these tests exercise every implementer (CommandDeclarationBuilder,
+  // CommandDefinitionBuilder, UserCommandBuilder, MessageCommandBuilder)
+  // through the manager to prove the polymorphic dispatch is equivalent —
+  // previously only CommandDeclarationBuilder ever reached addCommand/
+  // registerGlobal/registerServer in this suite.
+  group('CommandBuilder interface unification (#478)', () {
+    late Bot bot;
+    late Guild guild;
+
+    setUp(() {
+      bot = _buildBot();
+      guild = buildMinimalGuild('222222222222222222', fakeEntityContext());
+    });
+
+    CommandInteractionManager buildManager() {
+      final dataStore = _RoutingDataStore(_RecordingRequestBucket());
+      final marshaller = FakeMarshaller(dataStore: dataStore);
+      return _buildManager(dataStore: dataStore, marshaller: marshaller);
+    }
+
+    group('addCommand derives name and handlers for every builder type', () {
+      test('CommandDeclarationBuilder', () {
+        final manager = buildManager();
+        final command = CommandDeclarationBuilder()
+          ..setName('ping')
+          ..setDescription('Pong!')
+          ..setHandle((ctx, opts) {});
+
+        manager.addCommand(command);
+
+        expect(manager.commands, contains(command));
+        expect(manager.commandsHandler.map((r) => r.name), contains('ping'));
+      });
+
+      test('CommandDefinitionBuilder forwards to its inner command', () {
+        final manager = buildManager();
+        final definition = CommandDefinitionBuilder();
+        definition.command
+          ..setName('defined')
+          ..setDescription('A definition-driven command')
+          ..setHandle((ctx, opts) {});
+
+        manager.addCommand(definition);
+
+        expect(manager.commands, contains(definition));
+        expect(manager.commandsHandler.map((r) => r.name), contains('defined'));
+      });
+
+      test('UserCommandBuilder', () {
+        final manager = buildManager();
+        final command = UserCommandBuilder()
+          ..setName('Get user info')
+          ..setHandle((ctx, opts) {});
+
+        manager.addCommand(command);
+
+        expect(manager.commands, contains(command));
+        expect(
+          manager.commandsHandler.map((r) => r.name),
+          contains('Get user info'),
+        );
+      });
+
+      test('MessageCommandBuilder', () {
+        final manager = buildManager();
+        final command = MessageCommandBuilder()
+          ..setName('Report message')
+          ..setHandle((ctx, opts) {});
+
+        manager.addCommand(command);
+
+        expect(manager.commands, contains(command));
+        expect(
+          manager.commandsHandler.map((r) => r.name),
+          contains('Report message'),
+        );
+      });
+
+      test(
+        'UserCommandBuilder without a handler throws InvalidCommandException',
+        () {
+          final manager = buildManager();
+          final command = UserCommandBuilder()..setName('No handler');
+
+          expect(
+            () => manager.addCommand(command),
+            throwsA(isA<InvalidCommandException>()),
+          );
+        },
+      );
+    });
+
+    group('registerGlobal/registerServer filter by context and serialize every '
+        'builder type', () {
+      test('registerGlobal sends only global-context commands, correctly '
+          'serialized per type', () async {
+        final bucket = _RecordingRequestBucket();
+        final dataStore = _RoutingDataStore(bucket);
+        final marshaller = FakeMarshaller(dataStore: dataStore);
+        final manager = _buildManager(
+          dataStore: dataStore,
+          marshaller: marshaller,
+        );
+
+        final globalDeclaration = CommandDeclarationBuilder()
+          ..setName('global-chat')
+          ..setDescription('desc')
+          ..setContext(CommandContextType.global)
+          ..setHandle((ctx, opts) {});
+        final guildDeclaration = CommandDeclarationBuilder()
+          ..setName('guild-chat')
+          ..setDescription('desc')
+          ..setHandle((ctx, opts) {});
+        final globalUser = UserCommandBuilder()
+          ..setName('Global User')
+          ..setContext(CommandContextType.global)
+          ..setHandle((ctx, opts) {});
+        final guildMessage = MessageCommandBuilder()
+          ..setName('Guild Message')
+          ..setHandle((ctx, opts) {});
+        final globalDefinition = CommandDefinitionBuilder();
+        globalDefinition.command
+          ..setName('global-defined')
+          ..setDescription('desc')
+          ..setContext(CommandContextType.global)
+          ..setHandle((ctx, opts) {});
+
+        for (final command in [
+          globalDeclaration,
+          guildDeclaration,
+          globalUser,
+          guildMessage,
+          globalDefinition,
+        ]) {
+          manager.addCommand(command);
+        }
+
+        await manager.registerGlobal(bot);
+
+        final payload = bucket.lastRequest!.body as List<dynamic>;
+        final names = payload
+            .map((e) => (e as Map<String, dynamic>)['name'])
+            .toSet();
+
+        expect(names, equals({'global-chat', 'Global User', 'global-defined'}));
+      });
+
+      test('registerServer sends only guild-context commands, correctly '
+          'serialized per type', () async {
+        final bucket = _RecordingRequestBucket();
+        final dataStore = _RoutingDataStore(bucket);
+        final marshaller = FakeMarshaller(dataStore: dataStore);
+        final manager = _buildManager(
+          dataStore: dataStore,
+          marshaller: marshaller,
+        );
+
+        final globalDeclaration = CommandDeclarationBuilder()
+          ..setName('global-chat')
+          ..setDescription('desc')
+          ..setContext(CommandContextType.global)
+          ..setHandle((ctx, opts) {});
+        final guildDeclaration = CommandDeclarationBuilder()
+          ..setName('guild-chat')
+          ..setDescription('desc')
+          ..setHandle((ctx, opts) {});
+        final globalUser = UserCommandBuilder()
+          ..setName('Global User')
+          ..setContext(CommandContextType.global)
+          ..setHandle((ctx, opts) {});
+        final guildMessage = MessageCommandBuilder()
+          ..setName('Guild Message')
+          ..setHandle((ctx, opts) {});
+        final guildDefinition = CommandDefinitionBuilder();
+        guildDefinition.command
+          ..setName('guild-defined')
+          ..setDescription('desc')
+          ..setHandle((ctx, opts) {});
+
+        for (final command in [
+          globalDeclaration,
+          guildDeclaration,
+          globalUser,
+          guildMessage,
+          guildDefinition,
+        ]) {
+          manager.addCommand(command);
+        }
+
+        await manager.registerServer(bot, guild);
+
+        final payload = bucket.lastRequest!.body as List<dynamic>;
+        final names = payload
+            .map((e) => (e as Map<String, dynamic>)['name'])
+            .toSet();
+
+        expect(names, equals({'guild-chat', 'Guild Message', 'guild-defined'}));
       });
     });
   });

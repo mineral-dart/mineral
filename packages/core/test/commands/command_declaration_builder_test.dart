@@ -301,7 +301,7 @@ void main() {
           ..setDescription('Pong!')
           ..setHandle(handler);
 
-        final registrations = builder.reduceHandlers('ping');
+        final registrations = builder.reduceHandlers();
 
         expect(registrations, hasLength(1));
         expect(registrations.first.name, 'ping');
@@ -331,7 +331,7 @@ void main() {
               ..setHandle(kickHandler);
           });
 
-        final registrations = builder.reduceHandlers('mod');
+        final registrations = builder.reduceHandlers();
 
         expect(registrations, hasLength(2));
         expect(registrations[0].name, 'mod.ban');
@@ -358,7 +358,7 @@ void main() {
               });
           });
 
-        final registrations = builder.reduceHandlers('admin');
+        final registrations = builder.reduceHandlers();
 
         expect(registrations, hasLength(1));
         expect(registrations.first.name, 'admin.user.ban');
@@ -375,7 +375,7 @@ void main() {
           ..addOption(Option.string(name: 'reason', description: 'Reason'))
           ..setHandle((ctx, options) {});
 
-        final registrations = builder.reduceHandlers('ban');
+        final registrations = builder.reduceHandlers();
 
         expect(registrations.first.declaredOptions, hasLength(2));
         expect(registrations.first.declaredOptions[0].name, 'target');
@@ -394,10 +394,7 @@ void main() {
               ..setDescription('Ban');
           });
 
-        expect(
-          () => builder.reduceHandlers('mod'),
-          throwsA(isA<MissingMethodException>()),
-        );
+        expect(builder.reduceHandlers, throwsA(isA<MissingMethodException>()));
       });
     });
   });

@@ -19,10 +19,12 @@ import 'package:mineral/src/infrastructure/io/exceptions/missing_property_except
 final class CommandDeclarationBuilder implements CommandBuilder {
   final CommandHelper _helper = CommandHelper();
 
+  @override
   String? name;
   Map<String, String>? _nameLocalizations;
   String? _description;
   Map<String, String>? _descriptionLocalizations;
+  @override
   CommandContextType context = CommandContextType.guild;
   List<ApplicationIntegrationType>? integrationTypes;
   List<InteractionContextType>? interactionContexts;
@@ -122,6 +124,7 @@ final class CommandDeclarationBuilder implements CommandBuilder {
     return this;
   }
 
+  @override
   Map<String, dynamic> toJson() {
     if (name == null) {
       throw MissingPropertyException('Command name is required');
@@ -152,7 +155,8 @@ final class CommandDeclarationBuilder implements CommandBuilder {
     };
   }
 
-  List<CommandRegistration> reduceHandlers(String commandName) {
+  @override
+  List<CommandRegistration> reduceHandlers() {
     if (subCommands.isEmpty && groups.isEmpty) {
       return [
         CommandRegistration(
@@ -168,7 +172,7 @@ final class CommandDeclarationBuilder implements CommandBuilder {
     for (final subCommand in subCommands) {
       if (subCommand.handle case null) {
         throw MissingMethodException(
-          'Command "$commandName.${subCommand.name}" has no handler',
+          'Command "$name.${subCommand.name}" has no handler',
         );
       }
 
@@ -195,4 +199,7 @@ final class CommandDeclarationBuilder implements CommandBuilder {
 
     return registrations;
   }
+
+  @override
+  CommandDeclarationBuilder? get declaration => this;
 }

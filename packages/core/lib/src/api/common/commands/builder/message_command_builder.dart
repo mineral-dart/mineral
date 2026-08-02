@@ -1,4 +1,5 @@
 import 'package:mineral/src/api/common/commands/application_integration_type.dart';
+import 'package:mineral/src/api/common/commands/builder/command_declaration_builder.dart';
 import 'package:mineral/src/api/common/commands/builder/translation.dart';
 import 'package:mineral/src/api/common/commands/command_context_type.dart';
 import 'package:mineral/src/api/common/commands/command_helper.dart';
@@ -6,15 +7,19 @@ import 'package:mineral/src/api/common/commands/command_kind.dart';
 import 'package:mineral/src/api/common/commands/interaction_context_type.dart';
 import 'package:mineral/src/domains/commands/command_builder.dart';
 import 'package:mineral/src/domains/commands/command_handler.dart';
+import 'package:mineral/src/domains/commands/command_registration.dart';
 import 'package:mineral/src/domains/commands/contexts/message_command_context.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/command_name_exception.dart';
+import 'package:mineral/src/infrastructure/io/exceptions/invalid_command_exception.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/missing_property_exception.dart';
 
 final class MessageCommandBuilder implements CommandBuilder {
   final CommandHelper _helper = CommandHelper();
 
+  @override
   String? name;
   Map<String, String>? _nameLocalizations;
+  @override
   CommandContextType context = CommandContextType.guild;
   List<ApplicationIntegrationType>? integrationTypes;
   List<InteractionContextType>? interactionContexts;
@@ -60,6 +65,7 @@ final class MessageCommandBuilder implements CommandBuilder {
     return this;
   }
 
+  @override
   Map<String, dynamic> toJson() {
     if (name == null) {
       throw MissingPropertyException('Message command name is required');
@@ -75,4 +81,23 @@ final class MessageCommandBuilder implements CommandBuilder {
         'contexts': interactionContexts!.map((e) => e.value).toList(),
     };
   }
+
+  @override
+  List<CommandRegistration> reduceHandlers() {
+    final commandHandler = handle;
+    if (commandHandler == null) {
+      throw InvalidCommandException('Message command "$name" has no handler');
+    }
+
+    return [
+      CommandRegistration(
+        name: '$name',
+        handler: commandHandler,
+        declaredOptions: const [],
+      ),
+    ];
+  }
+
+  @override
+  CommandDeclarationBuilder? get declaration => null;
 }
