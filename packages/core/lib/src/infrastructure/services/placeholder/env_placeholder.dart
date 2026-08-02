@@ -58,8 +58,7 @@ final class EnvPlaceholder implements PlaceholderContract {
     final allowed = Map<String, dynamic>.fromEntries(
       env.toJson().entries.where((entry) {
         final normalizedKey = entry.key.toUpperCase();
-        return normalizedKey != tokenKey &&
-            allowedKeys.contains(normalizedKey);
+        return normalizedKey != tokenKey && allowedKeys.contains(normalizedKey);
       }),
     );
 

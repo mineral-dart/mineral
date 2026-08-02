@@ -83,9 +83,7 @@ void main() {
     });
 
     test('never exposes TOKEN via values when TOKEN is not allowlisted', () {
-      final placeholder = EnvPlaceholder(
-        keys: {'GUILD_ID', 'PREFIX', 'HOME'},
-      );
+      final placeholder = EnvPlaceholder(keys: {'GUILD_ID', 'PREFIX', 'HOME'});
       expect(placeholder.values.containsKey('env.TOKEN'), isFalse);
       expect(placeholder.values.values, isNot(contains(_fakeToken)));
     });
@@ -100,13 +98,10 @@ void main() {
       },
     );
 
-    test(
-      'hard-excludes TOKEN even when it is the only allowlisted key',
-      () {
-        final placeholder = EnvPlaceholder(keys: {'TOKEN'});
-        expect(placeholder.values, isEmpty);
-      },
-    );
+    test('hard-excludes TOKEN even when it is the only allowlisted key', () {
+      final placeholder = EnvPlaceholder(keys: {'TOKEN'});
+      expect(placeholder.values, isEmpty);
+    });
 
     test(
       'apply() never substitutes the token, even when TOKEN is allowlisted',
@@ -170,18 +165,15 @@ void main() {
       }
     });
 
-    test(
-      'TOKEN cannot escape through values or apply() under the real schema, '
-      'even when explicitly allowlisted',
-      () {
-        final placeholder = EnvPlaceholder(
-          keys: {'TOKEN', 'DART_ENV', 'LOG_LEVEL'},
-        );
-        expect(placeholder.values.containsKey('env.TOKEN'), isFalse);
-        expect(placeholder.values.values, isNot(contains(_fakeToken)));
-        expect(placeholder.apply('{env.TOKEN}'), '{env.TOKEN}');
-      },
-    );
+    test('TOKEN cannot escape through values or apply() under the real schema, '
+        'even when explicitly allowlisted', () {
+      final placeholder = EnvPlaceholder(
+        keys: {'TOKEN', 'DART_ENV', 'LOG_LEVEL'},
+      );
+      expect(placeholder.values.containsKey('env.TOKEN'), isFalse);
+      expect(placeholder.values.values, isNot(contains(_fakeToken)));
+      expect(placeholder.apply('{env.TOKEN}'), '{env.TOKEN}');
+    });
 
     test(
       'apply() does not throw on the enum-typed dartEnv/logLevel fields',

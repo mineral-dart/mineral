@@ -227,40 +227,39 @@ void main() {
     });
 
     group('round-trip (normalize -> serialize)', () {
-      test('preserves fields normalize nests and serialize reads flat', () async {
-        await expectRoundTrip<Guild>(serializer, rawDiscordPayload(), {
-          'Guild.assets.icon': (guild) => expect(
-            guild.assets.icon?.hash,
-            equals('a_1234567890abcdef1234567890abcdef'),
-          ),
-          'Guild.assets.splash': (guild) => expect(
-            guild.assets.splash?.hash,
-            equals('2234567890abcdef1234567890abcdef'),
-          ),
-          'Guild.assets.banner': (guild) => expect(
-            guild.assets.banner?.hash,
-            equals('4234567890abcdef1234567890abcdef'),
-          ),
-          'Guild.assets.discoverySplash': (guild) => expect(
-            guild.assets.discoverySplash?.hash,
-            equals('3234567890abcdef1234567890abcdef'),
-          ),
-          'Guild.settings.bitfieldPermission': (guild) => expect(
-            guild.settings.bitfieldPermission,
-            equals('2147483647'),
-          ),
-          'Guild.settings.afkTimeout': (guild) =>
-              expect(guild.settings.afkTimeout, equals(300)),
-          'Guild.settings.hasWidgetEnabled': (guild) =>
-              expect(guild.settings.hasWidgetEnabled, isTrue),
-          'Guild.settings.vanityUrlCode': (guild) => expect(
-            guild.settings.vanityUrlCode,
-            equals('test-guild'),
-          ),
-          'Guild.settings.maxVideoChannelUsers': (guild) =>
-              expect(guild.settings.maxVideoChannelUsers, equals(25)),
-        });
-      });
+      test(
+        'preserves fields normalize nests and serialize reads flat',
+        () async {
+          await expectRoundTrip<Guild>(serializer, rawDiscordPayload(), {
+            'Guild.assets.icon': (guild) => expect(
+              guild.assets.icon?.hash,
+              equals('a_1234567890abcdef1234567890abcdef'),
+            ),
+            'Guild.assets.splash': (guild) => expect(
+              guild.assets.splash?.hash,
+              equals('2234567890abcdef1234567890abcdef'),
+            ),
+            'Guild.assets.banner': (guild) => expect(
+              guild.assets.banner?.hash,
+              equals('4234567890abcdef1234567890abcdef'),
+            ),
+            'Guild.assets.discoverySplash': (guild) => expect(
+              guild.assets.discoverySplash?.hash,
+              equals('3234567890abcdef1234567890abcdef'),
+            ),
+            'Guild.settings.bitfieldPermission': (guild) =>
+                expect(guild.settings.bitfieldPermission, equals('2147483647')),
+            'Guild.settings.afkTimeout': (guild) =>
+                expect(guild.settings.afkTimeout, equals(300)),
+            'Guild.settings.hasWidgetEnabled': (guild) =>
+                expect(guild.settings.hasWidgetEnabled, isTrue),
+            'Guild.settings.vanityUrlCode': (guild) =>
+                expect(guild.settings.vanityUrlCode, equals('test-guild')),
+            'Guild.settings.maxVideoChannelUsers': (guild) =>
+                expect(guild.settings.maxVideoChannelUsers, equals(25)),
+          });
+        },
+      );
     });
   });
 }

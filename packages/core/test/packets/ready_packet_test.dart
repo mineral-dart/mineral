@@ -285,66 +285,63 @@ void main() {
       },
     );
 
-    test(
-      'Interleaving B: a cache write landing while READY is still in '
-      'flight (single shard) survives the clear',
-      () async {
-        final cache = FakeCacheProvider()
-          ..config = CacheConfig(clearOnReady: true, staggerClearMs: 0);
-        await cache.put('stale', {'from': 'previous session'});
+    test('Interleaving B: a cache write landing while READY is still in '
+        'flight (single shard) survives the clear', () async {
+      final cache = FakeCacheProvider()
+        ..config = CacheConfig(clearOnReady: true, staggerClearMs: 0);
+      await cache.put('stale', {'from': 'previous session'});
 
-        final gate = Completer<void>();
-        final entered = Completer<void>();
-        final blockingManager = _BlockingCommandManager(
-          gate: gate.future,
-          onEnter: () {
-            if (!entered.isCompleted) {
-              entered.complete();
-            }
-          },
-        );
+      final gate = Completer<void>();
+      final entered = Completer<void>();
+      final blockingManager = _BlockingCommandManager(
+        gate: gate.future,
+        onEnter: () {
+          if (!entered.isCompleted) {
+            entered.complete();
+          }
+        },
+      );
 
-        final marshallerWithCache = FakeMarshaller(cache: cache);
-        final p = ReadyPacket(
-          marshaller: marshallerWithCache,
-          commandManager: blockingManager,
-          wss: wss,
-          runtimeState: runtimeState,
-          entityContext: ctx,
-          cacheConfig: cache.config,
-        );
+      final marshallerWithCache = FakeMarshaller(cache: cache);
+      final p = ReadyPacket(
+        marshaller: marshallerWithCache,
+        commandManager: blockingManager,
+        wss: wss,
+        runtimeState: runtimeState,
+        entityContext: ctx,
+        cacheConfig: cache.config,
+      );
 
-        void dispatch<T extends Object>({
-          required Event event,
-          required T payload,
-          bool Function(String?)? constraint,
-        }) {}
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
 
-        final f1 = p.listen(_buildMessage(), dispatch);
+      final f1 = p.listen(_buildMessage(), dispatch);
 
-        // Block until READY's handling has reached (and is now blocked
-        // inside) the registerGlobal REST call -- the earliest point at
-        // which a concurrently-dispatched GUILD_CREATE could plausibly
-        // start writing to the cache, since the dispatcher does not
-        // serialize handlers.
-        await entered.future;
+      // Block until READY's handling has reached (and is now blocked
+      // inside) the registerGlobal REST call -- the earliest point at
+      // which a concurrently-dispatched GUILD_CREATE could plausibly
+      // start writing to the cache, since the dispatcher does not
+      // serialize handlers.
+      await entered.future;
 
-        // Simulate GUILD_CREATE hydrating the cache while READY is still
-        // in flight.
-        await cache.put('guild:1', {'hydrated': true});
+      // Simulate GUILD_CREATE hydrating the cache while READY is still
+      // in flight.
+      await cache.put('guild:1', {'hydrated': true});
 
-        gate.complete();
-        await f1;
+      gate.complete();
+      await f1;
 
-        expect(
-          cache.store.containsKey('guild:1'),
-          isTrue,
-          reason:
-              'a cache write landing during the READY window must survive; '
-              'the clear must not run after it',
-        );
-      },
-    );
+      expect(
+        cache.store.containsKey('guild:1'),
+        isTrue,
+        reason:
+            'a cache write landing during the READY window must survive; '
+            'the clear must not run after it',
+      );
+    });
   });
 }
 
