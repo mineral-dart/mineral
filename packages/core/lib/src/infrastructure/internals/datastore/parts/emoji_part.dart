@@ -15,7 +15,10 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
         .get<List<Map<String, dynamic>>>(req);
 
     final emojis = await result.map((element) async {
-      final raw = await marshaller.serializers.emojis.normalize(element);
+      final raw = await marshaller.serializers.emojis.normalize({
+        ...element,
+        'guild_id': parsedGuildId,
+      });
       return marshaller.serializers.emojis.serialize(raw);
     }).wait;
 
@@ -41,7 +44,10 @@ final class EmojiPart extends BasePart implements EmojiPartContract {
     );
     final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
-    final raw = await marshaller.serializers.emojis.normalize(result);
+    final raw = await marshaller.serializers.emojis.normalize({
+      ...result,
+      'guild_id': parsedGuildId,
+    });
     final emoji = await marshaller.serializers.emojis.serialize(raw);
 
     return emoji;

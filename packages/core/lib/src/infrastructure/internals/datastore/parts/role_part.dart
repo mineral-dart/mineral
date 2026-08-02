@@ -46,7 +46,10 @@ final class RolePart extends BasePart implements RolePartContract {
     final req = Request.json(endpoint: '/guilds/$parsedGuildId/roles/$roleId');
     final result = await dataStore.requestBucket.get<Map<String, dynamic>>(req);
 
-    final raw = await marshaller.serializers.role.normalize(result);
+    final raw = await marshaller.serializers.role.normalize({
+      ...result,
+      'guild_id': parsedGuildId,
+    });
     final channel = await marshaller.serializers.role.serialize(raw);
 
     return channel;
@@ -79,11 +82,11 @@ final class RolePart extends BasePart implements RolePartContract {
       req,
     );
 
-    final raw = await marshaller.serializers.role.normalize(result);
-    final role = await marshaller.serializers.role.serialize({
-      ...raw,
+    final raw = await marshaller.serializers.role.normalize({
+      ...result,
       'guild_id': parsedGuildId,
     });
+    final role = await marshaller.serializers.role.serialize(raw);
 
     return role;
   }
@@ -159,11 +162,11 @@ final class RolePart extends BasePart implements RolePartContract {
       req,
     );
 
-    final raw = await marshaller.serializers.role.normalize(result);
-    final role = await marshaller.serializers.role.serialize({
-      ...raw,
+    final raw = await marshaller.serializers.role.normalize({
+      ...result,
       'guild_id': parsedGuildId,
     });
+    final role = await marshaller.serializers.role.serialize(raw);
 
     return role;
   }

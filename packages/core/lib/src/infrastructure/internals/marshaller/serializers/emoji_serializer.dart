@@ -23,9 +23,9 @@ final class EmojiSerializer implements SerializerContract<Emoji> {
       'roles': json['roles'] != null
           ? List.from(json['roles'] as Iterable<dynamic>)
                 .map(
-                  (element) => _marshaller.cacheKey.guildEmoji(
+                  (element) => _marshaller.cacheKey.guildRole(
                     json['guild_id'] as String,
-                    (element as Map<String, dynamic>)['id'] as String,
+                    element as String,
                   ),
                 )
                 .toList()
