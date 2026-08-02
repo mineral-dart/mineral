@@ -18,7 +18,6 @@ final class VoiceState {
   final bool hasSelfVideo;
   final bool isSuppress;
   final DateTime? requestToSpeakTimestamp;
-  final bool isDiscoverable;
 
   VoiceState({
     required EntityContext ctx,
@@ -33,7 +32,6 @@ final class VoiceState {
     required this.hasSelfVideo,
     required this.isSuppress,
     required this.requestToSpeakTimestamp,
-    required this.isDiscoverable,
   }) : _ctx = ctx;
 
   /// Get related [User]
