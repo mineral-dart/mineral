@@ -36,9 +36,14 @@ enum Permission implements EnhancedEnum<int> {
   requestToSpeak(1 << 32),
   manageEvents(1 << 33),
   manageThreads(1 << 34),
-  usePublicThreads(1 << 35),
+  // `usePublicThreads`/`usePrivateThreads` (Discord's original names for
+  // these bits) were dropped rather than kept as aliases: two enum members
+  // sharing a bit made `bitfieldToList`/`Permissions.fromInt` return both
+  // for a single set bit, which corrupted the count going into a raw
+  // bitfield (see issue #471, A10). `createPublicThreads`/
+  // `createPrivateThreads` are Discord's current names and are kept as the
+  // sole members for these bits.
   createPublicThreads(1 << 35),
-  usePrivateThreads(1 << 36),
   createPrivateThreads(1 << 36),
   useExternalStickers(1 << 37),
   sendMessageInThreads(1 << 38),

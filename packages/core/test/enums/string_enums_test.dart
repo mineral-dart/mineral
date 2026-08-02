@@ -171,6 +171,53 @@ void main() {
     test('unknown value without orElse throws ArgumentError', () {
       expect(() => findInEnum(Permission.values, -999), throwsArgumentError);
     });
+
+    test('has no duplicate bit values across members (A10 alias decision)', () {
+      // `usePublicThreads`/`usePrivateThreads` were dropped in favour of
+      // `createPublicThreads`/`createPrivateThreads` so `Permission.values`
+      // never carries two entries for the same bit — see A10 in issue #471.
+      final values = Permission.values.map((p) => p.value).toList();
+
+      expect(values.toSet().length, equals(values.length));
+    });
+
+    test(
+      'listToBitfield(bitfieldToList(x)) round-trips every permission bit',
+      () {
+        for (final permission in Permission.values.where(
+          (p) => p != Permission.unknown,
+        )) {
+          final raw = permission.value;
+          final roundTripped = listToBitfield(
+            bitfieldToList(Permission.values, raw),
+          );
+
+          expect(
+            roundTripped,
+            equals(raw),
+            reason: 'round-trip failed for ${permission.name} (bit $raw)',
+          );
+        }
+      },
+    );
+
+    test(
+      'listToBitfield(bitfieldToList(x)) round-trips a combination covering every bit',
+      () {
+        final raw = Permission.values
+            .where((p) => p != Permission.unknown)
+            .fold<int>(
+              0,
+              (previous, permission) => previous | permission.value,
+            );
+
+        final roundTripped = listToBitfield(
+          bitfieldToList(Permission.values, raw),
+        );
+
+        expect(roundTripped, equals(raw));
+      },
+    );
   });
 
   group('InteractionContextType', () {

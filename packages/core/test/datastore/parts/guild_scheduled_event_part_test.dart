@@ -1,4 +1,5 @@
 import 'package:mineral/api.dart';
+import 'package:mineral/src/domains/common/utils/utils.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/guild_scheduled_event_part.dart';
 import 'package:test/test.dart';
 
@@ -156,6 +157,76 @@ void main() {
           ),
         );
       });
+    });
+
+    group('outbound timestamps (A11)', () {
+      // A11 — Discord expects an absolute instant. A bare local-zone
+      // ISO-8601 string (no Z/offset) is misread as UTC on Discord's side,
+      // shifting the event time by the host's UTC offset.
+      test(
+        'create sends scheduled_start_time/scheduled_end_time as UTC with a Z suffix',
+        () async {
+          rebuildWith([
+            FakeResponse<Map<String, dynamic>>(200, eventResponse()),
+          ]);
+
+          final utcStart = DateTime.utc(2026, 6, 1, 18, 0, 0);
+          final utcEnd = DateTime.utc(2026, 6, 1, 20, 0, 0);
+
+          await part.create(
+            guildId: '222222222222222222',
+            channelId: '333333333333333333',
+            name: 'Stage event',
+            privacyLevel: GuildScheduledEventPrivacyLevel.guildOnly,
+            scheduledStartTime: utcStart.toLocal(),
+            scheduledEndTime: utcEnd.toLocal(),
+            entityType: GuildScheduledEventEntityType.voice,
+          );
+
+          final body = http.requests.single.body as Map<String, dynamic>;
+          expect(
+            body['scheduled_start_time'],
+            equals(toDiscordTimestamp(utcStart)),
+          );
+          expect(
+            body['scheduled_end_time'],
+            equals(toDiscordTimestamp(utcEnd)),
+          );
+          expect(body['scheduled_start_time'], endsWith('Z'));
+          expect(body['scheduled_end_time'], endsWith('Z'));
+        },
+      );
+
+      test(
+        'update sends scheduled_start_time/scheduled_end_time as UTC with a Z suffix',
+        () async {
+          rebuildWith([
+            FakeResponse<Map<String, dynamic>>(200, eventResponse()),
+          ]);
+
+          final utcStart = DateTime.utc(2026, 6, 1, 18, 0, 0);
+          final utcEnd = DateTime.utc(2026, 6, 1, 20, 0, 0);
+
+          await part.update(
+            guildId: '222222222222222222',
+            id: '111111111111111111',
+            scheduledStartTime: utcStart.toLocal(),
+            scheduledEndTime: utcEnd.toLocal(),
+          );
+
+          final body = http.requests.single.body as Map<String, dynamic>;
+          expect(
+            body['scheduled_start_time'],
+            equals(toDiscordTimestamp(utcStart)),
+          );
+          expect(
+            body['scheduled_end_time'],
+            equals(toDiscordTimestamp(utcEnd)),
+          );
+          expect(body['scheduled_start_time'], endsWith('Z'));
+          expect(body['scheduled_end_time'], endsWith('Z'));
+        },
+      );
     });
 
     group('fetchUsers', () {
