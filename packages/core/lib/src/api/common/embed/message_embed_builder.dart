@@ -71,8 +71,12 @@ final class MessageEmbedBuilder {
     return this;
   }
 
+  // A11 — `timestamp` is a DateTime (not a String), consumed later by the
+  // embed serializer's `.toIso8601String()`. Normalizing to UTC here
+  // guarantees that eventual serialization carries the `Z` suffix and the
+  // correct absolute instant without needing to touch the serializer.
   MessageEmbedBuilder setTimestamp({DateTime? timestamp}) {
-    this.timestamp = timestamp ?? DateTime.now();
+    this.timestamp = (timestamp ?? DateTime.now()).toUtc();
     return this;
   }
 

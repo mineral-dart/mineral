@@ -372,6 +372,49 @@ void main() {
         expect(payload.containsKey('communication_disabled_until'), isTrue);
         expect(payload['communication_disabled_until'], isNotNull);
       });
+
+      test(
+        // A11 — the wire value must be an absolute instant (Z-suffixed
+        // UTC), not a bare local-zone timestamp: on a UTC+2 host, a bare
+        // local string reads as an instant an hour in the past for a
+        // 1-hour timeout, so the timeout would silently never apply.
+        'sends communication_disabled_until as a UTC instant with a Z suffix',
+        () async {
+          when(
+            () => mockMember.update(
+              guildId: any(named: 'guildId'),
+              memberId: any(named: 'memberId'),
+              payload: any(named: 'payload'),
+              reason: any(named: 'reason'),
+            ),
+          ).thenAnswer((_) async => member);
+
+          await member.exclude(duration: const Duration(hours: 1));
+
+          final captured = verify(
+            () => mockMember.update(
+              guildId: '222000222000222000',
+              memberId: '111000111000111000',
+              payload: captureAny(named: 'payload'),
+              reason: null,
+            ),
+          ).captured;
+
+          final payload = captured.single as Map<String, dynamic>;
+          final raw = payload['communication_disabled_until'] as String;
+
+          expect(raw, endsWith('Z'));
+
+          final parsed = DateTime.parse(raw);
+          expect(parsed.isUtc, isTrue);
+
+          final expected = DateTime.now().toUtc().add(const Duration(hours: 1));
+          expect(
+            parsed.difference(expected).abs(),
+            lessThan(const Duration(seconds: 5)),
+          );
+        },
+      );
     });
 
     group('unExclude', () {

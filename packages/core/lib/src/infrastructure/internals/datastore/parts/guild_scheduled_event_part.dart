@@ -1,6 +1,7 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
+import 'package:mineral/src/domains/common/utils/utils.dart';
 import 'package:mineral/src/infrastructure/internals/datastore/parts/base_part.dart';
 import 'package:mineral/src/infrastructure/internals/http/discord_header.dart';
 
@@ -75,12 +76,12 @@ final class GuildScheduledEventPart extends BasePart
     final body = <String, dynamic>{
       'name': name,
       'privacy_level': privacyLevel.value,
-      'scheduled_start_time': scheduledStartTime.toIso8601String(),
+      'scheduled_start_time': toDiscordTimestamp(scheduledStartTime),
       'entity_type': entityType.value,
       if (channelId != null) 'channel_id': channelId.toString(),
       if (entityMetadata != null) 'entity_metadata': entityMetadata.toJson(),
       if (scheduledEndTime != null)
-        'scheduled_end_time': scheduledEndTime.toIso8601String(),
+        'scheduled_end_time': toDiscordTimestamp(scheduledEndTime),
       if (description != null) 'description': description,
       if (image != null) 'image': image,
     };
@@ -121,9 +122,9 @@ final class GuildScheduledEventPart extends BasePart
       if (name != null) 'name': name,
       if (privacyLevel != null) 'privacy_level': privacyLevel.value,
       if (scheduledStartTime != null)
-        'scheduled_start_time': scheduledStartTime.toIso8601String(),
+        'scheduled_start_time': toDiscordTimestamp(scheduledStartTime),
       if (scheduledEndTime != null)
-        'scheduled_end_time': scheduledEndTime.toIso8601String(),
+        'scheduled_end_time': toDiscordTimestamp(scheduledEndTime),
       if (description != null) 'description': description,
       if (entityType != null) 'entity_type': entityType.value,
       if (status != null) 'status': status.value,

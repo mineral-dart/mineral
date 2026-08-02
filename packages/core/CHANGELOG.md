@@ -1,3 +1,107 @@
+## Unreleased
+
+Audit remediation (chantier #458). Version deliberately unassigned — the
+breaking changes below make this at least a major bump, but the call is the
+maintainer's.
+
+### Breaking changes
+
+All four sit on code paths that threw on every invocation, so no consumer had
+working code to break — but they are public-surface changes and are listed as
+such.
+
+- **`VoiceState.isDiscoverable` removed.** `discoverable` is not part of
+  Discord's voice state object; the field never carried data and `serialize`
+  null-cast on every voice state, so no `VoiceState` could ever be obtained.
+- **`Invite.inviterId` and `Invite.createdAt` are now nullable.** Vanity invites
+  genuinely have no inviter, and `created_at` only appears on the Invite
+  Metadata extension. A placeholder id would not have stayed inert:
+  `Invite.resolveInviter()` turns it into a real `GET /users/{id}`.
+- **`Permission.usePublicThreads` and `Permission.usePrivateThreads` removed.**
+  They duplicated the bit values of `createPublicThreads`/`createPrivateThreads`,
+  which made every permission bitfield round-trip carry into the adjacent bit.
+  Discord itself renamed these; the `create*` members are the current names.
+- **`EnvPlaceholder()` no longer exposes anything without an explicit
+  allowlist.** It previously copied the entire process environment — bot token
+  included — into a public substitution table. Pass
+  `EnvPlaceholder(keys: {...})` to opt in; the bot token is excluded
+  unconditionally regardless of the allowlist.
+
+### Fixed — paths that were broken on every call
+
+- `message.delete()`, `message.pin()` and every reaction threw a raw `TypeError`
+  (204 responses were cast through an untyped empty-map literal).
+- `guild.roles.get/create/update` and `guild.emojis.fetch/get` threw
+  `type 'Null' is not a subtype of type 'String'` — five datastore parts omitted
+  the `guild_id` injection their siblings perform.
+- `Guild.assets.icon`, `.splash`, `.banner`, `.discoverySplash`,
+  `settings.bitfieldPermission`, `.afkTimeout`, `.hasWidgetEnabled`,
+  `.vanityUrlCode` and `.maxVideoChannelUsers` were silently always null or
+  false — `serialize` read flat keys that `normalize` nests.
+- Every voice-state deserialization threw; every GIF and LOTTIE sticker threw
+  `StateError` (`FormatType` declared only two of Discord's four values).
+- Emoji `roles` were read as objects; Discord sends bare snowflake strings, and
+  the ids were mapped to the wrong cache-key namespace.
+
+### Fixed — resilience
+
+- A reconnect that failed before HELLO left `intentionalDisconnect` set forever,
+  killing the shard permanently while the process stayed alive and looked
+  healthy. The flag is now cleared in a `finally`, and a separate `shuttingDown`
+  flag carries the dispose intent it was overloaded with.
+- Resume connected to the bare `resume_gateway_url`, dropping `?v=` and
+  `encoding=`. Under `encoding=etf` this made Discord fall back to JSON frames
+  the ETF decoder silently discarded — permanent deafness. The URL is now built
+  in one place, shared by the initial connect and the resume path.
+- Gateway opcode handlers dropped the futures from `reconnect()`, `resume()` and
+  `heartbeat()`, so a `FatalGatewayException` reached the root zone and
+  terminated the host process.
+- A malformed or deeply nested ETF frame raised `RangeError` or
+  `StackOverflowError` — both `Error`, which the `on Exception` guard could not
+  catch — killing the isolate.
+- A consumer's button, modal or select-menu handler that threw killed the bot
+  process. Component dispatch now awaits inside the same crash boundary
+  `EventListener` already used, with an `onComponentError` callback.
+- `ReadyPacket`'s guard spanned two awaits, so a second shard's READY issued a
+  duplicate global-command registration; the staggered cache clear could also
+  land after GUILD_CREATE had already hydrated the cache.
+
+### Fixed — correctness
+
+- Unclassified HTTP statuses (304, 409, 413, 501) fell through the retry loop
+  and re-sent the request up to five times — five messages, for a POST — then
+  reported the failure as a rate limit. Statuses are now classified by range.
+- Non-JSON error bodies (Cloudflare HTML pages) raised a bare `FormatException`
+  that bypassed the retry path entirely and leaked the request queue entry.
+- Slash-command registration ignored every HTTP failure except 400 and bypassed
+  the rate-limit bucket entirely, so a bot in N guilds fired N unthrottled PUTs
+  at startup and silently ignored the resulting 429s.
+- Outbound timestamps were serialized in local time with no UTC offset, so
+  `member.exclude()` could transmit an instant in the past and silently never
+  apply.
+- Invites were cached under the voice-state key, clobbering the inviter's cached
+  voice state on the gateway path.
+
+### Security
+
+- The publish workflow no longer executes third-party dependency code in the job
+  holding the pub.dev OIDC token. `verify` (`contents: read`) runs
+  analyze/test/dry-run; `publish` (`needs: verify`, `id-token: write`) only
+  publishes. `pubspec.lock` is now committed and CI resolves with
+  `--enforce-lockfile`.
+- The rate-limit registry no longer keys an unbounded map by raw interaction and
+  webhook tokens, and evicts buckets whose reset window is long past.
+- `package:mineral/api.dart` no longer re-exports the whole of `env_guard`.
+  Seventeen files' worth of generic names (`Schema`, `Rule`, `Property`,
+  `Validator`, `Loader`, ...) are no longer part of mineral's public namespace.
+
+### Testing
+
+The fixtures backing the marshaller tests were rebuilt from the Discord wire
+format. They had been written to match what each serializer expected, so the
+suite validated the code against itself — green while the framework was broken.
+A `normalize -> serialize` round-trip assertion now guards that contract.
+
 ## 5.1.1
 
 ### WebSocket resilience fixes

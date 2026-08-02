@@ -19,6 +19,7 @@ import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/invalid_command_exception.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/missing_property_exception.dart';
 import 'package:mineral/src/infrastructure/services/http/request.dart';
+import 'package:mineral/src/infrastructure/services/http/response.dart';
 
 abstract class CommandInteractionManagerContract {
   final List<CommandRegistration> commandsHandler = [];
@@ -295,7 +296,15 @@ final class CommandInteractionManager
       endpoint: '/applications/${bot.id}/commands',
       body: payload,
     );
-    await _dataStore.client.put(req);
+
+    // Routed through the rate-limit bucket (not `_dataStore.client`
+    // directly) so backoff and bucket accounting apply, and any non-success
+    // status raises instead of completing as a silent success (#470).
+    await _dataStore.requestBucket.put<dynamic>(
+      req,
+      onError: (response) =>
+          _registrationFailure(response, scope: 'application ${bot.id}'),
+    );
   }
 
   @override
@@ -310,18 +319,69 @@ final class CommandInteractionManager
       body: payload,
     );
 
-    final response = await _dataStore.client.put(req);
-    if (response.statusCode == 400) {
-      final error = Map<String, dynamic>.from(
-        response.body['errors'] as Map<dynamic, dynamic>,
-      ).values.firstOrNull?['name'];
+    // `registerServer` runs once per GUILD_CREATE, so a bot in N guilds
+    // fires N PUTs at startup: routing through the bucket (instead of
+    // `_dataStore.client` directly) throttles that burst, and any
+    // non-success status (401/403/429/5xx — not just 400) raises instead of
+    // completing as a silent success (#470).
+    await _dataStore.requestBucket.put<dynamic>(
+      req,
+      onError: (response) =>
+          _registrationFailure(response, scope: 'guild ${guild.id}'),
+    );
+  }
 
-      final errors = List.from(
-        error?['_errors'] as Iterable<dynamic>? ?? [],
-      ).firstOrNull;
+  /// Builds the exception raised when Discord rejects a command-registration
+  /// PUT, whatever the status: 400 (invalid payload), 401 (bad token), 403
+  /// (missing `applications.commands` scope), 429 (rate limited — bucket
+  /// retry budget exhausted), or a 5xx. Discord's 400 responses carry a
+  /// structured `errors` object; when present, the first nested `_errors`
+  /// entry is surfaced verbatim for a precise diagnostic. Every other status
+  /// falls back to the raw status, body and scope (application or guild) so
+  /// the failure is never silent (#470).
+  InvalidCommandException _registrationFailure(
+    Response response, {
+    required String scope,
+  }) {
+    final detail = _extractValidationDetail(response.body) ?? response.bodyString;
 
-      throw InvalidCommandException('${errors['code']}: ${errors['message']}');
+    return InvalidCommandException(
+      'Command registration failed for $scope '
+      '(status ${response.statusCode}): $detail',
+    );
+  }
+
+  /// Extracts Discord's structured `{code, message}` validation detail from
+  /// a 400 response body, if present. Returns `null` for any other shape
+  /// (including every other error status) instead of throwing, so callers
+  /// can fall back to the raw body.
+  String? _extractValidationDetail(Object? body) {
+    if (body is! Map) {
+      return null;
     }
+
+    final errors = body['errors'];
+    if (errors is! Map) {
+      return null;
+    }
+
+    final firstField = Map<String, dynamic>.from(errors).values.firstOrNull;
+    if (firstField is! Map) {
+      return null;
+    }
+
+    final nameField = firstField['name'];
+    final nestedErrors = nameField is Map ? nameField['_errors'] : null;
+    if (nestedErrors is! Iterable) {
+      return null;
+    }
+
+    final first = nestedErrors.cast<dynamic>().firstOrNull;
+    if (first is! Map) {
+      return null;
+    }
+
+    return '${first['code']}: ${first['message']}';
   }
 
   List<CommandBuilder> _getContext(CommandContextType contextType) {
