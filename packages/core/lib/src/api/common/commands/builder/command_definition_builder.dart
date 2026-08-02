@@ -7,11 +7,13 @@ import 'package:mineral/src/api/common/commands/builder/command_declaration_buil
 import 'package:mineral/src/api/common/commands/builder/sub_command_builder.dart';
 import 'package:mineral/src/api/common/commands/builder/translation.dart';
 import 'package:mineral/src/api/common/commands/command_choice_option.dart';
+import 'package:mineral/src/api/common/commands/command_context_type.dart';
 import 'package:mineral/src/api/common/commands/command_option.dart';
 import 'package:mineral/src/api/common/lang.dart';
 import 'package:mineral/src/domains/commands/command_builder.dart';
 import 'package:mineral/src/domains/commands/command_context.dart';
 import 'package:mineral/src/domains/commands/command_handler.dart';
+import 'package:mineral/src/domains/commands/command_registration.dart';
 import 'package:mineral/src/infrastructure/io/exceptions/invalid_command_exception.dart';
 import 'package:yaml/yaml.dart';
 
@@ -318,7 +320,13 @@ final class CommandDefinitionBuilder implements CommandBuilder {
     }
   }
 
-  void context<T>(String key, Function(T) fn) {
+  /// Looks up the builder declared under [key] (a root command, sub-command,
+  /// or group sub-command key from the loaded definition) and hands it to
+  /// [fn] for further, programmatic configuration.
+  ///
+  /// Named `configure` — not `context` — because [CommandBuilder] already
+  /// reserves `context` for [CommandContextType] (see #478).
+  void configure<T>(String key, Function(T) fn) {
     final command = _commandMapper.entries.firstWhere(
       (element) => element.key == key,
     );
@@ -359,4 +367,19 @@ final class CommandDefinitionBuilder implements CommandBuilder {
     _declareGroups(payload);
     _declareSubCommands(payload);
   }
+
+  @override
+  String? get name => command.name;
+
+  @override
+  CommandContextType get context => command.context;
+
+  @override
+  Map<String, dynamic> toJson() => command.toJson();
+
+  @override
+  List<CommandRegistration> reduceHandlers() => command.reduceHandlers();
+
+  @override
+  CommandDeclarationBuilder? get declaration => command;
 }
