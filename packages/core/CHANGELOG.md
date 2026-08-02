@@ -21,6 +21,17 @@ such.
   They duplicated the bit values of `createPublicThreads`/`createPrivateThreads`,
   which made every permission bitfield round-trip carry into the adjacent bit.
   Discord itself renamed these; the `create*` members are the current names.
+- **`CommandBuilder` now declares members.** It was an empty marker interface;
+  it now requires `name`, `context`, `toJson()`, `reduceHandlers()` and
+  `declaration`. Downstream code that implements it must supply them. This is
+  what removes five duplicated type-switches from the command manager and makes
+  a new builder type a compile-time concern rather than a runtime throw.
+- **`CommandDefinitionBuilder.context<T>()` renamed to `configure<T>()`.** It
+  collided with the interface's `context` getter. The renamed method had no
+  usages anywhere in the repository and no tests; the `context` getter is the
+  established convention across the other builders.
+- **`CommandDeclarationBuilder.reduceHandlers(String)` is now no-arg.** Every
+  call site passed the receiver's own `name`.
 - **`EnvPlaceholder()` no longer exposes anything without an explicit
   allowlist.** It previously copied the entire process environment — bot token
   included — into a public substitution table. Pass
@@ -42,6 +53,14 @@ such.
   `StateError` (`FormatType` declared only two of Discord's four values).
 - Emoji `roles` were read as objects; Discord sends bare snowflake strings, and
   the ids were mapped to the wrong cache-key namespace.
+- Button clicks in direct messages dispatched nothing at all — not the
+  component handler, not even `Event.privateButtonClick`. The private handler
+  matched `ButtonType` against the button's `custom_id` instead of its `type`,
+  so the lookup failed for every realistic id and the method returned early.
+  Behind that sat two further defects: the interactive component manager was
+  never called, and the author was read from `payload['member']`, which Discord
+  omits in a DM. All three are fixed together; fixing only the first would have
+  turned a silent no-op into a null-cast crash.
 
 ### Fixed — resilience
 
@@ -94,6 +113,15 @@ such.
 - `package:mineral/api.dart` no longer re-exports the whole of `env_guard`.
   Seventeen files' worth of generic names (`Schema`, `Rule`, `Property`,
   `Validator`, `Loader`, ...) are no longer part of mineral's public namespace.
+
+### Internal
+
+- `ClientBuilder.build()`'s wiring is extracted into a pure `composeApp`
+  function so the composition root can be tested. `build()` stays synchronous
+  and its behaviour is unchanged. Both hand-closed construction cycles and
+  `packetListener.init()` now have tests; deleting either line fails exactly one
+  of them. `composeApp` and `AppComposition` are hidden from the public barrel —
+  they exist for testability and expose internal types.
 
 ### Testing
 
