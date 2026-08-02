@@ -8,9 +8,17 @@ import '../helpers/fake_entity_context.dart';
 final class _NoopInteractiveComponent
     implements InteractiveComponentManagerContract {
   @override
+  void Function(
+    InteractiveComponent component,
+    Object error,
+    StackTrace stackTrace,
+  )?
+  onComponentError;
+
+  @override
   void register(InteractiveComponent component) {}
   @override
-  void dispatch(String customId, List params) {}
+  Future<void> dispatch(String customId, List params) async {}
   @override
   T get<T extends InteractiveComponent>(String customId) =>
       throw UnimplementedError();

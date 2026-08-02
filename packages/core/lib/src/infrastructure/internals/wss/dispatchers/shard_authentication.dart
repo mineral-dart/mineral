@@ -22,7 +22,29 @@ final class ShardAuthentication implements ShardAuthenticationContract {
   int attempts = 0;
   int _reconnectAttempts = 0;
   bool _pendingResume = false;
+
+  /// True only for the brief window in which [_reconnectWithStrategy] is
+  /// closing the *current* socket to start a reconnect/resume attempt.
+  /// It masks the close/error events that self-disconnect triggers so they
+  /// are not mistaken for a fresh, externally-caused disconnect.
+  ///
+  /// It must NOT stay true for the duration of the whole reconnect attempt:
+  /// if the *new* connection then fails (e.g. `WebsocketClientImpl.connect`
+  /// swallowing a `SocketException` and reporting it as a close), that
+  /// close needs to reach [ShardNetworkErrorContract.dispatch] so another
+  /// reconnect gets scheduled — otherwise the shard goes silently dead
+  /// after a single failed attempt (see chantier A5).
   bool intentionalDisconnect = false;
+
+  /// True once the process has begun a deliberate, permanent teardown
+  /// (e.g. `Kernel.dispose`). Distinct from [intentionalDisconnect] on
+  /// purpose: that flag is transient and cleared automatically after every
+  /// reconnect attempt, while this one is meant to stay true for good and
+  /// suppress any further reconnect scheduling once set. Nothing in this
+  /// file's scope currently sets it — wiring it from `Kernel.dispose` is a
+  /// follow-up outside this chantier's file scope.
+  bool shuttingDown = false;
+
   Timer? _heartbeatTimer;
 
   ShardAuthentication(this.shard);
@@ -68,38 +90,23 @@ final class ShardAuthentication implements ShardAuthenticationContract {
     shard.client.send(message.build());
   }
 
-  /// Handles errors from fire-and-forget heartbeat futures.
-  ///
-  /// [FatalGatewayException] → cancel heartbeat, disconnect the client, and
-  /// invoke [WebsocketOrchestrator.onFatalDisconnect] if available.
-  ///
-  /// Any other error is logged and rethrown so unexpected programming errors
-  /// are not silently discarded.
-  void _onHeartbeatError(Object error, StackTrace stack) {
-    if (error is FatalGatewayException) {
-      shard.logger.error(
-        'Fatal gateway error during heartbeat: ${error.message} (${error.code}). Cannot reconnect.',
-      );
-      cancelHeartbeat();
-      unawaited(shard.client.disconnect());
-      unawaited(shard.wss.onFatalDisconnect?.call() ?? Future<void>.value());
-      return; // handled — do not propagate
-    }
-    shard.logger.error('Unexpected heartbeat error: $error\n$stack');
-    Error.throwWithStackTrace(error, stack);
-  }
-
   void createHeartbeatTimer(int interval) {
     _heartbeatTimer?.cancel();
     final jitterDelay = Duration(
       milliseconds: (_random.nextDouble() * interval).toInt(),
     );
     _heartbeatTimer = Timer(jitterDelay, () {
-      unawaited(Future.sync(heartbeat).catchError(_onHeartbeatError));
+      unawaited(
+        Future.sync(heartbeat).catchError(shard.networkError.onReconnectError),
+      );
       _heartbeatTimer = Timer.periodic(Duration(milliseconds: interval), (
         timer,
       ) {
-        unawaited(Future.sync(heartbeat).catchError(_onHeartbeatError));
+        unawaited(
+          Future.sync(
+            heartbeat,
+          ).catchError(shard.networkError.onReconnectError),
+        );
       });
     });
   }
@@ -142,6 +149,14 @@ final class ShardAuthentication implements ShardAuthenticationContract {
     return Duration(seconds: baseSeconds) + jitter;
   }
 
+  /// Builds a full gateway URL (host + `?v=` + `encoding=`), mirroring the
+  /// formula `WebsocketOrchestrator.createShards` uses for the initial
+  /// connection. Discord's `resume_gateway_url` (unlike the `/gateway/bot`
+  /// endpoint) is returned WITHOUT a query string, so [resume] must reapply
+  /// these params itself or every reconnect after a resume silently loses
+  /// version/encoding negotiation (chantier A6) — most visibly with
+  /// `encoding=etf`, where Discord then falls back to JSON text frames that
+  /// [EtfEncoderStrategy] cannot decode.
   Future<void> _reconnectWithStrategy({
     required String action,
     bool resume = false,
@@ -155,8 +170,16 @@ final class ShardAuthentication implements ShardAuthenticationContract {
       _pendingResume = true;
     }
     attempts = 0;
+
+    // Only mask the close/error events caused by disconnecting the
+    // *current* socket below — not the outcome of the new connection
+    // attempt further down. See the `intentionalDisconnect` doc comment.
     intentionalDisconnect = true;
-    await shard.client.disconnect(code: _internalCloseCode);
+    try {
+      await shard.client.disconnect(code: _internalCloseCode);
+    } finally {
+      intentionalDisconnect = false;
+    }
 
     _reconnectAttempts++;
 
@@ -176,7 +199,12 @@ final class ShardAuthentication implements ShardAuthenticationContract {
     );
     await Future<void>.delayed(delay);
 
-    await shard.init(url: url);
+    // `url` is only ever passed explicitly by `resume()` (the bare
+    // `resume_gateway_url`); `reconnect()`/`resetConnection()` pass none and
+    // fall back to the shard's existing (already fully-qualified) `url`.
+    await shard.init(
+      url: url != null ? shard.wss.config.gatewayUrl(url) : null,
+    );
   }
 
   @override

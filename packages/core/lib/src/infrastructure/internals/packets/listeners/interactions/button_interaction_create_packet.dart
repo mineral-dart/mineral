@@ -102,7 +102,7 @@ final class ButtonInteractionCreatePacket implements ListenablePacket {
       constraint: (String? customId) => customId == ctx.customId,
     );
 
-    _interactiveComponentManager.dispatch(ctx.customId, [ctx]);
+    await _interactiveComponentManager.dispatch(ctx.customId, [ctx]);
   }
 
   Future<void> _handlePrivateButton(

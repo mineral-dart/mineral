@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 
 import '../../helpers/fake_cache_provider.dart';
 import '../../helpers/fake_marshaller.dart';
+import '../../helpers/serializer_round_trip.dart';
 
 void main() {
   group('StickerSerializer', () {
@@ -33,18 +34,25 @@ void main() {
       'guild_id': '987654321',
     };
 
+    // Mirrors the raw Sticker object Discord sends over the gateway and REST
+    // API (https://discord.com/developers/docs/resources/sticker). Must not
+    // be adjusted to match what the serializer currently expects — see
+    // test/helpers/serializer_round_trip.dart. Notably, `format_type` is
+    // 1=PNG, 2=APNG, 3=LOTTIE, 4=GIF, and `guild_id`/`available` are only
+    // present on guild stickers, never on standard-pack ones.
     Map<String, dynamic> rawDiscordPayload() => {
       'id': '111222333',
-      'name': 'cool_sticker',
-      'type': 2,
-      'available': true,
       'pack_id': 'pack_001',
+      'name': 'cool_sticker',
       'description': 'A cool sticker',
       'tags': 'cool,fun',
-      'asset': null,
+      'asset': '',
+      'type': 2,
       'format_type': 1,
-      'sort_value': 5,
+      'available': true,
       'guild_id': '987654321',
+      'user': {'id': '999888777', 'username': 'sticker_author'},
+      'sort_value': 5,
     };
 
     group('serialize()', () {
@@ -123,6 +131,77 @@ void main() {
         expect(result['available'], equals(json['available']));
         expect(result['format_type'], equals(json['format_type']));
       });
+    });
+
+    group('round-trip (normalize -> serialize)', () {
+      // Discord's sticker `format_type` is 1=PNG, 2=APNG, 3=LOTTIE, 4=GIF.
+      // `FormatType` now declares all four (standard/guild kept their
+      // original names to avoid a wider rename; lottie/gif were added).
+
+      test('format_type 1 (PNG) resolves', () async {
+        final raw = rawDiscordPayload()..['format_type'] = 1;
+
+        await expectRoundTrip<Sticker>(serializer, raw, {
+          'Sticker.formatType': (sticker) =>
+              expect(sticker.formatType, equals(FormatType.standard)),
+        });
+      });
+
+      test('format_type 2 (APNG) resolves', () async {
+        final raw = rawDiscordPayload()..['format_type'] = 2;
+
+        await expectRoundTrip<Sticker>(serializer, raw, {
+          'Sticker.formatType': (sticker) =>
+              expect(sticker.formatType, equals(FormatType.guild)),
+        });
+      });
+
+      test('format_type 3 (LOTTIE) resolves — this is the format of '
+          'every Discord standard sticker pack', () async {
+        // guild_id is left as a valid value here on purpose: normalize()
+        // itself hard-casts guild_id for the cache key (see the separate
+        // "no guild_id" case below), and mixing that failure in here would
+        // no longer isolate the format_type defect this case targets.
+        final raw = rawDiscordPayload()..['format_type'] = 3;
+
+        await expectRoundTrip<Sticker>(serializer, raw, {
+          'Sticker.formatType': (sticker) =>
+              expect(sticker.formatType, equals(FormatType.lottie)),
+        });
+      });
+
+      test('format_type 4 (GIF) resolves', () async {
+        final raw = rawDiscordPayload()..['format_type'] = 4;
+
+        await expectRoundTrip<Sticker>(serializer, raw, {
+          'Sticker.formatType': (sticker) =>
+              expect(sticker.formatType, equals(FormatType.gif)),
+        });
+      });
+
+      test('standard-pack sticker with no guild_id round-trips', () async {
+        final raw = rawDiscordPayload()..['type'] = StickerType.standard.value;
+
+        await expectRoundTripWithoutOptionals(serializer, raw, {'guild_id'});
+      });
+
+      test('available survives the round-trip when Discord sends it', () async {
+        await expectRoundTrip<Sticker>(serializer, rawDiscordPayload(), {
+          'Sticker.isAvailable': (sticker) =>
+              expect(sticker.isAvailable, isTrue),
+        });
+      });
+
+      test(
+        'round-trips when Discord omits the optional available field',
+        () async {
+          await expectRoundTripWithoutOptionals(
+            serializer,
+            rawDiscordPayload(),
+            {'available'},
+          );
+        },
+      );
     });
   });
 }

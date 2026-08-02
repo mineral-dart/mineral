@@ -94,6 +94,21 @@ void main() {
       expect((shard.client as FakeWebsocketClient).disconnected, isFalse);
     });
 
+    test('does nothing when shuttingDown is true (A5 flag split)', () {
+      // shuttingDown is the separate, permanent-teardown counterpart to
+      // intentionalDisconnect (see chantier A5) — it must independently
+      // suppress dispatch even though intentionalDisconnect is false.
+      final shard = _createShard(logger: logger)
+        ..client = FakeWebsocketClient();
+      shard.authentication.shuttingDown = true;
+      ShardNetworkError(shard).dispatch(4000);
+
+      expect(shard.authentication.intentionalDisconnect, isFalse);
+      expect(logger.warnings, isEmpty);
+      expect(logger.errors, isEmpty);
+      expect((shard.client as FakeWebsocketClient).disconnected, isFalse);
+    });
+
     group('resume codes', () {
       test('logs warning for code 4000 (unknownError)', () {
         final shard = _createShard(logger: logger)

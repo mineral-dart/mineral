@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 import '../../helpers/fake_cache_provider.dart';
 import '../../helpers/fake_entity_context.dart';
 import '../../helpers/fake_marshaller.dart';
+import '../../helpers/serializer_round_trip.dart';
 
 void main() {
   group('RoleSerializer', () {
@@ -35,16 +36,42 @@ void main() {
       'guild_id': '987654321',
     };
 
+    // Mirrors the Discord wire format for a role object exactly as Discord
+    // sends it (see
+    // https://discord.com/developers/docs/topics/permissions#role-object).
+    // Discord does NOT include `guild_id` on a role object — it is never
+    // present on the wire and must be injected by the caller before the
+    // payload reaches the serializer. Do not add fields here to make the
+    // serializer happy; if the serializer can't consume this shape, the
+    // serializer is wrong, not this fixture.
     Map<String, dynamic> rawDiscordPayload() => {
       'id': '123456789',
       'name': 'Admin',
       'color': 16711680,
       'hoist': true,
+      'icon': null,
+      'unicode_emoji': null,
       'position': 3,
       'permissions': '8',
       'managed': false,
       'mentionable': true,
+      'tags': <String, dynamic>{},
       'flags': 0,
+    };
+
+    // What a correctly-behaving caller (RolePart.fetch,
+    // GuildRoleCreatePacket) hands to `normalize()`: the genuine Discord
+    // payload plus the `guild_id` it injected itself.
+    //
+    // This is the serializer's real contract, so it is what the round-trip
+    // group exercises. Requiring guild_id is by design — Discord never sends
+    // it on a role object, and injecting it is the caller's job.
+    //
+    // The defect where a caller FORGETS to inject it (RolePart.get/create/
+    // update) is a datastore-part concern, not a serializer one; its
+    // regression tests belong in test/datastore/parts/role_part_test.dart.
+    Map<String, dynamic> rawDiscordPayloadWithGuildId() => {
+      ...rawDiscordPayload(),
       'guild_id': '987654321',
     };
 
@@ -140,20 +167,24 @@ void main() {
 
     group('normalize()', () {
       test('writes to cache with guildRole key', () async {
-        await serializer.normalize(rawDiscordPayload());
+        await serializer.normalize(rawDiscordPayloadWithGuildId());
 
         final expectedKey = CacheKey().guildRole('987654321', '123456789');
         expect(cache.store.containsKey(expectedKey), isTrue);
       });
 
-      test('renames guild_id to guild_id', () async {
-        final result = await serializer.normalize(rawDiscordPayload());
+      test('passes through the guild_id injected by the caller', () async {
+        final result = await serializer.normalize(
+          rawDiscordPayloadWithGuildId(),
+        );
 
         expect(result, containsPair('guild_id', '987654321'));
       });
 
       test('preserves all fields in cached payload', () async {
-        final result = await serializer.normalize(rawDiscordPayload());
+        final result = await serializer.normalize(
+          rawDiscordPayloadWithGuildId(),
+        );
 
         expect(result['id'], equals('123456789'));
         expect(result['name'], equals('Admin'));
@@ -180,6 +211,24 @@ void main() {
         expect(result['mentionable'], equals(json['mentionable']));
         expect(result['flags'], equals(json['flags']));
         expect(result['color'], equals(json['color']));
+      });
+    });
+
+    group('round-trip (normalize -> serialize)', () {
+      test('preserves fields through the real pipeline', () async {
+        await expectRoundTrip<Role>(serializer, rawDiscordPayloadWithGuildId(), {
+          'Role.id': (role) => expect(role.id, equals(Snowflake('123456789'))),
+          'Role.name': (role) => expect(role.name, equals('Admin')),
+          'Role.color': (role) => expect(role.color.toInt(), equals(16711680)),
+          'Role.hoist': (role) => expect(role.hoist, isTrue),
+          'Role.position': (role) => expect(role.position, equals(3)),
+          'Role.permissions': (role) => expect(role.permissions.raw, equals(8)),
+          'Role.managed': (role) => expect(role.managed, isFalse),
+          'Role.mentionable': (role) => expect(role.mentionable, isTrue),
+          'Role.flags': (role) => expect(role.flags, equals(0)),
+          'Role.guildId': (role) =>
+              expect(role.guildId, equals(Snowflake('987654321'))),
+        });
       });
     });
   });
