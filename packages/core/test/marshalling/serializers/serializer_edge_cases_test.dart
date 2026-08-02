@@ -148,11 +148,13 @@ void main() {
 
     group('normalize() with null inviter (vanity invites)', () {
       test(
-        'crashes when inviter is null due to voiceState requiring non-nullable args',
+        'does not throw and caches under invites/<code>, not voice_states',
         () async {
-          // BUG: cacheKey.voiceState() expects (Object, Object) but receives
-          // null for inviter?['id']. This causes a TypeError at runtime.
-          // Vanity invites from the Discord API can have inviter: null.
+          // Fixed by #463: normalize() no longer hard-casts inviter?['id'],
+          // and writes to cacheKey.invite(code) instead of
+          // cacheKey.voiceState(guildId, inviterId) — so a null inviter
+          // (vanity invites) neither throws nor pollutes the voice-state
+          // cache namespace.
           final payload = {
             'channel_id': '111222333',
             'code': 'vanity-url',
@@ -166,33 +168,35 @@ void main() {
             'type': 0,
           };
 
+          await serializer.normalize(payload);
+
           expect(
-            () => serializer.normalize(payload),
-            throwsA(isA<TypeError>()),
+            cache.store.containsKey(CacheKey().invite('vanity-url')),
+            isTrue,
+          );
+          expect(
+            cache.store.keys.where((key) => key.startsWith('voice_states/')),
+            isEmpty,
           );
         },
       );
     });
 
     group('normalize() with missing optional fields', () {
-      test(
-        'crashes when inviter is absent due to voiceState null arg',
-        () async {
-          // BUG: Same root cause as the null inviter test above.
-          // When inviter key is missing, inviter?['id'] is null,
-          // which is passed to cacheKey.voiceState().
-          final payload = {
-            'code': 'abc123',
-            'guild_id': '987654321',
-            'type': 0,
-          };
+      test('does not throw when inviter is absent', () async {
+        // Fixed by #463: same root cause as the null-inviter test above —
+        // an absent inviter key must not throw or reach the voice-state
+        // namespace.
+        final payload = {'code': 'abc123', 'guild_id': '987654321', 'type': 0};
 
-          expect(
-            () => serializer.normalize(payload),
-            throwsA(isA<TypeError>()),
-          );
-        },
-      );
+        await serializer.normalize(payload);
+
+        expect(cache.store.containsKey(CacheKey().invite('abc123')), isTrue);
+        expect(
+          cache.store.keys.where((key) => key.startsWith('voice_states/')),
+          isEmpty,
+        );
+      });
 
       test('handles null expires_at gracefully', () async {
         final payload = {
