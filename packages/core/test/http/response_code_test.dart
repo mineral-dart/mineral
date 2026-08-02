@@ -71,10 +71,22 @@ void main() {
         expect(errorCodeValues, contains(404));
         expect(errorCodeValues, contains(405));
         expect(errorCodeValues, contains(500));
+        expect(errorCodeValues, contains(501));
         expect(errorCodeValues, contains(502));
         expect(errorCodeValues, contains(503));
         expect(errorCodeValues, contains(504));
-        expect(errorCodeValues, contains(0));
+      });
+
+      test('does not contain the bogus unknown(0) placeholder', () {
+        // unknown(0) is not a real HTTP status. Classification is by range
+        // (see HttpClientStatusImpl), so a status this list doesn't know
+        // about must fall to "error" on its own merits, not because a
+        // sentinel code happens to be enumerated here.
+        final errorCodeValues = ResponseCode.errorsCodes
+            .map((e) => e.code)
+            .toList();
+
+        expect(errorCodeValues, isNot(contains(0)));
       });
 
       test('does not contain success codes', () {

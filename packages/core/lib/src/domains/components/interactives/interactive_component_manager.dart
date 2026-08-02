@@ -7,9 +7,16 @@ abstract interface class InteractiveComponentService {
 
 abstract interface class InteractiveComponentManagerContract
     implements InteractiveComponentService {
+  void Function(
+    InteractiveComponent component,
+    Object error,
+    StackTrace stackTrace,
+  )?
+  onComponentError;
+
   void register(InteractiveComponent component);
 
-  void dispatch(String customId, List params);
+  Future<void> dispatch(String customId, List params);
 }
 
 final class InteractiveComponentManager
@@ -17,26 +24,52 @@ final class InteractiveComponentManager
   final Map<String, InteractiveComponent> _components = {};
 
   @override
+  void Function(
+    InteractiveComponent component,
+    Object error,
+    StackTrace stackTrace,
+  )?
+  onComponentError;
+
+  final LoggerContract _logger;
+
+  InteractiveComponentManager({required LoggerContract logger})
+    : _logger = logger;
+
+  @override
   void register(InteractiveComponent component) {
     _components[component.customId] = component;
   }
 
   @override
-  void dispatch(String customId, List params) {
+  Future<void> dispatch(String customId, List params) async {
     final component = _components[customId];
     if (component == null) {
       return;
     }
 
-    switch (component) {
-      case final InteractiveButton button when params.isNotEmpty:
-        button.handle(params[0] as ButtonContext);
-      case final InteractiveModal modal when params.length >= 2:
-        modal.handle(params[0] as ModalContext, params[1]);
-      case final InteractiveSelectMenu select when params.length >= 2:
-        select.handle(params[0] as SelectContext, params[1]);
-      default:
-        return;
+    try {
+      switch (component) {
+        case final InteractiveButton button when params.isNotEmpty:
+          await button.handle(params[0] as ButtonContext);
+        case final InteractiveModal modal when params.length >= 2:
+          await modal.handle(params[0] as ModalContext, params[1]);
+        case final InteractiveSelectMenu select when params.length >= 2:
+          await select.handle(params[0] as SelectContext, params[1]);
+        default:
+          return;
+      }
+    } on Exception catch (e, stackTrace) {
+      _logger
+        ..error('Failed to dispatch component "$customId": $e')
+        ..trace('$stackTrace');
+      onComponentError?.call(component, e, stackTrace);
+      // ignore: avoid_catching_errors, crash-safety boundary for component handlers
+    } on Error catch (e, stackTrace) {
+      _logger
+        ..error('Failed to dispatch component "$customId": $e')
+        ..trace('$stackTrace');
+      onComponentError?.call(component, e, stackTrace);
     }
   }
 

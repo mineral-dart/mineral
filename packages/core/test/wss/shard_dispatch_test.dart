@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:mineral/src/domains/services/packets/packet_dispatcher.dart';
 import 'package:mineral/src/domains/services/packets/packet_type.dart';
@@ -8,9 +9,12 @@ import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.d
 import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_authentication.dart';
 import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_data.dart';
 import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_network_error.dart';
+import 'package:mineral/src/infrastructure/internals/wss/encoding_strategies/etf_encoder.dart';
 import 'package:mineral/src/infrastructure/internals/wss/running_strategies/default_running_strategy.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard_message.dart';
+import 'package:mineral/src/infrastructure/io/exceptions/serialization_exception.dart';
+import 'package:mineral/src/infrastructure/services/wss/websocket_client.dart';
 import 'package:mineral/src/infrastructure/services/wss/websocket_message.dart';
 import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
@@ -387,6 +391,285 @@ void main() {
       );
 
       expect(shard.authentication.sequence, equals(42));
+    });
+  });
+
+  // ── A7 regression: opcode-triggered futures must not become unhandled ───
+
+  group('Shard.handleGatewayMessage — A7 (opcode-triggered futures must not '
+      'become unhandled)', () {
+    Shard fatalShard({
+      required FakeLogger logger,
+      required Future<void> Function() onFatalDisconnect,
+    }) {
+      final wss = FakeWebsocketOrchestrator(maxReconnectAttempts: 0)
+        ..onFatalDisconnect = onFatalDisconnect;
+      return Shard(
+        shardName: 'test-shard-0',
+        shardIndex: 0,
+        shardCount: 1,
+        url: 'wss://fake',
+        wss: wss,
+        logger: logger,
+        strategy: FakeRunningStrategy(),
+      )..client = FakeWebsocketClient();
+    }
+
+    test(
+      'OpCode.reconnect: a FatalGatewayException from reconnect() is '
+      'routed to the fatal-shutdown handler instead of escaping the zone',
+      () async {
+        var fatalCalled = false;
+        final shard = fatalShard(
+          logger: FakeLogger(),
+          onFatalDisconnect: () async {
+            fatalCalled = true;
+          },
+        );
+
+        final uncaughtErrors = <Object>[];
+        await runZonedGuarded(() async {
+          shard.handleGatewayMessage(
+            _message(
+              ShardMessage(
+                type: null,
+                opCode: OpCode.reconnect,
+                sequence: null,
+                payload: null,
+              ),
+            ),
+          );
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+        }, (e, _) => uncaughtErrors.add(e));
+
+        expect(
+          uncaughtErrors,
+          isEmpty,
+          reason:
+              'Before the A7 fix, authentication.reconnect() was called '
+              'bare (its Future discarded); once maxReconnectAttempts is '
+              'exceeded it throws FatalGatewayException, which becomes an '
+              'unhandled error in the root zone and kills the process.',
+        );
+        expect(
+          fatalCalled,
+          isTrue,
+          reason:
+              'the exception must reach the graceful fatal-shutdown '
+              'path, not just avoid crashing',
+        );
+
+        shard.authentication.cancelHeartbeat();
+      },
+    );
+
+    test('OpCode.invalidSession (payload=true): a FatalGatewayException from '
+        'resume() is routed to the fatal-shutdown handler', () async {
+      var fatalCalled = false;
+      final shard = fatalShard(
+        logger: FakeLogger(),
+        onFatalDisconnect: () async {
+          fatalCalled = true;
+        },
+      );
+
+      final uncaughtErrors = <Object>[];
+      await runZonedGuarded(() async {
+        shard.handleGatewayMessage(
+          _message(
+            ShardMessage(
+              type: null,
+              opCode: OpCode.invalidSession,
+              sequence: null,
+              payload: true,
+            ),
+          ),
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }, (e, _) => uncaughtErrors.add(e));
+
+      expect(uncaughtErrors, isEmpty);
+      expect(fatalCalled, isTrue);
+
+      shard.authentication.cancelHeartbeat();
+    });
+
+    test('OpCode.invalidSession (payload=false): a FatalGatewayException '
+        'from reconnect() is routed to the fatal-shutdown handler', () async {
+      var fatalCalled = false;
+      final shard = fatalShard(
+        logger: FakeLogger(),
+        onFatalDisconnect: () async {
+          fatalCalled = true;
+        },
+      );
+
+      final uncaughtErrors = <Object>[];
+      await runZonedGuarded(() async {
+        shard.handleGatewayMessage(
+          _message(
+            ShardMessage(
+              type: null,
+              opCode: OpCode.invalidSession,
+              sequence: null,
+              payload: false,
+            ),
+          ),
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }, (e, _) => uncaughtErrors.add(e));
+
+      expect(uncaughtErrors, isEmpty);
+      expect(fatalCalled, isTrue);
+
+      shard.authentication.cancelHeartbeat();
+    });
+
+    test('OpCode.heartbeat: a FatalGatewayException from '
+        "heartbeat()'s resetConnection() (3 failed attempts) is routed to "
+        'the fatal-shutdown handler', () async {
+      var fatalCalled = false;
+      final shard = fatalShard(
+        logger: FakeLogger(),
+        onFatalDisconnect: () async {
+          fatalCalled = true;
+        },
+      );
+      shard.authentication.attempts = 3;
+
+      final uncaughtErrors = <Object>[];
+      await runZonedGuarded(() async {
+        shard.handleGatewayMessage(
+          _message(
+            ShardMessage(
+              type: null,
+              opCode: OpCode.heartbeat,
+              sequence: null,
+              payload: null,
+            ),
+          ),
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }, (e, _) => uncaughtErrors.add(e));
+
+      expect(uncaughtErrors, isEmpty);
+      expect(fatalCalled, isTrue);
+
+      shard.authentication.cancelHeartbeat();
+    });
+  });
+
+  // ── A16 regression: malformed ETF frames must not kill the isolate ──────
+
+  group('EtfEncoderStrategy.decode — A16 (malformed ETF frames must not kill '
+      'the isolate)', () {
+    WebsocketMessage rawMessage(List<int> bytes) => WebsocketMessageImpl(
+      channelName: 'test',
+      originalContent: bytes,
+      content: bytes,
+    );
+
+    test('a truncated frame (RangeError from eterl) is converted to '
+        'SerializationException, not left as a raw Error', () {
+      final strategy = EtfEncoderStrategy(logger: FakeLogger());
+      // ETF version byte (131) + binaryExt tag (109) with no
+      // length/payload bytes: eterl's Decoder._read32() reads past the
+      // end of the 2-byte buffer and throws RangeError.
+      final message = rawMessage([131, 109]);
+
+      expect(
+        () => strategy.decode(message),
+        throwsA(isA<SerializationException>()),
+        reason:
+            "eterl 1.1.0's decoder has no bounds checking. Before the "
+            'A16 fix, decode() only caught SerializationException/'
+            'Exception, so this RangeError (an Error) escaped raw and '
+            'would have killed the isolate at the caller.',
+      );
+    });
+
+    test('a deeply nested frame (StackOverflowError from eterl) is '
+        'converted to SerializationException', () {
+      final strategy = EtfEncoderStrategy(logger: FakeLogger());
+      // 200k levels of smallTupleExt(arity 1) nesting: decode()
+      // recurses once per level with no depth limit, overflowing the
+      // stack.
+      final bytes = <int>[131];
+      for (var i = 0; i < 200000; i++) {
+        bytes.addAll([104, 1]);
+      }
+      bytes.addAll([97, 1]); // smallIntegerExt leaf
+      final message = rawMessage(bytes);
+
+      expect(
+        () => strategy.decode(message),
+        throwsA(isA<SerializationException>()),
+      );
+    });
+
+    test('a well-formed frame still decodes normally', () {
+      final strategy = EtfEncoderStrategy(logger: FakeLogger());
+      // smallIntegerExt(1) wrapped in a 1-arity smallTupleExt is not a
+      // map, so decode via a minimal valid map instead: mapExt with 0
+      // entries -> {}.
+      final message = rawMessage([131, 116, 0, 0, 0, 0]);
+
+      final decoded = strategy.decode(message);
+
+      expect(decoded.content, isA<ShardMessage>());
+    });
+  });
+
+  // ── A16 regression: WebsocketClientImpl defense-in-depth ────────────────
+
+  group('WebsocketClientImpl._handleMessage — A16 (a raw Error from an '
+      'interceptor must not kill the isolate)', () {
+    test('a frame is dropped (not delivered, not thrown) when a message '
+        'interceptor throws a raw Error', () async {
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      addTearDown(() => server.close(force: true));
+      server.listen((request) async {
+        final socket = await WebSocketTransformer.upgrade(request);
+        socket.add('trigger');
+      });
+
+      final logger = FakeLogger();
+      final client = WebsocketClientImpl(
+        url: 'ws://127.0.0.1:${server.port}',
+        logger: logger,
+      );
+      client.interceptor.message.add((message) {
+        // Simulates an encoding strategy (or any other interceptor)
+        // that slips a raw Error through instead of converting it to
+        // SerializationException.
+        throw RangeError('simulated malformed frame');
+      });
+
+      final received = <dynamic>[];
+      final uncaughtErrors = <Object>[];
+      await runZonedGuarded(() async {
+        await client.listen(received.add);
+        await client.connect();
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      }, (e, _) => uncaughtErrors.add(e));
+
+      expect(
+        received,
+        isEmpty,
+        reason: 'the malformed frame must be dropped, not delivered',
+      );
+      expect(
+        uncaughtErrors,
+        isEmpty,
+        reason:
+            'Before the A16 fix, _handleMessage only caught '
+            'SerializationException, so this raw RangeError would have '
+            'escaped and killed the isolate instead of just dropping '
+            'the one bad frame.',
+      );
+      expect(logger.warnings, contains(contains('malformed gateway frame')));
+
+      await client.disconnect();
     });
   });
 }

@@ -27,12 +27,23 @@ final class EtfEncoderStrategy implements EncodingStrategy {
       return message..content = ShardMessage.of(content);
     } on SerializationException {
       rethrow;
+      // eterl 1.1.0's decoder has no bounds checking (a truncated/malformed
+      // frame throws RangeError) and no recursion depth limit (a deeply
+      // nested payload throws StackOverflowError). Both are Error, not
+      // Exception, and must be converted here rather than escaping and
+      // killing the isolate (chantier A16). Mirrors the accepted pattern at
+      // shard.dart's opcode-processing crash-safety boundary.
+      // ignore: avoid_catching_errors
+    } on Error catch (e) {
+      _fail(e);
     } on Exception catch (e) {
-      _logger.error('Failed to decode ETF WebSocket message: $e');
-      throw SerializationException(
-        'Failed to decode ETF WebSocket message: $e',
-      );
+      _fail(e);
     }
+  }
+
+  Never _fail(Object e) {
+    _logger.error('Failed to decode ETF WebSocket message: $e');
+    throw SerializationException('Failed to decode ETF WebSocket message: $e');
   }
 
   @override

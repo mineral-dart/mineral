@@ -146,7 +146,9 @@ final class ClientBuilder {
     final eventListener = EventListener();
     final providerManager = ProviderManager(logger: logger);
     final globalStateManager = GlobalStateManager();
-    final interactiveComponent = InteractiveComponentManager();
+    final interactiveComponent = InteractiveComponentManager(
+      logger: labelled('components'),
+    );
     final wssOrchestrator = WebsocketOrchestrator(
       shardConfig,
       logger: wssLogger,

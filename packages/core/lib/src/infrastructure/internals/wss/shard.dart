@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
@@ -97,62 +98,95 @@ final class Shard implements ShardContract {
 
     client.interceptor.request.add(wss.config.encoding.encode);
 
-    await client.listen((message) {
-      if (message.content case ShardMessage(
-        opCode: final code,
-        payload: final payload,
-      )) {
-        try {
-          switch (code) {
-            case OpCode.hello:
-              if (payload is! Map<String, dynamic>) {
-                logger.error(
-                  'OpCode.hello: expected Map payload, got ${payload.runtimeType}',
-                );
-                break;
-              }
-              authentication.identify(payload);
-            case OpCode.heartbeatAck:
-              authentication.ack();
-            case OpCode.reconnect:
-              authentication.reconnect();
-            case OpCode.invalidSession:
-              if (payload == true) {
-                authentication.resume();
-              } else {
-                authentication.reconnect();
-              }
-            case OpCode.dispatch:
-              if ([
-                PacketType.ready.name,
-                PacketType.guildCreate.name,
-              ].contains((message.content as ShardMessage).type)) {
-                final decoded = wss.config.encoding.decode(message);
-                onceEventQueue.add(
-                  (decoded.content as ShardMessage).serialize()
-                      as Map<String, dynamic>,
-                );
-              }
-
-              dispatchEvent.dispatch(message);
-            case OpCode.heartbeat:
-              authentication.heartbeat();
-            default:
-              logger.warn('Unknown op code: $code');
-          }
-          // ignore: avoid_catching_errors, crash-safety boundary for shard message processing
-        } on Error catch (e, stackTrace) {
-          logger
-            ..error('Fatal error processing opcode $code on $shardName: $e')
-            ..trace('$stackTrace');
-        } on Exception catch (e, stackTrace) {
-          logger
-            ..error('Error processing opcode $code on $shardName: $e')
-            ..trace('$stackTrace');
-        }
-      }
-    });
+    await client.listen(handleGatewayMessage);
 
     await authentication.connect();
+  }
+
+  /// Routes a single decoded gateway message by opcode.
+  ///
+  /// Extracted out of [init] so it can be exercised directly in tests
+  /// without requiring a live WebSocket connection.
+  ///
+  /// [ShardAuthenticationContract.reconnect], `.resume()` and `.heartbeat()`
+  /// all return `Future<void>`. Calling them bare here would discard that
+  /// Future: the synchronous try/catch below cannot observe an async
+  /// failure, so a [FatalGatewayException] thrown once
+  /// `maxReconnectAttempts` is exceeded (or any other async error) would
+  /// become an unhandled error in the root zone and kill the host process
+  /// (chantier A7). Wrapping each in `unawaited(Future.sync(...).catchError(
+  /// networkError.onReconnectError))` — the same policy already used by
+  /// [ShardNetworkError.dispatch] — routes fatal errors to the graceful
+  /// shutdown path instead.
+  void handleGatewayMessage(WebsocketMessage message) {
+    if (message.content case ShardMessage(
+      opCode: final code,
+      payload: final payload,
+    )) {
+      try {
+        switch (code) {
+          case OpCode.hello:
+            if (payload is! Map<String, dynamic>) {
+              logger.error(
+                'OpCode.hello: expected Map payload, got ${payload.runtimeType}',
+              );
+              break;
+            }
+            authentication.identify(payload);
+          case OpCode.heartbeatAck:
+            authentication.ack();
+          case OpCode.reconnect:
+            unawaited(
+              Future.sync(
+                () => authentication.reconnect(),
+              ).catchError(networkError.onReconnectError),
+            );
+          case OpCode.invalidSession:
+            if (payload == true) {
+              unawaited(
+                Future.sync(
+                  () => authentication.resume(),
+                ).catchError(networkError.onReconnectError),
+              );
+            } else {
+              unawaited(
+                Future.sync(
+                  () => authentication.reconnect(),
+                ).catchError(networkError.onReconnectError),
+              );
+            }
+          case OpCode.dispatch:
+            if ([
+              PacketType.ready.name,
+              PacketType.guildCreate.name,
+            ].contains((message.content as ShardMessage).type)) {
+              final decoded = wss.config.encoding.decode(message);
+              onceEventQueue.add(
+                (decoded.content as ShardMessage).serialize()
+                    as Map<String, dynamic>,
+              );
+            }
+
+            dispatchEvent.dispatch(message);
+          case OpCode.heartbeat:
+            unawaited(
+              Future.sync(
+                () => authentication.heartbeat(),
+              ).catchError(networkError.onReconnectError),
+            );
+          default:
+            logger.warn('Unknown op code: $code');
+        }
+        // ignore: avoid_catching_errors, crash-safety boundary for shard message processing
+      } on Error catch (e, stackTrace) {
+        logger
+          ..error('Fatal error processing opcode $code on $shardName: $e')
+          ..trace('$stackTrace');
+      } on Exception catch (e, stackTrace) {
+        logger
+          ..error('Error processing opcode $code on $shardName: $e')
+          ..trace('$stackTrace');
+      }
+    }
   }
 }
