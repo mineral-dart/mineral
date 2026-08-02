@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
@@ -221,6 +223,128 @@ void main() {
         expect(callCount, equals(1));
       },
     );
+
+    // ── Regression tests for #468 ───────────────────────────────────────────
+    //
+    // One ReadyPacket instance is shared by every shard, and the packet
+    // dispatcher runs handlers without serialization, so two READY
+    // dispatches can genuinely interleave at await points. Both tests below
+    // drive two `listen()` calls concurrently — the first is deliberately
+    // never awaited before the second starts — landing the second call
+    // inside a window controlled by a `Completer` on the fake command
+    // manager's `registerGlobal`. A test that awaits the first call
+    // sequentially before starting the second would never exercise this
+    // window at all.
+
+    test(
+      'Interleaving A: two concurrent READY dispatches (simulating two '
+      'shards sharing this ReadyPacket) call registerGlobal exactly once',
+      () async {
+        final gate = Completer<void>();
+        final entered = Completer<void>();
+        final blockingManager = _BlockingCommandManager(
+          gate: gate.future,
+          onEnter: () {
+            if (!entered.isCompleted) {
+              entered.complete();
+            }
+          },
+        );
+
+        final p = ReadyPacket(
+          marshaller: marshaller,
+          commandManager: blockingManager,
+          wss: wss,
+          runtimeState: runtimeState,
+          entityContext: ctx,
+        );
+
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {}
+
+        // Shard 0's READY: not awaited, so its execution can be suspended
+        // mid-flight while the test keeps driving.
+        final f1 = p.listen(_buildMessage(), dispatch);
+
+        // Block until shard 0 has actually entered registerGlobal and is
+        // now suspended on `gate`. Under the old `if (!isAlreadyUsed)`
+        // guard, this is precisely the window where a second READY would
+        // still observe `isAlreadyUsed == false`.
+        await entered.future;
+
+        // Shard 1's READY arrives while shard 0 is still in flight.
+        final f2 = p.listen(_buildMessage(), dispatch);
+
+        gate.complete();
+        await Future.wait([f1, f2]);
+
+        expect(blockingManager.registerGlobalCallCount, equals(1));
+      },
+    );
+
+    test(
+      'Interleaving B: a cache write landing while READY is still in '
+      'flight (single shard) survives the clear',
+      () async {
+        final cache = FakeCacheProvider()
+          ..config = CacheConfig(clearOnReady: true, staggerClearMs: 0);
+        await cache.put('stale', {'from': 'previous session'});
+
+        final gate = Completer<void>();
+        final entered = Completer<void>();
+        final blockingManager = _BlockingCommandManager(
+          gate: gate.future,
+          onEnter: () {
+            if (!entered.isCompleted) {
+              entered.complete();
+            }
+          },
+        );
+
+        final marshallerWithCache = FakeMarshaller(cache: cache);
+        final p = ReadyPacket(
+          marshaller: marshallerWithCache,
+          commandManager: blockingManager,
+          wss: wss,
+          runtimeState: runtimeState,
+          entityContext: ctx,
+          cacheConfig: cache.config,
+        );
+
+        void dispatch<T extends Object>({
+          required Event event,
+          required T payload,
+          bool Function(String?)? constraint,
+        }) {}
+
+        final f1 = p.listen(_buildMessage(), dispatch);
+
+        // Block until READY's handling has reached (and is now blocked
+        // inside) the registerGlobal REST call -- the earliest point at
+        // which a concurrently-dispatched GUILD_CREATE could plausibly
+        // start writing to the cache, since the dispatcher does not
+        // serialize handlers.
+        await entered.future;
+
+        // Simulate GUILD_CREATE hydrating the cache while READY is still
+        // in flight.
+        await cache.put('guild:1', {'hydrated': true});
+
+        gate.complete();
+        await f1;
+
+        expect(
+          cache.store.containsKey('guild:1'),
+          isTrue,
+          reason:
+              'a cache write landing during the READY window must survive; '
+              'the clear must not run after it',
+        );
+      },
+    );
   });
 }
 
@@ -244,6 +368,50 @@ final class _CountingCommandManager
   @override
   Future<void> registerGlobal(Bot bot) async {
     onRegisterGlobal();
+  }
+
+  @override
+  Future<void> registerServer(Bot bot, Guild guild) async {}
+
+  @override
+  void addCommand(dynamic command) {}
+
+  @override
+  Future<void> handleAutocomplete(Map<String, dynamic> payload) async {}
+}
+
+/// A [CommandInteractionManagerContract] whose `registerGlobal` suspends on
+/// a caller-supplied `gate` future, so a test can deterministically land a
+/// second, concurrent `ReadyPacket.listen` call while the first is still
+/// in flight inside `registerGlobal`.
+///
+/// `onEnter` fires synchronously, before the suspension, as soon as
+/// `registerGlobal` is entered -- awaiting the future it completes tells a
+/// test "the call is now blocked on `gate`" without any sleeps or arbitrary
+/// microtask pumping.
+final class _BlockingCommandManager
+    implements CommandInteractionManagerContract {
+  _BlockingCommandManager({required this.gate, this.onEnter});
+
+  final Future<void> gate;
+  final void Function()? onEnter;
+
+  int registerGlobalCallCount = 0;
+
+  @override
+  final List<CommandRegistration> commandsHandler = [];
+  @override
+  final List<cb.CommandBuilder> commands = [];
+  @override
+  late InteractionDispatcherContract dispatcher;
+  @override
+  void Function(CommandFailure failure)? onCommandError;
+
+  @override
+  Future<void> registerGlobal(Bot bot) async {
+    registerGlobalCallCount++;
+    onEnter?.call();
+    await gate;
   }
 
   @override

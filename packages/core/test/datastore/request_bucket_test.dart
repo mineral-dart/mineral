@@ -165,5 +165,91 @@ void main() {
       expect(logLine, contains('messages'));
       expect(logLine, isNot(contains('***')));
     });
+
+    group('unclassified statuses fail fast instead of retrying (#465)', () {
+      test('409 completes with an error on the first attempt', () async {
+        final http = FakeHttpClient([409]);
+        final bucket = RequestBucket(http, logger: logger);
+
+        await expectLater(
+          bucket.post<Map<String, dynamic>>(
+            Request.json(endpoint: '/channels/1/messages'),
+          ),
+          throwsA(anything),
+        );
+
+        expect(http.calls, hasLength(1));
+      });
+
+      test('413 does not re-send the request', () async {
+        final http = FakeHttpClient([413]);
+        final bucket = RequestBucket(http, logger: logger);
+
+        await expectLater(
+          bucket.post<Map<String, dynamic>>(
+            Request.json(endpoint: '/channels/1/messages'),
+          ),
+          throwsA(anything),
+        );
+
+        expect(http.calls, hasLength(1));
+      });
+
+      test('304 does not re-send the request', () async {
+        final http = FakeHttpClient([304]);
+        final bucket = RequestBucket(http, logger: logger);
+
+        await expectLater(
+          bucket.get<Map<String, dynamic>>(Request.json(endpoint: '/foo')),
+          throwsA(anything),
+        );
+
+        expect(http.calls, hasLength(1));
+      });
+
+      test('the error message names the actual status (409)', () async {
+        final http = FakeHttpClient([409]);
+        final bucket = RequestBucket(http, logger: logger);
+
+        await expectLater(
+          bucket.post<Map<String, dynamic>>(
+            Request.json(endpoint: '/channels/1/messages'),
+          ),
+          throwsA(predicate((e) => e.toString().contains('409'))),
+        );
+      });
+
+      test('does not misreport a 409 as a rate-limit error', () async {
+        final http = FakeHttpClient([409]);
+        final bucket = RequestBucket(http, logger: logger);
+
+        await expectLater(
+          bucket.post<Map<String, dynamic>>(
+            Request.json(endpoint: '/channels/1/messages'),
+          ),
+          throwsA(
+            predicate(
+              (e) => !e.toString().toLowerCase().contains('rate limit'),
+            ),
+          ),
+        );
+      });
+
+      test(
+        'removes the queue entry after an unclassified status fails',
+        () async {
+          final http = FakeHttpClient([409]);
+          final bucket = RequestBucket(http, logger: logger);
+
+          await bucket
+              .post<Map<String, dynamic>>(
+                Request.json(endpoint: '/channels/1/messages'),
+              )
+              .catchError((_) => <String, dynamic>{});
+
+          expect(bucket.queue, isEmpty);
+        },
+      );
+    });
   });
 }

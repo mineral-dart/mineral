@@ -33,10 +33,10 @@ enum ResponseCode {
     notFound,
     methodNotAllowed,
     internalServerError,
+    notImplemented,
     badGateway,
     serviceUnavailable,
     gatewayTimeout,
-    unknown,
   ];
 
   static List<ResponseCode> get successCodes => [

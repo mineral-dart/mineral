@@ -99,7 +99,7 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
         .map((id) => guildChannels[id])
         .whereType<GuildChannel>();
 
-    _interactiveComponentManager.dispatch(ctx.customId, [ctx, channels]);
+    await _interactiveComponentManager.dispatch(ctx.customId, [ctx, channels]);
 
     return switch (ctx) {
       GuildSelectContext() => dispatch<GuildChannelSelectArgs>(
@@ -142,7 +142,10 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
       constraint: (String? customId) => customId == ctx.customId,
     );
 
-    _interactiveComponentManager.dispatch(ctx.customId, [ctx, resolvedRoles]);
+    await _interactiveComponentManager.dispatch(ctx.customId, [
+      ctx,
+      resolvedRoles,
+    ]);
   }
 
   Future<void> _dispatchUserSelectMenu(
@@ -183,7 +186,7 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
       _ => Future.value([]),
     };
 
-    _interactiveComponentManager.dispatch(ctx.customId, [
+    await _interactiveComponentManager.dispatch(ctx.customId, [
       ctx,
       resolvedResource,
     ]);
@@ -235,7 +238,10 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
       }
     }
 
-    _interactiveComponentManager.dispatch(ctx.customId, [ctx, mentionables]);
+    await _interactiveComponentManager.dispatch(ctx.customId, [
+      ctx,
+      mentionables,
+    ]);
 
     dispatch<GuildMentionableSelectArgs>(
       event: Event.guildMentionableSelect,
@@ -253,7 +259,10 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
       (payload['data'] as Map<String, dynamic>)['values'] as Iterable<dynamic>,
     );
 
-    _interactiveComponentManager.dispatch(ctx.customId, [ctx, resolvedText]);
+    await _interactiveComponentManager.dispatch(ctx.customId, [
+      ctx,
+      resolvedText,
+    ]);
 
     return switch (ctx) {
       GuildSelectContext() => dispatch<GuildTextSelectArgs>(

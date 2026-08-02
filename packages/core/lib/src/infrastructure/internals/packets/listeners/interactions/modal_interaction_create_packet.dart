@@ -166,7 +166,10 @@ final class ModalInteractionCreatePacket implements ListenablePacket {
         },
       );
 
-      _interactiveComponentManager.dispatch(ctx!.customId, [ctx, parameters]);
+      await _interactiveComponentManager.dispatch(ctx!.customId, [
+        ctx,
+        parameters,
+      ]);
     }
   }
 }

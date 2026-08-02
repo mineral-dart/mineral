@@ -24,14 +24,20 @@ final class ShardNetworkError implements ShardNetworkErrorContract {
     unawaited(shard.wss.onFatalDisconnect?.call() ?? Future<void>.value());
   }
 
-  /// Handles errors from fire-and-forget reconnection futures.
+  /// Shared fire-and-forget error policy for every entry point that kicks
+  /// off a reconnect/resume/heartbeat [Future] without awaiting it: the
+  /// network-error [dispatch] paths below, [Shard]'s opcode handlers
+  /// (OpCode.reconnect / OpCode.invalidSession / OpCode.heartbeat), and
+  /// [ShardAuthenticationContract]'s heartbeat timer. Centralised here so
+  /// every one of those call sites applies the same policy instead of each
+  /// re-implementing (and subtly diverging from) fatal-error handling.
   ///
   /// [FatalGatewayException] → routes to [_handleFatal] (swallowed after
   /// the shutdown sequence so the error does not escape the zone).
   ///
   /// Any other error is logged and rethrown so that unexpected programming
   /// errors are not silently discarded.
-  void _onReconnectError(Object error, StackTrace stack) {
+  void onReconnectError(Object error, StackTrace stack) {
     if (error is FatalGatewayException) {
       _handleFatal(error);
       return; // handled — do not propagate
@@ -48,7 +54,15 @@ final class ShardNetworkError implements ShardNetworkErrorContract {
       return;
     }
 
-    if (shard.authentication.intentionalDisconnect) {
+    // `intentionalDisconnect` masks the brief, self-inflicted close of the
+    // *current* socket while a reconnect attempt is starting up.
+    // `shuttingDown` is the separate, permanent concern of a deliberate
+    // process-level teardown (e.g. Kernel.dispose) — the two used to share
+    // one boolean, which is what let a failed reconnect attempt mask its
+    // own retry (see A5). Keep them distinct even though only the first is
+    // wired up from within this file's scope today.
+    if (shard.authentication.intentionalDisconnect ||
+        shard.authentication.shuttingDown) {
       return;
     }
 
@@ -67,7 +81,7 @@ final class ShardNetworkError implements ShardNetworkErrorContract {
           unawaited(
             Future.sync(
               () => shard.authentication.resume(),
-            ).catchError(_onReconnectError),
+            ).catchError(onReconnectError),
           );
         case DisconnectAction.reconnect:
           logger.trace('Attempting full reconnect');
@@ -75,7 +89,7 @@ final class ShardNetworkError implements ShardNetworkErrorContract {
           unawaited(
             Future.sync(
               () => shard.authentication.reconnect(),
-            ).catchError(_onReconnectError),
+            ).catchError(onReconnectError),
           );
         case DisconnectAction.fatal:
           _handleFatal(FatalGatewayException(error.message, error.code));
@@ -90,7 +104,7 @@ final class ShardNetworkError implements ShardNetworkErrorContract {
     unawaited(
       Future.sync(
         () => shard.authentication.reconnect(),
-      ).catchError(_onReconnectError),
+      ).catchError(onReconnectError),
     );
   }
 }

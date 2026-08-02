@@ -22,22 +22,28 @@ void main() {
       );
     });
 
+    // Mirrors the shape `GuildSerializer.normalize` actually produces (assets
+    // and settings nested into sub-maps), so `serialize()` is exercised with
+    // an honest input instead of the flat shape it used to (wrongly) expect.
     Map<String, dynamic> normalizedPayload() => {
       'id': '987654321',
       'name': 'Test Guild',
       'description': 'A test guild',
       'application_id': null,
       'owner_id': '444555666',
-      'icon': null,
-      'splash': null,
-      'banner': null,
-      'discovery_splash': null,
-      'permissions': null,
-      'afk_timeout': 300,
-      'widget_enabled': false,
-      'vanity_url_code': null,
-      'max_video_channel_users': 25,
+      'assets': {
+        'icon': null,
+        'icon_hash': null,
+        'splash': null,
+        'discovery_splash': null,
+        'banner': null,
+      },
       'settings': {
+        'permissions': null,
+        'afk_timeout': 300,
+        'widget_enabled': false,
+        'vanity_url_code': null,
+        'max_video_channel_users': 25,
         'explicit_content_filter': 0,
         'verification_level': 1,
         'default_message_notifications': 0,

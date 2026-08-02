@@ -133,6 +133,14 @@ final class WebsocketClientImpl implements WebsocketClient {
       callback(interceptedMessage);
     } on SerializationException catch (e) {
       _logger.warn('Dropping malformed gateway frame: $e');
+      // Defense-in-depth for chantier A16: an encoding strategy is expected
+      // to convert decode failures into SerializationException (see
+      // EtfEncoderStrategy), but should a raw Error (RangeError,
+      // StackOverflowError, ...) still slip through this interceptor chain,
+      // one malformed frame must not kill the isolate.
+      // ignore: avoid_catching_errors
+    } on Error catch (e) {
+      _logger.warn('Dropping malformed gateway frame (unexpected error): $e');
     }
   }
 

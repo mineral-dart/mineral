@@ -23,7 +23,6 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
       'self_video': json['self_video'],
       'suppress': json['suppress'],
       'request_to_speak_timestamp': json['request_to_speak_timestamp'],
-      'discoverable': json['discoverable'],
     };
 
     final cacheKey = _marshaller.cacheKey.voiceState(
@@ -52,7 +51,6 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
       requestToSpeakTimestamp: json['request_to_speak_timestamp'] != null
           ? DateTime.parse(json['request_to_speak_timestamp'] as String)
           : null,
-      isDiscoverable: json['discoverable'] as bool,
     );
   }
 
@@ -71,7 +69,6 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
       'suppress': state.isSuppress,
       'request_to_speak_timestamp': state.requestToSpeakTimestamp
           ?.toIso8601String(),
-      'discoverable': state.isDiscoverable,
     };
   }
 }

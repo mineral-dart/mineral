@@ -135,8 +135,8 @@ void main() {
 
     group('round-trip (normalize -> serialize)', () {
       // Discord's sticker `format_type` is 1=PNG, 2=APNG, 3=LOTTIE, 4=GIF.
-      // `FormatType` only declares standard(1)/guild(2) (a copy-paste of
-      // StickerType's values), so LOTTIE and GIF stickers cannot resolve.
+      // `FormatType` now declares all four (standard/guild kept their
+      // original names to avoid a wider rename; lottie/gif were added).
 
       test('format_type 1 (PNG) resolves', () async {
         final raw = rawDiscordPayload()..['format_type'] = 1;
@@ -156,7 +156,7 @@ void main() {
         });
       });
 
-      test('format_type 3 (LOTTIE) throws StateError — this is the format of '
+      test('format_type 3 (LOTTIE) resolves — this is the format of '
           'every Discord standard sticker pack', () async {
         // guild_id is left as a valid value here on purpose: normalize()
         // itself hard-casts guild_id for the cache key (see the separate
@@ -164,13 +164,19 @@ void main() {
         // no longer isolate the format_type defect this case targets.
         final raw = rawDiscordPayload()..['format_type'] = 3;
 
-        await expectLater(roundTrip(serializer, raw), throwsStateError);
+        await expectRoundTrip<Sticker>(serializer, raw, {
+          'Sticker.formatType': (sticker) =>
+              expect(sticker.formatType, equals(FormatType.lottie)),
+        });
       });
 
-      test('format_type 4 (GIF) throws StateError', () async {
+      test('format_type 4 (GIF) resolves', () async {
         final raw = rawDiscordPayload()..['format_type'] = 4;
 
-        await expectLater(roundTrip(serializer, raw), throwsStateError);
+        await expectRoundTrip<Sticker>(serializer, raw, {
+          'Sticker.formatType': (sticker) =>
+              expect(sticker.formatType, equals(FormatType.gif)),
+        });
       });
 
       test('standard-pack sticker with no guild_id round-trips', () async {

@@ -171,6 +171,25 @@ void main() {
 
     group('round-trip (normalize -> serialize)', () {
       test('preserves fields through the real pipeline', () async {
+        // The emoji's `roles` array only ever carries role *ids* on the
+        // wire; resolving them into `Emoji.roles` entities depends on the
+        // role already being cached under its `guildRole` key (see
+        // `serialize() resolves roles from cache` above), same as it would
+        // be in production once `guild.roles.fetch()`/GUILD_CREATE has run.
+        final roleKey = CacheKey().guildRole('987654321', '41771983423143936');
+        cache.store[roleKey] = {
+          'id': '41771983423143936',
+          'name': 'Muffins',
+          'color': 0,
+          'hoist': false,
+          'position': 1,
+          'permissions': '0',
+          'managed': false,
+          'mentionable': false,
+          'flags': 0,
+          'guild_id': '987654321',
+        };
+
         await expectRoundTrip<Emoji>(serializer, rawDiscordPayloadWithGuildId(), {
           'Emoji.id': (emoji) =>
               expect(emoji.id, equals(Snowflake('100200300'))),

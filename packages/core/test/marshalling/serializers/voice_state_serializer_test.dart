@@ -34,7 +34,6 @@ void main() {
       'self_video': false,
       'suppress': false,
       'request_to_speak_timestamp': null,
-      'discoverable': true,
     };
 
     // Mirrors the raw Voice State object Discord sends over the gateway
@@ -80,7 +79,6 @@ void main() {
         expect(state.hasSelfVideo, isFalse);
         expect(state.isSuppress, isFalse);
         expect(state.requestToSpeakTimestamp, isNull);
-        expect(state.isDiscoverable, isTrue);
       });
 
       test('handles nullable channelId', () async {
@@ -115,7 +113,6 @@ void main() {
         expect(result['self_deaf'], isTrue);
         expect(result['self_mute'], isTrue);
         expect(result['suppress'], isFalse);
-        expect(result['discoverable'], isTrue);
       });
 
       test('serializes nullable channelId as null', () async {
