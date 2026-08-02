@@ -23,9 +23,19 @@ List<T> bitfieldToList<T extends EnhancedEnum<int>>(
 int listToBitfield<T extends EnhancedEnum<int>>(List<T> values) {
   return values.fold(
     0,
-    (previousValue, element) => previousValue += element.value,
+    (previousValue, element) => previousValue | element.value,
   );
 }
+
+/// Converts [dateTime] to the UTC ISO-8601 string Discord's API expects for
+/// outbound timestamps (e.g. `2026-08-02T12:30:00.000Z`).
+///
+/// `DateTime.now()` returns a local-zone value, and [DateTime.toIso8601String]
+/// only appends the `Z` suffix when the instance is UTC. Sending a bare
+/// local-zone string is misread by Discord as an already-UTC instant, so
+/// every outbound timestamp must be routed through this helper first.
+String toDiscordTimestamp(DateTime dateTime) =>
+    dateTime.toUtc().toIso8601String();
 
 T findInEnum<T extends EnhancedEnum<R>, R>(
   List<T> values,

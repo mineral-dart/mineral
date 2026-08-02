@@ -1,4 +1,15 @@
-export 'package:env_guard/env_guard.dart';
+// Narrowed deliberately. `env_guard` exports 17 files including names as
+// generic as `Env`, `Schema`, `Rule`, `Property`, `Validator` and `Loader`.
+// Re-exporting it wholesale put every one of them in mineral's public
+// namespace, so any 1.x release of that package could add a symbol to our
+// public API without a mineral release, or collide with a downstream bot's own
+// `Property`/`Validator` and break code that never referenced env_guard.
+//
+// These four are what a consumer needs to declare an AppEnv-style schema.
+// `Env` is here because ClientBuilder.setLogger takes it in its signature;
+// the rest are what a consumer needs to declare an AppEnv-style schema.
+export 'package:env_guard/env_guard.dart'
+    show DefineEnvironment, Enumerable, Env, EnvSchema, env;
 export 'package:mineral/src/api/common/activity.dart';
 export 'package:mineral/src/api/common/activity_emoji.dart';
 export 'package:mineral/src/api/common/bot/bot.dart';

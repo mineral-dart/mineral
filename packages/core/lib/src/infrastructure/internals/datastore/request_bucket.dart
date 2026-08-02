@@ -47,8 +47,18 @@ final class QueueableRequest<T> {
 
     try {
       for (var attempt = 0; attempt < _maxRateLimitRetries; attempt++) {
-        final delay = bucket.registry.delayFor(route);
-        if (delay > Duration.zero) {
+        // Loop on [reserve] rather than computing the delay once: it
+        // atomically decrements the bucket's `remaining` count when it
+        // authorises dispatch, so concurrent callers on the same bucket
+        // cannot all observe the same stale value and all fire (A24).
+        // After each wait we must re-evaluate — reusing a delay computed
+        // before the wait is exactly what let every queued waiter resume
+        // together and re-exhaust the bucket at the reset instant.
+        while (true) {
+          final delay = bucket.registry.reserve(route);
+          if (delay <= Duration.zero) {
+            break;
+          }
           await Future<void>.delayed(delay);
         }
 

@@ -4,6 +4,7 @@ import 'package:mineral/src/api/common/permissions.dart';
 import 'package:mineral/src/api/common/user_client.dart';
 import 'package:mineral/src/api/guild/managers/member_voice_manager.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
+import 'package:mineral/src/domains/common/utils/utils.dart';
 
 final class Member implements UserClient {
   final EntityContext _ctx;
@@ -171,7 +172,7 @@ final class Member implements UserClient {
       guildId: guildId.value,
       memberId: id.value,
       reason: reason,
-      payload: {'communication_disabled_until': timeout.toIso8601String()},
+      payload: {'communication_disabled_until': toDiscordTimestamp(timeout)},
     );
   }
 
