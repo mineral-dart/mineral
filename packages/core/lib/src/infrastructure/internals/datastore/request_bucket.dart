@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
 import 'package:mineral/contracts.dart';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/services/datastore/request_bucket_contract.dart';
@@ -63,7 +64,18 @@ final class QueueableRequest<T> {
         }
 
         status = QueueableRequestStatus.pending;
-        final response = await request(query);
+        final Response<T> response;
+        try {
+          response = await request(query);
+        } on http.ClientException catch (e) {
+          throw HttpException(
+            '${e.message} for $method ${route.redactedString}',
+          );
+        } on SocketException catch (e) {
+          throw HttpException(
+            '${e.message} for $method ${route.redactedString}',
+          );
+        }
 
         bucket.registry.updateFromHeaders(route, response.headers);
 
@@ -166,7 +178,7 @@ final class RequestBucket implements RequestBucketContract {
   final HttpClientContract client;
   final RateLimitRegistry registry;
   final LoggerContract logger;
-  final List<QueueableRequest> queue = [];
+  final Set<QueueableRequest> queue = {};
 
   RequestBucket(
     this.client, {

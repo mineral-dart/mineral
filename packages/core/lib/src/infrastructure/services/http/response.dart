@@ -125,7 +125,7 @@ final class ResponseImpl<T> implements Response<T> {
       bodyString: response.body,
       decoded: decoded,
       decodeError: decodeError,
-      uri: response.request!.url,
+      uri: _redactedUri(response.request!.url),
       reasonPhrase: response.reasonPhrase,
       method: response.request!.method,
     );

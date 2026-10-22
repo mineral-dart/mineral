@@ -191,4 +191,19 @@ void main() {
       });
     });
   });
+
+  group('WebsocketOrchestrator.shardIndexForGuild', () {
+    test('maps a known guild id onto its shard with 2 shards', () {
+      expect(
+        WebsocketOrchestrator.shardIndexForGuild('175928847299117063', 2),
+        equals(0),
+      );
+      expect(WebsocketOrchestrator.shardIndexForGuild('4194304', 2), equals(1));
+      expect(WebsocketOrchestrator.shardIndexForGuild('8388608', 2), equals(0));
+    });
+
+    test('returns 0 when there are no shards', () {
+      expect(WebsocketOrchestrator.shardIndexForGuild('4194304', 0), equals(0));
+    });
+  });
 }

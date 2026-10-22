@@ -421,8 +421,9 @@ void main() {
         final resumeWarnings = logger.warnings
             .where((w) => w.contains('Resuming'))
             .toList();
-        expect(resumeWarnings, hasLength(1));
-        expect(resumeWarnings.single, contains('attempt 1/'));
+        expect(resumeWarnings, hasLength(2));
+        expect(resumeWarnings.first, contains('skipped, attempt in flight'));
+        expect(resumeWarnings.last, contains('attempt 1/'));
       });
     });
 

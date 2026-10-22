@@ -173,7 +173,7 @@ final class ShardAuthentication implements ShardAuthenticationContract {
   }) async {
     final logger = shard.logger;
     if (_reconnecting) {
-      logger.trace('$action ${shard.shardName} skipped, attempt in flight');
+      logger.warn('$action ${shard.shardName} skipped, attempt in flight');
       return;
     }
     _reconnecting = true;
@@ -191,7 +191,14 @@ final class ShardAuthentication implements ShardAuthenticationContract {
       // attempt further down. See the `intentionalDisconnect` doc comment.
       intentionalDisconnect = true;
       try {
-        await shard.client.disconnect(code: _internalCloseCode);
+        await shard.client
+            .disconnect(code: _internalCloseCode)
+            .timeout(
+              const Duration(seconds: 5),
+              onTimeout: () => logger.warn(
+                'Disconnect of ${shard.shardName} timed out, continuing',
+              ),
+            );
       } finally {
         intentionalDisconnect = false;
       }

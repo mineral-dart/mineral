@@ -177,5 +177,20 @@ void main() {
         ),
       );
     });
+
+    test('uri of a webhook response does not carry the token', () {
+      final response = ResponseImpl.fromHttpResponse<Map<String, dynamic>>(
+        http.Response(
+          '{}',
+          200,
+          request: http.Request(
+            'POST',
+            Uri.parse('https://discord.com/api/v10/webhooks/1/abcTOKEN'),
+          ),
+        ),
+      );
+
+      expect(response.uri.toString(), isNot(contains('abcTOKEN')));
+    });
   });
 }
