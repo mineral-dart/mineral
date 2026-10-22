@@ -130,6 +130,17 @@ final class _RealConnectOrchestrator implements WebsocketOrchestratorContract {
       throw UnimplementedError();
 }
 
+Future<void> _attempt(
+  Future<void> Function() run, [
+  List<Object>? errors,
+]) async {
+  try {
+    await run();
+  } on Object catch (error) {
+    errors?.add(error);
+  }
+}
+
 void main() {
   group('ShardAuthentication reconnection', () {
     late Shard shard;
@@ -270,28 +281,10 @@ void main() {
 
           // First reconnect attempt (attempt 1) should succeed (log warning)
           final errors = <Object>[];
-          runZonedGuarded(
-            () {
-              auth.reconnect();
-            },
-            (error, _) {
-              errors.add(error);
-            },
-          );
-
-          await Future<void>.delayed(Duration.zero);
+          await _attempt(auth.reconnect, errors);
 
           // Second reconnect attempt (attempt 2) exceeds max of 1
-          runZonedGuarded(
-            () {
-              auth.reconnect();
-            },
-            (error, _) {
-              errors.add(error);
-            },
-          );
-
-          await Future<void>.delayed(Duration.zero);
+          await _attempt(auth.reconnect, errors);
 
           expect(errors.whereType<FatalGatewayException>(), isNotEmpty);
           expect(logger.errors, contains(contains('Max reconnect attempts')));
@@ -337,11 +330,7 @@ void main() {
 
       test('resets reconnect attempts counter', () async {
         // Increment reconnect attempts first
-        runZonedGuarded(() {
-          auth.reconnect();
-        }, (_, _) {});
-
-        await Future<void>.delayed(Duration.zero);
+        await _attempt(auth.reconnect);
 
         // setupRequirements should reset _reconnectAttempts to 0
         auth.setupRequirements({
@@ -351,11 +340,7 @@ void main() {
 
         // After reset, reconnect should work without hitting max
         // (if _reconnectAttempts was not reset, this could fail with max=3)
-        runZonedGuarded(() {
-          auth.reconnect();
-        }, (_, _) {});
-
-        await Future<void>.delayed(Duration.zero);
+        await _attempt(auth.reconnect);
 
         final reconnectWarnings = logger.warnings
             .where((w) => w.contains('Reconnecting'))
@@ -377,21 +362,13 @@ void main() {
     group('resetReconnectAttempts()', () {
       test('resets the reconnect attempts counter to zero', () async {
         // Trigger a reconnect to increment _reconnectAttempts
-        runZonedGuarded(() {
-          auth.reconnect();
-        }, (_, _) {});
-
-        await Future<void>.delayed(Duration.zero);
+        await _attempt(auth.reconnect);
 
         // Reset the counter
         auth.resetReconnectAttempts();
 
         // Should be able to reconnect again from attempt 1
-        runZonedGuarded(() {
-          auth.reconnect();
-        }, (_, _) {});
-
-        await Future<void>.delayed(Duration.zero);
+        await _attempt(auth.reconnect);
 
         // Both reconnect attempts should have logged "attempt 1/3"
         final attemptLogs = logger.warnings
@@ -409,34 +386,17 @@ void main() {
           auth = shard.authentication;
 
           // First reconnect is allowed (attempt 1)
-          runZonedGuarded(() {
-            auth.reconnect();
-          }, (_, _) {});
-
-          await Future<void>.delayed(Duration.zero);
+          await _attempt(auth.reconnect);
 
           // Second would throw FatalGatewayException
-          runZonedGuarded(() {
-            auth.reconnect();
-          }, (_, _) {});
-
-          await Future<void>.delayed(Duration.zero);
+          await _attempt(auth.reconnect);
 
           // Reset counter
           auth.resetReconnectAttempts();
 
           // Should be able to reconnect again
           final errors = <Object>[];
-          runZonedGuarded(
-            () {
-              auth.reconnect();
-            },
-            (error, _) {
-              errors.add(error);
-            },
-          );
-
-          await Future<void>.delayed(Duration.zero);
+          await _attempt(auth.reconnect, errors);
 
           // After reset, the reconnect should succeed (log a warning, not throw)
           final postResetWarnings = logger.warnings
@@ -446,6 +406,24 @@ void main() {
           expect(errors.whereType<FatalGatewayException>(), isEmpty);
         },
       );
+    });
+
+    group('re-entrancy guard', () {
+      test('a second resume() during the backoff sleep is a no-op', () async {
+        runZonedGuarded(() {
+          unawaited(auth.resume());
+          unawaited(auth.resume());
+        }, (_, _) {});
+
+        await Future<void>.delayed(Duration.zero);
+
+        expect(fakeClient.disconnectCount, equals(1));
+        final resumeWarnings = logger.warnings
+            .where((w) => w.contains('Resuming'))
+            .toList();
+        expect(resumeWarnings, hasLength(1));
+        expect(resumeWarnings.single, contains('attempt 1/'));
+      });
     });
 
     // ── A5/A6 regression ────────────────────────────────────────────────

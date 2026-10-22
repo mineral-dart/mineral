@@ -20,6 +20,7 @@ final class FakeWebsocketClient implements WebsocketClient {
   bool disconnected = false;
   bool connected = false;
   int? lastDisconnectCode;
+  int disconnectCount = 0;
   final List<String> sentMessages = [];
 
   @override
@@ -44,6 +45,7 @@ final class FakeWebsocketClient implements WebsocketClient {
 
   @override
   Future<void> disconnect({int? code = 1000, String? reason}) async {
+    disconnectCount++;
     disconnected = true;
     connected = false;
     lastDisconnectCode = code;
