@@ -139,6 +139,107 @@ void main() {
       }
     });
 
+    group('does not retry non-idempotent verbs', () {
+      test('POST returning 502 is sent once and the 502 is returned', () async {
+        final inner = FakeHttpClient([502, 200]);
+        final client = ResilientHttpClient(
+          inner,
+          maxRetries: 3,
+          initialBackoff: Duration.zero,
+        );
+
+        final response = await client.post(_req);
+
+        expect(response.statusCode, 502);
+        expect(inner.calls.length, 1);
+      });
+
+      test('PATCH throwing SocketException is attempted once', () async {
+        final inner = FakeHttpClient([SocketException('reset'), 200]);
+        final client = ResilientHttpClient(
+          inner,
+          maxRetries: 3,
+          initialBackoff: Duration.zero,
+        );
+
+        await expectLater(client.patch(_req), throwsA(isA<SocketException>()));
+        expect(inner.calls.length, 1);
+      });
+
+      test('send() with POST is not retried', () async {
+        final inner = FakeHttpClient([503, 200]);
+        final client = ResilientHttpClient(
+          inner,
+          maxRetries: 3,
+          initialBackoff: Duration.zero,
+        );
+
+        final response = await client.send(
+          Request.json(endpoint: '/test', method: 'post'),
+        );
+
+        expect(response.statusCode, 503);
+        expect(inner.calls.length, 1);
+      });
+
+      test('send() with null method is not retried', () async {
+        final inner = FakeHttpClient([502, 200]);
+        final client = ResilientHttpClient(
+          inner,
+          maxRetries: 3,
+          initialBackoff: Duration.zero,
+        );
+
+        final response = await client.send(_req);
+
+        expect(response.statusCode, 502);
+        expect(inner.calls.length, 1);
+      });
+    });
+
+    group('retries idempotent verbs', () {
+      test('PUT 502 is retried', () async {
+        final inner = FakeHttpClient([502, 200]);
+        final client = ResilientHttpClient(
+          inner,
+          initialBackoff: Duration.zero,
+        );
+
+        final response = await client.put(_req);
+
+        expect(response.statusCode, 200);
+        expect(inner.calls.length, 2);
+      });
+
+      test('DELETE SocketException is retried', () async {
+        final inner = FakeHttpClient([SocketException('reset'), 200]);
+        final client = ResilientHttpClient(
+          inner,
+          initialBackoff: Duration.zero,
+        );
+
+        final response = await client.delete(_req);
+
+        expect(response.statusCode, 200);
+        expect(inner.calls.length, 2);
+      });
+
+      test('send() with lowercase get is retried', () async {
+        final inner = FakeHttpClient([502, 200]);
+        final client = ResilientHttpClient(
+          inner,
+          initialBackoff: Duration.zero,
+        );
+
+        final response = await client.send(
+          Request.json(endpoint: '/test', method: 'get'),
+        );
+
+        expect(response.statusCode, 200);
+        expect(inner.calls.length, 2);
+      });
+    });
+
     group('delegates to inner client', () {
       test('delegates post()', () async {
         final inner = FakeHttpClient([201]);
