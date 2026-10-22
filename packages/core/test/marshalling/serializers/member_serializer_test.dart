@@ -26,7 +26,7 @@ void main() {
     Map<String, dynamic> normalizedPayload() => {
       'id': '444555666',
       'username': 'testuser',
-      'nick': null,
+      'nickname': null,
       'global_name': 'TestUser',
       'discriminator': '0',
       'assets': {
@@ -218,6 +218,25 @@ void main() {
     });
 
     group('round-trip', () {
+      test('normalize then serialize keeps nick, timeout and tier', () async {
+        final raw = rawDiscordPayload();
+        (raw['user'] as Map<String, dynamic>)['premium_type'] = 2;
+        raw['nick'] = 'Nicky';
+        raw['communication_disabled_until'] = '2030-01-01T00:00:00.000Z';
+
+        final member = await serializer.serialize(
+          await serializer.normalize(raw),
+        );
+
+        expect(member.username, equals('testuser'));
+        expect(member.nickname, equals('Nicky'));
+        expect(
+          member.timeout.duration,
+          equals(DateTime.parse('2030-01-01T00:00:00.000Z')),
+        );
+        expect(member.premiumType, equals(PremiumTier.game));
+      });
+
       test('serialize then deserialize preserves key data', () async {
         final json = normalizedPayload();
         final member = await serializer.serialize(json);

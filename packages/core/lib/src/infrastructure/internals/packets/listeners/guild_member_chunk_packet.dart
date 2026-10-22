@@ -48,14 +48,25 @@ final class GuildMemberChunkPacket implements ListenablePacket {
 
     final resolver = _wss.findInRequestQueue(payload['nonce'] as String);
     if (resolver != null && !resolver.completer.isCompleted) {
-      if (resolver.targetKeys.length == 1 &&
-          resolver.targetKeys.contains('presences')) {
-        resolver.completer.complete(presences.first);
-      }
+      final onlyPresences =
+          resolver.targetKeys.length == 1 &&
+          resolver.targetKeys.contains('presences');
+      final onlyMembers =
+          resolver.targetKeys.length == 1 &&
+          resolver.targetKeys.contains('members');
 
-      if (resolver.targetKeys.length == 1 &&
-          resolver.targetKeys.contains('members')) {
+      if (onlyPresences && presences.isEmpty ||
+          onlyMembers && members.isEmpty) {
+        resolver.completer.completeError(
+          StateError(
+            'No ${onlyPresences ? 'presence' : 'member'} in chunk for nonce '
+            '${payload['nonce']}',
+          ),
+        );
+      } else if (onlyPresences) {
         resolver.completer.complete(presences.first);
+      } else if (onlyMembers) {
+        resolver.completer.complete(members.first);
       }
 
       if (resolver.targetKeys.contains('members') &&

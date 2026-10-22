@@ -109,8 +109,8 @@ final class MemberSerializer implements SerializerContract<Member> {
       ctx: _ctx,
       id: Snowflake.parse(json['id'] as String),
       guildId: Snowflake.parse(json['guild_id'] as String),
-      username: (json['nick'] ?? json['username']) as String,
-      nickname: (json['nick'] ?? json['display_name']) as String?,
+      username: json['username'] as String,
+      nickname: json['nickname'] as String?,
       globalName: json['global_name'] as String?,
       discriminator: json['discriminator'] as String?,
       assets: memberAsset,
@@ -128,16 +128,16 @@ final class MemberSerializer implements SerializerContract<Member> {
       isPending: json['is_pending'] as bool? ?? false,
       timeout: MemberTimeout(
         duration: Helper.createOrNull(
-          field: json['communication_disabled_until'],
-          fn: () =>
-              DateTime.parse(json['communication_disabled_until'] as String),
+          field: json['timeout'],
+          fn: () => DateTime.parse(json['timeout'] as String),
         ),
       ),
       mfaEnabled: json['mfa_enabled'] as bool? ?? false,
       locale: json['locale'] as String?,
-      premiumType: PremiumTier.values.firstWhere(
-        (e) => e == json['premium_type'],
-        orElse: () => PremiumTier.none,
+      premiumType: findInEnum(
+        PremiumTier.values,
+        json['premium_type'] as int?,
+        orElse: PremiumTier.none,
       ),
       joinedAt: Helper.createOrNull(
         field: json['joined_at'],

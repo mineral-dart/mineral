@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
 import 'package:mineral/events.dart';
@@ -423,6 +425,53 @@ void main() {
       expect(args, isNotNull);
       expect(args!.guild.id, equals(Snowflake.parse(_guildId)));
       expect(args!.members, hasLength(1));
+    });
+
+    Future<void> listenChunk(
+      FakeWebsocketOrchestrator wss,
+      Map<String, dynamic> payload,
+    ) {
+      final packet = GuildMemberChunkPacket(
+        marshaller: marshaller,
+        dataStore: dataStore,
+        wss: wss,
+      );
+      void dispatch<T extends Object>({
+        required Event event,
+        required T payload,
+        bool Function(String?)? constraint,
+      }) {}
+      return packet.listen(_msg('GUILD_MEMBERS_CHUNK', payload), dispatch);
+    }
+
+    test('members target completes with the first member', () async {
+      final completer = Completer<Object?>();
+      wss.addToRequestQueue((
+        uid: 'test-nonce-001',
+        targetKeys: ['members'],
+        completer: completer,
+      ));
+
+      await listenChunk(wss, _chunkPayload());
+
+      final result = await completer.future;
+      expect(result, isA<Member>());
+      expect((result as Member).id, equals(Snowflake.parse(_userId)));
+    });
+
+    test('empty presences fail the pending request fast', () async {
+      final completer = Completer<Object?>();
+      final failure = expectLater(completer.future, throwsA(isA<StateError>()));
+      wss.addToRequestQueue((
+        uid: 'test-nonce-001',
+        targetKeys: ['presences'],
+        completer: completer,
+      ));
+
+      await listenChunk(wss, _chunkPayload());
+
+      await failure;
+      expect(wss.requestQueue, isEmpty);
     });
   });
 }
