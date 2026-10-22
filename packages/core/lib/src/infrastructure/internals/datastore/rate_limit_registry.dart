@@ -65,35 +65,10 @@ final class RateLimitRegistry {
 
   static String _bucketKey(RouteKey route) => route.redactedString;
 
-  /// Returns the delay to wait before sending a request for [route],
-  /// or [Duration.zero] if it can be sent immediately.
-  ///
-  /// This is a pure read: it never mutates [BucketState.remaining]. Use
-  /// [reserve] to make an actual dispatch decision — see its doc for why
-  /// this distinction matters for in-flight accounting (A24).
-  Duration delayFor(RouteKey route) {
-    final globalLock = _globalLockedUntil;
-    if (globalLock != null && globalLock.isAfter(DateTime.now())) {
-      return globalLock.difference(DateTime.now());
-    }
-
-    final bucketId = _routeToBucket[_bucketKey(route)];
-    if (bucketId == null) {
-      return Duration.zero;
-    }
-
-    final state = _buckets[bucketId];
-    if (state == null) {
-      return Duration.zero;
-    }
-
-    return state.isExhausted ? state.timeUntilReset : Duration.zero;
-  }
-
   /// Reserves a dispatch slot for [route], returning the delay to wait
   /// before sending (or [Duration.zero] to dispatch immediately).
   ///
-  /// Unlike [delayFor], this is *not* a pure read: when it authorises an
+  /// This is *not* a pure read: when it authorises an
   /// immediate dispatch it also decrements the bucket's `remaining` count
   /// synchronously, before returning. This method contains no `await`, so
   /// under Dart's single-threaded, run-to-completion scheduling the whole

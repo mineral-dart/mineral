@@ -68,10 +68,11 @@ final class ResponseImpl<T> implements Response<T> {
         return null as T;
       }
 
+      final safeUri = _redactedUri(uri);
       throw HttpException(
-        'Could not decode response body as JSON for $method $uri '
+        'Could not decode response body as JSON for $method $safeUri '
         '(status $statusCode): ${decodeError.message}',
-        uri: uri,
+        uri: safeUri,
       );
     }
 
@@ -88,6 +89,18 @@ final class ResponseImpl<T> implements Response<T> {
       }
       rethrow;
     }
+  }
+
+  static Uri _redactedUri(Uri uri) {
+    final segments = List<String>.of(uri.pathSegments);
+    for (var i = 0; i < segments.length; i++) {
+      if (i >= 2 &&
+          (segments[i - 2] == 'webhooks' ||
+              segments[i - 2] == 'interactions')) {
+        segments[i] = '***';
+      }
+    }
+    return uri.replace(pathSegments: segments);
   }
 
   static ResponseImpl<T> fromHttpResponse<T>(http.Response response) {

@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:mineral/services.dart';
 import 'package:mineral/src/domains/services/wss/websocket_orchestrator.dart';
 import 'package:mineral/src/infrastructure/internals/wss/websocket_orchestrator.dart';
+import 'package:mineral/src/infrastructure/io/exceptions/http_status_exception.dart';
+import 'package:mineral/src/infrastructure/io/exceptions/token_exception.dart';
 import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
+import '../helpers/fake_response.dart';
 import '../helpers/fake_sharding_config.dart';
-
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 RequestQueueEntry _entry(String uid) =>
@@ -35,9 +37,52 @@ final class _NoopHttpClient implements HttpClientContract {
   Future<Response<T>> send<T>(RequestContract r) => throw UnimplementedError();
 }
 
+final class _StatusHttpClient extends _NoopHttpClient {
+  final int statusCode;
+
+  _StatusHttpClient(this.statusCode);
+
+  @override
+  HttpClientStatus get status => HttpClientStatusImpl();
+
+  @override
+  Future<Response<T>> get<T>(RequestContract r) async =>
+      FakeResponse<dynamic>(statusCode, <String, dynamic>{}, bodyString: 'body')
+          as Response<T>;
+}
+
 // ── Tests ──────────────────────────────────────────────────────────────────
 
 void main() {
+  group('WebsocketOrchestrator.getWebsocketEndpoint', () {
+    WebsocketOrchestrator build(int status) => WebsocketOrchestrator(
+      FakeShardingConfig(),
+      logger: FakeLogger(),
+      httpClient: _StatusHttpClient(status),
+    );
+
+    test('200 returns the body', () async {
+      expect(await build(200).getWebsocketEndpoint(), isEmpty);
+    });
+
+    test('401 throws TokenException', () {
+      expect(build(401).getWebsocketEndpoint(), throwsA(isA<TokenException>()));
+    });
+
+    for (final code in [403, 404, 429, 500]) {
+      test('$code throws HttpStatusException carrying status and body', () {
+        expect(
+          build(code).getWebsocketEndpoint(),
+          throwsA(
+            isA<HttpStatusException>()
+                .having((e) => e.statusCode, 'statusCode', code)
+                .having((e) => e.body, 'body', 'body'),
+          ),
+        );
+      });
+    }
+  });
+
   group('WebsocketOrchestrator — request queue', () {
     late WebsocketOrchestrator orchestrator;
 

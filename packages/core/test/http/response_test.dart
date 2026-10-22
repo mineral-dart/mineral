@@ -120,5 +120,62 @@ void main() {
         expect(response.body, isNull);
       },
     );
+
+    test('decode-error message and uri never leak a webhook token', () {
+      final response = ResponseImpl.fromHttpResponse<Map<String, dynamic>>(
+        http.Response(
+          'not json',
+          502,
+          request: http.Request(
+            'POST',
+            Uri.parse('https://discord.com/api/v10/webhooks/123/abcTOKEN'),
+          ),
+        ),
+      );
+
+      expect(
+        () => response.body,
+        throwsA(
+          isA<HttpException>()
+              .having((e) => e.message, 'message', isNot(contains('abcTOKEN')))
+              .having(
+                (e) => e.uri.toString(),
+                'uri',
+                isNot(contains('abcTOKEN')),
+              )
+              .having(
+                (e) => e.toString(),
+                'toString',
+                isNot(contains('abcTOKEN')),
+              ),
+        ),
+      );
+    });
+
+    test('decode-error message redacts the interaction callback token', () {
+      final response = ResponseImpl.fromHttpResponse<Map<String, dynamic>>(
+        http.Response(
+          'not json',
+          502,
+          request: http.Request(
+            'POST',
+            Uri.parse(
+              'https://discord.com/api/v10/interactions/123/abcTOKEN/callback',
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        () => response.body,
+        throwsA(
+          isA<HttpException>().having(
+            (e) => e.toString(),
+            'toString',
+            allOf(isNot(contains('abcTOKEN')), contains('/callback')),
+          ),
+        ),
+      );
+    });
   });
 }

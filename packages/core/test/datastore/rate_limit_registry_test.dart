@@ -5,10 +5,10 @@ import 'package:test/test.dart';
 
 void main() {
   group('RateLimitRegistry', () {
-    test('delayFor unknown route is zero', () {
+    test('reserve on an unknown route is zero', () {
       final registry = RateLimitRegistry();
       final route = RouteKey('GET', '/users/@me');
-      expect(registry.delayFor(route), equals(Duration.zero));
+      expect(registry.reserve(route), equals(Duration.zero));
     });
 
     test('learns bucket from headers', () {
@@ -36,7 +36,7 @@ void main() {
         Header('X-RateLimit-Remaining', '0'),
         Header('X-RateLimit-Reset-After', '1.0'),
       });
-      expect(registry.delayFor(route), greaterThan(Duration.zero));
+      expect(registry.reserve(route), greaterThan(Duration.zero));
     });
 
     test('headers without bucket id are ignored', () {
@@ -61,7 +61,7 @@ void main() {
       final registry = RateLimitRegistry();
       final route = RouteKey('GET', '/users/@me');
       registry.lockGlobal(const Duration(seconds: 2));
-      expect(registry.delayFor(route), greaterThan(Duration.zero));
+      expect(registry.reserve(route), greaterThan(Duration.zero));
       expect(registry.globalLockedUntil, isNotNull);
     });
 
@@ -69,7 +69,7 @@ void main() {
       final registry = RateLimitRegistry();
       final route = RouteKey('GET', '/x');
       registry.lockRoute(route, const Duration(seconds: 2));
-      expect(registry.delayFor(route), equals(Duration.zero));
+      expect(registry.reserve(route), equals(Duration.zero));
     });
 
     test('lockRoute on known bucket sets remaining=0', () {
@@ -84,7 +84,7 @@ void main() {
         })
         ..lockRoute(route, const Duration(seconds: 2));
       expect(registry.bucketFor(route)?.remaining, equals(0));
-      expect(registry.delayFor(route), greaterThan(Duration.zero));
+      expect(registry.reserve(route), greaterThan(Duration.zero));
     });
   });
 
@@ -316,25 +316,6 @@ void main() {
       final route = RouteKey('GET', '/x');
       registry.lockGlobal(const Duration(seconds: 2));
       expect(registry.reserve(route), greaterThan(Duration.zero));
-    });
-
-    test('delayFor stays a pure read — calling it never consumes a slot', () {
-      final registry = RateLimitRegistry();
-      final route = RouteKey('GET', '/x');
-      registry
-        ..updateFromHeaders(route, {
-          Header('X-RateLimit-Bucket', 'b'),
-          Header('X-RateLimit-Limit', '1'),
-          Header('X-RateLimit-Remaining', '1'),
-          Header('X-RateLimit-Reset-After', '5.0'),
-        })
-        ..delayFor(route)
-        ..delayFor(route)
-        ..delayFor(route);
-
-      // remaining is still 1 — delayFor never decremented it — so the
-      // first (and only) reserve() call still succeeds immediately.
-      expect(registry.reserve(route), equals(Duration.zero));
     });
   });
 }
