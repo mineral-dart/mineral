@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:mineral/api.dart';
 import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral_cache/src/noop_logger.dart';
 
 final class MemoryProvider implements CacheProviderContract {
   final Map<String, _Entry> _storage = {};
@@ -12,13 +13,16 @@ final class MemoryProvider implements CacheProviderContract {
   @override
   CacheConfig config = CacheConfig.defaults();
 
-  LoggerContract get logger => ioc.resolve<LoggerContract>();
+  LoggerContract? _logger;
+
+  LoggerContract get logger =>
+      _logger ??= ioc.resolveOrNull<LoggerContract>() ?? const NoopLogger();
 
   CacheTtlPolicy get _ttlPolicy => config.ttlPolicy;
 
   Duration get _sweeperInterval => config.sweeperInterval;
 
-  MemoryProvider(Env env);
+  MemoryProvider(Env env, {LoggerContract? logger}) : _logger = logger;
 
   @override
   void init() {

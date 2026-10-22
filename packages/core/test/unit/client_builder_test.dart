@@ -218,6 +218,25 @@ void main() {
       });
     });
 
+    test('setCache leaves the ioc untouched until build()', () async {
+      await _withGlobalEnv(() async {
+        return runWithIoc(IocContainer(), () async {
+          final cache = FakeCacheProvider();
+          final builder = ClientBuilder()
+            ..setLogger((_) => FakeLogger())
+            ..setCache((_) => cache);
+
+          expect(ioc.resolveOrNull<CacheConfig>(), isNull);
+          expect(ioc.resolveOrNull<CacheProviderContract>(), isNull);
+
+          builder.build();
+
+          expect(ioc.resolveOrNull<CacheConfig>(), isNotNull);
+          expect(ioc.resolve<CacheProviderContract>(), same(cache));
+        });
+      });
+    });
+
     test('mirrors the composed graph into the IoC container', () async {
       await _withGlobalEnv(() async {
         return runWithIoc(IocContainer(), () async {

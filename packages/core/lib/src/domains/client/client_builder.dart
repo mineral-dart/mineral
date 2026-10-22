@@ -248,9 +248,7 @@ final class ClientBuilder {
     CacheConfig? config,
   }) {
     _cacheConfig = config ?? CacheConfig.defaults();
-    ioc.bind<CacheConfig>(() => _cacheConfig);
-    _cache = ioc.make<CacheProviderContract>(() => cache(env))
-      ..config = _cacheConfig;
+    _cache = cache(env)..config = _cacheConfig;
     return this;
   }
 
@@ -294,6 +292,11 @@ final class ClientBuilder {
     // Mirror AppState into the IoC for end-user DX. The core itself never
     // reads from these bindings; they exist so user handlers/commands/
     // providers can keep using `container.resolve<T>()`.
+    final cacheProvider = _cache;
+    ioc.bind<CacheConfig>(() => _cacheConfig);
+    if (cacheProvider != null) {
+      ioc.bind<CacheProviderContract>(() => cacheProvider);
+    }
     ioc
       ..bind<LoggerContract>(() => appState.logger)
       ..bind<HttpClientContract>(() => appState.httpClient)

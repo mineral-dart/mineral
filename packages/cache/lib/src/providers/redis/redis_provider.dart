@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:mineral/api.dart';
 import 'package:mineral/container.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral_cache/src/noop_logger.dart';
 import 'package:mineral_cache/src/providers/redis/redis_commands.dart';
 import 'package:mineral_cache/src/providers/redis/redis_env_keys.dart';
 import 'package:mineral_cache/src/providers/redis/redis_settings.dart';
@@ -20,13 +21,27 @@ final class RedisProvider implements CacheProviderContract {
   @override
   CacheConfig config = CacheConfig.defaults();
 
-  LoggerContract get logger => ioc.resolve<LoggerContract>();
+  LoggerContract? _logger;
+
+  LoggerContract get logger =>
+      _logger ??= ioc.resolveOrNull<LoggerContract>() ?? const NoopLogger();
 
   CacheTtlPolicy get _ttlPolicy => config.ttlPolicy;
 
-  RedisProvider({required String host, required int port, String? password})
-    : _password = password {
-    settings = RedisSettings(host, port, hasPassword: password != null);
+  RedisProvider({
+    required String host,
+    required int port,
+    String? password,
+    bool tls = false,
+    LoggerContract? logger,
+  }) : _password = password,
+       _logger = logger {
+    settings = RedisSettings(
+      host,
+      port,
+      hasPassword: password != null,
+      tls: tls,
+    );
   }
 
   @override
@@ -35,7 +50,11 @@ final class RedisProvider implements CacheProviderContract {
   @override
   Future<void> init() async {
     try {
-      await _connection.connect(settings.host, settings.port);
+      if (settings.tls) {
+        await _connection.connectSecure(settings.host, settings.port);
+      } else {
+        await _connection.connect(settings.host, settings.port);
+      }
 
       if (_password != null) {
         await Command(_connection).send_object(['AUTH', _password!]);
@@ -48,6 +67,7 @@ final class RedisProvider implements CacheProviderContract {
         'payload': {
           'host': settings.host,
           'port': settings.port,
+          'tls': settings.tls,
           'password': settings.hasPassword ? 'REDACTED' : 'NO PASSWORD',
         },
       };
@@ -240,10 +260,12 @@ final class RedisProvider implements CacheProviderContract {
     await _connection.close();
   }
 
-  factory RedisProvider.fromEnvironment(Env env) {
+  factory RedisProvider.fromEnvironment(Env env, {LoggerContract? logger}) {
     env.defineOf(RedisEnv.new);
 
     return RedisProvider(
+      logger: logger,
+      tls: env.get<bool?>(RedisEnv.redisTls) ?? false,
       host: env.get(RedisEnv.redisHost),
       port: env.get<int>(RedisEnv.redisPort),
       password: env.get<String?>(RedisEnv.redisPassword),
