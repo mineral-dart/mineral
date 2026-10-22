@@ -10,8 +10,11 @@ final class FakeLogger implements LoggerContract {
   final List<Object> traces = [];
   final List<String> infos = [];
 
+  /// Mirrors `package:logging`: a zero-argument closure is evaluated so
+  /// assertions see the produced message, not the thunk.
   @override
-  void trace(Object message) => traces.add(message);
+  void trace(Object message) =>
+      traces.add(message is Object Function() ? message() : message);
   @override
   void fatal(Exception message) {}
   @override

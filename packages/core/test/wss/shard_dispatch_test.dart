@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/services/packets/packet_dispatcher.dart';
-import 'package:mineral/src/domains/services/packets/packet_type.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
 import 'package:mineral/src/domains/services/wss/running_strategy.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listenable_packet.dart';
@@ -63,19 +63,64 @@ WebsocketMessage<ShardMessage> _message(ShardMessage content) =>
       content: content,
     );
 
-Shard _shard({required RunningStrategy strategy, FakeLogger? logger}) => Shard(
-  shardName: 'test-shard-0',
-  shardIndex: 0,
-  shardCount: 1,
-  url: 'wss://fake',
-  wss: FakeWebsocketOrchestrator(),
-  logger: logger ?? FakeLogger(),
-  strategy: strategy,
-)..client = FakeWebsocketClient();
+Shard _shard({required RunningStrategy strategy, LoggerContract? logger}) =>
+    Shard(
+      shardName: 'test-shard-0',
+      shardIndex: 0,
+      shardCount: 1,
+      url: 'wss://fake',
+      wss: FakeWebsocketOrchestrator(),
+      logger: logger ?? FakeLogger(),
+      strategy: strategy,
+    )..client = FakeWebsocketClient();
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
+/// Keeps the raw `trace` argument: unlike [FakeLogger], it does not resolve
+/// closures, so the test can assert laziness.
+final class _RawTraceLogger implements LoggerContract {
+  final List<Object> traces = [];
+  @override
+  void trace(Object message) => traces.add(message);
+  @override
+  void fatal(Exception message) {}
+  @override
+  void error(String message) {}
+  @override
+  void warn(String message) {}
+  @override
+  void info(String message) {}
+}
+
 void main() {
+  group('Shard.traceInbound', () {
+    test(
+      'passes a lazy closure to logger.trace and does not redact eagerly',
+      () {
+        final logger = _RawTraceLogger();
+        final shard = _shard(
+          strategy: _NoPubspecStrategy(_SpyPacketDispatcher()),
+          logger: logger,
+        );
+        final msg = ShardMessage(
+          type: 'GUILD_CREATE',
+          opCode: OpCode.dispatch,
+          sequence: 1,
+          payload: <String, dynamic>{'token': 'secret', 'id': '1'},
+        );
+
+        final result = shard.traceInbound(_message(msg));
+
+        expect(result.content, same(msg));
+        expect(logger.traces, hasLength(1));
+        expect(logger.traces.single, isA<Function>());
+        final resolved = (logger.traces.single as Function)() as Map;
+        expect(resolved['shard'], 'test-shard-0');
+        expect(resolved.toString(), isNot(contains('secret')));
+      },
+    );
+  });
+
   // ── DefaultRunningStrategy.dispatch ──────────────────────────────────────
 
   group('DefaultRunningStrategy.dispatch', () {
