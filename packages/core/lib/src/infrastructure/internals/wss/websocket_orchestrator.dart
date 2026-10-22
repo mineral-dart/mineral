@@ -193,8 +193,7 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
     return switch (response.statusCode) {
       int() when _httpClient.status.isSuccess(response.statusCode) =>
         response.body as Map<String, dynamic>,
-      int() when _httpClient.status.isError(response.statusCode) =>
-        throw TokenException('This token is invalid or expired'),
+      401 => throw TokenException('This token is invalid or expired'),
       _ => throw HttpStatusException(response.statusCode, response.bodyString),
     };
   }

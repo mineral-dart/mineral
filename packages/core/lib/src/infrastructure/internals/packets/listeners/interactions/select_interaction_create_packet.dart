@@ -84,20 +84,22 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
     Map<String, dynamic> payload,
     DispatchEvent dispatch,
   ) async {
-    final guildChannels = await _dataStore.channel.fetch(
-      payload['guild_id'] as String,
-      false,
-    );
+    final guildId = payload['guild_id'] as String?;
+    Iterable<GuildChannel> channels = const [];
 
-    final data = payload['data'] as Map<String, dynamic>;
-    final resolvedData = data['resolved'] as Map<String, dynamic>;
-    final channelIds = Map.from(
-      resolvedData['channels'] as Map<dynamic, dynamic>,
-    ).keys;
+    if (guildId != null) {
+      final guildChannels = await _dataStore.channel.fetch(guildId, false);
 
-    final channels = channelIds
-        .map((id) => guildChannels[id])
-        .whereType<GuildChannel>();
+      final data = payload['data'] as Map<String, dynamic>;
+      final resolvedData = data['resolved'] as Map<String, dynamic>;
+      final channelIds = Map.from(
+        resolvedData['channels'] as Map<dynamic, dynamic>,
+      ).keys;
+
+      channels = channelIds
+          .map((id) => guildChannels[id])
+          .whereType<GuildChannel>();
+    }
 
     await _interactiveComponentManager.dispatch(ctx.customId, [ctx, channels]);
 
@@ -110,7 +112,10 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
         ),
         constraint: (String? customId) => customId == ctx.customId,
       ),
-      PrivateSelectContext() => null,
+      PrivateSelectContext() => _logger.trace(
+        'Channel select ${ctx.customId} in a DM: no private channel select '
+        'event exists, skipping dispatch',
+      ),
       _ => _logger.warn('Select context $ctx not found'),
     };
   }
@@ -133,6 +138,11 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
 
     final resolvedRoles = roleIds.map((id) => guildRoles[id]);
 
+    await _interactiveComponentManager.dispatch(ctx.customId, [
+      ctx,
+      resolvedRoles,
+    ]);
+
     dispatch<GuildRoleSelectArgs>(
       event: Event.guildRoleSelect,
       payload: (
@@ -141,11 +151,6 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
       ),
       constraint: (String? customId) => customId == ctx.customId,
     );
-
-    await _interactiveComponentManager.dispatch(ctx.customId, [
-      ctx,
-      resolvedRoles,
-    ]);
   }
 
   Future<void> _dispatchUserSelectMenu(
@@ -230,8 +235,8 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
         if (user != null) {
           mentionables.add(user);
         }
-      } else if (roles != null && roles[id] != null) {
-        final role = await _dataStore.role.get(guildId!, id, false);
+      } else if (guildId != null && roles != null && roles[id] != null) {
+        final role = await _dataStore.role.get(guildId, id, false);
         if (role != null) {
           mentionables.add(role);
         }
@@ -243,11 +248,19 @@ final class SelectInteractionCreatePacket implements ListenablePacket {
       mentionables,
     ]);
 
-    dispatch<GuildMentionableSelectArgs>(
-      event: Event.guildMentionableSelect,
-      payload: (ctx: ctx as GuildSelectContext, mentionables: mentionables),
-      constraint: (String? customId) => customId == ctx.customId,
-    );
+    return switch (ctx) {
+      GuildSelectContext() => dispatch<GuildMentionableSelectArgs>(
+        event: Event.guildMentionableSelect,
+        payload: (ctx: ctx, mentionables: mentionables),
+        constraint: (String? customId) => customId == ctx.customId,
+      ),
+      PrivateSelectContext() => dispatch<PrivateMentionableSelectArgs>(
+        event: Event.privateMentionableSelect,
+        payload: (ctx: ctx, mentionables: mentionables),
+        constraint: (String? customId) => customId == ctx.customId,
+      ),
+      _ => _logger.warn('Select context $ctx not found'),
+    };
   }
 
   Future<void> _dispatchTextSelectMenu(
