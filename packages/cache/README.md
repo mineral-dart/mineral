@@ -31,6 +31,22 @@ final client = ClientBuilder()
   .build();
 ```
 
+### Redis
+
+```dart
+.setCache(RedisProvider.fromEnvironment)
+```
+
+| Env key          | Required | Description                                              |
+| ---------------- | -------- | -------------------------------------------------------- |
+| `REDIS_HOST`     | yes      | Redis host.                                              |
+| `REDIS_PORT`     | yes      | Redis port.                                              |
+| `REDIS_PASSWORD` | yes      | Sent with `AUTH` after connecting.                       |
+| `REDIS_TLS`      | no       | `true` connects over TLS with certificate validation (default `false`). |
+
+Programmatically: `RedisProvider(host: ..., port: ..., password: ..., tls: true)`.
+Both providers accept an optional `logger:`; without one they use the container logger, or stay silent if none is bound yet.
+
 `setCache` accepts an optional `config:` to customize the runtime behavior:
 
 ```dart

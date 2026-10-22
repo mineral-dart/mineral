@@ -10,7 +10,7 @@ resolution: workspace
 
 dependencies:
   mineral: ^5.0.0
-  redis: ^4.0.0
+  redis: ^4.1.0
 
 dev_dependencies:
   lints: ^6.0.0
