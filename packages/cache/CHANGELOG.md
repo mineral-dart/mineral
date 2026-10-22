@@ -1,3 +1,11 @@
+## Unreleased
+
+- `MemoryProvider` and `RedisProvider` accept an optional `logger` and no
+  longer throw when used before the client is built
+- Add `tls` to `RedisProvider` (`REDIS_TLS` env key), using `connectSecure`
+- Require `redis` `^4.1.0`, the first version whose `connectSecure` validates
+  the server certificate
+
 ## 2.0.0
 
 - Enhance Redis provider

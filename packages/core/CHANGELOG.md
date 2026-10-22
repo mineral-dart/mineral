@@ -1,3 +1,38 @@
+# Unreleased
+
+Remediation of the 2026-10 audit (chantier #491).
+
+## Fixed
+
+- A thrown HTTP transport error (timeout, socket error past the retry cap)
+  left an orphaned `Completer` in `RequestBucket` and terminated the process;
+  the error now reaches the caller once (#492).
+- Global slash commands used inside a guild received a `GlobalCommandContext`
+  because the dispatcher read `data.guild_id` (the registration guild) instead
+  of the interaction `guild_id` (#493).
+- Slash commands invoked in a DM threw a `TypeError`: `GlobalCommandContext`
+  now reads the invoking `user`, with `member.user` as fallback (#501).
+- `Shard.onceEventQueue` retained every READY/GUILD_CREATE payload for the
+  life of the process; removed (#494).
+- `MemberSerializer` dropped `nickname`, `timeout` and `premiumType` after a
+  cache round trip; `GUILD_MEMBERS_CHUNK` completed the `members` target with
+  a presence and hung the caller on an empty chunk (#495).
+- A second reconnect could start during the backoff of the first, opening two
+  sockets on one shard; `send()` on a closed socket no longer re-fires
+  `onClose` (#496).
+- `ResilientHttpClient` retried POST/PATCH on 5xx, duplicating requests
+  Discord had already processed; only GET/PUT/DELETE are retried (#497).
+- `FakeCacheProvider` returned a single value from `whereKeyStartsWith` and
+  ignored TTLs; it now mirrors `MemoryProvider` (#498).
+- Webhook/interaction tokens no longer appear in decode-error messages; only
+  401 from `/gateway/bot` maps to `TokenException`; channel and mentionable
+  select menus work in DMs (#499).
+
+## Removed
+
+- `RequestExecutor`, `HttpEndpoint` and `RateLimitRegistry.delayFor` (no
+  callers).
+
 # 5.1.0
 
 First release since 5.0.0. It carries the `Server` → `Guild` rename, the
