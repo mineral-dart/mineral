@@ -40,18 +40,18 @@ final class GuildVoiceChannelFactory
       ctx,
       json,
     );
-    final voices =
-        await marshaller.cache!.whereKeyStartsWith(
-          'voice_states/guild/${properties.guildId}',
-        ) ??
-        {};
+    final keys = await marshaller.serializers.voiceStateIndex.keysFor(
+      properties.guildId!.value,
+    );
+    final voices = keys.isEmpty
+        ? const <Map<String, dynamic>?>[]
+        : await marshaller.cache!.getMany(keys);
     final List<VoiceState> members = [];
 
-    for (final voice in voices.values) {
-      if (voice['channel_id'].toString() == properties.id.value) {
-        final voiceState = await marshaller.serializers.voice.serialize(
-          voice as Map<String, dynamic>,
-        );
+    for (final voice in voices) {
+      if (voice != null &&
+          voice['channel_id'].toString() == properties.id.value) {
+        final voiceState = await marshaller.serializers.voice.serialize(voice);
         members.add(voiceState);
       }
     }

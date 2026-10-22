@@ -76,11 +76,7 @@ import 'package:mineral/src/infrastructure/internals/packets/listeners/thread_up
 import 'package:mineral/src/infrastructure/internals/packets/listeners/typing_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/user_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_channel_effect_send_packet.dart';
-import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_connect_packet.dart';
-import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_disconnect_packet.dart';
-import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_join_packet.dart';
-import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_leave_packet.dart';
-import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_move_packet.dart';
+import 'package:mineral/src/infrastructure/internals/packets/listeners/voice_state_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/listeners/webhooks_update_packet.dart';
 import 'package:mineral/src/infrastructure/internals/packets/packet_dispatcher.dart';
 
@@ -214,11 +210,7 @@ final class PacketListener implements PacketListenerContract {
     subscribe(ThreadDeletePacket(marshaller: m, dataStore: ds));
     subscribe(ThreadMembersUpdatePacket(marshaller: m, dataStore: ds));
 
-    subscribe(VoiceConnectPacket(marshaller: m));
-    subscribe(VoiceDisconnectPacket(marshaller: m));
-    subscribe(VoiceJoinPacket(marshaller: m));
-    subscribe(VoiceMovePacket(marshaller: m));
-    subscribe(VoiceLeavePacket(marshaller: m));
+    subscribe(VoiceStateUpdatePacket(marshaller: m));
     subscribe(VoiceChannelEffectSendPacket(dataStore: ds));
 
     subscribe(InviteCreatePacket(marshaller: m));

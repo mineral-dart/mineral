@@ -37,6 +37,7 @@ import 'package:mineral/src/infrastructure/internals/marshaller/serializers/user
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/voice_state_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/serializers/webhook_serializer.dart';
 import 'package:mineral/src/infrastructure/internals/marshaller/types/serializer.dart';
+import 'package:mineral/src/infrastructure/internals/marshaller/voice_state_index.dart';
 
 final class SerializerBucket {
   final SerializerContract<Channel> channels;
@@ -66,6 +67,8 @@ final class SerializerBucket {
 
   final SerializerContract<VoiceState> voice;
 
+  final VoiceStateIndex voiceStateIndex;
+
   final SerializerContract<MessageReaction> reaction;
 
   final SerializerContract<PollAnswerVote> pollAnswerVote;
@@ -91,6 +94,10 @@ final class SerializerBucket {
       embed = EmbedSerializer(marshaller),
       poll = PollSerializer(marshaller),
       voice = VoiceStateSerializer(marshaller, ctx),
+      voiceStateIndex = VoiceStateIndex(
+        cache: marshaller.cache,
+        cacheKey: marshaller.cacheKey,
+      ),
       reaction = MessageReactionSerializer(marshaller, ctx),
       pollAnswerVote = PollAnswerVoteSerializer(marshaller, ctx),
       rules = RuleSerializer(marshaller),
