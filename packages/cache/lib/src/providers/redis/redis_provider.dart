@@ -81,8 +81,8 @@ final class RedisProvider implements CacheProviderContract {
 
   @override
   Future<int> length() async {
-    final keys = await _scanKeys();
-    return keys.length;
+    final size = await Command(_connection).send_object(buildDbSizeCommand());
+    return size as int;
   }
 
   /// Scans all keys in the current database using the non-blocking SCAN command.
@@ -226,11 +226,18 @@ final class RedisProvider implements CacheProviderContract {
       return;
     }
 
-    for (final entry in objects.entries) {
-      await Command(_connection).send_object(
-        buildSetCommand(entry.key, jsonEncode(entry.value), keyTtls[entry.key]),
-      );
-    }
+    final command = Command(_connection);
+    await Future.wait(
+      objects.entries.map(
+        (entry) => command.send_object(
+          buildSetCommand(
+            entry.key,
+            jsonEncode(entry.value),
+            keyTtls[entry.key],
+          ),
+        ),
+      ),
+    );
   }
 
   @override

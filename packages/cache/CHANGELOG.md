@@ -1,5 +1,9 @@
 ## Unreleased
 
+- `RedisProvider.putMany` with a TTL pipelines its `SET … PX` commands instead
+  of awaiting each one, and `length()` uses `DBSIZE` instead of scanning the
+  keyspace
+
 - `MemoryProvider` and `RedisProvider` accept an optional `logger` and no
   longer throw when used before the client is built
 - Add `tls` to `RedisProvider` (`REDIS_TLS` env key), using `connectSecure`
