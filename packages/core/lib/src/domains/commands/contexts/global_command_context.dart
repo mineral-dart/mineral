@@ -23,16 +23,24 @@ final class GlobalCommandContext extends CommandContext {
     EntityContext ctx,
     Map<String, dynamic> payload,
   ) async {
-    final memberMap = payload['member'] as Map<String, dynamic>;
-    final memberUser = memberMap['user'] as Map<String, dynamic>;
+    final memberMap = payload['member'] as Map<String, dynamic>?;
+    final invoker =
+        payload['user'] as Map<String, dynamic>? ??
+        memberMap?['user'] as Map<String, dynamic>?;
+    if (invoker == null) {
+      throw StateError(
+        'Cannot build GlobalCommandContext: interaction has neither '
+        '`user` nor `member.user`',
+      );
+    }
     final (user, channel) = await (
-      datastore.user.get(memberUser['id'] as String, false),
+      datastore.user.get(invoker['id'] as String, false),
       datastore.channel.get(payload['channel_id'] as String, false),
     ).wait;
 
     if (user == null) {
       throw StateError(
-        'Cannot build GlobalCommandContext: user ${memberUser['id']} '
+        'Cannot build GlobalCommandContext: user ${invoker['id']} '
         'not found in cache',
       );
     }
