@@ -228,13 +228,6 @@ void main() {
       expect(shard.shardIndex, equals(2));
       expect(shard.shardCount, equals(4));
     });
-
-    test('onceEventQueue starts empty', () {
-      final shard = _shard(strategy: FakeRunningStrategy());
-      shard.authentication.cancelHeartbeat();
-
-      expect(shard.onceEventQueue, isEmpty);
-    });
   });
 
   // ── Shard dispatch integration: ShardData → strategy ────────────────────

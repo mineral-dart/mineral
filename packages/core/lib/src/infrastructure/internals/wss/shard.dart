@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/domains/common/utils/redact.dart';
 import 'package:mineral/src/domains/services/wss/constants/op_code.dart';
 import 'package:mineral/src/domains/services/wss/running_strategy.dart';
-import 'package:mineral/src/infrastructure/internals/packets/packet_type.dart';
 import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_authentication.dart';
 import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_data.dart';
 import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_network_error.dart';
@@ -15,9 +13,6 @@ import 'package:mineral/src/infrastructure/services/wss/websocket_client.dart';
 import 'package:mineral/src/infrastructure/services/wss/websocket_message.dart';
 
 final class Shard implements ShardContract {
-  @override
-  final Queue<Map<String, dynamic>> onceEventQueue = Queue();
-
   @override
   final String shardName;
 
@@ -156,17 +151,6 @@ final class Shard implements ShardContract {
               );
             }
           case OpCode.dispatch:
-            if ([
-              PacketType.ready.name,
-              PacketType.guildCreate.name,
-            ].contains((message.content as ShardMessage).type)) {
-              final decoded = wss.config.encoding.decode(message);
-              onceEventQueue.add(
-                (decoded.content as ShardMessage).serialize()
-                    as Map<String, dynamic>,
-              );
-            }
-
             dispatchEvent.dispatch(message);
           case OpCode.heartbeat:
             unawaited(
