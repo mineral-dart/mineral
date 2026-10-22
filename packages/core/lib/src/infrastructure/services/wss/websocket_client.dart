@@ -158,8 +158,8 @@ final class WebsocketClientImpl implements WebsocketClient {
         } else {
           _sendQueue.add(interceptedMessage.content as String);
         }
-      case io.WebSocket.closed when _onClose != null:
-        _onClose(_channel?.closeCode);
+      case io.WebSocket.closed:
+        _logger.warn('$name: dropping outbound message, socket closed');
     }
   }
 

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:mineral/src/infrastructure/internals/wss/dispatchers/shard_authentication.dart';
 import 'package:mineral/src/infrastructure/internals/wss/shard.dart';
+import 'package:mineral/src/infrastructure/services/wss/websocket_client.dart';
 import 'package:mineral/src/testing/fake_logger.dart';
 import 'package:test/test.dart';
 
@@ -324,6 +326,43 @@ void main() {
 
         expect(fakeClient.lastDisconnectCode, equals(4900));
       });
+    });
+  });
+
+  group('WebsocketClientImpl.send on a closed socket', () {
+    test('never invokes onClose and logs a warning', () async {
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      addTearDown(() => server.close(force: true));
+      server.listen((request) async {
+        final socket = await WebSocketTransformer.upgrade(request);
+        await socket.close(4000);
+      });
+
+      final testIoc = createTestIoc();
+      addTearDown(testIoc.restore);
+      final closes = <int?>[];
+      final closed = Completer<void>();
+      final client = WebsocketClientImpl(
+        url: 'ws://127.0.0.1:${server.port}',
+        logger: testIoc.logger,
+        onClose: (code) {
+          closes.add(code);
+          if (!closed.isCompleted) {
+            closed.complete();
+          }
+        },
+      );
+
+      await client.connect();
+      await closed.future.timeout(const Duration(seconds: 5));
+      closes.clear();
+      await client.send('{"op":1}');
+
+      expect(closes, isEmpty);
+      expect(
+        testIoc.logger.warnings,
+        contains(contains('dropping outbound message')),
+      );
     });
   });
 }

@@ -23,6 +23,15 @@ final class ShardAuthentication implements ShardAuthenticationContract {
   int _reconnectAttempts = 0;
   bool _pendingResume = false;
 
+  /// True while a reconnect/resume attempt is pending (from entry of
+  /// [_reconnectWithStrategy] until just before `shard.init` builds the new
+  /// socket). Distinct from [intentionalDisconnect] and [shuttingDown]: it
+  /// only de-duplicates triggers that arrive during the disconnect/backoff
+  /// window, so a second one cannot open a second socket. It is released
+  /// before `shard.init` on purpose: a failure of the new connection must
+  /// still be able to schedule the next attempt (see chantier A5).
+  bool _reconnecting = false;
+
   /// True only for the brief window in which [_reconnectWithStrategy] is
   /// closing the *current* socket to start a reconnect/resume attempt.
   /// It masks the close/error events that self-disconnect triggers so they
@@ -163,48 +172,59 @@ final class ShardAuthentication implements ShardAuthenticationContract {
     String? url,
   }) async {
     final logger = shard.logger;
-    final maxAttempts = shard.wss.config.maxReconnectAttempts;
-
-    cancelHeartbeat();
-    if (resume) {
-      _pendingResume = true;
+    if (_reconnecting) {
+      logger.trace('$action ${shard.shardName} skipped, attempt in flight');
+      return;
     }
-    attempts = 0;
-
-    // Only mask the close/error events caused by disconnecting the
-    // *current* socket below — not the outcome of the new connection
-    // attempt further down. See the `intentionalDisconnect` doc comment.
-    intentionalDisconnect = true;
+    _reconnecting = true;
     try {
-      await shard.client.disconnect(code: _internalCloseCode);
+      final maxAttempts = shard.wss.config.maxReconnectAttempts;
+
+      cancelHeartbeat();
+      if (resume) {
+        _pendingResume = true;
+      }
+      attempts = 0;
+
+      // Only mask the close/error events caused by disconnecting the
+      // *current* socket below — not the outcome of the new connection
+      // attempt further down. See the `intentionalDisconnect` doc comment.
+      intentionalDisconnect = true;
+      try {
+        await shard.client.disconnect(code: _internalCloseCode);
+      } finally {
+        intentionalDisconnect = false;
+      }
+
+      _reconnectAttempts++;
+
+      if (_reconnectAttempts > maxAttempts) {
+        logger.error(
+          'Max reconnect attempts ($maxAttempts) reached for ${shard.shardName}',
+        );
+        throw FatalGatewayException(
+          'Max reconnect attempts ($maxAttempts) reached',
+          -1,
+        );
+      }
+
+      final delay = _backoffDelay();
+      logger.warn(
+        '$action ${shard.shardName} in ${delay.inSeconds}s (attempt $_reconnectAttempts/$maxAttempts)',
+      );
+      await Future<void>.delayed(delay);
+
+      _reconnecting = false;
+
+      // `url` is only ever passed explicitly by `resume()` (the bare
+      // `resume_gateway_url`); `reconnect()`/`resetConnection()` pass none and
+      // fall back to the shard's existing (already fully-qualified) `url`.
+      await shard.init(
+        url: url != null ? shard.wss.config.gatewayUrl(url) : null,
+      );
     } finally {
-      intentionalDisconnect = false;
+      _reconnecting = false;
     }
-
-    _reconnectAttempts++;
-
-    if (_reconnectAttempts > maxAttempts) {
-      logger.error(
-        'Max reconnect attempts ($maxAttempts) reached for ${shard.shardName}',
-      );
-      throw FatalGatewayException(
-        'Max reconnect attempts ($maxAttempts) reached',
-        -1,
-      );
-    }
-
-    final delay = _backoffDelay();
-    logger.warn(
-      '$action ${shard.shardName} in ${delay.inSeconds}s (attempt $_reconnectAttempts/$maxAttempts)',
-    );
-    await Future<void>.delayed(delay);
-
-    // `url` is only ever passed explicitly by `resume()` (the bare
-    // `resume_gateway_url`); `reconnect()`/`resetConnection()` pass none and
-    // fall back to the shard's existing (already fully-qualified) `url`.
-    await shard.init(
-      url: url != null ? shard.wss.config.gatewayUrl(url) : null,
-    );
   }
 
   @override
