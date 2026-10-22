@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 // `Header` is hidden: `domains/services/http/http.dart` (re-exported here)
 // declares its own contract-level `Header` class distinct from the
@@ -84,8 +85,74 @@ final class _GatedHttpClient implements HttpClientContract {
       _dispatch<T>(r.method ?? 'SEND', r);
 }
 
+final class _ThrowingHttpClient implements HttpClientContract {
+  final Object error;
+
+  _ThrowingHttpClient(this.error);
+
+  @override
+  HttpClientStatus get status => HttpClientStatusImpl();
+
+  @override
+  HttpInterceptor get interceptor => HttpInterceptorImpl();
+
+  @override
+  HttpClientConfig get config => throw UnimplementedError();
+
+  Future<Response<T>> _fail<T>() => Future<Response<T>>.error(error);
+
+  @override
+  Future<Response<T>> get<T>(RequestContract r) => _fail<T>();
+
+  @override
+  Future<Response<T>> post<T>(RequestContract r) => _fail<T>();
+
+  @override
+  Future<Response<T>> put<T>(RequestContract r) => _fail<T>();
+
+  @override
+  Future<Response<T>> patch<T>(RequestContract r) => _fail<T>();
+
+  @override
+  Future<Response<T>> delete<T>(RequestContract r) => _fail<T>();
+
+  @override
+  Future<Response<T>> send<T>(RequestContract r) => _fail<T>();
+}
+
 void main() {
   group('RequestBucket', () {
+    group('transport failures (#492)', () {
+      test('surfaces the transport exception once, leaves nothing unhandled, '
+          'and clears the queue', () async {
+        final bucket = RequestBucket(
+          _ThrowingHttpClient(TimeoutException('boom')),
+          logger: FakeLogger(),
+        );
+
+        await expectLater(
+          bucket.get<Map<String, dynamic>>(Request.json(endpoint: '/foo')),
+          throwsA(isA<TimeoutException>()),
+        );
+        await Future<void>.delayed(Duration.zero);
+
+        expect(bucket.queue, isEmpty);
+      });
+
+      test('a SocketException reaches the caller unchanged', () async {
+        final bucket = RequestBucket(
+          _ThrowingHttpClient(const SocketException('down')),
+          logger: FakeLogger(),
+        );
+
+        await expectLater(
+          bucket.post<Map<String, dynamic>>(Request.json(endpoint: '/foo')),
+          throwsA(isA<SocketException>()),
+        );
+        await Future<void>.delayed(Duration.zero);
+      });
+    });
+
     late FakeLogger logger;
 
     setUp(() {

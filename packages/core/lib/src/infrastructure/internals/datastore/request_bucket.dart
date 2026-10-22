@@ -142,6 +142,11 @@ final class QueueableRequest<T> {
       completer.completeError(
         HttpException('Rate limit retry cap ($_maxRateLimitRetries) reached'),
       );
+    } on Object catch (error, stackTrace) {
+      if (!completer.isCompleted) {
+        status = QueueableRequestStatus.error;
+        completer.completeError(error, stackTrace);
+      }
     } finally {
       bucket.queue.remove(this);
       if (!completer.isCompleted) {
