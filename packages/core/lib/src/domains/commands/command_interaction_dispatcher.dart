@@ -98,7 +98,7 @@ final class CommandInteractionDispatcher
       return;
     }
 
-    final guildId = Snowflake.nullable(dataData['guild_id'] as String?);
+    final guildId = Snowflake.nullable(data['guild_id'] as String?);
     final commandContext = await switch (guildId) {
       String() => GuildCommandContext.fromMap(
         _marshaller,
