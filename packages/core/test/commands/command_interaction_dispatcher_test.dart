@@ -1,5 +1,6 @@
 import 'package:mineral/api.dart';
 import 'package:mineral/contracts.dart';
+import 'package:mineral/src/api/common/permissions.dart';
 import 'package:mineral/src/domains/commands/command_interaction_dispatcher.dart';
 import 'package:mineral/src/domains/common/entity_context.dart';
 import 'package:mocktail/mocktail.dart';
@@ -11,6 +12,7 @@ import '../helpers/fake_marshaller.dart';
 import '../helpers/fake_websocket_orchestrator.dart';
 import '../helpers/ioc_test_helper.dart';
 import '../helpers/mocks.dart';
+import '../packets/helpers/packet_test_helpers.dart';
 
 /// Builds a [MockDataStore] pre-stubbed with channel (returns null) and user
 /// (returns a minimal User) — the only parts exercised by the dispatcher tests.
@@ -58,6 +60,61 @@ final class _FakeUserPart implements UserPartContract {
       presence: null,
     );
   }
+}
+
+const _guildId = '123456789012345678';
+const _memberId = '444444444444444444';
+
+final class _RecordingMemberPart extends Mock implements MemberPartContract {
+  final Member _member;
+  final List<String> calls = [];
+  _RecordingMemberPart(this._member);
+
+  @override
+  Future<Member?> get(Object guildId, Object id, bool force) async {
+    calls.add('$guildId/$id');
+    return _member;
+  }
+}
+
+final class _RecordingUserPart implements UserPartContract {
+  final UserPartContract _inner;
+  final List<String> calls = [];
+  _RecordingUserPart(this._inner);
+
+  @override
+  Future<User?> get(Object id, bool force) {
+    calls.add(id.toString());
+    return _inner.get(id, force);
+  }
+}
+
+Member _buildMember(EntityContext ctx) {
+  final memberId = Snowflake.parse(_memberId);
+  final guildId = Snowflake.parse(_guildId);
+  return Member(
+    ctx: ctx,
+    id: memberId,
+    username: 'testuser',
+    nickname: null,
+    globalName: null,
+    discriminator: null,
+    assets: MemberAssets(avatar: null, avatarDecoration: null, banner: null),
+    flags: MemberFlagsManager([], ctx: ctx),
+    premiumSince: null,
+    publicFlags: null,
+    roles: MemberRoleManager([], guildId, memberId, ctx: ctx),
+    isBot: false,
+    isPending: false,
+    timeout: MemberTimeout(duration: null),
+    mfaEnabled: false,
+    locale: null,
+    premiumType: PremiumTier.none,
+    joinedAt: null,
+    permissions: Permissions.fromInt(0),
+    accentColor: null,
+    guildId: guildId,
+  );
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────────
@@ -507,6 +564,99 @@ void main() {
         });
 
         expect(receivedValue, equals('Alice'));
+      });
+    });
+
+    group('context selection', () {
+      late _RecordingMemberPart memberPart;
+      late _RecordingUserPart userPart;
+      late CommandInteractionDispatcher scoped;
+
+      setUp(() {
+        final ds = MockDataStore();
+        final ctx = buildCtx(dataStore: ds);
+        final channelPart = MockChannelPart();
+        when(
+          () => channelPart.get<Channel>(any(), any()),
+        ).thenAnswer((_) async => null);
+        memberPart = _RecordingMemberPart(_buildMember(ctx));
+        userPart = _RecordingUserPart(_FakeUserPart(ctx));
+        when(() => ds.channel).thenReturn(channelPart);
+        when(() => ds.member).thenReturn(memberPart);
+        when(() => ds.user).thenReturn(userPart);
+        when(
+          () => ds.guild,
+        ).thenReturn(FakeGuildPart(buildMinimalGuild(_guildId, ctx)));
+
+        scoped = CommandInteractionDispatcher(
+          manager,
+          marshaller: FakeMarshaller(logger: logger),
+          dataStore: ds,
+          ctx: ctx,
+        );
+      });
+
+      Map<String, dynamic> payload({required bool inGuild}) => {
+        'id': '111111111111111111',
+        'application_id': '222222222222222222',
+        'token': 'fake-token',
+        'version': 1,
+        'channel_id': '333333333333333333',
+        if (inGuild) 'guild_id': _guildId,
+        'member': {
+          'user': {'id': _memberId},
+        },
+        'data': {
+          'name': 'whois',
+          'options': [
+            {'name': 'target', 'type': 6, 'value': '555555555555555555'},
+          ],
+        },
+      };
+
+      test('global command used in a guild yields GuildCommandContext and '
+          'resolves user options as members', () async {
+        Object? received;
+        Object? target;
+        manager.commandsHandler.add(
+          CommandRegistration(
+            name: 'whois',
+            handler: (ctx, opts) {
+              received = ctx;
+              target = (opts as CommandOptions).get<Object>('target');
+            },
+            declaredOptions: [],
+          ),
+        );
+
+        await scoped.dispatch(payload(inGuild: true));
+
+        expect(received, isA<GuildCommandContext>());
+        expect(target, isA<Member>());
+        expect(memberPart.calls, contains('$_guildId/555555555555555555'));
+        expect(userPart.calls, isEmpty);
+      });
+
+      test('command without top-level guild_id yields GlobalCommandContext '
+          'and resolves user options as users', () async {
+        Object? received;
+        Object? target;
+        manager.commandsHandler.add(
+          CommandRegistration(
+            name: 'whois',
+            handler: (ctx, opts) {
+              received = ctx;
+              target = (opts as CommandOptions).get<Object>('target');
+            },
+            declaredOptions: [],
+          ),
+        );
+
+        await scoped.dispatch(payload(inGuild: false));
+
+        expect(received, isA<GlobalCommandContext>());
+        expect(target, isA<User>());
+        expect(userPart.calls, contains('555555555555555555'));
       });
     });
   });
