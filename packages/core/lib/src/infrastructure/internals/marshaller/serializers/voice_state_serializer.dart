@@ -25,11 +25,11 @@ final class VoiceStateSerializer implements SerializerContract<VoiceState> {
       'request_to_speak_timestamp': json['request_to_speak_timestamp'],
     };
 
-    final cacheKey = _marshaller.cacheKey.voiceState(
-      json['guild_id'] as String,
-      json['user_id'] as String,
-    );
+    final guildId = json['guild_id'] as String;
+    final userId = json['user_id'] as String;
+    final cacheKey = _marshaller.cacheKey.voiceState(guildId, userId);
     await _marshaller.cache?.put(cacheKey, payload);
+    await _marshaller.serializers.voiceStateIndex.add(guildId, userId);
 
     return payload;
   }

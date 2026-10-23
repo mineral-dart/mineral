@@ -49,6 +49,9 @@ final class CacheKey {
   String voiceState(Object guildId, Object userId) =>
       'voice_states/${member(guildId, userId)}';
 
+  String voiceStateIndex(Object guildId) =>
+      'voice_states/${guild(guildId)}/index';
+
   String invite(String code) => 'invites/$code';
 
   String userAssets(Object userId, {bool ref = false}) {

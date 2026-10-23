@@ -149,6 +149,19 @@ void main() {
       });
     });
 
+    group('voiceStateIndex', () {
+      test('generates the per-guild index key', () {
+        expect(cacheKey.voiceStateIndex('123'), 'voice_states/guild/123/index');
+      });
+
+      test('differs from voiceState keys', () {
+        expect(
+          cacheKey.voiceStateIndex('123'),
+          isNot(cacheKey.voiceState('123', 'index')),
+        );
+      });
+    });
+
     group('invite', () {
       test('generates invite key', () {
         expect(cacheKey.invite('abc123'), 'invites/abc123');
