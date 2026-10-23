@@ -17,6 +17,9 @@ List<String> buildSetCommand(String key, String value, Duration? ttl) {
   return ['SET', key, value, 'PX', ttl.inMilliseconds.toString()];
 }
 
+/// Builds a `DBSIZE` command returning the key count of the current database.
+List<String> buildDbSizeCommand() => ['DBSIZE'];
+
 /// Builds an `MSET` command for atomic multi-key writes without TTL.
 ///
 /// Redis `MSET` does not accept `EX`/`PX`, so callers must use a sequence of

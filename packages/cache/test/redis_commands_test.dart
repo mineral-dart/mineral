@@ -54,6 +54,12 @@ void main() {
     });
   });
 
+  group('buildDbSizeCommand', () {
+    test('is a bare DBSIZE', () {
+      expect(buildDbSizeCommand(), ['DBSIZE']);
+    });
+  });
+
   group('buildMsetCommand', () {
     test('flattens entries into key/value pairs', () {
       expect(buildMsetCommand({'a': '1', 'b': '2'}), [
