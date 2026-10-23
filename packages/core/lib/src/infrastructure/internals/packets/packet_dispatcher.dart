@@ -23,16 +23,13 @@ final class PacketDispatcher implements PacketDispatcherContract {
   @override
   void listen(
     PacketTypeContract packet,
-    Function(ShardMessage, DispatchEvent) listener,
+    FutureOr<void> Function(ShardMessage, DispatchEvent) listener,
   ) {
     final controller = _controllerFor(packet.name);
 
     final subscription = controller.stream.listen((ShardMessage message) async {
       try {
-        await Function.apply(listener, [
-          message,
-          _kernel.eventListener.dispatcher.dispatch,
-        ]);
+        await listener(message, _kernel.eventListener.dispatcher.dispatch);
       } on Exception catch (e, stackTrace) {
         _kernel.logger.error(
           'PacketDispatcher: error in listener for ${message.type}: $e',

@@ -183,9 +183,7 @@ void main() {
   group('RateLimitRegistry — bounded via eviction (A21)', () {
     test('a bucket whose resetAt is long past the grace period is evicted '
         'on the next mutation, freeing both the bucket and route entries', () {
-      final registry = RateLimitRegistry(
-        staleGrace: const Duration(seconds: 1),
-      );
+      final registry = RateLimitRegistry(staleGrace: Duration.zero);
       final staleRoute = RouteKey(
         'GET',
         '/channels/111111111111111111/messages',

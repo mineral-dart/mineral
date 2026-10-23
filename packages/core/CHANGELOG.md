@@ -28,6 +28,24 @@ Remediation of the 2026-10 audit (chantier #491).
   401 from `/gateway/bot` maps to `TokenException`; channel and mentionable
   select menus work in DMs (#499).
 
+## Performance (chantier #503)
+
+- The gateway trace payload is redacted lazily: 25 ms per 775 KB
+  `GUILD_CREATE` (vs 3 ms to parse) no longer burned on every frame when
+  `LOG_LEVEL` is above trace (#504).
+- `registerServer` skips the guild-command `PUT` when there is no guild
+  command or the payload is unchanged since the last successful `PUT` (#506).
+- One `VoiceStateUpdatePacket` replaces the five voice listeners: one cache
+  read and at most one write per event; a channel move no longer wipes the
+  cached state (#508).
+- Voice channels read their members from a per-guild voice-state index
+  instead of scanning the whole keyspace; the old prefix also matched other
+  guilds (#505, #509).
+- `ResponseImpl.uri` is redacted; transport errors are rethrown as
+  `HttpException` with a redacted route; the reconnect guard times out a
+  hanging `disconnect()`; typed packet listener calls; throttled rate-limit
+  eviction; `int` shard math (#510).
+
 ## Removed
 
 - `RequestExecutor`, `HttpEndpoint` and `RateLimitRegistry.delayFor` (no

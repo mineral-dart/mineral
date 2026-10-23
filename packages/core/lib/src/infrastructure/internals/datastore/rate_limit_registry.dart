@@ -52,6 +52,7 @@ final class RateLimitRegistry {
   final Map<String, String> _routeToBucket = {};
   final Map<String, BucketState> _buckets = {};
   DateTime? _globalLockedUntil;
+  DateTime? _lastEviction;
 
   RateLimitRegistry({Duration staleGrace = const Duration(minutes: 15)})
     : _staleGrace = staleGrace;
@@ -191,6 +192,11 @@ final class RateLimitRegistry {
   /// memory footprint across a long-running process (A21).
   void _evictStale() {
     final now = DateTime.now();
+    final last = _lastEviction;
+    if (last != null && now.difference(last) < _staleGrace) {
+      return;
+    }
+    _lastEviction = now;
     final staleIds = <String>{
       for (final entry in _buckets.entries)
         if (now.isAfter(entry.value.resetAt.add(_staleGrace))) entry.key,

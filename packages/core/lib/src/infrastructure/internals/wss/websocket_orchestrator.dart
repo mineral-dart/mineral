@@ -138,13 +138,15 @@ final class WebsocketOrchestrator implements WebsocketOrchestratorContract {
 
   /// Returns the shard index responsible for a given guild.
   /// Formula: shard_id = (guild_id >> 22) % num_shards
-  int _shardForGuild(String guildId) {
-    final id = BigInt.parse(guildId);
-    if (shards.isEmpty) {
+  static int shardIndexForGuild(String guildId, int shardCount) {
+    if (shardCount <= 0) {
       return 0;
     }
-    return ((id >> 22) % BigInt.from(shards.length)).toInt();
+    return (int.parse(guildId) >> 22) % shardCount;
   }
+
+  int _shardForGuild(String guildId) =>
+      shardIndexForGuild(guildId, shards.length);
 
   @override
   Future<Presence> getMemberPresence(String guildId, String id) {
