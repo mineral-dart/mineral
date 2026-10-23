@@ -124,6 +124,12 @@ Bot _buildBot({String id = '999999999999999999'}) => Bot.fromJson({
   'application': {'id': id, 'flags': 0},
 }, wss: FakeWebsocketOrchestrator());
 
+CommandDeclarationBuilder _guildCommand([String name = 'guild-chat']) =>
+    CommandDeclarationBuilder()
+      ..setName(name)
+      ..setDescription('desc')
+      ..setHandle((ctx, opts) {});
+
 // ── Tests ────────────────────────────────────────────────────────────────────
 
 void main() {
@@ -164,7 +170,7 @@ void main() {
           marshaller: marshaller,
         );
 
-        await manager.registerServer(bot, guild);
+        await (manager..addCommand(_guildCommand())).registerServer(bot, guild);
 
         expect(bucket.putCalls, equals(1));
         expect(
@@ -217,7 +223,10 @@ void main() {
           );
 
           await expectLater(
-            () => manager.registerServer(bot, guild),
+            () => (manager..addCommand(_guildCommand())).registerServer(
+              bot,
+              guild,
+            ),
             throwsA(
               isA<InvalidCommandException>()
                   .having((e) => e.message, 'message', contains('$status'))
@@ -254,7 +263,7 @@ void main() {
           marshaller: marshaller,
         );
 
-        await manager.registerServer(bot, guild);
+        await (manager..addCommand(_guildCommand())).registerServer(bot, guild);
       });
     });
 
@@ -332,7 +341,8 @@ void main() {
         );
 
         await expectLater(
-          () => manager.registerServer(bot, guild),
+          () =>
+              (manager..addCommand(_guildCommand())).registerServer(bot, guild),
           throwsA(
             isA<InvalidCommandException>().having(
               (e) => e.message,
@@ -356,6 +366,87 @@ void main() {
 
         await manager.registerGlobal(bot);
       });
+    });
+  });
+
+  group('registerServer skips redundant PUTs (#506)', () {
+    late Bot bot;
+    late _RecordingRequestBucket bucket;
+    late CommandInteractionManager manager;
+
+    Guild guildOf(String id) => buildMinimalGuild(id, fakeEntityContext());
+
+    setUp(() {
+      bot = _buildBot();
+      bucket = _RecordingRequestBucket();
+      final dataStore = _RoutingDataStore(bucket);
+      manager = _buildManager(
+        dataStore: dataStore,
+        marshaller: FakeMarshaller(dataStore: dataStore),
+      );
+    });
+
+    test('no guild command issues no PUT', () async {
+      manager.addCommand(
+        _guildCommand('only-global')..setContext(CommandContextType.global),
+      );
+
+      await manager.registerServer(bot, guildOf('222222222222222222'));
+
+      expect(bucket.putCalls, equals(0));
+    });
+
+    test('no command at all issues no PUT', () async {
+      await manager.registerServer(bot, guildOf('222222222222222222'));
+
+      expect(bucket.putCalls, equals(0));
+    });
+
+    test('same guild, same commands: one PUT', () async {
+      manager.addCommand(_guildCommand());
+      final guild = guildOf('222222222222222222');
+
+      await manager.registerServer(bot, guild);
+      await manager.registerServer(bot, guild);
+
+      expect(bucket.putCalls, equals(1));
+    });
+
+    test('a failed PUT is retried on the next call', () async {
+      manager.addCommand(_guildCommand());
+      final guild = guildOf('222222222222222222');
+
+      bucket.failWith = FakeResponse<dynamic>(500, {'message': 'boom'});
+      await expectLater(
+        () => manager.registerServer(bot, guild),
+        throwsA(isA<InvalidCommandException>()),
+      );
+
+      bucket.failWith = null;
+      await manager.registerServer(bot, guild);
+      await manager.registerServer(bot, guild);
+
+      expect(bucket.putCalls, equals(2));
+    });
+
+    test('different guilds each get their own PUT', () async {
+      manager.addCommand(_guildCommand());
+
+      await manager.registerServer(bot, guildOf('222222222222222222'));
+      await manager.registerServer(bot, guildOf('333333333333333333'));
+      await manager.registerServer(bot, guildOf('333333333333333333'));
+
+      expect(bucket.putCalls, equals(2));
+    });
+
+    test('changed commands for a known guild are PUT again', () async {
+      final guild = guildOf('222222222222222222');
+      await (manager..addCommand(_guildCommand())).registerServer(bot, guild);
+
+      manager.addCommand(_guildCommand('another'));
+      await manager.registerServer(bot, guild);
+
+      expect(bucket.putCalls, equals(2));
     });
   });
 

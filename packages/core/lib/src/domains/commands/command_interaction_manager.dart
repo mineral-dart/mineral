@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:mineral/contracts.dart';
 import 'package:mineral/src/api/common/bot/bot.dart';
@@ -54,6 +55,8 @@ final class CommandInteractionManager
   /// Registry: root command name → option name → handler.
   final Map<String, Map<String, AutocompleteHandler>> _autocompleteHandlers =
       {};
+
+  final Map<String, String> _registeredGuildPayloads = {};
 
   CommandInteractionManager._();
 
@@ -267,7 +270,18 @@ final class CommandInteractionManager
     final List<CommandBuilder> guildCommands = _getContext(
       CommandContextType.guild,
     );
+
+    if (guildCommands.isEmpty) {
+      return;
+    }
+
     final payload = _serializeCommand(guildCommands);
+    final fingerprint = jsonEncode(payload);
+    final guildKey = '${guild.id}';
+
+    if (_registeredGuildPayloads[guildKey] == fingerprint) {
+      return;
+    }
 
     final req = Request.json(
       endpoint: '/applications/${bot.id}/guilds/${guild.id}/commands',
@@ -284,6 +298,8 @@ final class CommandInteractionManager
       onError: (response) =>
           _registrationFailure(response, scope: 'guild ${guild.id}'),
     );
+
+    _registeredGuildPayloads[guildKey] = fingerprint;
   }
 
   /// Builds the exception raised when Discord rejects a command-registration
