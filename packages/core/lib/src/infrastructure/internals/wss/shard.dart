@@ -72,7 +72,9 @@ final class Shard implements ShardContract {
       onOpen: (message) {
         if (message.content case ShardMessage(:final payload)) {
           logger.trace(
-            jsonEncode(redactSensitiveFields(payload as Map<String, dynamic>)),
+            () => jsonEncode(
+              redactSensitiveFields(payload as Map<String, dynamic>),
+            ),
           );
         }
       },
@@ -80,22 +82,26 @@ final class Shard implements ShardContract {
 
     client.interceptor.message
       ..add(wss.config.encoding.decode)
-      ..add((WebsocketMessage message) {
-        final logPayload = message.content.payload;
-        logger.trace({
-          'shard': shardName,
-          'message': logPayload is Map<String, dynamic>
-              ? redactSensitiveFields(logPayload)
-              : logPayload,
-        });
-        return message;
-      });
+      ..add(traceInbound);
 
     client.interceptor.request.add(wss.config.encoding.encode);
 
     await client.listen(handleGatewayMessage);
 
     await authentication.connect();
+  }
+
+  WebsocketMessage traceInbound(WebsocketMessage message) {
+    final logPayload = message.content.payload;
+    logger.trace(
+      () => {
+        'shard': shardName,
+        'message': logPayload is Map<String, dynamic>
+            ? redactSensitiveFields(logPayload)
+            : logPayload,
+      },
+    );
+    return message;
   }
 
   /// Routes a single decoded gateway message by opcode.
